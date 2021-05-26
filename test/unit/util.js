@@ -46,12 +46,28 @@ describe('Util', () => {
   });
   describe('Transaction', () => {
     it('should create a transaction', () => {
-      const wallet = new Wallet();
-      const transaction = new Transaction();
-      transaction.sign(wallet.privateKey);
-    
-      // console.log(transaction)
-      // console.log(header.hash())
+      const sender = new Wallet();
+      const receiver = new Wallet();
+
+      const transaction = new Transaction(
+        sender.getKeysBuffer().publicKey, receiver.getKeysBuffer().publicKey, 0, 0
+      );
+
+      transaction.sign(sender.privateKey);
+      expect(transaction.getSignature()).to.have.length(66);
+
+      expect(transaction.verify()).to.equal(true);
+
     });
+    // it('should create a coinbase transaction', () => {
+    //   const receiver = new Wallet();
+
+    //   const transaction = new Transaction(
+    //     null, receiver.getKeysBuffer().publicKey, 0, 0
+    //   );
+
+    //   transaction.sign(receiver.privateKey);
+    //   expect(transaction.getSignature()).to.have.length(66);
+    // });
   });
 });
