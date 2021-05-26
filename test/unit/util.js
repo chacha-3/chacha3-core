@@ -16,8 +16,8 @@ describe('Util', () => {
     
       const { privateKey, publicKey } = wallet.getKeysBuffer();
     
-      expect(privateKey).to.have.length(128);
-      expect(publicKey).to.have.length(84);
+      expect(privateKey).to.have.length(185);
+      expect(publicKey).to.have.length(120);
     });
     it('should get wallet address', () => {
       const wallet = new Wallet();
@@ -45,29 +45,36 @@ describe('Util', () => {
     });
   });
   describe('Transaction', () => {
-    it('should create a transaction', () => {
+    it('should create a verified transaction', () => {
+      const sender = new Wallet();
+      const receiver = new Wallet();
+
+      const transaction = new Transaction(
+        sender.getKeys().publicKey, receiver.getKeys().publicKey, 0, 0
+      );
+
+      const { privateKey } = sender.getKeys();
+      transaction.sign(privateKey);
+  
+      const length = transaction.getSignature().length;
+
+      expect(length >= 102 || length <= 104).to.be.true;
+      expect(transaction.verify()).to.be.true;
+    });
+    it('should fail verification with invalid transaction signature', () => {
       const sender = new Wallet();
       const receiver = new Wallet();
 
       const transaction = new Transaction(
         sender.getKeysBuffer().publicKey, receiver.getKeysBuffer().publicKey, 0, 0
       );
+      
+      const { privateKey } = sender.getKeys();
+      transaction.sign(privateKey);
 
-      transaction.sign(sender.privateKey);
-      expect(transaction.getSignature()).to.have.length(66);
+      transaction.signature[2] = transaction.signature[2] + 4; // Tamper signature byte
 
-      expect(transaction.verify()).to.equal(true);
-
+      expect(transaction.verify()).to.equal(false);
     });
-    // it('should create a coinbase transaction', () => {
-    //   const receiver = new Wallet();
-
-    //   const transaction = new Transaction(
-    //     null, receiver.getKeysBuffer().publicKey, 0, 0
-    //   );
-
-    //   transaction.sign(receiver.privateKey);
-    //   expect(transaction.getSignature()).to.have.length(66);
-    // });
   });
 });

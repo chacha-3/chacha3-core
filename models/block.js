@@ -9,6 +9,16 @@ class Block {
     
     // this.coinbase = new Transaction();
   }
+
+  addCoinbase(receiver) {
+    const transaction = new Transaction(null, receiver, 100);
+    this.addTransaction(transaction);
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
+    this.transactionCount += 1;
+  }
 }
 
 module.exports = Block;

@@ -2,19 +2,16 @@ const assert  = require('assert');
 const crypto = require('crypto');
 
 class Transaction {
-  constructor(sender, receiver, amount, fee) {
+  constructor(sender, receiver, amount) {
     this.version = 1;
 
-    assert.strictEqual(receiver.length, 84);
+    // assert.strictEqual(receiver.length, 120);
  
     this.sender = sender;
     this.receiver = receiver;
 
     this.amount = 0;
-    this.fee = 0;
-
-    this.hash = crypto.randomBytes(32);
-    this.previous = crypto.randomBytes(32);
+    // this.fee = 0;
   
     this.signature = null;
   }
@@ -22,18 +19,16 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
+      sender: this.sender.toString('hex'),
+      receiver: this.receiver.toString('hex'),
       amount: this.amount,
-      fee: this.fee,
-      sender: this.sender,
-      receiver: this.receiver,
-      previous: this.previous,
     }
 
     return JSON.stringify(data);
   }
 
-  sign(key) {  
-    this.signature = crypto.sign('sha256', Buffer.from(this.hashData()), key);
+  sign(key) {
+    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), key);
   }
 
   getSignature() {
@@ -43,16 +38,13 @@ class Transaction {
   verify() {
     assert.notStrictEqual(this.signature, null);
 
-    const key = crypto.createPublicKey({ key: this.sender, format: 'der', type: 'spki'});
-    return crypto.verify('sha256', Buffer.from(this.hashData()), key, this.signature);
+    try {
+      // const key = crypto.createPublicKey({ key: this.sender, format: 'der', type: 'spki'});
+      return crypto.verify('SHA3-224', Buffer.from(this.hashData()), this.sender, this.signature);
+    } catch {
+      return false;
+    }
   }
-
-  // getHash() {
-  //   const pass1 = crypto.createHash('sha256').update(this.hashData()).digest();
-  //   const pass2 = crypto.createHash('sha256').update(pass1).digest();
-  
-  //   return pass2;
-  // }
 }
 
 module.exports = Transaction;

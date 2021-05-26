@@ -8,29 +8,36 @@ class Wallet {
 
   generateKeyPair() {
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
-      namedCurve: 'sect239k1',
+      namedCurve: 'secp384r1',
       publicKeyEncoding: {
         type: 'spki',
-        format: 'pem',
+        format: 'der',
       },
       privateKeyEncoding: {
         type: 'pkcs8',
-        format: 'pem',
+        format: 'der',
       },
     });
 
-    this.privateKey = privateKey;
-    this.publicKey = publicKey;
+    this.privateKey = crypto.createPrivateKey({key: privateKey, format: 'der', type: 'pkcs8'});
+    this.publicKey = crypto.createPublicKey({key: publicKey, format: 'der', type: 'spki'});
+  }
+
+  getKeys() {
+    return { privateKey: this.privateKey, publicKey: this.publicKey };
   }
 
   getKeysPem() {
-    return { privateKey: this.privateKey, publicKey: this.publicKey }
+    return {
+      privateKey: this.privateKey.export({ format: 'pem', type: 'pkcs8'}),
+      publicKey: this.publicKey.export({ format: 'pem', type: 'spki'}),
+    }
   }
 
   getKeysBuffer() {
     return {
-      privateKey: crypto.createPrivateKey({key: this.privateKey, format: 'pem'}).export({format: 'der', type: 'pkcs8'}),
-      publicKey: crypto.createPublicKey({key: this.publicKey, format: 'pem'}).export({format: 'der', type: 'spki'}),
+      privateKey: this.privateKey.export({ format: 'der', type: 'pkcs8'}),
+      publicKey: this.publicKey.export({ format: 'der', type: 'spki'}),
     }
   }
 
@@ -38,7 +45,9 @@ class Wallet {
     const version = Buffer.from([ 0x00 ]);
     let fingerprint, checksum;
 
-    fingerprint = crypto.createHash('sha256').update(this.publicKey).digest();
+    const { publicKey } = this.getKeysPem();
+
+    fingerprint = crypto.createHash('sha256').update(publicKey).digest();
     fingerprint = crypto.createHash('ripemd160').update(fingerprint).digest();
 
     checksum = crypto.createHash('sha256').update(fingerprint).digest();
