@@ -1,3 +1,4 @@
+const { assert } = require('chai');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
@@ -16,8 +17,29 @@ class Block {
   }
 
   addTransaction(transaction) {
+    if (transaction.getSignature() == null) {
+      assert.strictEqual(this.transactionCount, 0n);
+    }
+
     this.transactions.push(transaction);
-    this.transactionCount += 1;
+    this.transactionCount += BigInt(1);
+  }
+
+  getTransaction(index) {
+    return this.transactions[index];
+  }
+
+  mine() {
+    let hash = this.header.getHash();
+    
+    while (hash[0] != 0x00 || hash[1] != 0x00) {
+      this.header.incrementNonce();
+
+      hash = this.header.getHash();
+    }
+
+    console.log(this.header.nonce);
+    console.log(this.header.getHash().toString('hex'));
   }
 }
 

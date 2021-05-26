@@ -27,8 +27,16 @@ class Transaction {
     return JSON.stringify(data);
   }
 
-  sign(key) {
-    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), key);
+  sign(senderKey) {
+    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), senderKey);
+  }
+
+  getSender() {
+    return this.sender;
+  }
+
+  getReceiver() {
+    return this.receiver;
   }
 
   getSignature() {
