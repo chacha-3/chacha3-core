@@ -23,10 +23,21 @@ class Wallet {
     this.publicKey = publicKey;
   }
 
+  getKeysPem() {
+    return { privateKey: this.privateKey, publicKey: this.publicKey }
+  }
+
+  getKeysBuffer() {
+    return {
+      privateKey: crypto.createPrivateKey({key: this.privateKey, format: 'pem'}).export({format: 'der', type: 'pkcs8'}),
+      publicKey: crypto.createPublicKey({key: this.publicKey, format: 'pem'}).export({format: 'der', type: 'spki'}),
+    }
+  }
+
   getAddress() {
     const version = Buffer.from([ 0x00 ]);
     let fingerprint, checksum;
-    console.log(crypto.createPrivateKey({key: this.privateKey, format: 'pem'}).export({format: 'der', type: 'pkcs8'}));
+
     fingerprint = crypto.createHash('sha256').update(this.publicKey).digest();
     fingerprint = crypto.createHash('ripemd160').update(fingerprint).digest();
 

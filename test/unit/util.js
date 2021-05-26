@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const chai = require('chai');
 
 const Wallet = require('../../models/wallet');
@@ -12,9 +13,11 @@ describe('Util', () => {
   describe('Wallet', () => {
     it('should create a wallet key', () => {
       const wallet = new Wallet();
-      console.log(wallet.privateKey, wallet.publicKey);
-      // expect(wallet.privateKey.length).to.be.equal(48);
-      // expect(wallet.publicKey.length).to.be.equal(44);
+    
+      const { privateKey, publicKey } = wallet.getKeysBuffer();
+    
+      expect(privateKey).to.have.length(128);
+      expect(publicKey).to.have.length(84);
     });
     it('should get wallet address', () => {
       const wallet = new Wallet();

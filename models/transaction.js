@@ -8,7 +8,7 @@ class Transaction {
     this.fee = 0;
 
     this.sender = crypto.randomBytes(44);
-    this.receiverAddress = crypto.randomBytes(25);
+    this.receiver = crypto.randomBytes(44);
 
     // this.hash = crypto.randomBytes(32);
     this.previousHash = crypto.randomBytes(32);
