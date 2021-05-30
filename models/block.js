@@ -31,7 +31,7 @@ class Block {
 
   mine() {
     let hash = this.header.getHash();
-    
+
     while (hash[0] != 0x00 || hash[1] != 0x00) {
       this.header.incrementNonce();
 
