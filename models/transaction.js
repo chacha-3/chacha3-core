@@ -47,7 +47,6 @@ class Transaction {
     assert.notStrictEqual(this.signature, null);
 
     try {
-      // const key = crypto.createPublicKey({ key: this.sender, format: 'der', type: 'spki'});
       return crypto.verify('SHA3-224', Buffer.from(this.hashData()), this.sender, this.signature);
     } catch {
       return false;

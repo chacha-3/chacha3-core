@@ -7,7 +7,7 @@ class Header {
     this.previous = null;
     this.merkleRoot = crypto.randomBytes(32); // TODO:
 
-    this.time = Date.now() / 1000;
+    this.time = Date.now();
     
     this.difficulty = 1;
     this.nonce = 0;
@@ -18,6 +18,7 @@ class Header {
       version: this.version,
       previous: this.previous ? this.previous.toString('hex') : null,
       merkleRoot: this.merkleRoot ? this.merkleRoot.toString('hex') : null,
+      time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
     }

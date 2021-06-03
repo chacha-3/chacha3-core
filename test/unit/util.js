@@ -62,7 +62,7 @@ describe('Util', () => {
       block.addCoinbase(publicKey);
 
       block.mine();
-    });
+    }).timeout(500000);
   });
   describe('Transaction', () => {
     it('should create a verified transaction', () => {
