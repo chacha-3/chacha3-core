@@ -1,4 +1,11 @@
 const crypto = require('crypto');
+const BN = require('bn.js');
+
+const minTarget = {
+  'production'  : '0000ff0000000000000000000000000000000000000000000000000000000000',
+  'development' : '0000ff0000000000000000000000000000000000000000000000000000000000',
+  'test'        : '00ff000000000000000000000000000000000000000000000000000000000000',
+};
 
 class Header {
   constructor() {
@@ -34,9 +41,34 @@ class Header {
     return pass2;
   }
 
+  getDifficulty() {
+    return this.difficulty;
+  }
+
+  setDifficulty(difficulty) {
+    this.difficulty = difficulty;
+  }
+
+  getTarget() {
+    const target = new BN(this.getMinTarget(), 16);
+
+    const buf = Buffer.allocUnsafe(4);
+    buf.writeInt32BE(this.difficulty, 0);
+
+    const difficulty = new BN(buf.toString('hex'), 16);
+    return target.div(difficulty).toString(16, 32);
+  }
+
+  getMinTarget() {
+    const env = process.env.NODE_ENV || 'development';
+    return minTarget[env];
+  }
+
   incrementNonce() {
     this.nonce += 1;
   }
+
+  
 }
 
 module.exports = Header;
