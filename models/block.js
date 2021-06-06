@@ -33,19 +33,21 @@ class Block {
   }
 
   mine() {
+    while (!this.verifyHash()) {
+      this.header.incrementNonce();
+    }
+  }
+
+  verifyHash() {
     let hashNum = new BN(this.header.getHash(), 16);
     let targetNum = new BN(this.header.getTarget(), 16);
 
-    while (hashNum.gte(targetNum)) {
-      this.header.incrementNonce();
-      hashNum = new BN(this.header.getHash(), 16);
-    }
-
-    console.log(this.header.nonce);
+    return hashNum.lt(targetNum)
   }
 
   verify() {
-    
+    // TODO: Verify transactions signature
+    return this.verifyHash();
   }
 }
 
