@@ -1,5 +1,8 @@
 const crypto = require('crypto');
+const level = require('level');
 const bs58 = require('bs58');
+
+const db = level('wallets');
 
 class Wallet {
   constructor() {
@@ -41,6 +44,15 @@ class Wallet {
     }
   }
 
+  getKeysHex() {
+    const { publicKey, privateKey } = this.getKeys();
+
+    return {
+      privateKey: privateKey.toString('hex'),
+      publicKey: publicKey.toString('hex'),
+    }
+  }
+
   getAddress() {
     const version = Buffer.from([ 0x00 ]);
     let fingerprint, checksum;
@@ -58,6 +70,17 @@ class Wallet {
 
   getAddressEncoded(publicKey) {
     return bs58.encode(this.getAddress(publicKey))
+  }
+
+  load() {}
+
+  save() {
+    // console.log(this.getKeysHex());
+    const { publicKey, privateKey } = this.getKeys();
+    // console.log(publicKey);
+    // console.log(this.publicKey.toString('hex'));
+    // console.log(keys.privateKey, keys,this.publicKey)
+    // db.put(keys.publicKey, JSON.stringify(keys), err => { throw err });
   }
 }
 

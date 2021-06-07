@@ -24,6 +24,11 @@ class Transaction {
       amount: this.amount,
     }
 
+    console.log(this.sender)
+
+    // console.log(data);
+    // console.log(JSON.stringify(data))l
+
     return JSON.stringify(data);
   }
 
