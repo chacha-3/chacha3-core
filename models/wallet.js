@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const level = require('level');
 const bs58 = require('bs58');
 
-const db = level('wallets');
+// const db = level('wallets');
 
 const addressPrefix = '420_';
 

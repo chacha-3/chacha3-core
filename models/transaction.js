@@ -3,13 +3,13 @@ const crypto = require('crypto');
 const bs58 = require('bs58');
 
 class Transaction {
-  constructor(sender, receiver, amount) {
+  constructor(senderKey, receiverAddress, amount) {
     this.version = 1;
 
     // assert.strictEqual(receiver.length, 120);
  
-    this.sender = sender;
-    this.receiver = receiver;
+    this.senderKey = senderKey;
+    this.receiverAddress = receiverAddress;
 
     this.amount = 0;
     // this.fee = 0;
@@ -20,24 +20,27 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      sender: bs58.encode(this.sender.export({ format: 'der', type: 'spki'})),
-      receiver: bs58.encode(this.receiver.export({ format: 'der', type: 'spki'})),
+      receiverAddress: bs58.encode(this.receiverAddress),
       amount: this.amount,
     }
-    // console.log(JSON.stringify(data, null, 2));
+
+    if (this.senderKey) {
+      data.senderKey = bs58.encode(this.senderKey.export({ format: 'der', type: 'spki'}));
+    }
+
     return JSON.stringify(data);
   }
 
-  sign(senderKey) {
-    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), senderKey);
+  sign(privateKey) {
+    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), privateKey);
   }
 
   getSender() {
-    return this.sender;
+    return this.senderKey;
   }
 
-  getReceiver() {
-    return this.receiver;
+  getReceiverAddress() {
+    return this.receiverAddress;
   }
 
   getSignature() {
@@ -48,7 +51,7 @@ class Transaction {
     assert.notStrictEqual(this.signature, null);
 
     try {
-      return crypto.verify('SHA3-224', Buffer.from(this.hashData()), this.sender, this.signature);
+      return crypto.verify('SHA3-224', Buffer.from(this.hashData()), this.senderKey, this.signature);
     } catch {
       return false;
     }

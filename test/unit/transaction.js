@@ -14,7 +14,7 @@ describe('Transaction', () => {
     const receiver = new Wallet();
 
     const transaction = new Transaction(
-      sender.getKeys().publicKey, receiver.getKeys().publicKey, 0, 0
+      sender.getKeys().publicKey, receiver.getAddress(), 0, 0
     );
 
     const { privateKey } = sender.getKeys();
@@ -30,7 +30,7 @@ describe('Transaction', () => {
     const receiver = new Wallet();
 
     const transaction = new Transaction(
-      sender.getKeys().publicKey, receiver.getKeys().publicKey, 0, 0
+      sender.getKeys().publicKey, receiver.getAddress(), 0, 0
     );
     
     const { privateKey } = sender.getKeys();

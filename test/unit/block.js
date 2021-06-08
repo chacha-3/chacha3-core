@@ -11,10 +11,9 @@ const { expect } = chai;
 describe('Block', () => {
   it('should create a block with coinbase', () => {
     const creator = new Wallet();
-    const { publicKey } = creator.getKeys();
   
     const block = new Block();
-    block.addCoinbase(publicKey);
+    block.addCoinbase(creator.getAddress());
 
     expect(block.transactionCount).to.be.equal(1n);
 
@@ -22,17 +21,16 @@ describe('Block', () => {
     expect(coinbase.getSignature()).to.be.null;
     expect(coinbase.getSender()).to.be.null;
 
-    expect(coinbase.getReceiver().export({ format: 'pem', type: 'spki'})).to.be.equal(publicKey.export({ format: 'pem', type: 'spki'}));
+    expect(coinbase.getReceiverAddress().toString('hex')).to.be.equal(creator.getAddress().toString('hex'));
   });
   it('should get the min block target', () => {
     const block = new Block();
   });
   it('should mine a block', () => {
     const creator = new Wallet();
-    const { publicKey } = creator.getKeys();
   
     const block = new Block();
-    block.addCoinbase(publicKey);
+    block.addCoinbase(creator.getAddress());
 
     // This hash may be verified without mining with very low probability.
     // It's okay if this test fails on very rare occasions

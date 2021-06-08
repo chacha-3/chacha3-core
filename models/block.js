@@ -14,8 +14,8 @@ class Block {
     // this.coinbase = new Transaction();
   }
 
-  addCoinbase(receiver) {
-    const transaction = new Transaction(null, receiver, 100);
+  addCoinbase(receiverAddress) {
+    const transaction = new Transaction(null, receiverAddress, 100);
     this.addTransaction(transaction);
   }
 
