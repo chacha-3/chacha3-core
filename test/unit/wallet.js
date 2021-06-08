@@ -28,7 +28,10 @@ describe('Wallet', () => {
     const wallet = new Wallet();
     
     const encoded = wallet.getAddressEncoded();
-    expect(encoded[0]).to.be.eq('1');
+
+    console.log(encoded);
+    expect(encoded.slice(0, 4)).to.be.eq('420_');
+    expect(encoded[4]).to.be.eq('1');
   });
   it('should save a wallet', () => {
     const wallet = new Wallet();

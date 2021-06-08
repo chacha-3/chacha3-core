@@ -4,6 +4,8 @@ const bs58 = require('bs58');
 
 const db = level('wallets');
 
+const addressPrefix = '420_';
+
 class Wallet {
   constructor() {
     this.generateKeyPair();
@@ -45,7 +47,7 @@ class Wallet {
   }
 
   getKeysHex() {
-    const { publicKey, privateKey } = this.getKeys();
+    const { publicKey, privateKey } = this.getKeysBuffer();
 
     return {
       privateKey: privateKey.toString('hex'),
@@ -57,19 +59,17 @@ class Wallet {
     const version = Buffer.from([ 0x00 ]);
     let fingerprint, checksum;
 
-    const { publicKey } = this.getKeysPem();
+    const { publicKey } = this.getKeysBuffer();
 
-    fingerprint = crypto.createHash('sha256').update(publicKey).digest();
-    fingerprint = crypto.createHash('ripemd160').update(fingerprint).digest();
+    fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest();
+    fingerprint = fingerprint.slice(-20);
 
-    checksum = crypto.createHash('sha256').update(fingerprint).digest();
-    checksum = crypto.createHash('sha256').update(checksum).digest();
-
+    checksum = crypto.createHash('SHA3-256').update(fingerprint).digest();
     return Buffer.concat([version, fingerprint, checksum.slice(0, 4)]);
   }
 
   getAddressEncoded(publicKey) {
-    return bs58.encode(this.getAddress(publicKey))
+    return `${addressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
   }
 
   load() {}

@@ -1,5 +1,6 @@
 const assert  = require('assert');
 const crypto = require('crypto');
+const bs58 = require('bs58');
 
 class Transaction {
   constructor(sender, receiver, amount) {
@@ -19,16 +20,11 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      sender: this.sender.toString('hex'),
-      receiver: this.receiver.toString('hex'),
+      sender: bs58.encode(this.sender.export({ format: 'der', type: 'spki'})),
+      receiver: bs58.encode(this.receiver.export({ format: 'der', type: 'spki'})),
       amount: this.amount,
     }
-
-    console.log(this.sender)
-
-    // console.log(data);
-    // console.log(JSON.stringify(data))l
-
+    // console.log(JSON.stringify(data, null, 2));
     return JSON.stringify(data);
   }
 
