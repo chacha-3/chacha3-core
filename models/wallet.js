@@ -50,8 +50,8 @@ class Wallet {
     const { privateKey, publicKey } = this.getKeys();
 
     return {
-      privateKey: privateKey.export({ format: 'der', type: 'pkcs8'}),
-      publicKey: publicKey.export({ format: 'der', type: 'spki'}),
+      privateKey: privateKey.export({ format: 'der', type: 'pkcs8' }),
+      publicKey: publicKey.export({ format: 'der', type: 'spki' }),
     };
   }
 
@@ -81,10 +81,6 @@ class Wallet {
   save() {
     // console.log(this.getKeysHex());
     const { publicKey, privateKey } = this.getKeys();
-    // console.log(publicKey);
-    // console.log(this.publicKey.toString('hex'));
-    // console.log(keys.privateKey, keys,this.publicKey)
-    // db.put(keys.publicKey, JSON.stringify(keys), err => { throw err });
   }
 
   recover(privateKey) {

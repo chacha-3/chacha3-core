@@ -19,8 +19,8 @@ describe('Wallet', () => {
     wallet.generate();
 
     const address = wallet.getAddress();
-    expect(address.length).to.be.eq(25);
-    expect(address[0]).to.be.eq(0);
+    expect(address.length).to.be.equal(25);
+    expect(address[0]).to.be.equal(0);
   });
   it('should get encoded wallet address', () => {
     const wallet = new Wallet();
@@ -28,8 +28,8 @@ describe('Wallet', () => {
 
     const encoded = wallet.getAddressEncoded();
 
-    expect(encoded.slice(0, Wallet.AddressPrefix.length)).to.be.eq(Wallet.AddressPrefix);
-    expect(encoded[Wallet.AddressPrefix.length]).to.be.eq('1');
+    expect(encoded.slice(0, Wallet.AddressPrefix.length)).to.be.equal(Wallet.AddressPrefix);
+    expect(encoded[Wallet.AddressPrefix.length]).to.be.equal('1');
   });
   it('should save a wallet', () => {
     const wallet = new Wallet();
@@ -45,7 +45,7 @@ describe('Wallet', () => {
     const recoverWallet = new Wallet();
     recoverWallet.recover(privateKey);
 
-    expect(recoverWallet.getKeysHex().privateKey).to.be.equals(oldWallet.getKeysHex().privateKey);
-    expect(recoverWallet.getKeysHex().publicKey).to.be.equals(oldWallet.getKeysHex().publicKey);
+    expect(recoverWallet.getKeysHex().privateKey).to.be.equal(oldWallet.getKeysHex().privateKey);
+    expect(recoverWallet.getKeysHex().publicKey).to.be.equal(oldWallet.getKeysHex().publicKey);
   });
 });
