@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const level = require('level');
 const bs58 = require('bs58');
 
 // const db = level('wallets');
@@ -7,11 +6,6 @@ const bs58 = require('bs58');
 // const addressPrefix = '420_';
 
 class Wallet {
-  constructor(passphrase) {
-    // const pass = passphrase || ''
-    // this.generateKeyPair();
-  }
-
   static get AddressPrefix() {
     return '';
   }
@@ -31,26 +25,34 @@ class Wallet {
       },
     });
 
-    this.privateKey = crypto.createPrivateKey({key: privateKey, format: 'der', type: 'pkcs8'});
-    this.publicKey = crypto.createPublicKey({key: publicKey, format: 'der', type: 'spki'});
+    this.privateKey = crypto.createPrivateKey({ key: privateKey, format: 'der', type: 'pkcs8' });
+    this.publicKey = crypto.createPublicKey({ key: publicKey, format: 'der', type: 'spki' });
   }
 
   getKeys() {
+    if (!this.privateKey || !this.publicKey) {
+      throw Error('Wallet is not generated or loaded');
+    }
+
     return { privateKey: this.privateKey, publicKey: this.publicKey };
   }
 
   getKeysPem() {
+    const { privateKey, publicKey } = this.getKeys();
+
     return {
-      privateKey: this.privateKey.export({ format: 'pem', type: 'pkcs8'}),
-      publicKey: this.publicKey.export({ format: 'pem', type: 'spki'}),
-    }
+      privateKey: privateKey.export({ format: 'pem', type: 'pkcs8'}),
+      publicKey: publicKey.export({ format: 'pem', type: 'spki'}),
+    };
   }
 
   getKeysBuffer() {
+    const { privateKey, publicKey } = this.getKeys();
+
     return {
-      privateKey: this.privateKey.export({ format: 'der', type: 'pkcs8'}),
-      publicKey: this.publicKey.export({ format: 'der', type: 'spki'}),
-    }
+      privateKey: privateKey.export({ format: 'der', type: 'pkcs8'}),
+      publicKey: publicKey.export({ format: 'der', type: 'spki'}),
+    };
   }
 
   getKeysHex() {
@@ -59,27 +61,22 @@ class Wallet {
     return {
       privateKey: privateKey.toString('hex'),
       publicKey: publicKey.toString('hex'),
-    }
+    };
   }
 
   getAddress() {
-    const version = Buffer.from([ 0x00 ]);
-    let fingerprint, checksum;
-
+    const version = Buffer.from([0x00]);
     const { publicKey } = this.getKeysBuffer();
 
-    fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest();
-    fingerprint = fingerprint.slice(-20);
+    const fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest().slice(-20);
+    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
-    checksum = crypto.createHash('SHA3-256').update(fingerprint).digest();
-    return Buffer.concat([version, fingerprint, checksum.slice(0, 4)]);
+    return Buffer.concat([version, fingerprint, checksum]);
   }
 
   getAddressEncoded(publicKey) {
     return `${Wallet.AddressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
   }
-
-  load() {}
 
   save() {
     // console.log(this.getKeysHex());

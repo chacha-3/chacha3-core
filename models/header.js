@@ -2,9 +2,9 @@ const crypto = require('crypto');
 const BN = require('bn.js');
 
 const minTarget = {
-  'production'  : '0000ff0000000000000000000000000000000000000000000000000000000000',
-  'development' : '0000ff0000000000000000000000000000000000000000000000000000000000',
-  'test'        : '00ff000000000000000000000000000000000000000000000000000000000000',
+  production: '0000ff0000000000000000000000000000000000000000000000000000000000',
+  development: '0000ff0000000000000000000000000000000000000000000000000000000000',
+  test: '00ff000000000000000000000000000000000000000000000000000000000000',
 };
 
 class Header {
@@ -15,9 +15,14 @@ class Header {
     this.merkleRoot = crypto.randomBytes(32); // TODO:
 
     this.time = Date.now();
-    
+
     this.difficulty = 1;
     this.nonce = 0;
+  }
+
+  static get MinTarget() {
+    const env = process.env.NODE_ENV || 'development';
+    return minTarget[env];
   }
 
   hashData() {
@@ -28,16 +33,15 @@ class Header {
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
-    }
+    };
 
     return JSON.stringify(data);
   }
 
-
   getHash() {
     const pass1 = crypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
     const pass2 = crypto.createHash('sha256').update(pass1).digest();
-  
+
     return pass2;
   }
 
@@ -50,7 +54,7 @@ class Header {
   }
 
   getTarget() {
-    const target = new BN(this.getMinTarget(), 16);
+    const target = new BN(Header.MinTarget, 16);
 
     const buf = Buffer.allocUnsafe(4);
     buf.writeInt32BE(this.difficulty, 0);
@@ -59,16 +63,9 @@ class Header {
     return target.div(difficulty).toString(16, 32);
   }
 
-  getMinTarget() {
-    const env = process.env.NODE_ENV || 'development';
-    return minTarget[env];
-  }
-
   incrementNonce() {
     this.nonce += 1;
   }
-
-  
 }
 
 module.exports = Header;

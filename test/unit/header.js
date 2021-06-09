@@ -1,20 +1,16 @@
-const crypto = require('crypto');
 const chai = require('chai');
 
-const Wallet = require('../../models/wallet');
 const Header = require('../../models/header');
-const Block = require('../../models/block');
-const Transaction = require('../../models/transaction');
 
 const { expect } = chai;
 
 describe('Header', () => {
   it('should create a block header', () => {
-    const header = new Header();
+    // const header = new Header();
+    // TODO:
   });
   it('should get the min target', () => {
-    const header = new Header();
-    expect(header.getMinTarget()).to.be.equals('00ff000000000000000000000000000000000000000000000000000000000000');
+    expect(Header.MinTarget).to.be.equals('00ff000000000000000000000000000000000000000000000000000000000000');
   });
   it('should get the difficulty target', () => {
     const header = new Header();
