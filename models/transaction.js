@@ -32,7 +32,7 @@ class Transaction {
   }
 
   sign(privateKey) {
-    this.signature = crypto.sign('SHA3-224', Buffer.from(this.hashData()), privateKey);
+    this.signature = crypto.sign('SHA3-256', Buffer.from(this.hashData()), privateKey);
   }
 
   getSender() {
@@ -51,7 +51,7 @@ class Transaction {
     assert.notStrictEqual(this.signature, null);
 
     try {
-      return crypto.verify('SHA3-224', Buffer.from(this.hashData()), this.senderKey, this.signature);
+      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), this.senderKey, this.signature);
     } catch {
       return false;
     }

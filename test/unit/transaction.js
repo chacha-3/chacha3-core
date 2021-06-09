@@ -11,7 +11,10 @@ const { expect } = chai;
 describe('Transaction', () => {
   it('should create a verified transaction', () => {
     const sender = new Wallet();
+    sender.generate();
+
     const receiver = new Wallet();
+    receiver.generate();
 
     const transaction = new Transaction(
       sender.getKeys().publicKey, receiver.getAddress(), 0, 0
@@ -27,7 +30,10 @@ describe('Transaction', () => {
   });
   it('should fail verification with invalid transaction signature', () => {
     const sender = new Wallet();
+    sender.generate();
+
     const receiver = new Wallet();
+    receiver.generate();
 
     const transaction = new Transaction(
       sender.getKeys().publicKey, receiver.getAddress(), 0, 0

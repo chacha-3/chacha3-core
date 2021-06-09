@@ -4,14 +4,19 @@ const bs58 = require('bs58');
 
 // const db = level('wallets');
 
-const addressPrefix = '420_';
+// const addressPrefix = '420_';
 
 class Wallet {
-  constructor() {
-    this.generateKeyPair();
+  constructor(passphrase) {
+    // const pass = passphrase || ''
+    // this.generateKeyPair();
   }
 
-  generateKeyPair() {
+  static get AddressPrefix() {
+    return '';
+  }
+
+  generate() {
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
       namedCurve: 'secp384r1',
       publicKeyEncoding: {
@@ -21,6 +26,8 @@ class Wallet {
       privateKeyEncoding: {
         type: 'pkcs8',
         format: 'der',
+        // cipher: "aes-256-cbc",
+        // passphrase: 'qwe',
       },
     });
 
@@ -69,7 +76,7 @@ class Wallet {
   }
 
   getAddressEncoded(publicKey) {
-    return `${addressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
+    return `${Wallet.AddressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
   }
 
   load() {}
@@ -81,6 +88,11 @@ class Wallet {
     // console.log(this.publicKey.toString('hex'));
     // console.log(keys.privateKey, keys,this.publicKey)
     // db.put(keys.publicKey, JSON.stringify(keys), err => { throw err });
+  }
+
+  recover(privateKey) {
+    this.privateKey = privateKey;
+    this.publicKey = crypto.createPublicKey(this.privateKey);
   }
 }
 
