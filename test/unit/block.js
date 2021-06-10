@@ -31,12 +31,6 @@ describe('Block', () => {
 
     const block = new Block();
     block.addCoinbase(wallet.getAddress());
-
-    // This hash may be verified without mining with very low probability.
-    // It's okay if this test fails on very rare occasions
-    // Might remove this test
-    expect(block.verify()).to.be.false();
-
     block.mine();
 
     expect(block.verify()).to.be.true();

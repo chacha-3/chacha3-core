@@ -9,7 +9,7 @@ chai.use(dirtyChai);
 
 describe('Util', () => {
   describe('Database', () => {
-    it('should read and write data to database', async () => {
+    it('should read, write, and delete data', async () => {
       const itemName = 'block';
       const itemId = '100';
 
@@ -19,6 +19,16 @@ describe('Util', () => {
       expect(value).to.be.equal('pop rock');
 
       await DB.del(itemName, itemId);
+
+      let deleted = false;
+
+      try {
+        await DB.get(itemName, itemId);
+      } catch (e) {
+        deleted = true;
+      }
+
+      expect(deleted).to.be.true();
     });
     it('should throw an error when not found', async () => {
       const itemName = 'error';

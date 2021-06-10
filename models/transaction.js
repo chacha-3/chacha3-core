@@ -45,8 +45,6 @@ class Transaction {
   }
 
   verify() {
-    assert.notStrictEqual(this.signature, null);
-
     try {
       return crypto.verify('SHA3-256', Buffer.from(this.hashData()), this.senderKey, this.signature);
     } catch {
