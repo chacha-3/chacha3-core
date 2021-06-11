@@ -17,7 +17,7 @@ describe('Block', () => {
 
     const coinbase = block.getTransaction(0);
     expect(coinbase.getSignature()).to.be.null();
-    expect(coinbase.getSender()).to.be.null();
+    expect(coinbase.getSenderKey()).to.be.null();
 
     expect(coinbase.getReceiverAddress().toString('hex')).to.be.equal(wallet.getAddress().toString('hex'));
   });

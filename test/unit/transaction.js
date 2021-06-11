@@ -16,7 +16,7 @@ describe('Transaction', () => {
     receiver.generate();
 
     const transaction = new Transaction(
-      sender.getKeys().publicKey, receiver.getAddress(), 0, 0,
+      sender.getKeys().publicKey, receiver.getAddress(), 10,
     );
 
     const { privateKey } = sender.getKeys();
@@ -35,7 +35,7 @@ describe('Transaction', () => {
     receiver.generate();
 
     const transaction = new Transaction(
-      sender.getKeys().publicKey, receiver.getAddress(), 0, 0,
+      sender.getKeys().publicKey, receiver.getAddress(), 10,
     );
 
     const { privateKey } = sender.getKeys();

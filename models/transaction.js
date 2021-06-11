@@ -11,6 +11,8 @@ class Transaction {
 
     this.amount = amount;
 
+    assert.strictEqual(amount > 0, true);
+
     this.signature = null;
   }
 
@@ -32,7 +34,7 @@ class Transaction {
     this.signature = crypto.sign('SHA3-256', Buffer.from(this.hashData()), privateKey);
   }
 
-  getSender() {
+  getSenderKey() {
     return this.senderKey;
   }
 
@@ -46,7 +48,7 @@ class Transaction {
 
   verify() {
     try {
-      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), this.senderKey, this.signature);
+      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), this.getSenderKey(), this.getSignature());
     } catch {
       return false;
     }

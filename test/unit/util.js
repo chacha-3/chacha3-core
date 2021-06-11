@@ -1,6 +1,5 @@
 const chai = require('chai');
 const dirtyChai = require('dirty-chai');
-const { del } = require('../../util/database');
 
 const DB = require('../../util/database');
 
