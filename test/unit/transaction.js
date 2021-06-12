@@ -24,8 +24,8 @@ tap.test('should create a verified transaction', (t) => {
 
   const { length } = transaction.getSignature();
 
-  t.equal(length >= 102 || length <= 104, true);
-  t.equal(transaction.verify(), true);
+  t.equal(length >= 102 || length <= 104, true, 'signature length between 102 and 104');
+  t.equal(transaction.verify(), true, 'transaction verified after signed');
   t.end();
 });
 
@@ -41,15 +41,15 @@ tap.test('should fail verification with none or invalid transaction signature', 
   );
 
   const { privateKey } = sender.getKeys();
-  t.equal(transaction.verify(), false);
+  t.equal(transaction.verify(), false, 'transaction unverified before signing');
 
   transaction.sign(privateKey);
 
-  t.equal(transaction.verify(), true);
+  t.equal(transaction.verify(), true, 'transaction verified after signing');
 
   // Tamper signature byte
   transaction.signature[2] += Math.floor(Math.random() * 10) + 1;
 
-  t.equal(transaction.verify(), false);
+  t.equal(transaction.verify(), false, 'fail verification with incorrect signature');
   t.end();
 });

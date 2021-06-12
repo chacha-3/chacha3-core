@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const assert = require('assert');
 const bs58 = require('bs58');
 
 // const db = level('wallets');
@@ -30,10 +31,7 @@ class Wallet {
   }
 
   getKeys() {
-    if (!this.privateKey || !this.publicKey) {
-      throw Error('Wallet is not generated or loaded');
-    }
-
+    assert(this.privateKey != null && this.publicKey != null);
     return { privateKey: this.privateKey, publicKey: this.publicKey };
   }
 
@@ -41,8 +39,8 @@ class Wallet {
     const { privateKey, publicKey } = this.getKeys();
 
     return {
-      privateKey: privateKey.export({ format: 'pem', type: 'pkcs8'}),
-      publicKey: publicKey.export({ format: 'pem', type: 'spki'}),
+      privateKey: privateKey.export({ format: 'pem', type: 'pkcs8' }),
+      publicKey: publicKey.export({ format: 'pem', type: 'spki' }),
     };
   }
 

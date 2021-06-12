@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const tap = require('tap');
 // const chai = require('chai');
 
@@ -17,13 +18,37 @@ tap.test('should create a wallet key', (t) => {
   t.end();
 });
 
+tap.test('walley key objects', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const { privateKey, publicKey } = wallet.getKeys();
+
+  t.type(typeof (privateKey), 'object');
+  t.type(typeof (publicKey), 'object');
+
+  t.end();
+});
+
+tap.test('wallet key in pem format', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const { privateKey, publicKey } = wallet.getKeysPem();
+
+  t.equal(privateKey.startsWith('-----BEGIN PRIVATE KEY-----'), true);
+  t.equal(publicKey.startsWith('-----BEGIN PUBLIC KEY-----'), true);
+
+  t.end();
+});
+
 tap.test('should get wallet address', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
   const address = wallet.getAddress();
-  t.equal(address.length, 25);
-  t.equal(address[0], 0);
+  t.equal(address.length, 25, 'address length is 25');
+  t.equal(address[0], 0, 'address starts with 0');
   t.end();
 });
 
@@ -33,8 +58,8 @@ tap.test('should get encoded wallet address', (t) => {
 
   const encoded = wallet.getAddressEncoded();
 
-  t.equal(encoded.slice(0, Wallet.AddressPrefix.length), Wallet.AddressPrefix);
-  t.equal(encoded[Wallet.AddressPrefix.length], '1');
+  t.equal(encoded.slice(0, Wallet.AddressPrefix.length), Wallet.AddressPrefix, 'wallet has prefix');
+  t.equal(encoded[Wallet.AddressPrefix.length], '1', 'wallet encoded address starts with 1');
 
   t.end();
 });
