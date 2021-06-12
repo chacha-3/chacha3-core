@@ -3,17 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./server.js",
     "test": "cross-env NODE_ENV=test node ./node_modules/mocha/bin/mocha --recursive",
-    "dev": "cross-env NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./bin/www"
+    "dev": "cross-env NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./server.js"
   },
   "dependencies": {
     "bn.js": "^5.2.0",
     "bs58": "^4.0.1",
+    "chai-http": "^4.3.0",
     "debug": "~4.3.1",
     "dirty-chai": "^2.0.1",
     "dotenv": "^9.0.2",
     "express": "~4.17.1",
+    "fastify": "^3.17.0",
+    "fastify-websocket": "^3.2.0",
     "hbs": "~4.1.2",
     "http-errors": "~1.8.0",
     "level": "^7.0.0",
