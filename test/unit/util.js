@@ -1,4 +1,4 @@
-const tap = require('tap');
+const { test } = require('tap');
 // const chai = require('chai');
 // const dirtyChai = require('dirty-chai');
 
@@ -7,7 +7,7 @@ const DB = require('../../util/database');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
-tap.test('should read, write, and delete data', async (t) => {
+test('should read, write, and delete data', async (t) => {
   const itemName = 'block';
   const itemId = '100';
 
@@ -29,7 +29,7 @@ tap.test('should read, write, and delete data', async (t) => {
   t.equal(deleted, true);
 });
 
-tap.test('should throw an error when not found', async (t) => {
+test('should throw an error when not found', async (t) => {
   const itemName = 'error';
   const itemId = '100';
 

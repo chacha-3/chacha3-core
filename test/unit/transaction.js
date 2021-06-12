@@ -1,4 +1,4 @@
-const tap = require('tap');
+const { test } = require('tap');
 // const chai = require('chai');
 // const dirtyChai = require('dirty-chai');
 
@@ -8,7 +8,7 @@ const Transaction = require('../../models/transaction');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
-tap.test('should create a verified transaction', (t) => {
+test('should create a verified transaction', (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -29,7 +29,7 @@ tap.test('should create a verified transaction', (t) => {
   t.end();
 });
 
-tap.test('should fail verification with none or invalid transaction signature', (t) => {
+test('should fail verification with none or invalid transaction signature', (t) => {
   const sender = new Wallet();
   sender.generate();
 

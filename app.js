@@ -1,6 +1,5 @@
-const http = require('http');
-
 const fastify = require('fastify');
+const fastifyWebsocket = require('fastify-websocket');
 
 const schema = {
   querystring: {
@@ -16,9 +15,11 @@ const schema = {
   },
 };
 
-function build(opts={}) {
+function build(opts = {}) {
   const app = fastify(opts);
-  app.register(require('fastify-websocket'));
+
+  app.register(fastifyWebsocket);
+
   // Websocket endpoint
   app.get('/', {
     websocket: true,
@@ -30,10 +31,7 @@ function build(opts={}) {
     //   // return { hello: 'world' };
     // },
   }, (connection, req) => {
-    console.log(connection);
     connection.socket.on('message', message => {
-      console.log(message);
-      console.log('hi');
       connection.socket.send('hi from server');
     });
   });
@@ -45,7 +43,6 @@ function build(opts={}) {
       // E.g. check authentication
     },
     handler: async (request, reply) => {
-      console.log('handler2');
       return { hello: 'world2' };
     },
   });

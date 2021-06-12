@@ -1,9 +1,9 @@
-const tap = require('tap');
+const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 
-tap.test('creat a block with coinbase', (t) => {
+test('creat a block with coinbase', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -26,7 +26,7 @@ tap.test('creat a block with coinbase', (t) => {
   t.end();
 });
 
-tap.test('should mine a block', (t) => {
+test('should mine a block', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 

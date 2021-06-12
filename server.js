@@ -1,6 +1,3 @@
-const http = require('http');
-const WebSocket = require('ws');
-
 /**
  * Normalize a port into a number, string, or false.
  */
@@ -28,23 +25,11 @@ const server = require('./app')({
   // },
 });
 
-// const start = async () => {
-//   try {
-//     const port = normalizePort(process.env.PORT || '3000');
-//     await fastify.listen(port);
-//   } catch (err) {
-//     fastify.log.error(err);
-//     process.exit(1);
-//   }
-// };
-
-// start();
-
 const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, (err, address) => {
+  console.log(address);
   if (err) {
-    console.log(err);
     process.exit(1);
   }
 });

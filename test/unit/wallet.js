@@ -1,12 +1,11 @@
-const crypto = require('crypto');
-const tap = require('tap');
+const { test } = require('tap');
 // const chai = require('chai');
 
 const Wallet = require('../../models/wallet');
 
 // const { expect } = chai;
 
-tap.test('should create a wallet key', (t) => {
+test('should create a wallet key', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -18,7 +17,7 @@ tap.test('should create a wallet key', (t) => {
   t.end();
 });
 
-tap.test('walley key objects', (t) => {
+test('walley key objects', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -30,7 +29,7 @@ tap.test('walley key objects', (t) => {
   t.end();
 });
 
-tap.test('wallet key in pem format', (t) => {
+test('wallet key in pem format', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -42,7 +41,7 @@ tap.test('wallet key in pem format', (t) => {
   t.end();
 });
 
-tap.test('should get wallet address', (t) => {
+test('should get wallet address', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -52,7 +51,7 @@ tap.test('should get wallet address', (t) => {
   t.end();
 });
 
-tap.test('should get encoded wallet address', (t) => {
+test('should get encoded wallet address', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -64,14 +63,14 @@ tap.test('should get encoded wallet address', (t) => {
   t.end();
 });
 
-tap.test('should save a wallet', (t) => {
+test('should save a wallet', (t) => {
   const wallet = new Wallet();
   wallet.generate();
   wallet.save();
   t.end();
 });
 
-tap.test('should recover a wallet', (t) => {
+test('should recover a wallet', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();
 

@@ -1,24 +1,16 @@
-// const chai = require('chai');
-// const chaiHttp = require('chai-http');
+const { test } = require('tap');
 
-// const Wallet = require('../../models/wallet');
-// const Block = require('../../models/block');
+const build = require('../../app');
 
-// const { expect } = chai;
+test('reach endpoint index', async (t) => {
+  const app = build();
 
-// const build = require('../../app');
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+  });
 
-// chai.use(chaiHttp);
+  t.equal(response.statusCode, 200, 'returns a status code of 200');
 
-// describe('Index', () => {
-//   it('it should show index', (done) => {
-//     chai.request(build())
-//       .post('/')
-//       .end((err, res) => {
-//         console.log('hi');
-//         console.log(res);
-//         // t.equal(res).to.have.status(200);
-//         done();
-//       });
-//   });
-// });
+  t.end();
+});
