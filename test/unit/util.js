@@ -1,48 +1,47 @@
-const chai = require('chai');
-const dirtyChai = require('dirty-chai');
+const tap = require('tap');
+// const chai = require('chai');
+// const dirtyChai = require('dirty-chai');
 
 const DB = require('../../util/database');
 
-const { expect } = chai;
-chai.use(dirtyChai);
+// const { expect } = chai;
+// chai.use(dirtyChai);
 
-describe('Util', () => {
-  describe('Database', () => {
-    it('should read, write, and delete data', async () => {
-      const itemName = 'block';
-      const itemId = '100';
+tap.test('should read, write, and delete data', async (t) => {
+  const itemName = 'block';
+  const itemId = '100';
 
-      await DB.put(itemName, itemId, 'pop rock');
+  await DB.put(itemName, itemId, 'pop rock');
 
-      const value = await DB.get(itemName, itemId);
-      expect(value).to.be.equal('pop rock');
+  const value = await DB.get(itemName, itemId);
+  t.equal(value, 'pop rock');
 
-      await DB.del(itemName, itemId);
+  await DB.del(itemName, itemId);
 
-      let deleted = false;
+  let deleted = false;
 
-      try {
-        await DB.get(itemName, itemId);
-      } catch (e) {
-        deleted = true;
-      }
+  try {
+    await DB.get(itemName, itemId);
+  } catch (e) {
+    deleted = true;
+  }
 
-      expect(deleted).to.be.true();
-    });
-    it('should throw an error when not found', async () => {
-      const itemName = 'error';
-      const itemId = '100';
+  t.equal(deleted, true);
+});
 
-      let readError = false;
+tap.test('should throw an error when not found', async (t) => {
+  const itemName = 'error';
+  const itemId = '100';
 
-      try {
-        await DB.get(itemName, itemId);
-      } catch (e) {
-        expect(e.name).to.be.equal('NotFoundError');
-        readError = true;
-      }
+  let readError = false;
 
-      expect(readError).to.be.true();
-    });
-  });
+  try {
+    await DB.get(itemName, itemId);
+  } catch (e) {
+    t.equal(e.name, 'NotFoundError');
+    readError = true;
+  }
+
+  t.equal(readError, true);
+  t.end();
 });

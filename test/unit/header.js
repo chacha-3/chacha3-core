@@ -1,28 +1,33 @@
-const chai = require('chai');
+const tap = require('tap');
+// const chai = require('chai');
 
 const Header = require('../../models/header');
 
-const { expect } = chai;
+// const { expect } = chai;
 
-describe('Header', () => {
-  it('should create a block header', () => {
-    // const header = new Header();
-    // TODO:
-  });
-  it('should get the min target', () => {
-    expect(Header.MinTarget).to.be.equal('00ff000000000000000000000000000000000000000000000000000000000000');
-  });
-  it('should get the difficulty target', () => {
-    const header = new Header();
+tap.test('create a block header', (t) => {
+  // const header = new Header();
+  t.end();
+});
 
-    // Difficulty 1 by default
-    expect(header.getTarget()).to.be.equal('00ff000000000000000000000000000000000000000000000000000000000000');
+tap.test('get the min target', (t) => {
+  t.equal(Header.MinTarget, '00ff000000000000000000000000000000000000000000000000000000000000');
+  t.end();
+});
 
-    header.setDifficulty(2);
-    expect(header.getTarget()).to.be.equal('007f800000000000000000000000000000000000000000000000000000000000');
-  });
-  it('should get the difficulty', () => {
-    const header = new Header();
-    expect(header.getDifficulty()).to.be.equal(1);
-  });
+tap.test('get difficulty target', (t) => {
+  const header = new Header();
+
+  // Difficulty 1 by default
+  t.equal(header.getTarget(), '00ff000000000000000000000000000000000000000000000000000000000000');
+
+  header.setDifficulty(2);
+  t.equal(header.getTarget(), '007f800000000000000000000000000000000000000000000000000000000000');
+  t.end();
+});
+
+tap.test('should get the difficulty', (t) => {
+  const header = new Header();
+  t.equal(header.getDifficulty(), 1);
+  t.end();
 });

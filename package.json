@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server.js",
-    "test": "cross-env NODE_ENV=test node ./node_modules/mocha/bin/mocha --recursive",
+    "test": "cross-env NODE_ENV=test tap",
     "dev": "cross-env NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./server.js"
   },
   "dependencies": {
@@ -32,6 +32,7 @@
     "eslint-plugin-import": "^2.22.1",
     "mocha": "^8.4.0",
     "nodemon": "^2.0.7",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "tap": "^15.0.9"
   }
 }

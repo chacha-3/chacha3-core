@@ -1,38 +1,40 @@
-const chai = require('chai');
+const tap = require('tap');
 
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 
-const { expect } = chai;
+tap.test('creat a block with coinbase', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
 
-describe('Block', () => {
-  it('should create a block with coinbase', () => {
-    const wallet = new Wallet();
-    wallet.generate();
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress());
 
-    const block = new Block();
-    block.addCoinbase(wallet.getAddress());
+  t.equal(block.transactionCount, 1n, 'block only has coinbase transaction');
 
-    expect(block.transactionCount).to.be.equal(1n);
+  const coinbase = block.getTransaction(0);
 
-    const coinbase = block.getTransaction(0);
-    expect(coinbase.getSignature()).to.be.null();
-    expect(coinbase.getSenderKey()).to.be.null();
+  t.equal(coinbase.getSignature(), null, 'coinbase has no signature');
+  t.equal(coinbase.getSenderKey(), null, 'coinbase has no sender');
 
-    expect(coinbase.getReceiverAddress().toString('hex')).to.be.equal(wallet.getAddress().toString('hex'));
-  });
-  // it('should get the min block target', () => {
-  //   const block = new Block();
-  //   block.
-  // });
-  it('should mine a block', () => {
-    const wallet = new Wallet();
-    wallet.generate();
+  t.equal(
+    coinbase.getReceiverAddress().toString('hex'),
+    wallet.getAddress().toString('hex'),
+    'coinbase address matches wallet address',
+  );
 
-    const block = new Block();
-    block.addCoinbase(wallet.getAddress());
-    block.mine();
+  t.end();
+});
 
-    expect(block.verify()).to.be.true();
-  });
+tap.test('should mine a block', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress());
+  block.mine();
+
+  t.equal(block.verify(), true, 'mined block is verified');
+
+  t.end();
 });
