@@ -11,6 +11,5 @@ test('reach endpoint index', async (t) => {
   });
 
   t.equal(response.statusCode, 200, 'returns a status code of 200');
-
   t.end();
 });

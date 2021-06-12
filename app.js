@@ -1,9 +1,13 @@
 const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
 
+const Peer = require('./models/peer');
+
+const actions = require('./actions');
+
 const schema = {
   querystring: {
-    name: { type: 'string' },
+    action: { type: 'string' },
   },
   response: {
     200: {
@@ -14,6 +18,8 @@ const schema = {
     },
   },
 };
+
+const peerList = [];
 
 function build(opts = {}) {
   const app = fastify(opts);
@@ -31,8 +37,12 @@ function build(opts = {}) {
     //   // return { hello: 'world' };
     // },
   }, (connection, req) => {
-    connection.socket.on('message', message => {
-      connection.socket.send('hi from server');
+    connection.socket.on('message', (message) => {
+      const request = JSON.parse(message);
+      const { action } = request;
+
+      const response = JSON.stringify(actions[action](request));
+      connection.socket.send(response);
     });
   });
 
@@ -43,6 +53,7 @@ function build(opts = {}) {
       // E.g. check authentication
     },
     handler: async (request, reply) => {
+      // console.log(request);
       return { hello: 'world2' };
     },
   });
