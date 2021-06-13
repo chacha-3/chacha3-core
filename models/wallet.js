@@ -2,13 +2,20 @@ const crypto = require('crypto');
 const assert = require('assert');
 const bs58 = require('bs58');
 
-// const db = level('wallets');
+const DB = require('../util/database');
 
 // const addressPrefix = '420_';
 
 class Wallet {
   static get AddressPrefix() {
     return '';
+  }
+
+  constructor() {
+    this.label = '';
+
+    this.privateKey = null;
+    this.publicKey = null;
   }
 
   generate() {
@@ -76,10 +83,47 @@ class Wallet {
     return `${Wallet.AddressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
   }
 
-  save() {
-    // console.log(this.getKeysHex());
-    const { publicKey, privateKey } = this.getKeys();
+  async save() {
+    const { privateKey } = this.getKeysHex();
+
+    const data = {
+      label: this.label,
+      privateKey,
+    };
+
+    const address = this.getAddressEncoded();
+    await DB.put('wallet', address, JSON.stringify(data));
   }
+
+  async load(address) {
+    const result = await DB.get('wallet', address);
+
+    const data = JSON.parse(result);
+    this.label = data.label;
+
+    const privateKey = crypto.createPrivateKey({
+      key: Buffer.from(data.privateKey, 'hex'),
+      format: 'der',
+      type: 'pkcs8',
+    });
+
+    this.recover(privateKey);
+  }
+
+  // async saveIndex() {
+  //   let indexList;
+
+  //   try {
+  //     indexList = await DB.get('wallet', 'index');
+  //   } catch (e) {
+  //     indexList = [];
+  //   }
+
+  //   const address = this.getAddressEncoded();
+  //   indexList.push(address);
+
+  //   await DB.put('wallet', 'index', indexList);
+  // }
 
   recover(privateKey) {
     this.privateKey = privateKey;

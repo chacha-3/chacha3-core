@@ -1,6 +1,6 @@
 const wallet = {};
 
-wallet.listAll = (request) => {
+wallet.listWallets = (request) => {
   console.log(request);
 
   return { data: 'response' };

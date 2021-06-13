@@ -63,13 +63,6 @@ test('should get encoded wallet address', (t) => {
   t.end();
 });
 
-test('should save a wallet', (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
-  wallet.save();
-  t.end();
-});
-
 test('should recover a wallet', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();
@@ -81,5 +74,19 @@ test('should recover a wallet', (t) => {
 
   t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey);
   t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey);
+  t.end();
+});
+
+test('should save and load a wallet', async (t) => {
+  const saveWallet = new Wallet();
+  saveWallet.generate();
+  await saveWallet.save();
+
+  const loadWallet = new Wallet();
+  await loadWallet.load(saveWallet.getAddressEncoded());
+
+  t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
+  t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
+
   t.end();
 });
