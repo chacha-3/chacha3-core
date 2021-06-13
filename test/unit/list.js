@@ -30,8 +30,7 @@ test('add items to the list', async (t) => {
   const updatedList = await list.getItems();
 
   for (let i = 0; i < 3; i += 1) {
-    console.log(addedItems[i], updatedList[i]);
-    // t.equal(addedItems[i], updatedList[i], `Added item index ${i} matches`);
+    t.equal(addedItems[i], updatedList[i], `Added item index ${i} matches`);
   }
 
   await list.clearItems();
@@ -53,18 +52,18 @@ test('clear items from list', async (t) => {
     promises.push(addItem(i));
   }
 
-  await list.getItems();
+  list.getItems();
   t.equal(list.getSize(), 3);
 
   await list.clearItems();
 
-  await list.getItems();
+  list.getItems();
   t.equal(list.getSize(), 0);
 
   await list.clearItems();
 });
 
-test('add item by key from list', async (t) => {
+test('remove item by key from list', async (t) => {
   const list = new IndexList('music');
 
   const promises = [];
@@ -86,6 +85,12 @@ test('add item by key from list', async (t) => {
 
   t.equal(updated[0], 'metal0');
   t.equal(updated[1], 'metal2');
+
+  const reloaded = list.getItems();
+  await list.loadItems();
+
+  t.equal(reloaded[0], 'metal0');
+  t.equal(reloaded[1], 'metal2');
 
   await list.clearItems();
 });

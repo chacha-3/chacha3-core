@@ -28,7 +28,7 @@ class IndexList {
 
     if (this.items.indexOf(item) === -1) {
       this.items.push(item);
-      await this.saveList();
+      await this.saveItems();
     }
   }
 
