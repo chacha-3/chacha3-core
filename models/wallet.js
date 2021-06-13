@@ -6,23 +6,116 @@ const DB = require('../util/database');
 
 // const addressPrefix = '420_';
 
+// class WalletList {
+//   static items = [];
+
+//   static async loadItems() {
+//     WalletList.index = await DB.get('wallet', 'index') || [];
+//   }
+
+//   static async saveItems() {
+//     await DB.put('wallet', 'index', Wallet.index);
+//   }
+
+//   static async clearItems() {
+//     await DB.del('wallet', 'index');
+//     WalletList.index = [];
+//   }
+
+//   static addItem(key) {
+//     Wallet.loadIndex();
+
+//     if (Wallet.index.indexOf(key) === -1) {
+//       Wallet.index.push(key);
+//     }
+
+//     Wallet.saveIndex();
+//   }
+
+//   static async removeIndex(key) {
+//     Wallet.loadIndex();
+//     const i = Wallet.index.indexOf(key);
+
+//     if (i > -1) {
+//       Wallet.index.splice(i, 1);
+//     }
+
+//     await DB.put(itemName, 'index', JSON.stringify(list));
+//   }
+
+// }
+
 class Wallet {
   static get AddressPrefix() {
     return '';
   }
 
-  static async addIndex(key) {
-    let list;
+  static index = [];
 
-    try {
-      const existing = await DB.get('wallet', 'index');
-      list = existing;
-    } catch (e) {
-      list = [];
+  static async loadIndex() {
+    // Wallet.index = await DB.index('wallet');
+    Wallet.index = await DB.get('wallet', 'index') || [];
+  }
+
+  static async saveIndex() {
+    await DB.put('wallet', 'index', Wallet.index);
+  }
+
+  static async clearIndex() {
+    await DB.del('wallet', 'index');
+    Wallet.index = [];
+  }
+
+  static addIndex(key) {
+    Wallet.loadIndex();
+
+    if (Wallet.index.indexOf(key) === -1) {
+      Wallet.index.push(key);
     }
 
-    list.push(key);
-    DB.put('wallet', 'index', list);
+    Wallet.saveIndex();
+  }
+
+  static async removeIndex(key) {
+    Wallet.loadIndex();
+    const i = Wallet.index.indexOf(key);
+
+    if (i > -1) {
+      Wallet.index.splice(i, 1);
+    }
+
+    await DB.put(itemName, 'index', JSON.stringify(list));
+  }
+
+  static async listAll() {
+    await Wallet.loadIndex();
+    const promises = [];
+
+    const loadWallet = (i) => new Promise((resolve) => {
+      const wallet = new Wallet();
+
+      wallet.load(Wallet.index[i]).then(() => {
+        resolve(wallet);
+      });
+    });
+
+    for (let i = 0; i < Wallet.index.length; i += 1) {
+      promises.push(loadWallet(i));
+    }
+
+    return Promise.all(promises);
+  }
+
+  static async deleteAll() {
+    // const index = await DB.index('wallet', 'index');
+    await Wallet.loadIndex();
+
+    for (let i = 0; i < Wallet.index.length; i += 1) {
+      DB.del('wallet', Wallet.index[i]);
+    }
+
+    await DB.del('wallet', 'index');
+    Wallet.index = [];
   }
 
   constructor() {
@@ -115,10 +208,18 @@ class Wallet {
 
     const address = this.getAddressEncoded();
     await DB.put('wallet', address, JSON.stringify(data));
+    
+    // await DB.addIndex('wallet', address);
+
+    console.log(`Saved ${this.getAddressEncoded()}`);
   }
 
   async load(address) {
     const data = await DB.get('wallet', address);
+
+    if (!data) {
+      return false;
+    }
 
     this.label = data.label;
 
@@ -129,26 +230,14 @@ class Wallet {
     });
 
     this.recover(privateKey);
+
+    return true;
   }
 
   async delete() {
     await DB.del('wallet', this.getAddressEncoded());
+    // await DB.removeIndex('wallet', this.getAddressEncoded()); FIXME:
   }
-
-  // async saveIndex() {
-  //   let indexList;
-
-  //   try {
-  //     indexList = await DB.get('wallet', 'index');
-  //   } catch (e) {
-  //     indexList = [];
-  //   }
-
-  //   const address = this.getAddressEncoded();
-  //   indexList.push(address);
-
-  //   await DB.put('wallet', 'index', indexList);
-  // }
 
   recover(privateKey) {
     this.privateKey = privateKey;

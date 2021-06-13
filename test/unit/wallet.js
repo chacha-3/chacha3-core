@@ -5,6 +5,24 @@ const Wallet = require('../../models/wallet');
 
 // const { expect } = chai;
 
+test('should have no wallet index', (t) => {
+  t.equal(Wallet.index.length, 0);
+  t.end();
+});
+
+test('save and load wallet index', async (t) => {
+  Wallet.addIndex('keyName');
+  await Wallet.saveIndex();
+
+  await Wallet.loadIndex();
+  t.equal(Wallet.index.length, 1);
+
+  await Wallet.clearIndex();
+
+  t.equal(Wallet.index.length, 0);
+  t.end();
+});
+
 test('should create a wallet key', (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -99,6 +117,8 @@ test('save and load wallet', async (t) => {
   t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
   t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
 
+  await loadWallet.delete();
+
   t.end();
 });
 
@@ -111,15 +131,67 @@ test('delete wallet', async (t) => {
   await deleteWallet.delete();
 
   const loadWallet = new Wallet();
+  const result = await loadWallet.load(deleteWallet.getAddressEncoded());
 
-  let walletFound = false;
+  t.equal(result, false, 'Cannot load deleted wallet');
+  t.end();
+});
 
-  try {
-    await loadWallet.load(deleteWallet.getAddressEncoded());
-  } catch (e) {
-    walletFound = false;
-  }
+test('list all wallet', async (t) => {
+  // const createWallet = async (i) => {
+  //   const wallet = new Wallet();
+  //   wallet.setLabel(`addWallet${i}`);
+  //   wallet.generate();
 
-  t.equal(walletFound, false, 'Cannot load deleted wallet');
+  //   await wallet.save();
+  // };
+
+  // for (let i = 0; i < 3; i += 1) {
+  //   // eslint-disable-next-line no-await-in-loop
+  //   await createWallet(i);
+  // }
+
+  // const list = await Wallet.listAll();
+  // console.log(list);
+  // t.equal(list.length, 3);
+
+  // console.log(list);
+
+  // deleteWallet.setLabel('deleteThis');
+  // deleteWallet.generate();
+
+  // await deleteWallet.save();
+  // await deleteWallet.delete();
+
+  // const loadWallet = new Wallet();
+  // const result = await loadWallet.load(deleteWallet.getAddressEncoded());
+
+  // t.equal(result, false, 'Cannot load deleted wallet');
+  Wallet.deleteAll();
+  t.end();
+});
+
+test('delete all wallet', async (t) => {
+  // Wallet.deleteAll();
+  // const createWallet = async (i) => {
+  //   const saveWallet = new Wallet();
+  //   saveWallet.setLabel(`addWallet${i}`);
+  //   saveWallet.generate();
+  // };
+
+  // await Promise.all([createWallet(1), createWallet(2), createWallet(3)]);
+
+  // const list = Wallet.listAll();
+
+  // deleteWallet.setLabel('deleteThis');
+  // deleteWallet.generate();
+
+  // await deleteWallet.save();
+  // await deleteWallet.delete();
+
+  // const loadWallet = new Wallet();
+  // const result = await loadWallet.load(deleteWallet.getAddressEncoded());
+
+  // t.equal(result, false, 'Cannot load deleted wallet');
   t.end();
 });

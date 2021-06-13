@@ -36,30 +36,31 @@ DB.del = async (itemName, itemId) => {
   return result;
 };
 
-DB.index = async (itemName) => {
-  const existing = await DB.get(itemName, 'index');
-  return existing || [];
-};
+// DB.index = async (itemName) => {
+//   const existing = await DB.get(itemName, 'index');
+//   return existing || [];
+// };
 
-DB.addIndex = async (itemName, itemId) => {
-  const list = await DB.index(itemName);
+// DB.addIndex = async (itemName, itemId) => {
+//   const list = await DB.index(itemName);
+//   console.log(list.length);
+//   if (list.indexOf(itemId) === -1) {
+//     list.push(itemId);
+//   }
 
-  if (list.indexOf(itemId) === -1) {
-    list.push(itemId);
-  }
+//   console.log(`Add index ${itemId}`);
+//   await DB.put(itemName, 'index', list);
+// };
 
-  await DB.put(itemName, 'index', list);
-};
+// DB.removeIndex = async (itemName, itemId) => {
+//   const list = await DB.index(itemName);
+//   const index = list.indexOf(itemId);
 
-DB.removeIndex = async (itemName, itemId) => {
-  const list = await DB.index(itemName);
-  const index = list.indexOf(itemId);
+//   if (index > -1) {
+//     list.splice(index, 1);
+//   }
 
-  if (index > -1) {
-    list.splice(index, 1);
-  }
-
-  await DB.put(itemName, 'index', JSON.stringify(list));
-};
+//   await DB.put(itemName, 'index', JSON.stringify(list));
+// };
 
 module.exports = DB;
