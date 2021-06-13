@@ -118,9 +118,8 @@ class Wallet {
   }
 
   async load(address) {
-    const result = await DB.get('wallet', address);
+    const data = await DB.get('wallet', address);
 
-    const data = JSON.parse(result);
     this.label = data.label;
 
     const privateKey = crypto.createPrivateKey({
