@@ -7,18 +7,18 @@ class IndexList {
     }
 
     this.itemName = itemName;
-    this.items = this.loadList();
+    this.items = [];
   }
 
-  async loadList() {
+  async loadItems() {
     this.items = await DB.get(this.itemName, 'index') || [];
   }
 
-  async saveList() {
+  async saveItems() {
     await DB.put(this.itemName, 'index', this.items);
   }
 
-  async clearList() {
+  async clearItems() {
     await DB.del(this.itemName, 'index');
     this.items = [];
   }
@@ -39,7 +39,16 @@ class IndexList {
       this.items.splice(index, 1);
     }
 
-    await DB.put(this.itemName, 'index', this.items);
+    await DB.del(this.itemName, item);
+    await this.saveItems();
+  }
+
+  getItems() {
+    return this.items;
+  }
+
+  getSize() {
+    return this.items.length;
   }
 }
 
