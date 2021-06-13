@@ -11,6 +11,20 @@ class Wallet {
     return '';
   }
 
+  static async addIndex(key) {
+    let list;
+
+    try {
+      const existing = await DB.get('wallet', 'index');
+      list = existing;
+    } catch (e) {
+      list = [];
+    }
+
+    list.push(key);
+    DB.put('wallet', 'index', list);
+  }
+
   constructor() {
     this.label = '';
 
@@ -35,6 +49,14 @@ class Wallet {
 
     this.privateKey = crypto.createPrivateKey({ key: privateKey, format: 'der', type: 'pkcs8' });
     this.publicKey = crypto.createPublicKey({ key: publicKey, format: 'der', type: 'spki' });
+  }
+
+  getLabel() {
+    return this.label;
+  }
+
+  setLabel(label) {
+    this.label = label;
   }
 
   getKeys() {
@@ -108,6 +130,10 @@ class Wallet {
     });
 
     this.recover(privateKey);
+  }
+
+  async delete() {
+    await DB.del('wallet', this.getAddressEncoded());
   }
 
   // async saveIndex() {

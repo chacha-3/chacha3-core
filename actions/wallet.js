@@ -1,3 +1,5 @@
+const Wallet = require('../models/wallet');
+
 const wallet = {};
 
 wallet.listWallets = (request) => {
