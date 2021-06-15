@@ -12,19 +12,6 @@ test('should have no wallet index', (t) => {
   t.end();
 });
 
-// test('save and load wallet index', async (t) => {
-//   Wallet.addIndex('keyName');
-//   await Wallet.saveIndex();
-
-//   await Wallet.loadIndex();
-//   t.equal(Wallet.index.length, 1);
-
-//   await Wallet.clearIndex();
-
-//   t.equal(Wallet.index.length, 0);
-//   t.end();
-// });
-
 test('should create a wallet key', (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -140,7 +127,6 @@ test('delete wallet', async (t) => {
   const after = await Wallet.all();
   t.equal(after.length, 0);
 
-  Wallet.clearAll();
   t.end();
 });
 
@@ -158,7 +144,7 @@ test('list all wallet', async (t) => {
     promises.push(createWallet(i));
   }
 
-  await Promise.all(promises);
+  Promise.all(promises);
 
   const all = await Wallet.all();
   t.equal(all.length, 3, 'Total 3 wallets in list');
@@ -168,26 +154,24 @@ test('list all wallet', async (t) => {
 });
 
 test('delete all wallet', async (t) => {
-  // Wallet.clearAll();
-  // const createWallet = async (i) => {
-  //   const saveWallet = new Wallet();
-  //   saveWallet.setLabel(`addWallet${i}`);
-  //   saveWallet.generate();
-  // };
+  const createWallet = async (i) => {
+    const wallet = new Wallet();
+    wallet.setLabel(`addWallet${i}`);
+    wallet.generate();
 
-  // await Promise.all([createWallet(1), createWallet(2), createWallet(3)]);
+    await wallet.save();
+  };
 
-  // const index = Wallet.indexAll();
+  const promises = [];
+  for (let i = 0; i < 3; i += 1) {
+    promises.push(createWallet(i));
+  }
 
-  // deleteWallet.setLabel('deleteThis');
-  // deleteWallet.generate();
+  Promise.all(promises);
 
-  // await deleteWallet.save();
-  // await deleteWallet.delete();
+  await Wallet.clearAll();
 
-  // const loadWallet = new Wallet();
-  // const result = await loadWallet.load(deleteWallet.getAddressEncoded());
-
-  // t.equal(result, false, 'Cannot load deleted wallet');
+  const all = await Wallet.all();
+  t.equal(all.length, 0, 'No wallet in list');
   t.end();
 });

@@ -15,10 +15,6 @@ class Wallet {
     return '';
   }
 
-  // static getIndex() {
-  //   return index;
-  // }
-
   static async all() {
     const readValues = () => new Promise((resolve, reject) => {
       const values = [];
@@ -53,10 +49,6 @@ class Wallet {
 
   static async clearAll() {
     await walletDb.clear();
-  }
-
-  static async getList() {
-
   }
 
   constructor() {
