@@ -106,77 +106,69 @@ test('should recover a wallet', (t) => {
 });
 
 test('save and load wallet', async (t) => {
-  // const saveWallet = new Wallet();
-  // saveWallet.setLabel('myLabel');
-  // saveWallet.generate();
-  // await saveWallet.save();
+  const saveWallet = new Wallet();
+  saveWallet.setLabel('myLabel');
+  saveWallet.generate();
+  await saveWallet.save();
 
-  // // t.equal(Wallet.index.getSize(), 1);
+  const list = await Wallet.all();
+  t.equal(list.length, 1);
 
-  // const loadWallet = new Wallet();
-  // await loadWallet.load(saveWallet.getAddressEncoded());
+  const loadWallet = new Wallet();
+  await loadWallet.load(saveWallet.getAddressEncoded());
 
-  // t.equal(loadWallet.getLabel(), 'myLabel');
+  t.equal(loadWallet.getLabel(), 'myLabel');
 
-  // t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
-  // t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
+  t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
+  t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
 
-  // await loadWallet.delete();
-
-  // t.end();
+  await loadWallet.delete();
+  t.end();
 });
 
 test('delete wallet', async (t) => {
-  // const deleteWallet = new Wallet();
-  // deleteWallet.setLabel('deleteThis');
-  // deleteWallet.generate();
+  const wallet = new Wallet();
+  wallet.setLabel('myLabel');
+  wallet.generate();
+  await wallet.save();
 
-  // await deleteWallet.save();
-  // await deleteWallet.delete();
+  const before = await Wallet.all();
+  t.equal(before.length, 1);
 
-  // const loadWallet = new Wallet();
-  // const result = await loadWallet.load(deleteWallet.getAddressEncoded());
+  await wallet.delete();
 
-  // t.equal(result, false, 'Cannot load deleted wallet');
-  // t.end();
+  const after = await Wallet.all();
+  t.equal(after.length, 0);
+
+  Wallet.clearAll();
+  t.end();
 });
 
-test('index all wallet', async (t) => {
-  // const createWallet = async (i) => {
-  //   const wallet = new Wallet();
-  //   wallet.setLabel(`addWallet${i}`);
-  //   wallet.generate();
+test('list all wallet', async (t) => {
+  const createWallet = async (i) => {
+    const wallet = new Wallet();
+    wallet.setLabel(`addWallet${i}`);
+    wallet.generate();
 
-  //   await wallet.save();
-  // };
+    await wallet.save();
+  };
 
-  // for (let i = 0; i < 3; i += 1) {
-  //   // eslint-disable-next-line no-await-in-loop
-  //   await createWallet(i);
-  // }
+  const promises = [];
+  for (let i = 0; i < 3; i += 1) {
+    promises.push(createWallet(i));
+  }
 
-  // const index = await Wallet.indexAll();
-  // console.log(index);
-  // t.equal(index.length, 3);
+  await Promise.all(promises);
 
-  // console.log(index);
+  const all = await Wallet.all();
+  t.equal(all.length, 3, 'Total 3 wallets in list');
 
-  // deleteWallet.setLabel('deleteThis');
-  // deleteWallet.generate();
-
-  // await deleteWallet.save();
-  // await deleteWallet.delete();
-
-  // const loadWallet = new Wallet();
-  // const result = await loadWallet.load(deleteWallet.getAddressEncoded());
-
-  // t.equal(result, false, 'Cannot load deleted wallet');
-  // Wallet.deleteAll();
+  Wallet.clearAll();
   t.end();
 });
 
 test('delete all wallet', async (t) => {
-  // Wallet.deleteAll();
+  // Wallet.clearAll();
   // const createWallet = async (i) => {
   //   const saveWallet = new Wallet();
   //   saveWallet.setLabel(`addWallet${i}`);

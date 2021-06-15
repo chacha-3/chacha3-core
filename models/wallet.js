@@ -1,16 +1,17 @@
 const crypto = require('crypto');
 const assert = require('assert');
 const bs58 = require('bs58');
+const level = require('level');
+const sub = require('subleveldown');
 
-const IndexList = require('./list');
-
-const DB = require('../util/database');
+// const DB = require('../util/database');
+const db = level('data');
+const walletDb = sub(db, 'wallet');
 
 // const addressPrefix = '420_';
 
-
-class Wallet { 
-  static get AddressPrefix() {  
+class Wallet {
+  static get AddressPrefix() {
     return '';
   }
 
@@ -18,14 +19,40 @@ class Wallet {
   //   return index;
   // }
 
-  static index = new IndexList('wallet');
+  static async all() {
+    const readValues = () => new Promise((resolve, reject) => {
+      const values = [];
 
-  static async loadAll() {
-    index.loadItems();
+      walletDb
+        .createValueStream({ valueEncoding: 'json' })
+        .on('data', async (data) => {
+          values.push(data);
+        })
+        .on('error', (err) => reject(err))
+        .on('end', () => resolve(values));
+    });
+
+    const values = await readValues();
+
+    const loadWallet = (data) => new Promise((resolve) => {
+      const wallet = new Wallet();
+
+      wallet.setLabel(data.label);
+      wallet.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
+
+      resolve(wallet);
+    });
+
+    const promises = [];
+
+    values.forEach((value) => promises.push(loadWallet(value)));
+
+    const wallets = Promise.all(promises);
+    return wallets;
   }
 
-  static async deleteAll() {
-    index.clearItems();
+  static async clearAll() {
+    await walletDb.clear();
   }
 
   static async getList() {
@@ -54,6 +81,10 @@ class Wallet {
       },
     });
 
+    this.setKeys(privateKey, publicKey);
+  }
+
+  setKeys(privateKey, publicKey) {
     this.privateKey = crypto.createPrivateKey({ key: privateKey, format: 'der', type: 'pkcs8' });
     this.publicKey = crypto.createPublicKey({ key: publicKey, format: 'der', type: 'spki' });
   }
@@ -113,29 +144,28 @@ class Wallet {
   }
 
   async save() {
-    const { privateKey } = this.getKeysHex();
+    const { privateKey, publicKey } = this.getKeysHex();
 
     const data = {
       label: this.label,
       privateKey,
+      publicKey,
     };
 
     const address = this.getAddressEncoded();
-    await DB.put('wallet', address, JSON.stringify(data));
-    
-    index.addItem(address);
-
-    console.log(`Saved ${this.getAddressEncoded()}`);
+    await walletDb.put(address, data, { valueEncoding: 'json' });
   }
 
   async load(address) {
-    const data = await DB.get('wallet', address);
+    let data;
 
-    if (!data) {
+    try {
+      data = await walletDb.get(address, { valueEncoding: 'json' });
+    } catch (e) {
       return false;
     }
 
-    this.label = data.label;
+    this.setLabel(data.label);
 
     const privateKey = crypto.createPrivateKey({
       key: Buffer.from(data.privateKey, 'hex'),
@@ -144,15 +174,11 @@ class Wallet {
     });
 
     this.recover(privateKey);
-
     return true;
   }
 
   async delete() {
-    // await DB.del('wallet', this.getAddressEncoded());
-    index.removeItem(this.getAddressEncoded());
-    // Wallet.index
-    // await DB.removeIndex('wallet', this.getAddressEncoded()); FIXME:
+    walletDb.del(this.getAddressEncoded());
   }
 
   recover(privateKey) {
