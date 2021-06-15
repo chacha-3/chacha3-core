@@ -2,10 +2,8 @@
   "env": {
     "browser": true,
     "commonjs": true,
-    "es2021": true,
-    "mocha": true
+    "es2021": true
   },
-  "parser": "@babel/eslint-parser",
   "extends": [
     "airbnb-base"
   ],

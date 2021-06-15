@@ -9,19 +9,23 @@ const DB = require('../util/database');
 // const addressPrefix = '420_';
 
 
-class Wallet {
-  static get AddressPrefix() {
+class Wallet { 
+  static get AddressPrefix() {  
     return '';
   }
 
-  static list = new IndexList('wallet');
+  // static getIndex() {
+  //   return index;
+  // }
+
+  static index = new IndexList('wallet');
 
   static async loadAll() {
-    this.list.loadItems();
+    index.loadItems();
   }
 
   static async deleteAll() {
-    this.list.clearItems();
+    index.clearItems();
   }
 
   static async getList() {
@@ -119,7 +123,7 @@ class Wallet {
     const address = this.getAddressEncoded();
     await DB.put('wallet', address, JSON.stringify(data));
     
-    // await DB.addIndex('wallet', address);
+    index.addItem(address);
 
     console.log(`Saved ${this.getAddressEncoded()}`);
   }
@@ -146,8 +150,8 @@ class Wallet {
 
   async delete() {
     // await DB.del('wallet', this.getAddressEncoded());
-    Wallet.list.removeItem(this.getAddressEncoded());
-    Wallet.list
+    index.removeItem(this.getAddressEncoded());
+    // Wallet.index
     // await DB.removeIndex('wallet', this.getAddressEncoded()); FIXME:
   }
 
