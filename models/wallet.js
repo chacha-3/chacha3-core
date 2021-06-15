@@ -1,12 +1,9 @@
 const crypto = require('crypto');
 const assert = require('assert');
 const bs58 = require('bs58');
-const level = require('level');
-const sub = require('subleveldown');
 
 // const DB = require('../util/database');
-const db = level('data');
-const walletDb = sub(db, 'wallet');
+const { WalletDB } = require('../util/db');
 
 // const addressPrefix = '420_';
 
@@ -16,15 +13,14 @@ class Wallet {
   }
 
   static async all() {
-    const readValues = () => new Promise((resolve, reject) => {
+    const readValues = () => new Promise((resolve) => {
       const values = [];
 
-      walletDb
+      WalletDB
         .createValueStream({ valueEncoding: 'json' })
         .on('data', async (data) => {
           values.push(data);
         })
-        .on('error', (err) => reject(err))
         .on('end', () => resolve(values));
     });
 
@@ -48,7 +44,7 @@ class Wallet {
   }
 
   static async clearAll() {
-    await walletDb.clear();
+    await WalletDB.clear();
   }
 
   constructor() {
@@ -145,14 +141,14 @@ class Wallet {
     };
 
     const address = this.getAddressEncoded();
-    await walletDb.put(address, data, { valueEncoding: 'json' });
+    await WalletDB.put(address, data, { valueEncoding: 'json' });
   }
 
   async load(address) {
     let data;
 
     try {
-      data = await walletDb.get(address, { valueEncoding: 'json' });
+      data = await WalletDB.get(address, { valueEncoding: 'json' });
     } catch (e) {
       return false;
     }
@@ -170,7 +166,7 @@ class Wallet {
   }
 
   async delete() {
-    walletDb.del(this.getAddressEncoded());
+    WalletDB.del(this.getAddressEncoded());
   }
 
   recover(privateKey) {

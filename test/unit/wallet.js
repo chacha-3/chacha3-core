@@ -5,13 +5,6 @@ const Wallet = require('../../models/wallet');
 
 // const { expect } = chai;
 
-test('should have no wallet index', (t) => {
-  // t.equal(Wallet.getIndex().getSize(), 0);
-
-  // t.equal(Wallet.getIndex().getSize(), 5);
-  t.end();
-});
-
 test('should create a wallet key', (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -110,6 +103,14 @@ test('save and load wallet', async (t) => {
   t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
 
   await loadWallet.delete();
+  t.end();
+});
+
+test('does not load unsaved wallet', async (t) => {
+  const loadWallet = new Wallet();
+  const result = await loadWallet.load('random_address');
+
+  t.equal(result, false);
   t.end();
 });
 
