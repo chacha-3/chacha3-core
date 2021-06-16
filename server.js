@@ -1,6 +1,7 @@
 /**
  * Normalize a port into a number, string, or false.
  */
+const pem = require('pem');
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
@@ -23,6 +24,11 @@ const server = require('./app')({
   //   level: 'info',
   //   prettyPrint: true,
   // },
+  // http2: true,
+  // https: {
+  //   key: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.key')),
+  //   cert: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.cert'))
+  // }
 });
 
 const port = normalizePort(process.env.PORT || '3000');

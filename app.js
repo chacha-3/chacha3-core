@@ -11,7 +11,7 @@ const schema = {
   },
   response: {
     200: {
-      type: 'object',
+      data: 'object',
       properties: {
         hello: { type: 'string' },
       },
@@ -19,9 +19,11 @@ const schema = {
   },
 };
 
-function mapRequestAction(request) {
+const mapRequestAction = async (request) => {
   const { action } = request;
-  return JSON.stringify(actions[action](request));
+
+  const result = await actions[action](request);
+  return JSON.stringify(result);
 }
 
 function build(opts = {}) {
@@ -45,7 +47,12 @@ function build(opts = {}) {
     preHandler: async (request, reply) => {
       // E.g. check authentication
     },
-    handler: async (request, reply) => mapRequestAction(request.body),
+    handler: async (request, reply) => {
+      reply.type('application/json');
+
+      const response = await mapRequestAction(request.body);
+      return response;
+    },
   });
 
   return app;

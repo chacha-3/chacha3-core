@@ -3,6 +3,8 @@ const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 
+const mock = require('../util/mock');
+
 // const { expect } = chai;
 
 test('should create a wallet key', (t) => {
@@ -132,20 +134,7 @@ test('delete wallet', async (t) => {
 });
 
 test('list all wallet', async (t) => {
-  const createWallet = async (i) => {
-    const wallet = new Wallet();
-    wallet.setLabel(`addWallet${i}`);
-    wallet.generate();
-
-    await wallet.save();
-  };
-
-  const promises = [];
-  for (let i = 0; i < 3; i += 1) {
-    promises.push(createWallet(i));
-  }
-
-  Promise.all(promises);
+  await mock.createWallets(3);
 
   const all = await Wallet.all();
   t.equal(all.length, 3, 'Total 3 wallets in list');
@@ -155,21 +144,7 @@ test('list all wallet', async (t) => {
 });
 
 test('delete all wallet', async (t) => {
-  const createWallet = async (i) => {
-    const wallet = new Wallet();
-    wallet.setLabel(`addWallet${i}`);
-    wallet.generate();
-
-    await wallet.save();
-  };
-
-  const promises = [];
-  for (let i = 0; i < 3; i += 1) {
-    promises.push(createWallet(i));
-  }
-
-  Promise.all(promises);
-
+  await mock.createWallets(3);
   await Wallet.clearAll();
 
   const all = await Wallet.all();

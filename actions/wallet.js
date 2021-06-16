@@ -1,11 +1,14 @@
 const Wallet = require('../models/wallet');
 
-const wallet = {};
+const actions = {};
 
-wallet.listWallets = async (request) => {
+actions.listWallets = async (request) => {
   const wallets = await Wallet.all();
 
-  return { data: 'response' };
+  const data = [];
+  wallets.forEach((wallet) => data.push(wallet.toObject()));
+
+  return { data };
 };
 
-module.exports = wallet;
+module.exports = actions;
