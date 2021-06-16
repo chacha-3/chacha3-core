@@ -19,7 +19,10 @@ const schema = {
   },
 };
 
-const peerList = [];
+function mapRequestAction(request) {
+  const { action } = request;
+  return JSON.stringify(actions[action](request));
+}
 
 function build(opts = {}) {
   const app = fastify(opts);
@@ -30,19 +33,9 @@ function build(opts = {}) {
   app.get('/', {
     websocket: true,
     schema,
-    // preHandler: async (request, reply) => {
-    //   // E.g. check authentication
-    // },
-    // handler: async (request, reply) => {
-    //   // return { hello: 'world' };
-    // },
   }, (connection, req) => {
     connection.socket.on('message', (message) => {
-      const request = JSON.parse(message);
-      const { action } = request;
-
-      const response = JSON.stringify(actions[action](request));
-      connection.socket.send(response);
+      connection.socket.send(mapRequestAction(JSON.parse(message)));
     });
   });
 
@@ -52,10 +45,7 @@ function build(opts = {}) {
     preHandler: async (request, reply) => {
       // E.g. check authentication
     },
-    handler: async (request, reply) => {
-      // console.log(request);
-      return { hello: 'world2' };
-    },
+    handler: async (request, reply) => mapRequestAction(request.body),
   });
 
   return app;

@@ -2,8 +2,8 @@ const Wallet = require('../models/wallet');
 
 const wallet = {};
 
-wallet.listWallets = (request) => {
-  console.log(request);
+wallet.listWallets = async (request) => {
+  const wallets = await Wallet.all();
 
   return { data: 'response' };
 };

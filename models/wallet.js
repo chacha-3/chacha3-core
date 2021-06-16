@@ -28,9 +28,7 @@ class Wallet {
 
     const loadWallet = (data) => new Promise((resolve) => {
       const wallet = new Wallet();
-
-      wallet.setLabel(data.label);
-      wallet.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
+      wallet.fromObject(data);
 
       resolve(wallet);
     });
@@ -38,9 +36,7 @@ class Wallet {
     const promises = [];
 
     values.forEach((value) => promises.push(loadWallet(value)));
-
-    const wallets = Promise.all(promises);
-    return wallets;
+    return Promise.all(promises);
   }
 
   static async clearAll() {
@@ -132,16 +128,8 @@ class Wallet {
   }
 
   async save() {
-    const { privateKey, publicKey } = this.getKeysHex();
-
-    const data = {
-      label: this.label,
-      privateKey,
-      publicKey,
-    };
-
     const address = this.getAddressEncoded();
-    await WalletDB.put(address, data, { valueEncoding: 'json' });
+    await WalletDB.put(address, this.toObject(), { valueEncoding: 'json' });
   }
 
   async load(address) {
@@ -172,6 +160,23 @@ class Wallet {
   recover(privateKey) {
     this.privateKey = privateKey;
     this.publicKey = crypto.createPublicKey(this.privateKey);
+  }
+
+  toObject() {
+    const { privateKey, publicKey } = this.getKeysHex();
+
+    const data = {
+      label: this.label,
+      privateKey,
+      publicKey,
+    };
+
+    return data;
+  }
+
+  fromObject(data) {
+    this.setLabel(data.label);
+    this.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
   }
 }
 
