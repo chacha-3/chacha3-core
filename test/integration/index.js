@@ -2,7 +2,7 @@ const { test } = require('tap');
 
 const build = require('../../app');
 
-test('get server info', async (t) => {
+test('establish connection with handshake', async (t) => {
   const app = build();
 
   const response = await app.inject({
