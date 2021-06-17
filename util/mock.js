@@ -1,4 +1,4 @@
-const Wallet = require('../../models/wallet');
+const Wallet = require('../models/wallet');
 
 const mock = {};
 

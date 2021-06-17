@@ -6,12 +6,12 @@ const Peer = require('./models/peer');
 const actions = require('./actions');
 
 const schema = {
-  querystring: {
+  body: {
     action: { type: 'string' },
   },
   response: {
     200: {
-      data: 'object',
+      type: 'object',
       properties: {
         hello: { type: 'string' },
       },
@@ -22,14 +22,29 @@ const schema = {
 const mapRequestAction = async (request) => {
   const { action } = request;
 
-  const result = await actions[action](request);
-  return JSON.stringify(result);
-}
+  const handler = await actions[action];
+  if (!handler) {
+    return false;
+  }
+
+  return handler(request);
+};
+
+const errorHandler = (error, request, reply) => {
+  console.log(error);
+  if (error.validation) {
+    reply.status(400).send(error.validation);
+    return;
+  }
+
+  reply.send({'error': 'hello'});
+};
 
 function build(opts = {}) {
   const app = fastify(opts);
 
   app.register(fastifyWebsocket);
+  app.setErrorHandler(errorHandler);
 
   // Websocket endpoint
   app.get('/', {
@@ -37,7 +52,8 @@ function build(opts = {}) {
     schema,
   }, (connection, req) => {
     connection.socket.on('message', (message) => {
-      connection.socket.send(mapRequestAction(JSON.parse(message)));
+      const requestData = JSON.parse(message);
+      connection.socket.send(requestData);
     });
   });
 
@@ -48,10 +64,15 @@ function build(opts = {}) {
       // E.g. check authentication
     },
     handler: async (request, reply) => {
+      const response = await mapRequestAction(request.body);
       reply.type('application/json');
 
-      const response = await mapRequestAction(request.body);
-      return response;
+      if (response) {
+        return JSON.stringify(response);
+      }
+
+      reply.code(404);
+      return JSON.stringify({ error: 'notFound' });
     },
   });
 

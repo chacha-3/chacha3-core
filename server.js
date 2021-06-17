@@ -1,7 +1,7 @@
 /**
  * Normalize a port into a number, string, or false.
  */
-const pem = require('pem');
+const selfsigned = require('selfsigned');
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
@@ -19,16 +19,24 @@ function normalizePort(val) {
   return false;
 }
 
+const attrs = [{ name: 'commonName', value: 'bong' }];
+const pems = selfsigned.generate(attrs, {
+  keySize: 2048,
+  days: 530,
+  algorithm: 'sha256',
+});
+
 const server = require('./app')({
   // logger: {
   //   level: 'info',
   //   prettyPrint: true,
   // },
-  // http2: true,
-  // https: {
-  //   key: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.key')),
-  //   cert: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.cert'))
-  // }
+  http2: true,
+  https: {
+    key: pems.private,
+    cert: pems.cert,
+  },
+
 });
 
 const port = normalizePort(process.env.PORT || '3000');

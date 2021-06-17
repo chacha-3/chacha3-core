@@ -19,7 +19,7 @@
     "leveldown": "^6.0.0",
     "levelup": "^5.0.0",
     "morgan": "~1.10.0",
-    "pem": "^1.14.4",
+    "selfsigned": "^1.10.11",
     "subleveldown": "^5.0.1",
     "yargs": "^17.0.1"
   },
