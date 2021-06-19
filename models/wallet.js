@@ -44,11 +44,22 @@ class Wallet {
   }
 
   static async setSelected(wallet) {
+    if (wallet == null) {
+      await WalletDB.del('selected');
+      return;
+    }
+
     await WalletDB.put('selected', wallet.getAddressEncoded());
   }
 
   static async getSelected() {
-    const address = await WalletDB.get('selected');
+    let address;
+
+    try {
+      address = await WalletDB.get('selected');
+    } catch (e) {
+      return null;
+    }
 
     const wallet = new Wallet();
     await wallet.load(address);

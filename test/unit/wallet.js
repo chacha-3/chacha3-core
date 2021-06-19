@@ -151,3 +151,42 @@ test('delete all wallet', async (t) => {
   t.equal(all.length, 0, 'No wallet in list');
   t.end();
 });
+
+test('set a selected wallet', async (t) => {
+  const numOfWallets = 3;
+  await mock.createWallets(numOfWallets);
+
+  const list = await Wallet.all();
+  const selectWallet = list[Math.floor(Math.random() * numOfWallets)];
+
+  let selected = await Wallet.getSelected();
+  t.equal(selected, null, 'Have not selected wallet');
+
+  await Wallet.setSelected(selectWallet);
+  selected = await Wallet.getSelected();
+  t.equal(selectWallet.getAddressEncoded(), selected.getAddressEncoded());
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
+test('set a selected wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+  await wallet.save();
+
+  await Wallet.setSelected(wallet);
+
+  let selected = await Wallet.getSelected();
+  t.equal(wallet.getAddressEncoded(), selected.getAddressEncoded(), 'Have wallet before unselect');
+
+  await Wallet.setSelected(null);
+  selected = await Wallet.getSelected();
+
+  t.equal(selected, null, 'Have no wallet after unselect');
+
+  await Wallet.clearAll();
+
+  t.end();
+});
