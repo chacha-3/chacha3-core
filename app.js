@@ -9,16 +9,6 @@ const schema = {
   body: {
     action: { type: 'string' },
   },
-  // response: {
-  //   200: {
-  //     type: 'object',
-  //     properties: {
-  //       data: {
-  //         type: ['array', 'object'],
-  //       },
-  //     },
-  //   },
-  // },
 };
 
 const router = async (request, reply) => {
@@ -59,8 +49,14 @@ function build(opts = {}) {
   app.post('/', {
     schema,
     preHandler: async (request, reply, done) => {
-      const { action } = request.body;
-      const { permission } = await actions[action];
+      const actionName = request.body.action;
+      const action = actions[actionName];
+
+      if (!action) {
+        reply.code(400).send();
+      }
+
+      const { permission } = action;
 
       if (permission === 'public') {
         done();
@@ -75,8 +71,10 @@ function build(opts = {}) {
     handler: async (request, reply) => {
       reply.type('application/json');
 
-      const { action } = request.body;
-      const { handler } = await actions[action];
+      const actionName = request.body.action;
+      const action = actions[actionName];
+
+      const { handler } = action;
 
       handler(request, reply);
     },

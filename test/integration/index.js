@@ -24,3 +24,18 @@ test('establish connection with handshake', async (t) => {
 
   t.end();
 });
+
+test('cannot use unavailable action', async (t) => {
+  const app = build();
+
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'iAmFree',
+    },
+  });
+
+  t.equal(response.statusCode, 400, 'returns a status code of 400');
+  t.end();
+});
