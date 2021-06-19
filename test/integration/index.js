@@ -17,6 +17,7 @@ test('establish connection with handshake', async (t) => {
   t.equal(response.statusCode, 200, 'returns a status code of 200');
 
   const { data } = response.json();
+  console.log(response.body);
 
   t.equal(data.accepted, true, 'accepts handshake');
   t.equal(data.version, 1, 'version matches');

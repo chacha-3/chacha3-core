@@ -9,25 +9,23 @@ const schema = {
   body: {
     action: { type: 'string' },
   },
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        hello: { type: 'string' },
-      },
-    },
-  },
+  // response: {
+  //   200: {
+  //     type: 'object',
+  //     properties: {
+  //       data: {
+  //         type: ['array', 'object'],
+  //       },
+  //     },
+  //   },
+  // },
 };
 
-const mapRequestAction = async (request) => {
-  const { action } = request;
+const router = async (request, reply) => {
+  const { action } = request.body;
+  const { handler } = await actions[action];
 
-  const handler = await actions[action];
-  if (!handler) {
-    return false;
-  }
-
-  return handler(request);
+  handler(request, reply);
 };
 
 const errorHandler = (error, request, reply) => {
@@ -37,7 +35,7 @@ const errorHandler = (error, request, reply) => {
     return;
   }
 
-  reply.send({'error': 'hello'});
+  reply.send({ error: 'errorHandler' });
 };
 
 function build(opts = {}) {
@@ -60,19 +58,27 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     schema,
-    preHandler: async (request, reply) => {
-      // E.g. check authentication
-    },
-    handler: async (request, reply) => {
-      const response = await mapRequestAction(request.body);
-      reply.type('application/json');
+    preHandler: async (request, reply, done) => {
+      const { action } = request.body;
+      const { permission } = await actions[action];
 
-      if (response) {
-        return JSON.stringify(response);
+      if (permission === 'public') {
+        done();
       }
 
-      reply.code(404);
-      return JSON.stringify({ error: 'notFound' });
+      if (permission === 'authOnly') {
+        reply.code(401);
+      }
+      // E.g. check authentication
+      // reply.code(401);
+    },
+    handler: async (request, reply) => {
+      reply.type('application/json');
+
+      const { action } = request.body;
+      const { handler } = await actions[action];
+
+      handler(request, reply);
     },
   });
 

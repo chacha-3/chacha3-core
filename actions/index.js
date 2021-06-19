@@ -4,15 +4,18 @@ const actions = {
   ...wallet,
 };
 
-actions.handshake = async (request) => {
-  const accepted = request.version >= 1;
+actions.handshake = {
+  permission: 'public',
+  handler: async (request, reply) => {
+    const { version } = request.body;
 
-  const data = {
-    accepted,
-    version: 1,
-  };
+    const data = {
+      accepted: version >= 1,
+      version: 1,
+    };
 
-  return { data };
+    reply.send({ data });
+  },
 };
 
 module.exports = actions;

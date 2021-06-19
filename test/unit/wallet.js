@@ -3,7 +3,7 @@ const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 
-const mock = require('../util/mock');
+const mock = require('../../util/mock');
 
 // const { expect } = chai;
 

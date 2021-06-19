@@ -1,6 +1,6 @@
 const { test } = require('tap');
 
-const mock = require('../util/mock');
+const mock = require('../../util/mock');
 
 const Wallet = require('../../models/wallet');
 
@@ -20,7 +20,6 @@ test('list all wallet', async (t) => {
   t.equal(response.statusCode, 200, 'returns a status code of 200');
 
   const { data } = response.json();
-
   t.equal(data.length, 3);
 
   t.equal(typeof data[0].label, 'string');
