@@ -14,7 +14,7 @@ actions.handshake = {
       version: 1,
     };
 
-    return [data, 200];
+    return { data, code: 'ok' };
   },
 };
 

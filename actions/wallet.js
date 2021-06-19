@@ -10,7 +10,7 @@ actions.listWallets = {
     const data = [];
     wallets.forEach((wallet) => data.push(wallet.toObject()));
 
-    return [data, 200];
+    return { data, code: 'ok' };
   },
 };
 

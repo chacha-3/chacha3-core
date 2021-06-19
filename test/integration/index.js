@@ -3,17 +3,17 @@ const { Server } = require('mock-socket');
 
 const build = require('../../app');
 
-test('cannot use unavailable action', async (t) => {
-  const app = build();
+// test('cannot use unavailable action', async (t) => {
+//   const app = build();
 
-  const response = await app.inject({
-    method: 'POST',
-    url: '/',
-    payload: {
-      action: 'iAmFree',
-    },
-  });
+//   const response = await app.inject({
+//     method: 'POST',
+//     url: '/',
+//     payload: {
+//       action: 'iAmFree',
+//     },
+//   });
 
-  t.equal(response.statusCode, 400, 'returns a status code of 400');
-  t.end();
-});
+//   t.equal(response.statusCode, 400, 'returns a status code of 400');
+//   t.end();
+// });
