@@ -37,8 +37,9 @@ function build(opts = {}) {
   // Websocket endpoint
   app.get('/', {
     websocket: true,
-    schema,
+    // schema,
   }, (connection, req) => {
+    console.log('connect');
     connection.socket.on('message', (message) => {
       const requestData = JSON.parse(message);
       connection.socket.send(requestData);
@@ -76,7 +77,8 @@ function build(opts = {}) {
 
       const { handler } = action;
 
-      handler(request, reply);
+      const [data] = await handler(request.body);
+      reply.send(JSON.stringify({ data }));
     },
   });
 

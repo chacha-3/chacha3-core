@@ -36,7 +36,6 @@ const server = require('./app')({
     key: pems.private,
     cert: pems.cert,
   },
-
 });
 
 const port = normalizePort(process.env.PORT || '3000');

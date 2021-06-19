@@ -43,6 +43,19 @@ class Wallet {
     await WalletDB.clear();
   }
 
+  static async setSelected(wallet) {
+    await WalletDB.put('selected', wallet.getAddressEncoded());
+  }
+
+  static async getSelected() {
+    const address = await WalletDB.get('selected');
+
+    const wallet = new Wallet();
+    await wallet.load(address);
+
+    return wallet;
+  }
+
   constructor() {
     this.label = '';
 

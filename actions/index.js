@@ -6,15 +6,15 @@ const actions = {
 
 actions.handshake = {
   permission: 'public',
-  handler: async (request, reply) => {
-    const { version } = request.body;
+  handler: async (requestData) => {
+    const { version } = requestData;
 
     const data = {
       accepted: version >= 1,
       version: 1,
     };
 
-    reply.send({ data });
+    return [data, 200];
   },
 };
 

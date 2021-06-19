@@ -4,13 +4,13 @@ const actions = {};
 
 actions.listWallets = {
   permission: 'public',
-  handler: async (request, reply) => {
+  handler: async (requestData) => {
     const wallets = await Wallet.all();
 
     const data = [];
     wallets.forEach((wallet) => data.push(wallet.toObject()));
 
-    reply.send({ data });
+    return [data, 200];
   },
 };
 
