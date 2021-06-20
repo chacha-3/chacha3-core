@@ -171,7 +171,7 @@ test('set a selected wallet', async (t) => {
   t.end();
 });
 
-test('set a selected wallet', async (t) => {
+test('unselect a selected wallet', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
   await wallet.save();
