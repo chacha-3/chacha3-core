@@ -102,7 +102,7 @@ class Wallet {
   }
 
   setLabel(label) {
-    this.label = label;
+    this.label = label || '';
   }
 
   getKeys() {
@@ -152,8 +152,16 @@ class Wallet {
   }
 
   async save() {
+    const { privateKey, publicKey } = this.getKeysHex();
     const address = this.getAddressEncoded();
-    await WalletDB.put(address, this.toObject(), { valueEncoding: 'json' });
+
+    const saveData = {
+      label: this.label,
+      privateKey,
+      publicKey,
+    };
+
+    await WalletDB.put(address, saveData, { valueEncoding: 'json' });
   }
 
   async load(address) {
@@ -167,13 +175,12 @@ class Wallet {
 
     this.setLabel(data.label);
 
-    const privateKey = crypto.createPrivateKey({
+    this.recover(crypto.createPrivateKey({
       key: Buffer.from(data.privateKey, 'hex'),
       format: 'der',
       type: 'pkcs8',
-    });
+    }));
 
-    this.recover(privateKey);
     return true;
   }
 
@@ -193,6 +200,7 @@ class Wallet {
       label: this.label,
       privateKey,
       publicKey,
+      address: this.getAddressEncoded(),
     };
 
     return data;
@@ -201,6 +209,13 @@ class Wallet {
   fromObject(data) {
     this.setLabel(data.label);
     this.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
+  }
+
+  toString() {
+    const data = this.toObject();
+    data.address = this.getAddressEncoded();
+
+    return JSON.stringify(data, null, 2);
   }
 }
 

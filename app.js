@@ -77,7 +77,7 @@ function build(opts = {}) {
 
       const { handler } = action;
 
-      const [data] = await handler(request.body);
+      const { data, code } = await handler(request.body);
       reply.send(JSON.stringify({ data }));
     },
   });

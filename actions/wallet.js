@@ -14,4 +14,16 @@ actions.listWallets = {
   },
 };
 
+actions.createWallet = {
+  permission: 'public',
+  handler: async (requestData) => {
+    const wallet = new Wallet();
+    wallet.generate();
+    wallet.setLabel(requestData.label);
+    wallet.save();
+
+    return { data: wallet.toObject(), code: 'ok' };
+  },
+};
+
 module.exports = actions;
