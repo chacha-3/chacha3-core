@@ -4,7 +4,7 @@ const actions = {};
 
 actions.listWallets = {
   permission: 'public',
-  handler: async (requestData) => {
+  handler: async () => {
     const wallets = await Wallet.all();
 
     const data = [];

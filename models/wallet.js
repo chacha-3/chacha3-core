@@ -74,7 +74,9 @@ class Wallet {
     this.publicKey = null;
   }
 
-  generate() {
+  generate(password) {
+    const passphrase = password || '';
+
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
       namedCurve: 'secp384r1',
       publicKeyEncoding: {
@@ -84,18 +86,25 @@ class Wallet {
       privateKeyEncoding: {
         type: 'pkcs8',
         format: 'der',
-        // cipher: "aes-256-cbc",
-        // passphrase: 'qwe',
+        cipher: 'aes-256-cbc',
+        passphrase,
       },
     });
 
-    this.setKeys(privateKey, publicKey);
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+    // this.setKeys(privateKey, publicKey, passphrase);
   }
 
-  setKeys(privateKey, publicKey) {
-    this.privateKey = crypto.createPrivateKey({ key: privateKey, format: 'der', type: 'pkcs8' });
-    this.publicKey = crypto.createPublicKey({ key: publicKey, format: 'der', type: 'spki' });
-  }
+  // setKeys(privateKey, publicKey, passphrase) {
+  //   this.privateKey = crypto.createPrivateKey({
+  //     key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+  //   });
+
+  //   this.publicKey = crypto.createPublicKey({
+  //     key: publicKey, format: 'der', type: 'spki', passphrase,
+  //   });
+  // }
 
   getLabel() {
     return this.label;
@@ -105,9 +114,19 @@ class Wallet {
     this.label = label || '';
   }
 
-  getKeys() {
+  getKeys(password) {
     assert(this.privateKey != null && this.publicKey != null);
-    return { privateKey: this.privateKey, publicKey: this.publicKey };
+    const passphrase = password || '';
+
+    const privateKey = crypto.createPrivateKey({
+      key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
+    });
+
+    const publicKey = crypto.createPublicKey({
+      key: this.publicKey, format: 'der', type: 'spki', passphrase,
+    });
+
+    return { privateKey, publicKey };
   }
 
   getKeysPem() {
@@ -120,11 +139,15 @@ class Wallet {
   }
 
   getKeysBuffer() {
-    const { privateKey, publicKey } = this.getKeys();
+    // const { privateKey, publicKey } = this.getKeys();
 
+    // return {
+    //   privateKey: privateKey.export({ format: 'der', type: 'pkcs8' }),
+    //   publicKey: publicKey.export({ format: 'der', type: 'spki' }),
+    // };
     return {
-      privateKey: privateKey.export({ format: 'der', type: 'pkcs8' }),
-      publicKey: publicKey.export({ format: 'der', type: 'spki' }),
+      privateKey: this.privateKey,
+      publicKey: this.publicKey,
     };
   }
 
@@ -151,17 +174,35 @@ class Wallet {
     return `${Wallet.AddressPrefix}${bs58.encode(this.getAddress(publicKey))}`;
   }
 
-  async save() {
+  toSaveData() {
     const { privateKey, publicKey } = this.getKeysHex();
-    const address = this.getAddressEncoded();
 
-    const saveData = {
+    return {
       label: this.label,
       privateKey,
       publicKey,
     };
+  }
 
-    await WalletDB.put(address, saveData, { valueEncoding: 'json' });
+  fromSaveData(data, password) {
+    const passphrase = password || '';
+
+    this.setLabel(data.label);
+
+    this.privateKey = Buffer.from(data.privateKey, 'hex');
+    this.publicKey = Buffer.from(data.publicKey, 'hex');
+
+    // this.recover(crypto.createPrivateKey({
+    //   key: Buffer.from(data.privateKey, 'hex'),
+    //   format: 'der',
+    //   type: 'pkcs8',
+    //   passphrase,
+    // }));
+  }
+
+  async save() {
+    const address = this.getAddressEncoded();
+    await WalletDB.put(address, this.toSaveData(), { valueEncoding: 'json' });
   }
 
   async load(address) {
@@ -173,13 +214,7 @@ class Wallet {
       return false;
     }
 
-    this.setLabel(data.label);
-
-    this.recover(crypto.createPrivateKey({
-      key: Buffer.from(data.privateKey, 'hex'),
-      format: 'der',
-      type: 'pkcs8',
-    }));
+    this.fromSaveData(data);
 
     return true;
   }
@@ -189,7 +224,7 @@ class Wallet {
   }
 
   recover(privateKey) {
-    this.privateKey = privateKey;
+    // this.privateKey = privateKey;
     this.publicKey = crypto.createPublicKey(this.privateKey);
   }
 
@@ -208,7 +243,9 @@ class Wallet {
 
   fromObject(data) {
     this.setLabel(data.label);
-    this.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
+    // this.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
+    this.privateKey = Buffer.from(data.privateKey, 'hex');
+    this.publicKey = Buffer.from(data.publicKey, 'hex');
   }
 
   toString() {
