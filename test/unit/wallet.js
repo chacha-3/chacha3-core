@@ -32,17 +32,17 @@ test('walley key objects', (t) => {
   t.end();
 });
 
-test('wallet key in pem format', (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+// test('wallet key in pem format', (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const { privateKey, publicKey } = wallet.getKeysPem();
+//   const { privateKey, publicKey } = wallet.getKeysPem();
 
-  t.equal(privateKey.startsWith('-----BEGIN PRIVATE KEY-----'), true, 'private key in pem format');
-  t.equal(publicKey.startsWith('-----BEGIN PUBLIC KEY-----'), true, 'public key in pem format');
+//   t.equal(privateKey.startsWith('-----BEGIN PRIVATE KEY-----'), true, 'private key in pem format');
+//   t.equal(publicKey.startsWith('-----BEGIN PUBLIC KEY-----'), true, 'public key in pem format');
 
-  t.end();
-});
+//   t.end();
+// });
 
 test('should get wallet address', (t) => {
   const wallet = new Wallet();

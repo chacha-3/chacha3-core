@@ -16,11 +16,11 @@ test('should create a verified transaction', (t) => {
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getKeys().publicKey, receiver.getAddress(), 10,
+    sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  const { privateKey } = sender.getKeys();
-  transaction.sign(privateKey);
+  // const { privateKey } = sender.getKeys();
+  transaction.sign(sender.getPrivateKeyObject());
 
   const { length } = transaction.getSignature();
 
@@ -37,13 +37,13 @@ test('should fail verification with none or invalid transaction signature', (t) 
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getKeys().publicKey, receiver.getAddress(), 10,
+    sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  const { privateKey } = sender.getKeys();
+  // const { privateKey } = sender.getKeys();
   t.equal(transaction.verify(), false, 'transaction unverified before signing');
 
-  transaction.sign(privateKey);
+  transaction.sign(sender.getPrivateKeyObject());
 
   t.equal(transaction.verify(), true, 'transaction verified after signing');
 

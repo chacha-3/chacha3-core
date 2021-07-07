@@ -24,7 +24,8 @@ class Transaction {
     };
 
     if (this.senderKey) {
-      data.senderKey = bs58.encode(this.senderKey.export({ format: 'der', type: 'spki' }));
+      // FIXME: Encode with hex
+      data.senderKey = bs58.encode(this.senderKey);
     }
 
     return JSON.stringify(data);
@@ -47,8 +48,12 @@ class Transaction {
   }
 
   verify() {
+    const senderKeyObject = crypto.createPublicKey({
+      key: this.getSenderKey(), format: 'der', type: 'spki',
+    });
+
     try {
-      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), this.getSenderKey(), this.getSignature());
+      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), senderKeyObject, this.getSignature());
     } catch {
       return false;
     }

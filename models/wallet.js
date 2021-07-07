@@ -93,18 +93,7 @@ class Wallet {
 
     this.privateKey = privateKey;
     this.publicKey = publicKey;
-    // this.setKeys(privateKey, publicKey, passphrase);
   }
-
-  // setKeys(privateKey, publicKey, passphrase) {
-  //   this.privateKey = crypto.createPrivateKey({
-  //     key: privateKey, format: 'der', type: 'pkcs8', passphrase,
-  //   });
-
-  //   this.publicKey = crypto.createPublicKey({
-  //     key: publicKey, format: 'der', type: 'spki', passphrase,
-  //   });
-  // }
 
   getLabel() {
     return this.label;
@@ -123,28 +112,44 @@ class Wallet {
     });
 
     const publicKey = crypto.createPublicKey({
-      key: this.publicKey, format: 'der', type: 'spki', passphrase,
+      key: this.publicKey, format: 'der', type: 'spki',
     });
 
     return { privateKey, publicKey };
   }
 
-  getKeysPem() {
-    const { privateKey, publicKey } = this.getKeys();
-
-    return {
-      privateKey: privateKey.export({ format: 'pem', type: 'pkcs8' }),
-      publicKey: publicKey.export({ format: 'pem', type: 'spki' }),
-    };
+  getPublicKey() {
+    return this.publicKey;
   }
 
-  getKeysBuffer() {
-    // const { privateKey, publicKey } = this.getKeys();
+  getPublicKeyObject() {
+    assert(this.publicKey != null);
 
-    // return {
-    //   privateKey: privateKey.export({ format: 'der', type: 'pkcs8' }),
-    //   publicKey: publicKey.export({ format: 'der', type: 'spki' }),
-    // };
+    return crypto.createPublicKey({
+      key: this.publicKey, format: 'der', type: 'spki',
+    });
+  }
+
+  getPrivateKeyObject(password) {
+    assert(this.privateKey != null);
+    const passphrase = password || '';
+
+    return crypto.createPrivateKey({
+      key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
+    });
+  }
+
+  // TODO: Remove, not in use
+  // getKeysPem() {
+  //   // const { privateKey, publicKey } = this.getKeys();
+
+  //   return {
+  //     privateKey: this.privateKey.export({ format: 'pem', type: 'pkcs8' }),
+  //     publicKey: this.publicKey.export({ format: 'pem', type: 'spki' }),
+  //   };
+  // }
+
+  getKeysBuffer() {
     return {
       privateKey: this.privateKey,
       publicKey: this.publicKey,
@@ -152,11 +157,11 @@ class Wallet {
   }
 
   getKeysHex() {
-    const { publicKey, privateKey } = this.getKeysBuffer();
+    // const { publicKey, privateKey } = this.getKeysBuffer();
 
     return {
-      privateKey: privateKey.toString('hex'),
-      publicKey: publicKey.toString('hex'),
+      privateKey: this.privateKey.toString('hex'),
+      publicKey: this.publicKey.toString('hex'),
     };
   }
 
