@@ -75,19 +75,17 @@ test('should get encoded wallet address', (t) => {
 });
 
 // FIXME: Need password
-// test('should recover a wallet', (t) => {
-//   const oldWallet = new Wallet();
-//   oldWallet.generate();
+test('should recover a wallet', (t) => {
+  const oldWallet = new Wallet();
+  oldWallet.generate();
 
-//   const { privateKey } = oldWallet.getKeys();
+  const recoverWallet = new Wallet();
+  recoverWallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
 
-//   const recoverWallet = new Wallet();
-//   recoverWallet.recover(privateKey);
-
-//   t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
-//   t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
-//   t.end();
-// });
+  t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
+  t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
+  t.end();
+});
 
 test('save and load wallet', async (t) => {
   const saveWallet = new Wallet();

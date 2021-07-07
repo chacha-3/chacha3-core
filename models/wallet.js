@@ -118,20 +118,21 @@ class Wallet {
     return { privateKey, publicKey };
   }
 
+  getPrivateKey() {
+    return this.privateKey;
+  }
+
   getPublicKey() {
     return this.publicKey;
   }
 
   getPublicKeyObject() {
-    assert(this.publicKey != null);
-
     return crypto.createPublicKey({
       key: this.publicKey, format: 'der', type: 'spki',
     });
   }
 
   getPrivateKeyObject(password) {
-    assert(this.privateKey != null);
     const passphrase = password || '';
 
     return crypto.createPrivateKey({
@@ -228,9 +229,15 @@ class Wallet {
     WalletDB.del(this.getAddressEncoded());
   }
 
-  recover(privateKey) {
-    // this.privateKey = privateKey;
-    this.publicKey = crypto.createPublicKey(this.privateKey);
+  recover(privateKey, password) {
+    const passphrase = password || '';
+    this.privateKey = privateKey;
+
+    const privateKeyObject = crypto.createPrivateKey({
+      key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+    });
+
+    this.publicKey = crypto.createPublicKey(privateKeyObject);
   }
 
   toObject() {
