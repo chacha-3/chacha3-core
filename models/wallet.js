@@ -159,7 +159,6 @@ class Wallet {
 
   getKeysHex() {
     // const { publicKey, privateKey } = this.getKeysBuffer();
-
     return {
       privateKey: this.privateKey.toString('hex'),
       publicKey: this.publicKey.toString('hex'),
@@ -197,13 +196,6 @@ class Wallet {
 
     this.privateKey = Buffer.from(data.privateKey, 'hex');
     this.publicKey = Buffer.from(data.publicKey, 'hex');
-
-    // this.recover(crypto.createPrivateKey({
-    //   key: Buffer.from(data.privateKey, 'hex'),
-    //   format: 'der',
-    //   type: 'pkcs8',
-    //   passphrase,
-    // }));
   }
 
   async save() {
@@ -237,7 +229,7 @@ class Wallet {
       key: privateKey, format: 'der', type: 'pkcs8', passphrase,
     });
 
-    this.publicKey = crypto.createPublicKey(privateKeyObject);
+    this.publicKey = crypto.createPublicKey(privateKeyObject).export({ format: 'der', type: 'spki' });
   }
 
   toObject() {
