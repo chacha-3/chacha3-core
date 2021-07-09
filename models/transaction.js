@@ -19,13 +19,12 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      receiverAddress: bs58.encode(this.receiverAddress),
+      receiverAddress: this.receiverAddress.toString('hex'),
       amount: this.amount,
     };
 
     if (this.senderKey) {
-      // FIXME: Encode with hex
-      data.senderKey = bs58.encode(this.senderKey);
+      data.senderKey = this.senderKey.toString('hex');
     }
 
     return JSON.stringify(data);

@@ -16,7 +16,7 @@ test('should create a verified transaction', (t) => {
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getPublicKey(), receiver.getAddress(), 10,
+    sender.getPublicKey(), receiver.getAddressEncoded(), 10,
   );
 
   // const { privateKey } = sender.getKeys();
@@ -37,7 +37,7 @@ test('should fail verification with none or invalid transaction signature', (t) 
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getPublicKey(), receiver.getAddress(), 10,
+    sender.getPublicKey(), receiver.getAddressEncoded(), 10,
   );
 
   // const { privateKey } = sender.getKeys();
@@ -51,5 +51,24 @@ test('should fail verification with none or invalid transaction signature', (t) 
   transaction.signature[2] += Math.floor(Math.random() * 10) + 1;
 
   t.equal(transaction.verify(), false, 'fail verification with incorrect signature');
+  t.end();
+});
+
+test('have correct hash data for transaction', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+
+  const hashData = JSON.parse(transaction.hashData());
+
+  t.equal(hashData.version, 1);
+  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
+  t.equal(hashData.amount, 20);
+  t.equal(hashData.senderKey, sender.getPublicKey().toString('hex'));
+
   t.end();
 });

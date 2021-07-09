@@ -8,7 +8,7 @@ test('creat a block with coinbase', (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddress());
+  block.addCoinbase(wallet.getAddressEncoded());
 
   t.equal(block.transactionCount, 1n, 'block only has coinbase transaction');
 
@@ -19,7 +19,7 @@ test('creat a block with coinbase', (t) => {
 
   t.equal(
     coinbase.getReceiverAddress().toString('hex'),
-    wallet.getAddress().toString('hex'),
+    wallet.getAddressEncoded().toString('hex'),
     'coinbase address matches wallet address',
   );
 
@@ -31,7 +31,7 @@ test('should mine a block', (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddress());
+  block.addCoinbase(wallet.getAddressEncoded());
   block.mine();
 
   t.equal(block.verify(), true, 'mined block is verified');

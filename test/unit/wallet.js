@@ -21,10 +21,10 @@ test('walley key objects', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
-  const { privateKey, publicKey } = wallet.getKeys();
+  // const { privateKey, publicKey } = wallet.getKeyObjects();
 
-  t.type(typeof (privateKey), 'object', 'private key is an object');
-  t.type(typeof (publicKey), 'object', 'public key is an object');
+  t.type(typeof (wallet.getPrivateKeyObject()), 'object', 'private key is an object');
+  t.type(typeof (wallet.getPublicKeyObject()), 'object', 'public key is an object');
 
   t.end();
 });

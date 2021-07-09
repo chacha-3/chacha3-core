@@ -103,20 +103,20 @@ class Wallet {
     this.label = label || '';
   }
 
-  getKeys(password) {
-    assert(this.privateKey != null && this.publicKey != null);
-    const passphrase = password || '';
+  // getKeyObjects(password) {
+  //   assert(this.privateKey != null && this.publicKey != null);
+  //   const passphrase = password || '';
 
-    const privateKey = crypto.createPrivateKey({
-      key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
-    });
+  //   const privateKey = crypto.createPrivateKey({
+  //     key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
+  //   });
 
-    const publicKey = crypto.createPublicKey({
-      key: this.publicKey, format: 'der', type: 'spki',
-    });
+  //   const publicKey = crypto.createPublicKey({
+  //     key: this.publicKey, format: 'der', type: 'spki',
+  //   });
 
-    return { privateKey, publicKey };
-  }
+  //   return { privateKey, publicKey };
+  // }
 
   getPrivateKey() {
     return this.privateKey;
@@ -147,13 +147,6 @@ class Wallet {
   //   return {
   //     privateKey: this.privateKey.export({ format: 'pem', type: 'pkcs8' }),
   //     publicKey: this.publicKey.export({ format: 'pem', type: 'spki' }),
-  //   };
-  // }
-
-  // getKeysBuffer() {
-  //   return {
-  //     privateKey: this.privateKey,
-  //     publicKey: this.publicKey,
   //   };
   // }
 
