@@ -67,6 +67,14 @@ class Wallet {
     return wallet;
   }
 
+  static verifyAddress(address) {
+    const bytes = bs58.decode(address);
+
+    const fingerprint = bytes.slice(1, 21);
+    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+
+    return bytes.slice(21, 25).equals(checksum);
+  }
 
   constructor() {
     this.label = '';

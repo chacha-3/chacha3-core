@@ -187,3 +187,10 @@ test('unselect a selected wallet', async (t) => {
 
   t.end();
 });
+
+test('verify wallet address checksum', async (t) => {
+  t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF'), true, 'Valid address');
+  t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivK2'), false, 'Invalid checksum');
+
+  t.end();
+});
