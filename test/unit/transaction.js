@@ -72,3 +72,22 @@ test('have correct hash data for transaction', (t) => {
 
   t.end();
 });
+
+test('have correct hash data for coinbase transaction', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(null, receiver.getAddressEncoded(), 20);
+
+  const hashData = JSON.parse(transaction.hashData());
+
+  t.equal(hashData.version, 1);
+  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
+  t.equal(hashData.amount, 20);
+  t.equal(hashData.senderKey, undefined);
+
+  t.end();
+});

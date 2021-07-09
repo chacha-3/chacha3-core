@@ -41,15 +41,15 @@ test('walley key objects', (t) => {
 //   t.end();
 // });
 
-test('should get wallet address', (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+// test('should get wallet address', (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const address = wallet.getAddress();
-  t.equal(address.length, 25, 'address length is 25', 'address has length 25');
-  t.equal(address[0], 0, 'address starts with 0');
-  t.end();
-});
+//   const address = wallet.getAddress();
+//   t.equal(address.length, 25, 'address length is 25', 'address has length 25');
+//   t.equal(address[0], 0, 'address starts with 0');
+//   t.end();
+// });
 
 test('set and get wallet label', (t) => {
   const wallet = new Wallet();
