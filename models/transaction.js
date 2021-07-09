@@ -21,7 +21,7 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      receiverAddress: this.receiverAddress.toString('hex'),
+      receiverAddress: this.receiverAddress,
       amount: this.amount,
     };
 
@@ -33,6 +33,7 @@ class Transaction {
   }
 
   sign(privateKey) {
+    assert(this.senderKey != null);
     this.signature = crypto.sign('SHA3-256', Buffer.from(this.hashData()), privateKey);
   }
 
@@ -62,6 +63,18 @@ class Transaction {
     } catch {
       return false;
     }
+  }
+
+  toObject() {
+    const data = {
+      version: this.version,
+      senderKey: this.senderKey,
+      receiverAddress: this.receiverAddress,
+      amount: this.amount,
+      signature: this.getSignature(),
+    };
+
+    return data;
   }
 }
 

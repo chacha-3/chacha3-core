@@ -16,10 +16,10 @@ actions.listWallets = {
 
 actions.createWallet = {
   permission: 'public',
-  handler: async (requestData) => {
+  handler: async (options) => {
     const wallet = new Wallet();
     wallet.generate();
-    wallet.setLabel(requestData.label);
+    wallet.setLabel(options.label);
     wallet.save();
 
     return { data: wallet.toObject(), code: 'ok' };

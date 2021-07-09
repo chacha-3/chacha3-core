@@ -54,6 +54,23 @@ test('should fail verification with none or invalid transaction signature', (t) 
   t.end();
 });
 
+test('should not be valid when signed with incorrect private key', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const otherWallet = new Wallet();
+  otherWallet.generate();
+
+  const transaction = new Transaction(
+    wallet.getPublicKey(), '114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF', 55,
+  );
+
+  transaction.sign(otherWallet.getPrivateKeyObject());
+
+  t.equal(transaction.verify(), false, 'invalid sign key');
+  t.end();
+});
+
 test('should fail verification with invalid wallet address', (t) => {
   const sender = new Wallet();
   sender.generate();

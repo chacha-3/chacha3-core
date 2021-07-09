@@ -43,29 +43,29 @@ class Wallet {
     await WalletDB.clear();
   }
 
-  static async setSelected(wallet) {
-    if (wallet == null) {
-      await WalletDB.del('selected');
-      return;
-    }
+  // static async setSelected(wallet) {
+  //   if (wallet == null) {
+  //     await WalletDB.del('selected');
+  //     return;
+  //   }
 
-    await WalletDB.put('selected', wallet.getAddressEncoded());
-  }
+  //   await WalletDB.put('selected', wallet.getAddressEncoded());
+  // }
 
-  static async getSelected() {
-    let address;
+  // static async getSelected() {
+  //   let address;
 
-    try {
-      address = await WalletDB.get('selected');
-    } catch (e) {
-      return null;
-    }
+  //   try {
+  //     address = await WalletDB.get('selected');
+  //   } catch (e) {
+  //     return null;
+  //   }
 
-    const wallet = new Wallet();
-    await wallet.load(address);
+  //   const wallet = new Wallet();
+  //   await wallet.load(address);
 
-    return wallet;
-  }
+  //   return wallet;
+  // }
 
   static verifyAddress(address) {
     const bytes = bs58.decode(address);
@@ -255,10 +255,7 @@ class Wallet {
   }
 
   toString() {
-    const data = this.toObject();
-    data.address = this.getAddressEncoded();
-
-    return JSON.stringify(data, null, 2);
+    return this.getAddressEncoded();
   }
 }
 

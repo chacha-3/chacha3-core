@@ -149,48 +149,56 @@ test('delete all wallet', async (t) => {
   t.end();
 });
 
-test('set a selected wallet', async (t) => {
-  const numOfWallets = 3;
-  await mock.createWallets(numOfWallets);
+// test('set a selected wallet', async (t) => {
+//   const numOfWallets = 3;
+//   await mock.createWallets(numOfWallets);
 
-  const list = await Wallet.all();
-  const selectWallet = list[Math.floor(Math.random() * numOfWallets)];
+//   const list = await Wallet.all();
+//   const selectWallet = list[Math.floor(Math.random() * numOfWallets)];
 
-  let selected = await Wallet.getSelected();
-  t.equal(selected, null, 'Have not selected wallet');
+//   let selected = await Wallet.getSelected();
+//   t.equal(selected, null, 'Have not selected wallet');
 
-  await Wallet.setSelected(selectWallet);
-  selected = await Wallet.getSelected();
-  t.equal(selectWallet.getAddressEncoded(), selected.getAddressEncoded());
+//   await Wallet.setSelected(selectWallet);
+//   selected = await Wallet.getSelected();
+//   t.equal(selectWallet.getAddressEncoded(), selected.getAddressEncoded());
 
-  await Wallet.clearAll();
+//   await Wallet.clearAll();
 
-  t.end();
-});
+//   t.end();
+// });
 
-test('unselect a selected wallet', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
-  await wallet.save();
+// test('unselect a selected wallet', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
+//   await wallet.save();
 
-  await Wallet.setSelected(wallet);
+//   await Wallet.setSelected(wallet);
 
-  let selected = await Wallet.getSelected();
-  t.equal(wallet.getAddressEncoded(), selected.getAddressEncoded(), 'Have wallet before unselect');
+//   let selected = await Wallet.getSelected();
+//   t.equal(wallet.getAddressEncoded(), selected.getAddressEncoded(), 'Have wallet before unselect');
 
-  await Wallet.setSelected(null);
-  selected = await Wallet.getSelected();
+//   await Wallet.setSelected(null);
+//   selected = await Wallet.getSelected();
 
-  t.equal(selected, null, 'Have no wallet after unselect');
+//   t.equal(selected, null, 'Have no wallet after unselect');
 
-  await Wallet.clearAll();
+//   await Wallet.clearAll();
 
-  t.end();
-});
+//   t.end();
+// });
 
 test('verify wallet address checksum', async (t) => {
   t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF'), true, 'Valid address');
   t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivK2'), false, 'Invalid checksum');
 
+  t.end();
+});
+
+test('wallet string is address', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  t.equal(Wallet.verifyAddress(wallet.toString()), true, 'Valid address');
   t.end();
 });
