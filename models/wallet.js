@@ -150,15 +150,14 @@ class Wallet {
   //   };
   // }
 
-  getKeysBuffer() {
-    return {
-      privateKey: this.privateKey,
-      publicKey: this.publicKey,
-    };
-  }
+  // getKeysBuffer() {
+  //   return {
+  //     privateKey: this.privateKey,
+  //     publicKey: this.publicKey,
+  //   };
+  // }
 
   getKeysHex() {
-    // const { publicKey, privateKey } = this.getKeysBuffer();
     return {
       privateKey: this.privateKey.toString('hex'),
       publicKey: this.publicKey.toString('hex'),
@@ -167,9 +166,8 @@ class Wallet {
 
   getAddress() {
     const version = Buffer.from([0x00]);
-    const { publicKey } = this.getKeysBuffer();
 
-    const fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest().slice(-20);
+    const fingerprint = crypto.createHash('SHA3-256').update(this.getPublicKey()).digest().slice(-20);
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
     return Buffer.concat([version, fingerprint, checksum]);
@@ -189,9 +187,7 @@ class Wallet {
     };
   }
 
-  fromSaveData(data, password) {
-    const passphrase = password || '';
-
+  fromSaveData(data) {
     this.setLabel(data.label);
 
     this.privateKey = Buffer.from(data.privateKey, 'hex');
@@ -247,7 +243,6 @@ class Wallet {
 
   fromObject(data) {
     this.setLabel(data.label);
-    // this.setKeys(Buffer.from(data.privateKey, 'hex'), Buffer.from(data.publicKey, 'hex'));
     this.privateKey = Buffer.from(data.privateKey, 'hex');
     this.publicKey = Buffer.from(data.publicKey, 'hex');
   }

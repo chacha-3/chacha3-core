@@ -11,11 +11,8 @@ test('should create a wallet key', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
-  const { privateKey, publicKey } = wallet.getKeysBuffer();
-
-  // FIXME:
-  // t.equal(privateKey.length, 185, 'private key has length 185');
-  // t.equal(publicKey.length, 120, 'public key has length 120');
+  // t.equal(wallet.getPrivateKey().length, 185, 'private key has length 185');
+  // t.equal(wallet.getPublicKey().length, 120, 'public key has length 120');
 
   t.end();
 });
