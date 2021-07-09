@@ -54,6 +54,19 @@ test('should fail verification with none or invalid transaction signature', (t) 
   t.end();
 });
 
+test('should fail verification with invalid wallet address', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), '114mRHezWdQx7MMTJ8QFokoqUraoB4ivK9', 10,
+  );
+  transaction.sign(sender.getPrivateKeyObject());
+
+  t.equal(transaction.verify(), false, 'invalid address to send');
+  t.end();
+});
+
 test('have correct hash data for transaction', (t) => {
   const sender = new Wallet();
   sender.generate();
@@ -80,13 +93,13 @@ test('have correct hash data for coinbase transaction', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(null, receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(null, receiver.getAddressEncoded(), 50);
 
   const hashData = JSON.parse(transaction.hashData());
 
   t.equal(hashData.version, 1);
   t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
-  t.equal(hashData.amount, 20);
+  t.equal(hashData.amount, 50);
   t.equal(hashData.senderKey, undefined);
 
   t.end();

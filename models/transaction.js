@@ -2,6 +2,8 @@ const assert = require('assert');
 const crypto = require('crypto');
 const bs58 = require('bs58');
 
+const Wallet = require('./wallet');
+
 class Transaction {
   constructor(senderKey, receiverAddress, amount) {
     this.version = 1;
@@ -47,6 +49,10 @@ class Transaction {
   }
 
   verify() {
+    if (!Wallet.verifyAddress(this.receiverAddress)) {
+      return false;
+    }
+
     const senderKeyObject = crypto.createPublicKey({
       key: this.getSenderKey(), format: 'der', type: 'spki',
     });
