@@ -1,4 +1,4 @@
-const nodeCrypto = require('crypto');
+const crypto = require('crypto');
 const BN = require('bn.js');
 
 const minTarget = {
@@ -12,7 +12,7 @@ class Header {
     this.version = 1;
 
     this.previous = null;
-    this.merkleRoot = nodeCrypto.randomBytes(32); // TODO:
+    this.merkleRoot = crypto.randomBytes(32); // TODO:
 
     this.time = Date.now();
 
@@ -39,8 +39,8 @@ class Header {
   }
 
   getHash() {
-    const pass1 = nodeCrypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
-    const pass2 = nodeCrypto.createHash('sha256').update(pass1).digest();
+    const pass1 = crypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
+    const pass2 = crypto.createHash('sha256').update(pass1).digest();
 
     return pass2;
   }

@@ -42,30 +42,6 @@ class Wallet {
     await WalletDB.clear();
   }
 
-  // static async setSelected(wallet) {
-  //   if (wallet == null) {
-  //     await WalletDB.del('selected');
-  //     return;
-  //   }
-
-  //   await WalletDB.put('selected', wallet.getAddressEncoded());
-  // }
-
-  // static async getSelected() {
-  //   let address;
-
-  //   try {
-  //     address = await WalletDB.get('selected');
-  //   } catch (e) {
-  //     return null;
-  //   }
-
-  //   const wallet = new Wallet();
-  //   await wallet.load(address);
-
-  //   return wallet;
-  // }
-
   static verifyAddress(address) {
     const bytes = bs58.decode(address);
 
