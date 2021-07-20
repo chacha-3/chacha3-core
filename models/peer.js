@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const nodeCrypto = require('crypto');
 const assert = require('assert');
 const bs58 = require('bs58');
 

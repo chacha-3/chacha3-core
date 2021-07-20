@@ -3,6 +3,10 @@ const sub = require('subleveldown');
 
 // Probably and underfit solution. But no issues
 function runningManualTest(argv) {
+  if (argv.length === 0) {
+    return false;
+  }
+
   return argv[0].includes('node') && argv[1].includes('test');
 }
 

@@ -1,5 +1,4 @@
-const crypto = require('crypto');
-const assert = require('assert');
+const nodeCrypto = require('crypto');
 const bs58 = require('bs58');
 
 // const DB = require('../util/database');
@@ -28,7 +27,7 @@ class Wallet {
 
     const loadWallet = (data) => new Promise((resolve) => {
       const wallet = new Wallet();
-      wallet.fromObject(data);
+      wallet.fromSaveData(data);
 
       resolve(wallet);
     });
@@ -71,7 +70,7 @@ class Wallet {
     const bytes = bs58.decode(address);
 
     const fingerprint = bytes.slice(1, 21);
-    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+    const checksum = nodeCrypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
     return bytes.slice(21, 25).equals(checksum);
   }
@@ -86,7 +85,7 @@ class Wallet {
   generate(password) {
     const passphrase = password || '';
 
-    const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
+    const { privateKey, publicKey } = nodeCrypto.generateKeyPairSync('ec', {
       namedCurve: 'secp384r1',
       publicKeyEncoding: {
         type: 'spki',
@@ -105,6 +104,10 @@ class Wallet {
   }
 
   getLabel() {
+    if (!this.label || this.label === '') {
+      return 'No label';
+    }
+
     return this.label;
   }
 
@@ -116,11 +119,11 @@ class Wallet {
   //   assert(this.privateKey != null && this.publicKey != null);
   //   const passphrase = password || '';
 
-  //   const privateKey = crypto.createPrivateKey({
+  //   const privateKey = nodeCrypto.createPrivateKey({
   //     key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
   //   });
 
-  //   const publicKey = crypto.createPublicKey({
+  //   const publicKey = nodeCrypto.createPublicKey({
   //     key: this.publicKey, format: 'der', type: 'spki',
   //   });
 
@@ -135,8 +138,24 @@ class Wallet {
     return this.publicKey;
   }
 
+  getPublicKeyHex() {
+    if (!this.publicKey) {
+      return '';
+    }
+
+    return this.publicKey.toString('hex');
+  }
+
+  getPrivateKeyHex() {
+    if (!this.privateKey) {
+      return '';
+    }
+
+    return this.privateKey.toString('hex');
+  }
+
   getPublicKeyObject() {
-    return crypto.createPublicKey({
+    return nodeCrypto.createPublicKey({
       key: this.publicKey, format: 'der', type: 'spki',
     });
   }
@@ -144,7 +163,7 @@ class Wallet {
   getPrivateKeyObject(password) {
     const passphrase = password || '';
 
-    return crypto.createPrivateKey({
+    return nodeCrypto.createPrivateKey({
       key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
     });
   }
@@ -166,20 +185,15 @@ class Wallet {
     };
   }
 
-  // getAddress() {
-  //   const version = Buffer.from([0x00]);
-
-  //   const fingerprint = crypto.createHash('SHA3-256').update(this.getPublicKey()).digest().slice(-20);
-  //   const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
-
-  //   return Buffer.concat([version, fingerprint, checksum]);
-  // }
-
   getAddressEncoded() {
+    if (!this.publicKey || !this.privateKey) {
+      return '';
+    }
+
     const version = Buffer.from([0x00]);
 
-    const fingerprint = crypto.createHash('SHA3-256').update(this.getPublicKey()).digest().slice(-20);
-    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+    const fingerprint = nodeCrypto.createHash('SHA3-256').update(this.getPublicKey()).digest().slice(-20);
+    const checksum = nodeCrypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
     return `${Wallet.AddressPrefix}${bs58.encode(Buffer.concat([version, fingerprint, checksum]))}`;
   }
@@ -228,11 +242,11 @@ class Wallet {
     const passphrase = password || '';
     this.privateKey = privateKey;
 
-    const privateKeyObject = crypto.createPrivateKey({
+    const privateKeyObject = nodeCrypto.createPrivateKey({
       key: privateKey, format: 'der', type: 'pkcs8', passphrase,
     });
 
-    this.publicKey = crypto.createPublicKey(privateKeyObject).export({ format: 'der', type: 'spki' });
+    this.publicKey = nodeCrypto.createPublicKey(privateKeyObject).export({ format: 'der', type: 'spki' });
   }
 
   toObject() {
@@ -248,11 +262,11 @@ class Wallet {
     return data;
   }
 
-  fromObject(data) {
-    this.setLabel(data.label);
-    this.privateKey = Buffer.from(data.privateKey, 'hex');
-    this.publicKey = Buffer.from(data.publicKey, 'hex');
-  }
+  // fromObject(data) {
+  //   this.setLabel(data.label);
+  //   this.privateKey = Buffer.from(data.privateKey, 'hex');
+  //   this.publicKey = Buffer.from(data.publicKey, 'hex');
+  // }
 
   toString() {
     return this.getAddressEncoded();

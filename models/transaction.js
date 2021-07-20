@@ -1,6 +1,5 @@
 const assert = require('assert');
-const crypto = require('crypto');
-const bs58 = require('bs58');
+const nodeCrypto = require('crypto');
 
 const Wallet = require('./wallet');
 
@@ -34,7 +33,7 @@ class Transaction {
 
   sign(privateKey) {
     assert(this.senderKey != null);
-    this.signature = crypto.sign('SHA3-256', Buffer.from(this.hashData()), privateKey);
+    this.signature = nodeCrypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
   }
 
   getSenderKey() {
@@ -54,12 +53,12 @@ class Transaction {
       return false;
     }
 
-    const senderKeyObject = crypto.createPublicKey({
+    const senderKeyObject = nodeCrypto.createPublicKey({
       key: this.getSenderKey(), format: 'der', type: 'spki',
     });
 
     try {
-      return crypto.verify('SHA3-256', Buffer.from(this.hashData()), senderKeyObject, this.getSignature());
+      return nodeCrypto.verify('SHA256', Buffer.from(this.hashData()), senderKeyObject, this.getSignature());
     } catch {
       return false;
     }
