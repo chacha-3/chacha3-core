@@ -31,6 +31,10 @@ class Transaction {
     return JSON.stringify(data);
   }
 
+  getId() {
+    return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
+  }
+
   sign(privateKey) {
     assert(this.senderKey != null);
     this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
@@ -67,11 +71,19 @@ class Transaction {
   toObject() {
     const data = {
       version: this.version,
-      senderKey: this.senderKey,
+      senderKey: null,
       receiverAddress: this.receiverAddress,
       amount: this.amount,
       signature: this.getSignature(),
     };
+
+    if (this.senderKey) {
+      data.senderKey = this.senderKey.toString('hex');
+    }
+
+    if (this.signature) {
+      data.signature = this.signature.toString('hex');
+    }
 
     return data;
   }

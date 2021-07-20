@@ -67,6 +67,19 @@ class Block {
 
     return data;
   }
+
+  computeChecksum() {
+    assert(this.transactionCount > 0);
+
+    let currentHash = Buffer.from([]);
+
+    for (let i = 0; i < this.transactionCount; i += 1) {
+      const transaction = this.transactions[i].getId();
+      currentHash = crypto.createHash('SHA256').update(Buffer.concat([currentHash, transaction.getId()])).digest().slice(-4);
+    }
+
+    return currentHash;
+  }
 }
 
 module.exports = Block;

@@ -56,7 +56,7 @@ test('get object representation of a block', (t) => {
     200,
   );
 
-  transaction1.sign(sender.getPrivateKey());
+  transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
   block.mine();

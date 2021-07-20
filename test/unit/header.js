@@ -11,7 +11,7 @@ test('create a block header', (t) => {
 });
 
 test('get the min target', (t) => {
-  t.equal(Header.MinTarget, '00ff000000000000000000000000000000000000000000000000000000000000');
+  t.equal(Header.MinTarget, 'ff00000000000000000000000000000000000000000000000000000000000000');
   t.end();
 });
 
@@ -19,10 +19,10 @@ test('get difficulty target', (t) => {
   const header = new Header();
 
   // Difficulty 1 by default
-  t.equal(header.getTarget(), '00ff000000000000000000000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), 'ff00000000000000000000000000000000000000000000000000000000000000');
 
   header.setDifficulty(2);
-  t.equal(header.getTarget(), '007f800000000000000000000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), '7f80000000000000000000000000000000000000000000000000000000000000');
   t.end();
 });
 

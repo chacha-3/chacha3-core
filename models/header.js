@@ -12,7 +12,7 @@ class Header {
     this.version = 1;
 
     this.previous = null;
-    this.merkleRoot = crypto.randomBytes(32); // TODO:
+    this.checksum = crypto.randomBytes(32); // TODO:
 
     this.date = Date.now();
 
@@ -29,13 +29,17 @@ class Header {
     const data = {
       version: this.version,
       previous: this.previous ? this.previous.toString('hex') : null,
-      merkleRoot: this.merkleRoot ? this.merkleRoot.toString('hex') : null,
+      checksum: this.checksum ? this.checksum.toString('hex') : null,
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
     };
 
     return JSON.stringify(data);
+  }
+
+  setChecksum(checksum) {
+    this.checksum = checksum;
   }
 
   getHash() {
@@ -70,7 +74,7 @@ class Header {
   toObject() {
     return {
       version: this.version,
-      merkleRoot: this.merkleRoot.toString('hex'),
+      checksum: this.checksum.toString('hex'),
       date: this.date,
       difficulty: this.difficulty,
       nonce: this.nonce,

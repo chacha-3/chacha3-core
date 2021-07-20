@@ -29,6 +29,19 @@ test('should create a verified transaction', (t) => {
   t.end();
 });
 
+test('should have ID for transaction', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  t.equal(transaction.getId().length, 32);
+
+  t.end();
+});
+
 test('should fail verification with none or invalid transaction signature', (t) => {
   const sender = new Wallet();
   sender.generate();
