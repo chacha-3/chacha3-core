@@ -1,4 +1,5 @@
 const assert = require('assert');
+const crypto = require('crypto');
 const BN = require('bn.js');
 
 const Header = require('./header');
@@ -9,6 +10,8 @@ class Block {
     this.header = new Header();
     this.transactionCount = 0n;
     this.transactions = [];
+
+    // this.lastChecksum = Buffer.from([]);
 
     // this.coinbase = new Transaction();
   }
@@ -25,6 +28,8 @@ class Block {
 
     this.transactions.push(transaction);
     this.transactionCount += BigInt(1);
+
+    this.updateChecksum(transaction.getId());
   }
 
   getTransaction(index) {
@@ -53,6 +58,15 @@ class Block {
     return this.verifyHash();
   }
 
+  updateChecksum(newTransactionId) {
+    assert(newTransactionId != null);
+
+    const lastChecksum = this.header.getChecksum() || Buffer.from([]);
+    const newChecksum = crypto.createHash('SHA256').update(Buffer.concat([lastChecksum, newTransactionId])).digest();
+
+    this.header.setChecksum(newChecksum);
+  }
+
   toObject() {
     const data = {
       header: this.getHeader().toObject(),
@@ -66,19 +80,6 @@ class Block {
     }
 
     return data;
-  }
-
-  computeChecksum() {
-    assert(this.transactionCount > 0);
-
-    let currentHash = Buffer.from([]);
-
-    for (let i = 0; i < this.transactionCount; i += 1) {
-      const transaction = this.transactions[i].getId();
-      currentHash = crypto.createHash('SHA256').update(Buffer.concat([currentHash, transaction.getId()])).digest().slice(-4);
-    }
-
-    return currentHash;
   }
 }
 

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const BN = require('bn.js');
+const { assert } = require('console');
 
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
@@ -12,7 +13,7 @@ class Header {
     this.version = 1;
 
     this.previous = null;
-    this.checksum = crypto.randomBytes(32); // TODO:
+    this.checksum = null; // TODO:
 
     this.date = Date.now();
 
@@ -26,16 +27,25 @@ class Header {
   }
 
   hashData() {
+    // assert(this.checksum !== null);
+
     const data = {
       version: this.version,
       previous: this.previous ? this.previous.toString('hex') : null,
-      checksum: this.checksum ? this.checksum.toString('hex') : null,
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
     };
 
+    if (this.checksum) {
+      data.checksum = this.checksum.toString('hex');
+    }
+
     return JSON.stringify(data);
+  }
+
+  getChecksum() {
+    return this.checksum;
   }
 
   setChecksum(checksum) {
@@ -74,7 +84,7 @@ class Header {
   toObject() {
     return {
       version: this.version,
-      checksum: this.checksum.toString('hex'),
+      checksum: (this.checksum) ? this.checksum.toString('hex') : null,
       date: this.date,
       difficulty: this.difficulty,
       nonce: this.nonce,

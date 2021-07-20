@@ -61,7 +61,7 @@ test('get object representation of a block', (t) => {
   block.addTransaction(transaction1);
   block.mine();
 
-  console.log(block.toObject());
+  // console.log(block.toObject());
 
   t.end();
 });
