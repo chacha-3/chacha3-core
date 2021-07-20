@@ -2,6 +2,7 @@ const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
+const Transaction = require('../../models/transaction');
 
 test('creat a block with coinbase', (t) => {
   const wallet = new Wallet();
@@ -35,6 +36,32 @@ test('should mine a block', (t) => {
   block.mine();
 
   t.equal(block.verify(), true, 'mined block is verified');
+
+  t.end();
+});
+
+test('get object representation of a block', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(receiver.getAddressEncoded());
+
+  const transaction1 = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddressEncoded(),
+    200,
+  );
+
+  transaction1.sign(sender.getPrivateKey());
+
+  block.addTransaction(transaction1);
+  block.mine();
+
+  console.log(block.toObject());
 
   t.end();
 });

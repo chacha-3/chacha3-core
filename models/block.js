@@ -31,6 +31,10 @@ class Block {
     return this.transactions[index];
   }
 
+  getHeader() {
+    return this.header;
+  }
+
   mine() {
     while (!this.verifyHash()) {
       this.header.incrementNonce();
@@ -47,6 +51,21 @@ class Block {
   verify() {
     // TODO: Verify transactions signature
     return this.verifyHash();
+  }
+
+  toObject() {
+    const data = {
+      header: this.getHeader().toObject(),
+      transactionCount: this.transactionCount,
+      transactions: [],
+    };
+
+    for (let i = 0; i < this.transactionCount; i += 1) {
+      const transaction = this.transactions[i];
+      data.transactions.push(transaction.toObject());
+    }
+
+    return data;
   }
 }
 

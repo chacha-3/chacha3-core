@@ -31,3 +31,11 @@ test('should get the difficulty', (t) => {
   t.equal(header.getDifficulty(), 1);
   t.end();
 });
+
+test('get object representation of header', (t) => {
+  const header = new Header();
+
+  // TODO:
+  // t.equal(header.getDifficulty(), 1);
+  t.end();
+});

@@ -4,7 +4,7 @@ const BN = require('bn.js');
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
   development: '0000ff0000000000000000000000000000000000000000000000000000000000',
-  test: '00ff000000000000000000000000000000000000000000000000000000000000',
+  test: 'ff00000000000000000000000000000000000000000000000000000000000000',
 };
 
 class Header {
@@ -14,7 +14,7 @@ class Header {
     this.previous = null;
     this.merkleRoot = crypto.randomBytes(32); // TODO:
 
-    this.time = Date.now();
+    this.date = Date.now();
 
     this.difficulty = 1;
     this.nonce = 0;
@@ -65,6 +65,16 @@ class Header {
 
   incrementNonce() {
     this.nonce += 1;
+  }
+
+  toObject() {
+    return {
+      version: this.version,
+      merkleRoot: this.merkleRoot.toString('hex'),
+      date: this.date,
+      difficulty: this.difficulty,
+      nonce: this.nonce,
+    };
   }
 }
 
