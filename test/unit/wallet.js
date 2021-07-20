@@ -199,6 +199,8 @@ test('wallet string is address', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
+  console.log(wallet.getAddressEncoded())
+
   t.equal(Wallet.verifyAddress(wallet.toString()), true, 'Valid address');
   t.end();
 });
