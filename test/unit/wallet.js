@@ -53,6 +53,8 @@ test('walley key objects', (t) => {
 
 test('set and get wallet label', (t) => {
   const wallet = new Wallet();
+  t.equal(wallet.getLabel(), '', 'wallet label is blank');
+
   wallet.setLabel('testLabel');
 
   t.equal(wallet.getLabel(), 'testLabel', 'wallet label is correct');
@@ -84,15 +86,25 @@ test('should recover a wallet', (t) => {
   t.end();
 });
 
-test('should recover a wallet generate from webcrypto', (t) => {
-  const publicKey = '3076301006072a8648ce3d020106052b8104002203620004eeaf6cce3d47d473127be560fd166d3f9776fd21c1517d1f66c68174a18c07f48fe6935f0c92afb82afa4f52c5f4505a9c73de1b05ee10f74dd47e9444cb55ea47a4d0db93406b31db3ef06a797e2f78b681e6c4b7f247f18d42f386d741eec0';
-  const privateKey = '3081b6020100301006072a8648ce3d020106052b8104002204819e30819b02010104301704281450dcb679c329f5d3421b3ea6b2b25fa3bb91a68d155d96536816e99836d33116ff085e32278dbf53cabdbb5aa16403620004eeaf6cce3d47d473127be560fd166d3f9776fd21c1517d1f66c68174a18c07f48fe6935f0c92afb82afa4f52c5f4505a9c73de1b05ee10f74dd47e9444cb55ea47a4d0db93406b31db3ef06a797e2f78b681e6c4b7f247f18d42f386d741eec0';
+test('should recover a wallet', (t) => {
+  const oldWallet = new Wallet();
+  oldWallet.generate();
 
   const recoverWallet = new Wallet();
-  recoverWallet.recover(Buffer.from(privateKey, 'hex'), ''); // FIXME: Add pass
+  recoverWallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
 
-  t.equal(recoverWallet.getKeysHex().privateKey, privateKey, 'recovered private key is set');
-  t.equal(recoverWallet.getKeysHex().publicKey, publicKey, 'public key is recovered');
+  t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
+  t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
+  t.end();
+});
+
+test('get keys in hex format', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  t.equal(wallet.getPublicKeyHex(), wallet.getPublicKey().toString('hex'));
+  t.equal(wallet.getPrivateKeyHex(), wallet.getPrivateKey().toString('hex'));
+
   t.end();
 });
 

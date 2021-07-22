@@ -3,6 +3,7 @@ const bs58 = require('bs58');
 
 // const DB = require('../util/database');
 const { WalletDB } = require('../util/db');
+const { assert } = require('console');
 
 // const addressPrefix = '420_';
 
@@ -80,15 +81,11 @@ class Wallet {
   }
 
   getLabel() {
-    if (!this.label || this.label === '') {
-      return 'No label';
-    }
-
     return this.label;
   }
 
   setLabel(label) {
-    this.label = label || '';
+    this.label = label;
   }
 
   getPrivateKey() {
@@ -100,17 +97,13 @@ class Wallet {
   }
 
   getPublicKeyHex() {
-    if (!this.publicKey) {
-      return '';
-    }
+    assert(this.privateKey !== null);
 
     return this.publicKey.toString('hex');
   }
 
   getPrivateKeyHex() {
-    if (!this.privateKey) {
-      return '';
-    }
+    assert(this.privateKey !== null);
 
     return this.privateKey.toString('hex');
   }
@@ -147,9 +140,7 @@ class Wallet {
   }
 
   getAddressEncoded() {
-    if (!this.publicKey || !this.privateKey) {
-      return '';
-    }
+    assert(this.publicKey != null);
 
     const version = Buffer.from([0x00]);
 
