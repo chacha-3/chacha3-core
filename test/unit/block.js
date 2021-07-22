@@ -4,7 +4,7 @@ const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 const Transaction = require('../../models/transaction');
 
-test('creat a block with coinbase', (t) => {
+test('create a block with coinbase', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -61,7 +61,34 @@ test('get object representation of a block', (t) => {
   block.addTransaction(transaction1);
   block.mine();
 
-  console.log(block.toObject());
+  t.end();
+});
+
+test('verify block with checksum', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(receiver.getAddressEncoded());
+
+  const transaction1 = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddressEncoded(),
+    410,
+  );
+
+  transaction1.sign(sender.getPrivateKeyObject());
+
+  block.addTransaction(transaction1);
+  t.equal(block.verifyChecksum(), true);
+
+  // Tamper checksum byte
+  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+
+  t.equal(block.verifyChecksum(), false);
 
   t.end();
 });

@@ -27,7 +27,7 @@ class Header {
   }
 
   hashData() {
-    // assert(this.checksum !== null);
+    assert(this.checksum !== null);
 
     const data = {
       version: this.version,
@@ -35,11 +35,8 @@ class Header {
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
+      checksum: this.checksum.toString('hex'),
     };
-
-    if (this.checksum) {
-      data.checksum = this.checksum.toString('hex');
-    }
 
     return JSON.stringify(data);
   }
