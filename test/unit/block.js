@@ -32,9 +32,11 @@ test('should mine a block', (t) => {
   wallet.generate();
 
   const block = new Block();
+
   block.addCoinbase(wallet.getAddressEncoded());
   block.mine();
 
+  t.equal(block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
 
   t.end();
@@ -83,7 +85,10 @@ test('verify block with checksum', (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
+  block.mine();
+
   t.equal(block.verifyChecksum(), true);
+  t.equal(block.verify(), true);
 
   // Tamper checksum byte
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
