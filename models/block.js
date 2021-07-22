@@ -62,9 +62,24 @@ class Block {
     assert(newTransactionId != null);
 
     const lastChecksum = this.header.getChecksum() || Buffer.from([]);
-    const newChecksum = crypto.createHash('SHA256').update(Buffer.concat([lastChecksum, newTransactionId])).digest();
+
+    const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
+    const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
 
     this.header.setChecksum(newChecksum);
+  }
+
+  verifyChecksum() {
+    let lastChecksum = Buffer.from([]);
+
+    for (let i = 0; i < this.transactionCount; i += 1) {
+      const transaction = this.transactions[i];
+      const fingerprint = Buffer.concat([lastChecksum, transaction.getId()]);
+
+      lastChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
+    }
+
+    return this.header.getChecksum() === lastChecksum;
   }
 
   toObject() {

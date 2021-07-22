@@ -70,6 +70,7 @@ class Transaction {
 
   toObject() {
     const data = {
+      id: this.getId().toString('hex'),
       version: this.version,
       senderKey: null,
       receiverAddress: this.receiverAddress,
