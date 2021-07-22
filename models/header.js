@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const BN = require('bn.js');
-const { assert } = require('console');
+const assert = require('assert');
 
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',

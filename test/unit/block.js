@@ -94,6 +94,7 @@ test('verify block with checksum', (t) => {
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
   t.equal(block.verifyChecksum(), false);
+  t.equal(block.verify(), false);
 
   t.end();
 });

@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const bs58 = require('bs58');
+const assert = require('assert');
 
 // const DB = require('../util/database');
 const { WalletDB } = require('../util/db');
-const { assert } = require('console');
 
 // const addressPrefix = '420_';
 
