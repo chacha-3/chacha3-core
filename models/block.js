@@ -56,8 +56,7 @@ class Block {
   }
 
   verify() {
-    // TODO: Verify transactions signature
-    return this.verifyHash();
+    return this.verifyHash() && this.verifyChecksum();
   }
 
   updateChecksum(newTransactionId) {
