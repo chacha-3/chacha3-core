@@ -75,15 +75,15 @@ class Transaction {
       senderKey: null,
       receiverAddress: this.receiverAddress,
       amount: this.amount,
-      signature: this.getSignature(),
+      signature: null,
     };
 
     if (this.senderKey) {
-      data.senderKey = this.senderKey.toString('hex');
+      data.senderKey = this.getSenderKey().toString('hex');
     }
 
     if (this.signature) {
-      data.signature = this.signature.toString('hex');
+      data.signature = this.getSignature().toString('hex');
     }
 
     return data;
