@@ -74,6 +74,10 @@ class Header {
     return target.div(difficulty).toString(16, 32);
   }
 
+  getNonce() {
+    return this.nonce;
+  }
+
   incrementNonce() {
     this.nonce += 1;
   }

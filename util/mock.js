@@ -1,3 +1,6 @@
+const assert = require('assert');
+const Block = require('../models/block');
+const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 
 const mock = {};
@@ -17,6 +20,35 @@ mock.createWallets = async (count) => {
   }
 
   return Promise.all(promises);
+};
+
+mock.blockWithTransactions = (numOfTransactions) => {
+  assert(numOfTransactions > 0);
+
+  const minusCoinbase = numOfTransactions - 1;
+
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(receiver.getAddressEncoded());
+
+  for (let i = 0; i < minusCoinbase; i += 1) {
+    const transaction = new Transaction(
+      sender.getPublicKey(),
+      receiver.getAddressEncoded(),
+      Math.floor(Math.random() * (100 - 1) + 1),
+    );
+
+    block.addTransaction(transaction);
+  }
+
+  block.mine();
+
+  return block;
 };
 
 module.exports = mock;

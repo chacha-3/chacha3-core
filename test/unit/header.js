@@ -32,10 +32,28 @@ test('should get the difficulty', (t) => {
   t.end();
 });
 
-test('get object representation of header', (t) => {
+test('increment the nonce', (t) => {
   const header = new Header();
 
-  // TODO:
-  // t.equal(header.getDifficulty(), 1);
+  const initialNonce = header.getNonce();
+
+  for (let i = 1; i <= 2; i += 1) {
+    header.incrementNonce();
+    t.equal(header.getNonce(), initialNonce + i);
+  }
+
+  t.end();
+});
+
+test('get object representation of header', (t) => {
+  const header = new Header();
+  const result = header.toObject();
+
+  const properties = ['version', 'checksum', 'date', 'difficulty', 'nonce'];
+
+  properties.forEach((property) => {
+    t.ok(Object.prototype.hasOwnProperty.call(result, property));
+  });
+
   t.end();
 });

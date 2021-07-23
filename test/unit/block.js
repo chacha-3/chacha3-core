@@ -4,6 +4,8 @@ const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 const Transaction = require('../../models/transaction');
 
+const mock = require('../../util/mock');
+
 test('create a block with coinbase', (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -86,6 +88,21 @@ test('verify block with checksum', (t) => {
 
   block.addTransaction(transaction1);
   block.mine();
+
+  t.equal(block.verifyChecksum(), true);
+  t.equal(block.verify(), true);
+
+  // Tamper checksum byte
+  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+
+  t.equal(block.verifyChecksum(), false);
+  t.equal(block.verify(), false);
+
+  t.end();
+});
+
+test('correct block object format', (t) => {
+  const block = mock.blockWithTransactions(1);
 
   t.equal(block.verifyChecksum(), true);
   t.equal(block.verify(), true);
