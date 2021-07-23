@@ -43,6 +43,7 @@ mock.blockWithTransactions = (numOfTransactions) => {
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
+    transaction.sign(sender.getPrivateKeyObject());
     block.addTransaction(transaction);
   }
 

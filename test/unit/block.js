@@ -102,7 +102,7 @@ test('verify block with checksum', (t) => {
 });
 
 test('correct block object format', (t) => {
-  const block = mock.blockWithTransactions(1);
+  const block = mock.blockWithTransactions(3);
 
   t.equal(block.verifyChecksum(), true);
   t.equal(block.verify(), true);

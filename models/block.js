@@ -22,6 +22,7 @@ class Block {
   }
 
   addTransaction(transaction) {
+    // Only the coinbase transaction can be added without signature
     if (transaction.getSignature() == null) {
       assert.strictEqual(this.transactionCount, 0n);
     }
@@ -81,6 +82,18 @@ class Block {
     }
 
     return this.getHeader().getChecksum().equals(lastChecksum);
+  }
+
+  verifySize() {
+    // TODO:
+  }
+
+  verifyTimestamp() {
+    // TODO: For new blocks, ensure less than two hours into future for time errors
+  }
+
+  verifyOnlyFirstIsCoinBase() {
+
   }
 
   toObject() {
