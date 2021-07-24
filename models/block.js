@@ -5,10 +5,12 @@ const BN = require('bn.js');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
+const { WalletDB, BlockDB } = require('../util/db');
+
 class Block {
   constructor() {
     this.header = new Header();
-    this.transactionCount = 0n;
+    this.transactionCount = 0;
     this.transactions = [];
 
     // this.lastChecksum = Buffer.from([]);
@@ -24,17 +26,25 @@ class Block {
   addTransaction(transaction) {
     // Only the coinbase transaction can be added without signature
     if (transaction.getSignature() == null) {
-      assert.strictEqual(this.transactionCount, 0n);
+      assert.strictEqual(this.transactionCount, 0);
     }
 
     this.transactions.push(transaction);
-    this.transactionCount += BigInt(1);
+    this.transactionCount += 1;
 
     this.updateChecksum(transaction.getId());
   }
 
+  getTransactions() {
+    return this.transactions;
+  }
+
   getTransaction(index) {
     return this.transactions[index];
+  }
+
+  getTransactionCount() {
+    return this.transactionCount;
   }
 
   getHeader() {
@@ -109,6 +119,30 @@ class Block {
     }
 
     return data;
+  }
+
+  fromObject() {
+
+  }
+
+
+  async save() {
+    await this.header.save();
+    
+  }
+
+  async load(address) {
+    let data;
+
+    try {
+      data = await WalletDB.get(address, { valueEncoding: 'json' });
+    } catch (e) {
+      return false;
+    }
+
+    this.fromSaveData(data);
+
+    return true;
   }
 }
 

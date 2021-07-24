@@ -1,11 +1,12 @@
 const crypto = require('crypto');
 const BN = require('bn.js');
 const assert = require('assert');
+const { BlockDB, HeaderDB } = require('../util/db');
 
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
   development: '0000ff0000000000000000000000000000000000000000000000000000000000',
-  test: 'ff00000000000000000000000000000000000000000000000000000000000000',
+  test: 'ffffffffffffffffffff00000000000000000000000000000000000000000000',
 };
 
 class Header {
@@ -80,6 +81,38 @@ class Header {
 
   incrementNonce() {
     this.nonce += 1;
+  }
+
+  async save() {
+    const data = {
+      version: this.version,
+      previous: this.previous ? this.previous.toString('hex') : null,
+      time: this.time,
+      difficulty: this.difficulty,
+      nonce: this.nonce,
+      checksum: this.checksum.toString('hex'),
+    };
+
+    await HeaderDB.put(`${this.getHash()}`, data, { valueEncoding: 'json' });
+  }
+
+  async load(hash) {
+    let data;
+
+    try {
+      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
+    } catch (e) {
+      return false;
+    }
+
+    this.version = data.version;
+    this.previous = Buffer.from(data.previous, 'hex');
+    this.time = data.time;
+    this.difficulty = data.difficulty;
+    this.nonce = data.nonce;
+    this.checksum = Buffer.from(data.checksum, 'hex');
+
+    return true;
   }
 
   toObject() {

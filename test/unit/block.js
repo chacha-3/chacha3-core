@@ -13,7 +13,7 @@ test('create a block with coinbase', (t) => {
   const block = new Block();
   block.addCoinbase(wallet.getAddressEncoded());
 
-  t.equal(block.transactionCount, 1n, 'block only has coinbase transaction');
+  t.equal(block.transactionCount, 1, 'block only has coinbase transaction');
 
   const coinbase = block.getTransaction(0);
 
@@ -104,14 +104,7 @@ test('verify block with checksum', (t) => {
 test('correct block object format', (t) => {
   const block = mock.blockWithTransactions(3);
 
-  t.equal(block.verifyChecksum(), true);
-  t.equal(block.verify(), true);
-
-  // Tamper checksum byte
-  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
-
-  t.equal(block.verifyChecksum(), false);
-  t.equal(block.verify(), false);
+  console.log(JSON.stringify(block.toObject(), null, 2));
 
   t.end();
 });

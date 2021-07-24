@@ -5,6 +5,8 @@ const { test } = require('tap');
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
 
+const mock = require('../../util/mock');
+
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -109,7 +111,7 @@ test('have correct hash data for transaction', (t) => {
   const hashData = JSON.parse(transaction.hashData());
 
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
+  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex')); // FIXME: Why hex?
   t.equal(hashData.amount, 20);
   t.equal(hashData.senderKey, sender.getPublicKey().toString('hex'));
 
@@ -131,6 +133,44 @@ test('have correct hash data for coinbase transaction', (t) => {
   t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
   t.equal(hashData.amount, 50);
   t.equal(hashData.senderKey, undefined);
+
+  t.end();
+});
+
+test('save and load transaction', async (t) => {
+  // const block = mock.blockWithTransactions(3);
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const coinbase = new Transaction(null, receiver.getAddressEncoded(), 10);
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  transaction.sign(sender.getPrivateKeyObject());
+
+  await coinbase.save();
+  await transaction.save();
+
+  const loadedCoinbase = await Transaction.load(coinbase.getId());
+
+  t.equal(coinbase.getVersion(), loadedCoinbase.getVersion());
+  t.equal(coinbase.getReceiverAddress(), loadedCoinbase.getReceiverAddress());
+  t.equal(coinbase.getAmount(), loadedCoinbase.getAmount());
+  t.equal(loadedCoinbase.getSenderKey(), null);
+  t.equal(loadedCoinbase.getSignature(), null);
+
+  const loadedTransaction = await Transaction.load(transaction.getId());
+
+  t.equal(coinbase.getVersion(), loadedCoinbase.getVersion());
+  t.equal(coinbase.getReceiverAddress(), loadedCoinbase.getReceiverAddress());
+  t.equal(coinbase.getAmount(), loadedCoinbase.getAmount());
+
+  t.ok(transaction.getSenderKey().equals(loadedTransaction.getSenderKey()));
+  t.ok(transaction.getSignature().equals(loadedTransaction.getSignature()));
+
+  Transaction.clearAll();
 
   t.end();
 });

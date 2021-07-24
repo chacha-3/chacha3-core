@@ -14,8 +14,14 @@ const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.arg
 
 const DB = level(dbName);
 const WalletDB = sub(DB, 'wallet');
+const BlockDB = sub(DB, 'block');
+const HeaderDB = sub(DB, 'header');
+const TransactionDB = sub(DB, 'transaction');
 
 module.exports = {
   WalletDB,
+  BlockDB,
+  HeaderDB,
+  TransactionDB,
   runningManualTest, // Export to use for unit test
 };

@@ -3,6 +3,8 @@ const crypto = require('crypto');
 
 const Wallet = require('./wallet');
 
+const { WalletDB, TransactionDB } = require('../util/db');
+
 class Transaction {
   constructor(senderKey, receiverAddress, amount) {
     this.version = 1;
@@ -20,7 +22,7 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      receiverAddress: this.receiverAddress,
+      receiverAddress: this.receiverAddress, // Base54
       amount: this.amount,
     };
 
@@ -35,6 +37,10 @@ class Transaction {
     return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
   }
 
+  getVersion() {
+    return this.version;
+  }
+
   sign(privateKey) {
     assert(this.senderKey != null);
     this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
@@ -46,6 +52,10 @@ class Transaction {
 
   getReceiverAddress() {
     return this.receiverAddress;
+  }
+
+  getAmount() {
+    return this.amount;
   }
 
   getSignature() {
@@ -87,6 +97,38 @@ class Transaction {
     }
 
     return data;
+  }
+
+  async save() {
+    await TransactionDB.put(this.getId(), this.toObject(), { valueEncoding: 'json' });
+  }
+
+  static async load(id) {
+    let data;
+
+    try {
+      data = await TransactionDB.get(id, { valueEncoding: 'json' });
+    } catch (e) {
+      return false;
+    }
+
+    const loaded = new Transaction(
+      (data.senderKey) ? Buffer.from(data.senderKey, 'hex') : null,
+      data.receiverAddress,
+      data.amount,
+    );
+
+    loaded.version = data.version;
+
+    if (data.signature) {
+      loaded.signature = Buffer.from(data.signature, 'hex');
+    }
+
+    return loaded;
+  }
+
+  static async clearAll() {
+    await TransactionDB.clear();
   }
 }
 

@@ -7,13 +7,17 @@ const Transaction = require('./transaction');
 
 class Chain {
   constructor() {
-    // this.header = new Header();
-    // this.transactionCount = 0n;
-    this.transactions = [];
+    this.blocksKeys = [];
+    this.blockCount = 0;
+  }
 
-    // this.lastChecksum = Buffer.from([]);
+  addBlockKey(key) {
+    this.blocksKeys.push(key);
+    this.blockCount += 1;
+  }
 
-    // this.coinbase = new Transaction();
+  verify() {
+
   }
 }
 
