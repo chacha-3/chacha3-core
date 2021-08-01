@@ -13,7 +13,7 @@ test('create a block with coinbase', (t) => {
   const block = new Block();
   block.addCoinbase(wallet.getAddressEncoded());
 
-  t.equal(block.transactionCount, 1, 'block only has coinbase transaction');
+  t.equal(block.getTransactionCount(), 1, 'block only has coinbase transaction');
 
   const coinbase = block.getTransaction(0);
 

@@ -5,8 +5,6 @@ const { test } = require('tap');
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
 
-const mock = require('../../util/mock');
-
 // const { expect } = chai;
 // chai.use(dirtyChai);
 

@@ -10,7 +10,7 @@ const { WalletDB, BlockDB } = require('../util/db');
 class Block {
   constructor() {
     this.header = new Header();
-    this.transactionCount = 0;
+    // this.transactionCount = 0;
     this.transactions = [];
 
     // this.lastChecksum = Buffer.from([]);
@@ -26,11 +26,11 @@ class Block {
   addTransaction(transaction) {
     // Only the coinbase transaction can be added without signature
     if (transaction.getSignature() == null) {
-      assert.strictEqual(this.transactionCount, 0);
+      assert.strictEqual(this.getTransactionCount(), 0);
     }
 
     this.transactions.push(transaction);
-    this.transactionCount += 1;
+    // this.transactionCount += 1;
 
     this.updateChecksum(transaction.getId());
   }
@@ -44,7 +44,7 @@ class Block {
   }
 
   getTransactionCount() {
-    return this.transactionCount;
+    return this.transactions.length;
   }
 
   getHeader() {
@@ -58,7 +58,7 @@ class Block {
   }
 
   verifyHash() {
-    assert(this.transactionCount > 0);
+    assert(this.getTransactionCount() > 0);
 
     const hashNum = new BN(this.header.getHash(), 16);
     const targetNum = new BN(this.header.getTarget(), 16);
@@ -84,7 +84,7 @@ class Block {
   verifyChecksum() {
     let lastChecksum = Buffer.from([]);
 
-    for (let i = 0; i < this.transactionCount; i += 1) {
+    for (let i = 0; i < this.getTransactionCount(); i += 1) {
       const transaction = this.transactions[i];
       const fingerprint = Buffer.concat([lastChecksum, transaction.getId()]);
 
@@ -94,36 +94,36 @@ class Block {
     return this.getHeader().getChecksum().equals(lastChecksum);
   }
 
-  verifySize() {
-    // TODO:
-  }
+  // verifySize() {
+  //   // TODO:
+  // }
 
-  verifyTimestamp() {
-    // TODO: For new blocks, ensure less than two hours into future for time errors
-  }
+  // verifyTimestamp() {
+  //   // TODO: For new blocks, ensure less than two hours into future for time errors
+  // }
 
-  verifyOnlyFirstIsCoinBase() {
+  // verifyOnlyFirstIsCoinBase() {
 
-  }
+  // }
 
-  toObject() {
-    const data = {
-      header: this.getHeader().toObject(),
-      transactionCount: this.transactionCount,
-      transactions: [],
-    };
+  // toObject() {
+  //   const data = {
+  //     header: this.getHeader().toObject(),
+  //     transactionCount: this.transactionCount,
+  //     transactions: [],
+  //   };
 
-    for (let i = 0; i < this.transactionCount; i += 1) {
-      const transaction = this.transactions[i];
-      data.transactions.push(transaction.toObject());
-    }
+  //   for (let i = 0; i < this.transactionCount; i += 1) {
+  //     const transaction = this.transactions[i];
+  //     data.transactions.push(transaction.toObject());
+  //   }
 
-    return data;
-  }
+  //   return data;
+  // }
 
-  fromObject() {
+  // fromObject() {
 
-  }
+  // }
 
 
   async save() {
