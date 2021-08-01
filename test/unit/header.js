@@ -7,7 +7,8 @@ const mock = require('../../util/mock');
 // const { expect } = chai;
 
 test('create a block header', (t) => {
-  // const header = new Header();
+  const header = new Header();
+  t.equal(typeof header.time, 'number', 'Header time is set');
   t.end();
 });
 
@@ -63,7 +64,12 @@ test('save and load header', async (t) => {
   const block = mock.blockWithTransactions(1);
   const header = block.getHeader();
 
-  const result = await Header.save(header);
-  console.log(result);
+  const { key } = await Header.save(header);
+  t.equal(key.length, 32);
+
+  const loaded = Header.load(key);
+  // console.log(loaded);
+
+  Header.clearAll();
   t.end();
 });

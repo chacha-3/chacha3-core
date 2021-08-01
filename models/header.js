@@ -3,6 +3,7 @@ const BN = require('bn.js');
 const assert = require('assert');
 const { BlockDB, HeaderDB, runningManualTest } = require('../util/db');
 
+// TODO: Cleaner way for this. Add generic environment check
 if (runningManualTest) {
   process.env.NODE_ENV = 'test';
 }
@@ -20,7 +21,7 @@ class Header {
     this.previous = null;
     this.checksum = null; // TODO:
 
-    this.date = Date.now();
+    this.time = Date.now();
 
     this.difficulty = 1;
     this.nonce = 0;
@@ -32,17 +33,21 @@ class Header {
   }
 
   static async save(header) {
+    assert(header.checksum != null);
+
     const data = {
-      version: header.version,
-      previous: header.previous ? header.previous.toString('hex') : null,
-      time: header.time,
-      difficulty: header.difficulty,
-      nonce: header.nonce,
-      checksum: header.checksum.toString('hex'),
+      version: header.getVersion(),
+      previous: (header.getPrevious() != null) ? header.getPrevious().toString('hex') : null,
+      time: header.getTime(),
+      difficulty: header.getDifficulty(),
+      nonce: header.getNonce(),
+      checksum: header.getChecksum().toString('hex'),
     };
 
+    const key = header.getHash();
     await HeaderDB.put(`${header.getHash()}`, data, { valueEncoding: 'json' });
-    return data;
+
+    return { key, data };
   }
 
   static async load(hash) {
@@ -57,7 +62,7 @@ class Header {
     const header = new Header();
 
     header.setVersion(data.version);
-    header.setPrevious(Buffer.from(data.previous, 'hex'));
+    header.setPrevious((data.previous) ? Buffer.from(data.previous, 'hex') : null);
     header.setTime(data.time);
     header.setDifficulty(data.difficulty);
     header.setNonce(data.nonce);
@@ -66,8 +71,12 @@ class Header {
     return header;
   }
 
+  static async clearAll() {
+    await HeaderDB.clear();
+  }
+
   hashData() {
-    assert(this.checksum !== null);
+    assert(this.checksum !== null && this.time != null);
 
     const data = {
       version: this.version,
