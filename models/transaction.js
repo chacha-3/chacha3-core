@@ -99,8 +99,12 @@ class Transaction {
     return data;
   }
 
-  async save() {
-    await TransactionDB.put(this.getId(), this.toObject(), { valueEncoding: 'json' });
+  static async save(transaction) {
+    const key = transaction.getId();
+    const data = transaction.toObject(); // FIXME:
+
+    await TransactionDB.put(key, data, { valueEncoding: 'json' });
+    return { key, data };
   }
 
   static async load(id) {

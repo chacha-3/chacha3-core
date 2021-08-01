@@ -65,10 +65,19 @@ test('save and load header', async (t) => {
   const header = block.getHeader();
 
   const { key } = await Header.save(header);
-  t.equal(key.length, 32);
 
-  const loaded = Header.load(key);
-  // console.log(loaded);
+  t.ok(key.equals(header.getHash()), 'key is correct');
+  t.equal(key.length, 32, 'key length is 32');
+
+  const loaded = await Header.load(key);
+
+  t.equal(loaded.getVersion(), header.getVersion(), 'loaded version matches');
+  t.equal(loaded.getTime(), header.getTime(), 'loaded time matches');
+  t.equal(loaded.getDifficulty(), header.getDifficulty(), 'loaded difficulty matches');
+  t.equal(loaded.getNonce(), header.getNonce(), 'loaded nonce matches');
+
+  t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
+  t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
 
   Header.clearAll();
   t.end();

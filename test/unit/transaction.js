@@ -150,8 +150,8 @@ test('save and load transaction', async (t) => {
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
   transaction.sign(sender.getPrivateKeyObject());
 
-  await coinbase.save();
-  await transaction.save();
+  await Transaction.save(coinbase);
+  await Transaction.save(transaction);
 
   const loadedCoinbase = await Transaction.load(coinbase.getId());
 
