@@ -104,7 +104,7 @@ test('verify block with checksum', (t) => {
 test('correct block object format', (t) => {
   const block = mock.blockWithTransactions(3);
 
-  console.log(JSON.stringify(block.toObject(), null, 2));
+  // console.log(JSON.stringify(block.toObject(), null, 2));
 
   t.end();
 });

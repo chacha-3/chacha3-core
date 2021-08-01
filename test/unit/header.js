@@ -2,6 +2,7 @@ const { test } = require('tap');
 // const chai = require('chai');
 
 const Header = require('../../models/header');
+const mock = require('../../util/mock');
 
 // const { expect } = chai;
 
@@ -11,7 +12,7 @@ test('create a block header', (t) => {
 });
 
 test('get the min target', (t) => {
-  t.equal(Header.MinTarget, 'ff00000000000000000000000000000000000000000000000000000000000000');
+  t.equal(Header.MinTarget, 'ffffffffffffffffffff00000000000000000000000000000000000000000000');
   t.end();
 });
 
@@ -19,10 +20,10 @@ test('get difficulty target', (t) => {
   const header = new Header();
 
   // Difficulty 1 by default
-  t.equal(header.getTarget(), 'ff00000000000000000000000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), 'ffffffffffffffffffff00000000000000000000000000000000000000000000');
 
   header.setDifficulty(2);
-  t.equal(header.getTarget(), '7f80000000000000000000000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), '7fffffffffffffffffff80000000000000000000000000000000000000000000');
   t.end();
 });
 
@@ -55,5 +56,14 @@ test('get object representation of header', (t) => {
     t.ok(Object.prototype.hasOwnProperty.call(result, property));
   });
 
+  t.end();
+});
+
+test('save and load header', async (t) => {
+  const block = mock.blockWithTransactions(1);
+  const header = block.getHeader();
+
+  const result = await Header.save(header);
+  console.log(result);
   t.end();
 });

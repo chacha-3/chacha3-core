@@ -1,7 +1,11 @@
 const crypto = require('crypto');
 const BN = require('bn.js');
 const assert = require('assert');
-const { BlockDB, HeaderDB } = require('../util/db');
+const { BlockDB, HeaderDB, runningManualTest } = require('../util/db');
+
+if (runningManualTest) {
+  process.env.NODE_ENV = 'test';
+}
 
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
@@ -27,6 +31,41 @@ class Header {
     return minTarget[env];
   }
 
+  static async save(header) {
+    const data = {
+      version: header.version,
+      previous: header.previous ? header.previous.toString('hex') : null,
+      time: header.time,
+      difficulty: header.difficulty,
+      nonce: header.nonce,
+      checksum: header.checksum.toString('hex'),
+    };
+
+    await HeaderDB.put(`${header.getHash()}`, data, { valueEncoding: 'json' });
+    return data;
+  }
+
+  static async load(hash) {
+    let data;
+
+    try {
+      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
+    } catch (e) {
+      return null;
+    }
+
+    const header = new Header();
+
+    header.setVersion(data.version);
+    header.setPrevious(Buffer.from(data.previous, 'hex'));
+    header.setTime(data.time);
+    header.setDifficulty(data.difficulty);
+    header.setNonce(data.nonce);
+    header.setChecksum(Buffer.from(data.checksum, 'hex'));
+
+    return header;
+  }
+
   hashData() {
     assert(this.checksum !== null);
 
@@ -40,6 +79,38 @@ class Header {
     };
 
     return JSON.stringify(data);
+  }
+
+  getVersion() {
+    return this.version;
+  }
+
+  setVersion(version) {
+    this.version = version;
+  }
+
+  getPrevious() {
+    return this.previous;
+  }
+
+  setPrevious(previous) {
+    this.previous = previous;
+  }
+
+  getTime() {
+    return this.time;
+  }
+
+  setTime(time) {
+    this.time = time;
+  }
+
+  getDifficulty() {
+    return this.difficulty;
+  }
+
+  setDifficulty(difficulty) {
+    this.difficulty = difficulty;
   }
 
   getChecksum() {
@@ -57,14 +128,6 @@ class Header {
     return pass2;
   }
 
-  getDifficulty() {
-    return this.difficulty;
-  }
-
-  setDifficulty(difficulty) {
-    this.difficulty = difficulty;
-  }
-
   getTarget() {
     const target = new BN(Header.MinTarget, 16);
 
@@ -79,41 +142,45 @@ class Header {
     return this.nonce;
   }
 
+  setNonce(nonce) {
+    this.nonce = nonce;
+  }
+
   incrementNonce() {
     this.nonce += 1;
   }
 
-  async save() {
-    const data = {
-      version: this.version,
-      previous: this.previous ? this.previous.toString('hex') : null,
-      time: this.time,
-      difficulty: this.difficulty,
-      nonce: this.nonce,
-      checksum: this.checksum.toString('hex'),
-    };
+  // async save() {
+  //   const data = {
+  //     version: this.version,
+  //     previous: this.previous ? this.previous.toString('hex') : null,
+  //     time: this.time,
+  //     difficulty: this.difficulty,
+  //     nonce: this.nonce,
+  //     checksum: this.checksum.toString('hex'),
+  //   };
 
-    await HeaderDB.put(`${this.getHash()}`, data, { valueEncoding: 'json' });
-  }
+  //   await HeaderDB.put(`${this.getHash()}`, data, { valueEncoding: 'json' });
+  // }
 
-  async load(hash) {
-    let data;
+  // async load(hash) {
+  //   let data;
 
-    try {
-      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
-    } catch (e) {
-      return false;
-    }
+  //   try {
+  //     data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
+  //   } catch (e) {
+  //     return false;
+  //   }
 
-    this.version = data.version;
-    this.previous = Buffer.from(data.previous, 'hex');
-    this.time = data.time;
-    this.difficulty = data.difficulty;
-    this.nonce = data.nonce;
-    this.checksum = Buffer.from(data.checksum, 'hex');
+  //   this.version = data.version;
+  //   this.previous = Buffer.from(data.previous, 'hex');
+  //   this.time = data.time;
+  //   this.difficulty = data.difficulty;
+  //   this.nonce = data.nonce;
+  //   this.checksum = Buffer.from(data.checksum, 'hex');
 
-    return true;
-  }
+  //   return true;
+  // }
 
   toObject() {
     return {

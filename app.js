@@ -5,6 +5,7 @@ const Peer = require('./models/peer');
 
 const actions = require('./actions');
 
+
 const schema = {
   body: {
     action: { type: 'string' },
