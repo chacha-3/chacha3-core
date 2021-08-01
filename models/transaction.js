@@ -10,7 +10,7 @@ class Transaction {
     this.version = 1;
 
     this.senderKey = senderKey;
-    this.receiverAddress = receiverAddress;
+    this.receiverAddress = receiverAddress; // FIXME: Change to use buffer?
 
     this.amount = amount;
 
@@ -100,8 +100,17 @@ class Transaction {
   }
 
   static async save(transaction) {
+    assert(transaction.getId() != null);
     const key = transaction.getId();
-    const data = transaction.toObject(); // FIXME:
+
+    const data = {
+      id: transaction.getId().toString('hex'),
+      version: transaction.getVersion(),
+      senderKey: transaction.getSenderKey() ? transaction.getSenderKey().toString('hex') : null,
+      receiverAddress: transaction.getReceiverAddress(),
+      amount: transaction.getAmount(),
+      signature: transaction.getSignature() ? transaction.getSignature().toString('hex') : null,
+    };
 
     await TransactionDB.put(key, data, { valueEncoding: 'json' });
     return { key, data };
