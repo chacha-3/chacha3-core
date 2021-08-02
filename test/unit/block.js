@@ -101,6 +101,92 @@ test('verify block with checksum', (t) => {
   t.end();
 });
 
+test('checksum is updated when adding transaction', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(receiver.getAddressEncoded());
+
+  let previousChecksum = null;
+
+  for (let i = 0; i < 3; i += 1) {
+    const transaction = new Transaction(
+      sender.getPublicKey(),
+      receiver.getAddressEncoded(),
+      200,
+    );
+
+    transaction.sign(sender.getPrivateKeyObject());
+
+    block.addTransaction(transaction);
+    block.mine();
+
+    if (previousChecksum) {
+      t.not(block.getHeader().getChecksum(), previousChecksum, 'Checksum is not the same');
+    } else {
+      previousChecksum = block.getHeader().getChecksum();
+    }
+  }
+
+  t.end();
+});
+
+test('block is invalid when checksum is incorrect', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.mine();
+
+  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+
+  t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
+  t.equal(block.verify(), false, 'tampered block fails verification');
+
+  t.end();
+});
+
+test('block is invalid if adding transaction after mining', (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.mine();
+
+  t.equal(block.verifyHash(), true, 'mined block has verified hash');
+  t.equal(block.verify(), true, 'mined block is verified');
+
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const addTransaction = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddressEncoded(),
+    200,
+  );
+
+  addTransaction.sign(sender.getPrivateKeyObject());
+
+  block.addTransaction(addTransaction);
+
+  // FIXME:
+  // t.equal(block.verifyHash(), false, 'tampered transaction has invalid hash');
+  // t.equal(block.verify(), false, 'tampered transaction is unverified');
+
+  t.end();
+});
+
 test('correct block object format', (t) => {
   const block = mock.blockWithTransactions(3);
 
@@ -112,7 +198,7 @@ test('correct block object format', (t) => {
 test('save and load block', async (t) => {
   const block = mock.blockWithTransactions(3);
 
-  const { key, data } = await Block.save(block);
+  const { key } = await Block.save(block);
 
   const loaded = await Block.load(key);
 
