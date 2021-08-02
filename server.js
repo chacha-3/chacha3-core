@@ -3,6 +3,10 @@
  */
 const selfsigned = require('selfsigned');
 
+const Block = require('./models/block');
+
+const Chain = require('./models/chain');
+
 function normalizePort(val) {
   const port = parseInt(val, 10);
 
@@ -18,6 +22,28 @@ function normalizePort(val) {
 
   return false;
 }
+
+// TODO: Peer list
+
+const runMiner = async () => {
+  const mining = true;
+  const chain = await Chain.load();
+  console.log(`Miner started. Current height: ${chain.getHeight()}. Current total work: ${chain.getTotalWork()}`);
+
+  while (mining) {
+    const block = new Block();
+    block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
+    const mineTime = block.mine();
+
+    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}`);
+
+    Block.save(block);
+    chain.addBlockHash(block);
+
+    console.log(`New block saved. Current height: ${chain.getHeight()}. Current total work: ${chain.getTotalWork()}`);
+    Chain.save(chain);
+  }
+};
 
 const attrs = [{ name: 'commonName', value: 'bong' }];
 const pems = selfsigned.generate(attrs, {
@@ -40,9 +66,11 @@ const server = require('./app')({
 
 const port = normalizePort(process.env.PORT || '3000');
 
-server.listen(port, (err, address) => {
-  console.log(address);
+server.listen(port, async (err, address) => {
+  runMiner();
+  console.log(`Server started ${address}`);
   if (err) {
+    // Block.clearAll();
     process.exit(1);
   }
 });

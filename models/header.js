@@ -4,7 +4,8 @@ const assert = require('assert');
 const { BlockDB, HeaderDB, runningManualTest } = require('../util/db');
 
 // TODO: Cleaner way for this. Add generic environment check
-if (runningManualTest) {
+
+if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
 }
 
@@ -23,7 +24,7 @@ class Header {
 
     this.time = Date.now();
 
-    this.difficulty = 1;
+    this.difficulty = 50;
     this.nonce = 0;
   }
 

@@ -15,6 +15,9 @@ class Chain {
 
   addBlockHash(block) {
     const header = block.getHeader();
+
+    // TODO: Check timestamp greater than last
+
     this.blockHashes.push(header.getHash());
 
     this.totalWork += header.getDifficulty();
@@ -40,10 +43,15 @@ class Chain {
     return this.totalWork;
   }
 
+  setTotalWork(totalWork) {
+    this.totalWork = totalWork;
+  }
+
   static async save(chain) {
     const key = 'chain';
 
     const data = {
+      totalWork: chain.getTotalWork(),
       blockHashes: chain.getBlockHashes().map((hash) => hash.toString('hex')),
     };
 
@@ -55,18 +63,28 @@ class Chain {
   static async load() {
     let data;
 
+    const chain = new Chain();
+    let blockHashes = [];
+    let totalWork = 0;
+
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
+
+      totalWork = data.totalWork;
+      blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     } catch (e) {
-      return null;
+      // return null;
     }
 
-    const chain = new Chain();
-
-    const blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     chain.setBlockHashes(blockHashes);
+    chain.setTotalWork(totalWork);
 
     return chain;
+  }
+
+  static async clear() {
+    // TODO: Clear all blocks
+    await DB.del('chain');
   }
 }
 

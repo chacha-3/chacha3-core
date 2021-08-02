@@ -2,6 +2,8 @@ const assert = require('assert');
 const crypto = require('crypto');
 const BN = require('bn.js');
 
+const { performance } = require('perf_hooks');
+
 const Header = require('./header');
 const Transaction = require('./transaction');
 
@@ -60,9 +62,15 @@ class Block {
   }
 
   mine() {
+    const start = performance.now();
+
     while (!this.verifyHash()) {
       this.header.incrementNonce();
     }
+
+    const end = performance.now();
+
+    return end - start;
   }
 
   verifyHash() {
