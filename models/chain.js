@@ -10,10 +10,14 @@ const { DB, BlockDB } = require('../util/db');
 class Chain {
   constructor() {
     this.blockHashes = [];
+    this.totalWork = 0;
   }
 
-  addBlockHash(hash) {
-    this.blockHashes.push(hash);
+  addBlockHash(block) {
+    const header = block.getHeader();
+    this.blockHashes.push(header.getHash());
+
+    this.totalWork += header.getDifficulty();
   }
 
   getBlockHashes() {
@@ -32,6 +36,10 @@ class Chain {
     return this.blockHashes.length;
   }
 
+  getTotalWork() {
+    return this.totalWork;
+  }
+
   static async save(chain) {
     const key = 'chain';
 
@@ -48,7 +56,7 @@ class Chain {
     let data;
 
     try {
-      data = await BlockDB.get('chain', { valueEncoding: 'json' });
+      data = await DB.get('chain', { valueEncoding: 'json' });
     } catch (e) {
       return null;
     }

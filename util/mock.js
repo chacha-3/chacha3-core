@@ -67,7 +67,7 @@ mock.chainWithBlocks = (numOfBlocks, transactionsPerBlock) => {
   );
 
   for (let i = 0; i < numOfBlocks; i += 1) {
-    chain.addBlockHash(blocks[i].getHeader().getHash());
+    chain.addBlockHash(blocks[i]);
   }
 
   return chain;
