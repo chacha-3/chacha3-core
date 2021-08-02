@@ -24,7 +24,7 @@ class Header {
 
     this.time = Date.now();
 
-    this.difficulty = 50;
+    this.difficulty = 1;
     this.nonce = 0;
   }
 
