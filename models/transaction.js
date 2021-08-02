@@ -122,7 +122,7 @@ class Transaction {
     try {
       data = await TransactionDB.get(id, { valueEncoding: 'json' });
     } catch (e) {
-      return false;
+      return null;
     }
 
     const loaded = new Transaction(

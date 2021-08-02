@@ -31,7 +31,7 @@ const server = require('./app')({
   //   level: 'info',
   //   prettyPrint: true,
   // },
-  http2: true,
+  http2: false,
   https: {
     key: pems.private,
     cert: pems.cert,

@@ -47,8 +47,16 @@ class Block {
     return this.transactions.length;
   }
 
+  setTransactions(transactions) {
+    this.transactions = transactions;
+  }
+
   getHeader() {
     return this.header;
+  }
+
+  setHeader(header) {
+    this.header = header;
   }
 
   mine() {
@@ -125,24 +133,71 @@ class Block {
 
   // }
 
+  static async saveTransactions(block) {
+    const saveTransaction = (transaction) => new Promise((resolve) => {
+      const result = Transaction.save(transaction);
+      resolve(result);
+    });
 
-  async save() {
-    await this.header.save();
-    
+    const promises = [];
+
+    block.getTransactions().forEach((value) => promises.push(saveTransaction(value)));
+    return Promise.all(promises);
   }
 
-  async load(address) {
+  static async loadTransactions(indexes) {
+    const loadTransaction = (hash) => new Promise((resolve) => {
+      const transaction = Transaction.load(hash);
+      resolve(transaction);
+    });
+
+    const promises = [];
+
+    indexes.forEach((index) => promises.push(loadTransaction(index)));
+    return Promise.all(promises);
+  }
+
+  static async save(block) {
+    // assert(transaction.getId() != null);
+    const key = block.getHeader().getHash();
+
+    const header = block.getHeader();
+    await Header.save(header);
+
+    const transactions = await Block.saveTransactions(block);
+    const data = {
+      transactionIndexes: transactions.map((transaction) => transaction.key.toString('hex')),
+    };
+
+    await BlockDB.put(key, data, { valueEncoding: 'json' });
+
+    return { key, data };
+  }
+
+  static async load(hash) {
     let data;
 
     try {
-      data = await WalletDB.get(address, { valueEncoding: 'json' });
+      data = await BlockDB.get(hash, { valueEncoding: 'json' });
     } catch (e) {
       return false;
     }
 
-    this.fromSaveData(data);
+    const block = new Block();
 
-    return true;
+    const header = await Header.load(hash);
+    block.setHeader(header);
+
+    const indexes = data.transactionIndexes.map((hexKey) => Buffer.from(hexKey, 'hex'));
+    const transactions = await Block.loadTransactions(indexes);
+
+    block.setTransactions(transactions);
+
+    return block;
+  }
+
+  static async clearAll() {
+    BlockDB.clear();
   }
 }
 

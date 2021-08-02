@@ -8,6 +8,12 @@ const actions = {};
 
 actions.createTransaction = {
   permission: 'public', // TODO: Change to private
+  schema: {
+    key: {
+      required: true,
+      type: 'hex',
+    },
+  },
   handler: async (options) => {
     const senderWallet = new Wallet();
     senderWallet.recover(Buffer.from(options.key, 'hex'));

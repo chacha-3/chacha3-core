@@ -108,3 +108,20 @@ test('correct block object format', (t) => {
 
   t.end();
 });
+
+test('save and load block', async (t) => {
+  const block = mock.blockWithTransactions(3);
+
+  const { key, data } = await Block.save(block);
+
+  const loaded = await Block.load(key);
+
+  // Simple equality check
+  // TODO: Add more checks
+  t.ok(block.getHeader().getHash().equals(loaded.getHeader().getHash()));
+  t.equal(block.getTransactionCount(), loaded.getTransactionCount());
+
+  Block.clearAll();
+
+  t.end();
+});

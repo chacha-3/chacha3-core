@@ -85,7 +85,7 @@ class Wallet {
   }
 
   setLabel(label) {
-    this.label = label;
+    this.label = label || '';
   }
 
   getPrivateKey() {

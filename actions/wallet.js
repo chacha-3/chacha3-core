@@ -26,4 +26,15 @@ actions.createWallet = {
   },
 };
 
+actions.generateWallet = {
+  permission: 'public',
+  handler: async (options) => {
+    const wallet = new Wallet();
+    wallet.generate();
+    // wallet.save();
+
+    return { data: wallet.toObject(), code: 'ok' };
+  },
+};
+
 module.exports = actions;

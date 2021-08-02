@@ -5,7 +5,6 @@ const Peer = require('./models/peer');
 
 const actions = require('./actions');
 
-
 const schema = {
   body: {
     action: { type: 'string' },
@@ -49,7 +48,10 @@ function build(opts = {}) {
 
   // RPC endpoint
   app.post('/', {
-    schema,
+    // schema,
+    // preValidation: (request, reply, done) => {
+    //   // console.log(request);
+    // },
     preHandler: async (request, reply, done) => {
       const actionName = request.body.action;
       const action = actions[actionName];
@@ -58,7 +60,7 @@ function build(opts = {}) {
         reply.code(400).send();
       }
 
-      const { permission } = action;
+      const { permission, schema } = action;
 
       if (permission === 'public') {
         done();
@@ -67,6 +69,9 @@ function build(opts = {}) {
       if (permission === 'authOnly') {
         reply.code(401);
       }
+
+      // TODO: Verify action params
+
       // E.g. check authentication
       // reply.code(401);
     },
