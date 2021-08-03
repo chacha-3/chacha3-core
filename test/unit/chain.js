@@ -13,10 +13,14 @@ test('create an empty chain', (t) => {
   t.end();
 });
 
-test('add block hashes to the chain', (t) => {
+test('add block hashes to the chain', async (t) => {
   const numOfBlocks = 3;
 
-  const blocks = Array.from({ length: 10 }, () => mock.blockWithTransactions(5));
+  // FIXME:
+  const blocks = await Array.from({ length: 10 }, async () => {
+    const result = await mock.blockWithTransactions(5);
+    return result;
+  });
 
   const chain = new Chain();
 

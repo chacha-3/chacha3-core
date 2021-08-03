@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const { argon2d } = require('argon2-ffi');
+
 const BN = require('bn.js');
 const assert = require('assert');
 const { BlockDB, HeaderDB, runningManualTest } = require('../util/db');
@@ -26,6 +28,8 @@ class Header {
 
     this.difficulty = 1;
     this.nonce = 0;
+
+    this.hash = null;
   }
 
   static get MinTarget() {
@@ -35,6 +39,7 @@ class Header {
 
   static async save(header) {
     assert(header.checksum != null);
+    assert(header.hash != null);
 
     const data = {
       version: header.getVersion(),
@@ -131,11 +136,40 @@ class Header {
     this.checksum = checksum;
   }
 
-  getHash() {
-    const pass1 = crypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
-    const pass2 = crypto.createHash('sha256').update(pass1).digest();
+  async computeHash() {
+    const options = {
+      timeCost: 4,
+      memoryCost: 16384,
+      parallelism: 8,
+      hashLength: 32,
+    };
 
-    return pass2;
+    const salt = Buffer.from(new Array(32).fill(0x00));
+
+    const hashResult = await argon2d.hashRaw(this.hashData(), salt, options);
+    // return hashResult;
+    this.hash = new Array(32);
+
+    for (let i = 0; i < 32; i += 1) {
+      this.hash[i] = hashResult[i];
+    }
+
+    // if (hashResult[0] === 0) {
+    //   console.log(this.nonce, this.hash);
+    // }
+  }
+
+  getHash() {
+    assert(this.hash != null);
+    return this.hash;
+    // const pass1 = crypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
+    // const pass2 = crypto.createHash('sha256').update(pass1).digest();
+
+    // return pass2;
+  }
+
+  setHash(hash) {
+    this.hash = hash;
   }
 
   getTarget() {

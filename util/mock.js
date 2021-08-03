@@ -25,7 +25,7 @@ mock.createWallets = async (count) => {
   return Promise.all(promises);
 };
 
-mock.blockWithTransactions = (numOfTransactions) => {
+mock.blockWithTransactions = async (numOfTransactions) => {
   assert(numOfTransactions > 0);
 
   const minusCoinbase = numOfTransactions - 1;
@@ -50,7 +50,7 @@ mock.blockWithTransactions = (numOfTransactions) => {
     block.addTransaction(transaction);
   }
 
-  block.mine();
+  await block.mine();
 
   return block;
 };
@@ -63,8 +63,10 @@ mock.chainWithBlocks = (numOfBlocks, transactionsPerBlock) => {
 
   const blocks = Array.from(
     { length: numOfBlocks },
-    () => mock.blockWithTransactions(transactionsPerBlock),
+    async () => mock.blockWithTransactions(transactionsPerBlock),
   );
+
+  console.log(blocks);
 
   for (let i = 0; i < numOfBlocks; i += 1) {
     chain.addBlockHash(blocks[i]);

@@ -29,14 +29,14 @@ test('create a block with coinbase', (t) => {
   t.end();
 });
 
-test('should mine a block', (t) => {
+test('should mine a block', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.mine();
+  await block.mine();
 
   t.equal(block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
@@ -44,7 +44,7 @@ test('should mine a block', (t) => {
   t.end();
 });
 
-test('get object representation of a block', (t) => {
+test('get object representation of a block', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -63,12 +63,12 @@ test('get object representation of a block', (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
-  block.mine();
+  await block.mine();
 
   t.end();
 });
 
-test('verify block with checksum', (t) => {
+test('verify block with checksum', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -87,7 +87,7 @@ test('verify block with checksum', (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
-  block.mine();
+  await block.mine();
 
   t.equal(block.verifyChecksum(), true);
   t.equal(block.verify(), true);
@@ -101,7 +101,7 @@ test('verify block with checksum', (t) => {
   t.end();
 });
 
-test('checksum is updated when adding transaction', (t) => {
+test('checksum is updated when adding transaction', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -123,7 +123,7 @@ test('checksum is updated when adding transaction', (t) => {
     transaction.sign(sender.getPrivateKeyObject());
 
     block.addTransaction(transaction);
-    block.mine();
+    await block.mine();
 
     if (previousChecksum) {
       t.not(block.getHeader().getChecksum(), previousChecksum, 'Checksum is not the same');
@@ -135,14 +135,14 @@ test('checksum is updated when adding transaction', (t) => {
   t.end();
 });
 
-test('block is invalid when checksum is incorrect', (t) => {
+test('block is invalid when checksum is incorrect', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.mine();
+  await block.mine();
 
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
@@ -152,14 +152,14 @@ test('block is invalid when checksum is incorrect', (t) => {
   t.end();
 });
 
-test('block is invalid if adding transaction after mining', (t) => {
+test('block is invalid if adding transaction after mining', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.mine();
+  await block.mine();
 
   t.equal(block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
@@ -187,8 +187,8 @@ test('block is invalid if adding transaction after mining', (t) => {
   t.end();
 });
 
-test('correct block object format', (t) => {
-  const block = mock.blockWithTransactions(3);
+test('correct block object format', async (t) => {
+  const block = await mock.blockWithTransactions(3);
 
   // console.log(JSON.stringify(block.toObject(), null, 2));
 
@@ -196,7 +196,7 @@ test('correct block object format', (t) => {
 });
 
 test('save and load block', async (t) => {
-  const block = mock.blockWithTransactions(3);
+  const block = await mock.blockWithTransactions(3);
 
   const { key } = await Block.save(block);
 

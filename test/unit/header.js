@@ -61,7 +61,7 @@ test('get object representation of header', (t) => {
 });
 
 test('save and load header', async (t) => {
-  const block = mock.blockWithTransactions(1);
+  const block = await mock.blockWithTransactions(1);
   const header = block.getHeader();
 
   const { key } = await Header.save(header);

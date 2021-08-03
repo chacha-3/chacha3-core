@@ -61,11 +61,24 @@ class Block {
     this.header = header;
   }
 
-  mine() {
-    const start = performance.now();
+  async incrementAndVerify() {
+    this.header.incrementNonce();
+    await this.header.computeHash();
 
-    while (!this.verifyHash()) {
-      this.header.incrementNonce();
+    await this.verifyHash();
+  }
+
+  async mine() {
+    const start = performance.now();
+    const mining = true;
+
+    while (mining) {
+      // eslint-disable-next-line no-await-in-loop
+      const result = await this.incrementAndVerify();
+
+      if (result) {
+        break;
+      }
     }
 
     const end = performance.now();
@@ -73,8 +86,14 @@ class Block {
     return end - start;
   }
 
-  verifyHash() {
+  async verifyHash() {
     assert(this.getTransactionCount() > 0);
+
+    const hash = this.header.getHash();
+
+    // for (let i = 0; i < hash.length; i += 1) {
+    //   console.log(hash[i].toString(16));
+    // }
 
     const hashNum = new BN(this.header.getHash(), 16);
     const targetNum = new BN(this.header.getTarget(), 16);
@@ -167,6 +186,10 @@ class Block {
 
   static async save(block) {
     // assert(transaction.getId() != null);
+    if (!block.verify()) {
+      throw Error('Cannot save unverified block');
+    }
+
     const key = block.getHeader().getHash();
 
     const header = block.getHeader();

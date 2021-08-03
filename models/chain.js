@@ -15,6 +15,7 @@ class Chain {
 
   addBlockHash(block) {
     const header = block.getHeader();
+    assert(block.verify() === true);
 
     // TODO: Check timestamp greater than last
 
