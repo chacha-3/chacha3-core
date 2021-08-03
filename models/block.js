@@ -61,25 +61,17 @@ class Block {
     this.header = header;
   }
 
-  async incrementAndVerify() {
-    this.header.incrementNonce();
-    await this.header.computeHash();
-
-    return this.verifyHash();
-  }
-
   async mine() {
     const start = performance.now();
-    const mining = true;
+    let found = false;
 
-    while (mining) {
+    while (!found) {
+      this.header.incrementNonce();
+
       // eslint-disable-next-line no-await-in-loop
-      const result = await this.incrementAndVerify();
-      // console.log(result);
+      await this.header.computeHash();
 
-      if (result) {
-        break;
-      }
+      found = this.verifyHash();
     }
 
     const end = performance.now();
@@ -90,15 +82,9 @@ class Block {
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
-    const hash = this.header.getHash();
-
-    // for (let i = 0; i < hash.length; i += 1) {
-    //   console.log(hash[i].toString(16));
-    // }
-
     const hashNum = new BN(this.header.getHash(), 16);
     const targetNum = new BN(this.header.getTarget(), 16);
-
+    // console.log(hashNum.toString('hex'));
     return hashNum.lt(targetNum);
   }
 

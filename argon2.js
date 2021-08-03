@@ -8,7 +8,7 @@ const os = require('os');
 const password = Buffer.from('password1');
 
 const options = {
-  timeCost: 4,
+  timeCost: 1,
   memoryCost: 16384,
   parallelism: 8,
   hashLength: 32,

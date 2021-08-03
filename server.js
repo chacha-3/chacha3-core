@@ -35,7 +35,7 @@ const runMiner = async () => {
     block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
     const mineTime = await block.mine();
 
-    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}`);
+    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}`);
 
     Block.save(block);
     chain.addBlockHash(block);

@@ -13,7 +13,7 @@ if (runningManualTest(process.argv)) {
 
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
-  development: '0000ff0000000000000000000000000000000000000000000000000000000000',
+  development: '00ff000000000000000000000000000000000000000000000000000000000000',
   test: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000',
 };
 
@@ -141,24 +141,13 @@ class Header {
     const options = {
       timeCost: 1,
       memoryCost: 1024,
-      parallelism: 1,
+      parallelism: 2,
       hashLength: 32,
     };
 
     const salt = Buffer.from(new Array(32).fill(0x00));
 
     const hashResult = await argon2d.hashRaw(this.hashData(), salt, options);
-    // return hashResult;
-    // this.hash = new Array(32);
-
-    // for (let i = 0; i < 32; i += 1) {
-    //   this.hash[i] = hashResult[i];
-    // }
-
-    // if (hashResult[0] === 0) {
-    //   console.log(this.nonce, this.hash);
-    // }
-
     this.hash = hashResult;
   }
 
