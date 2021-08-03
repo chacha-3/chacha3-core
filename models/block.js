@@ -65,7 +65,7 @@ class Block {
     this.header.incrementNonce();
     await this.header.computeHash();
 
-    await this.verifyHash();
+    return this.verifyHash();
   }
 
   async mine() {
@@ -75,6 +75,7 @@ class Block {
     while (mining) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.incrementAndVerify();
+      // console.log(result);
 
       if (result) {
         break;
@@ -86,7 +87,7 @@ class Block {
     return end - start;
   }
 
-  async verifyHash() {
+  verifyHash() {
     assert(this.getTransactionCount() > 0);
 
     const hash = this.header.getHash();
@@ -223,6 +224,7 @@ class Block {
     const transactions = await Block.loadTransactions(indexes);
 
     block.setTransactions(transactions);
+    block.header.setHash(hash);
 
     return block;
   }

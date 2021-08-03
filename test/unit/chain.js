@@ -16,11 +16,11 @@ test('create an empty chain', (t) => {
 test('add block hashes to the chain', async (t) => {
   const numOfBlocks = 3;
 
-  // FIXME:
-  const blocks = await Array.from({ length: 10 }, async () => {
-    const result = await mock.blockWithTransactions(5);
-    return result;
-  });
+  const blocks = await Promise.all(
+    Array.from({ length: numOfBlocks }, () => new Promise((resolve) => {
+      resolve(mock.blockWithTransactions(5));
+    })),
+  );
 
   const chain = new Chain();
 
@@ -36,8 +36,7 @@ test('add block hashes to the chain', async (t) => {
 
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
-  const chain = mock.chainWithBlocks(numOfBlocks, 5);
-
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
   const { key } = await Chain.save(chain);
   t.equal(key, 'chain');
 

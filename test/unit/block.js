@@ -38,7 +38,7 @@ test('should mine a block', async (t) => {
   block.addCoinbase(wallet.getAddressEncoded());
   await block.mine();
 
-  t.equal(block.verifyHash(), true, 'mined block has verified hash');
+  t.equal(await block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
 
   t.end();
@@ -197,7 +197,6 @@ test('correct block object format', async (t) => {
 
 test('save and load block', async (t) => {
   const block = await mock.blockWithTransactions(3);
-
   const { key } = await Block.save(block);
 
   const loaded = await Block.load(key);
