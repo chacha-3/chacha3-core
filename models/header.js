@@ -73,6 +73,7 @@ class Header {
     header.setDifficulty(data.difficulty);
     header.setNonce(data.nonce);
     header.setChecksum(Buffer.from(data.checksum, 'hex'));
+    header.setHash(hash);
 
     return header;
   }
