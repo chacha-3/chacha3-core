@@ -215,6 +215,10 @@ class Block {
     return block;
   }
 
+  static async clear(hash) {
+    BlockDB.del(hash);
+  }
+
   static async clearAll() {
     BlockDB.clear();
   }

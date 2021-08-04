@@ -47,12 +47,12 @@ test('save and load chain', async (t) => {
   t.end();
 });
 
-test('load block headers', async (t) => {
-  const numOfBlocks = 3;
-  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
-  Chain.saveBlocks(chain);
-  // t.ok(await chain.getBlockHeaders());
+// test('load block headers', async (t) => {
+//   const numOfBlocks = 3;
+//   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+//   // Chain.saveBlocks(chain);
+//   // t.ok(await chain.getBlockHeaders());
 
-  Chain.clear();
-  t.end();
-});
+//   Chain.clear();
+//   t.end();
+// });

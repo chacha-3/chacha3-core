@@ -123,6 +123,13 @@ class Chain {
 
   static async clear() {
     // TODO: Clear all blocks
+    // const promises = [];
+
+    // let block;
+    // while ((block = this.blockHashes.pop()) !== undefined) {
+    //   promises.push(Block.clear)
+    // }
+
     await DB.del('chain');
   }
 }
