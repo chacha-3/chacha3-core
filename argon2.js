@@ -9,12 +9,12 @@ const password = Buffer.from('password1');
 
 const options = {
   timeCost: 1,
-  memoryCost: 16384,
-  parallelism: 8,
+  memoryCost: 1024,
+  parallelism: 2,
   hashLength: 32,
 };
 
-const num = 1000;
+const num = 2000;
 
 const { performance } = require('perf_hooks');
 const start = performance.now();
