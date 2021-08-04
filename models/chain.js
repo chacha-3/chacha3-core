@@ -12,6 +12,12 @@ class Chain {
   constructor() {
     this.blockHashes = [];
     this.totalWork = 0;
+
+    this.blockHeaders = [];
+  }
+
+  addBlockHeader(header) {
+    this.blockHeaders.push(header);
   }
 
   addBlockHash(block) {
@@ -37,8 +43,8 @@ class Chain {
 
   }
 
-  getHeight() {
-    return this.blockHashes.length;
+  getLength() {
+    return this.blockHeaders.length;
   }
 
   computeTotalWork() {
