@@ -43,6 +43,21 @@ test('get total work in chain', async (t) => {
   t.end();
 });
 
+test('calculate average block time difference in chain', async (t) => {
+  const numOfBlocks = 3;
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+
+  chain.blockHeaders[0].setTime(1628163920000);
+  chain.blockHeaders[1].setTime(1628163940000);
+  chain.blockHeaders[2].setTime(1628163980000);
+
+  // Average difference in time between blocks
+  // (20000 + 40000) / 2 = 30000
+  t.equal(chain.getAverageBlockTime(), 30000);
+
+  t.end();
+});
+
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);

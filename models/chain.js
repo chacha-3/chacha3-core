@@ -66,8 +66,6 @@ class Chain {
       totalDiff += diff;
     }
 
-    console.log(totalDiff, headers.length - 1);
-
     return totalDiff / (headers.length - 1);
   }
 
