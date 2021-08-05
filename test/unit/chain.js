@@ -50,8 +50,9 @@ test('save and load chain', async (t) => {
   t.equal(key, 'chain');
 
   const loaded = await Chain.load();
-  console.log(loaded);
+
   t.equal(loaded.getLength(), numOfBlocks);
+  t.ok(loaded.getBlockHeaders()[0].getHash().equals(chain.getBlockHeaders()[0].getHash()));
 
   Chain.clear();
   t.end();

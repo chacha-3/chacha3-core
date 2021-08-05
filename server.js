@@ -28,20 +28,20 @@ function normalizePort(val) {
 const runMiner = async () => {
   const mining = true;
   const chain = await Chain.load();
-  console.log(`Miner started. Current height: ${chain.getHeight()}. Current total work: ${chain.getTotalWork()}`);
+  console.log(`Miner started. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
 
   while (mining) {
-    // const block = new Block();
-    // block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
-    // const mineTime = await block.mine();
+    const block = new Block();
+    block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
+    const mineTime = await block.mine();
 
-    // console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}`);
+    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}`);
 
-    // Block.save(block);
-    // chain.addBlockHash(block);
+    Block.save(block);
+    chain.addBlockHeader(block.getHeader());
 
-    // console.log(`New block saved. Current height: ${chain.getHeight()}. Current total work: ${chain.getTotalWork()}`);
-    // Chain.save(chain);
+    console.log(`New block saved. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}. Average block time: ${chain.getAverageBlockTime()}`);
+    Chain.save(chain);
   }
 };
 

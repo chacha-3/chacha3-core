@@ -32,30 +32,6 @@ class Chain {
     this.blockHeaders = headers;
   }
 
-  // async addBlock(block) {
-  //   await Block.save(block);
-  //   this.blockHeaders.push(block.getHeader().gethash());
-  // }
-
-  // addBlockHash(block) {
-  //   const header = block.getHeader();
-  //   assert(block.verify() === true);
-
-  //   // TODO: Check timestamp greater than last
-
-  //   this.blockHashes.push(header.getHash());
-
-  //   this.totalWork += header.getDifficulty();
-  // }
-
-  // getBlockHashes() {
-  //   return this.blockHashes;
-  // }
-
-  // setBlockHashes(hashes) {
-  //   this.blockHashes = hashes;
-  // }
-
   verify() {
 
   }
@@ -74,15 +50,30 @@ class Chain {
     return totalWork;
   }
 
-  // setTotalWork(totalWork) {
-  //   this.totalWork = totalWork;
-  // }
+  getAverageBlockTime() {
+    const headers = this.getBlockHeaders();
+
+    if (headers.length < 2) {
+      return 0;
+    }
+
+    let totalDiff = 0;
+
+    for (let i = 1; i < headers.length; i += 1) {
+      const diff = headers[i].getTime() - headers[i - 1].getTime();
+      assert(diff >= 0);
+
+      totalDiff += diff;
+    }
+
+    console.log(totalDiff, headers.length - 1);
+
+    return totalDiff / (headers.length - 1);
+  }
 
   static async save(chain) {
     const key = 'chain';
     const data = {
-      // totalWork: chain.getTotalWork(),
-      // blockHashes: chain.getBlockHashes().map((hash) => hash.toString('hex')),
       blockHashes: chain.getBlockHeaders().map((header) => header.getHash().toString('hex')),
     };
 
@@ -126,13 +117,7 @@ class Chain {
 
   static async clear() {
     // TODO: Clear all blocks
-    // const promises = [];
-
-    // let block;
-    // while ((block = this.blockHashes.pop()) !== undefined) {
-    //   promises.push(Block.clear)
-    // }
-
+    await BlockDB.clear();
     await DB.del('chain');
   }
 }
