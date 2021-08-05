@@ -24,8 +24,10 @@ function normalizePort(val) {
 }
 
 // TODO: Peer list
-
 const runMiner = async () => {
+  // TODO: Remove
+  // await Chain.clear();
+
   const mining = true;
   const chain = await Chain.load();
   console.log(`Miner started. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
@@ -33,9 +35,9 @@ const runMiner = async () => {
   while (mining) {
     const block = new Block();
     block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
-    const mineTime = await block.mine();
+    const mineTime = await block.mine(chain.getCurrentDifficulty());
 
-    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}`);
+    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}, Difficulty: ${chain.getCurrentDifficulty()}`);
 
     Block.save(block);
     chain.addBlockHeader(block.getHeader());

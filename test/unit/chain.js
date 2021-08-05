@@ -58,6 +58,13 @@ test('calculate average block time difference in chain', async (t) => {
   t.end();
 });
 
+test('no average block time when chain has only one block', async (t) => {
+  const chain = await mock.chainWithBlocks(1, 3);
+
+  t.equal(chain.getAverageBlockTime(), 0);
+  t.end();
+});
+
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);

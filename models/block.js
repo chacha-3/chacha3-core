@@ -61,9 +61,11 @@ class Block {
     this.header = header;
   }
 
-  async mine() {
+  async mine(difficulty) {
     const start = performance.now();
     let found = false;
+
+    this.header.setDifficulty(difficulty || 1);
 
     while (!found) {
       this.header.incrementNonce();

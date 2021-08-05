@@ -6,6 +6,8 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { DB, BlockDB } = require('../util/db');
+const { median, clamp } = require('../util/math');
+
 const Block = require('./block');
 
 class Chain {
@@ -67,6 +69,44 @@ class Chain {
     }
 
     return totalDiff / (headers.length - 1);
+  }
+
+  getCurrentDifficulty() {
+    let difficulty = 1.0;
+    const headers = this.getBlockHeaders();
+
+    if (headers.length < 2) {
+      return difficulty;
+    }
+
+    const adjustInterval = 20;
+    const maxAdjustFactor = 4;
+    const expectedTimePerBlock = 1000; // Milliseconds
+
+    // let totalDiff = 0;
+    const timeDifferences = [];
+
+    for (let i = 1; i < headers.length; i += 1) {
+      if (i % adjustInterval === 0) {
+        // Set new difficulty
+        const medianTimePerBlock = median(timeDifferences);
+
+        const adjustFactor = clamp(
+          expectedTimePerBlock / medianTimePerBlock,
+          1 / maxAdjustFactor,
+          maxAdjustFactor,
+        );
+
+        difficulty *= adjustFactor;
+
+        // Clear differences array for next adjustInterval n block
+        timeDifferences.length = 0;
+      }
+
+      timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
+    }
+
+    return difficulty;
   }
 
   static async save(chain) {
