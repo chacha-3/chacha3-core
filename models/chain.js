@@ -10,34 +10,51 @@ const Block = require('./block');
 
 class Chain {
   constructor() {
-    this.blockHashes = [];
-    this.totalWork = 0;
+    // this.blockHashes = [];
+    // this.totalWork = 0;
 
     this.blockHeaders = [];
+  }
+
+  getBlockHeaders() {
+    return this.blockHeaders;
+  }
+
+  getBlockHeader(i) {
+    return this.blockHeaders[i];
   }
 
   addBlockHeader(header) {
     this.blockHeaders.push(header);
   }
 
-  addBlockHash(block) {
-    const header = block.getHeader();
-    assert(block.verify() === true);
-
-    // TODO: Check timestamp greater than last
-
-    this.blockHashes.push(header.getHash());
-
-    this.totalWork += header.getDifficulty();
+  setBlockHeaders(headers) {
+    this.blockHeaders = headers;
   }
 
-  getBlockHashes() {
-    return this.blockHashes;
-  }
+  // async addBlock(block) {
+  //   await Block.save(block);
+  //   this.blockHeaders.push(block.getHeader().gethash());
+  // }
 
-  setBlockHashes(hashes) {
-    this.blockHashes = hashes;
-  }
+  // addBlockHash(block) {
+  //   const header = block.getHeader();
+  //   assert(block.verify() === true);
+
+  //   // TODO: Check timestamp greater than last
+
+  //   this.blockHashes.push(header.getHash());
+
+  //   this.totalWork += header.getDifficulty();
+  // }
+
+  // getBlockHashes() {
+  //   return this.blockHashes;
+  // }
+
+  // setBlockHashes(hashes) {
+  //   this.blockHashes = hashes;
+  // }
 
   verify() {
 
@@ -47,46 +64,42 @@ class Chain {
     return this.blockHeaders.length;
   }
 
-  computeTotalWork() {
+  getTotalWork() {
+    let totalWork = 0;
 
-  }
-
-  async getBlockHeaders() {
-    const loadHeader = (hash) => new Promise((resolve) => {
-      const header = Header.load(hash);
-      resolve(header);
-    });
-
-    const promises = [];
-
-    for (let i = 0; i < this.blockHashes.length; i += 1) {
-      promises.push(loadHeader(this.blockHashes[i]));
+    for (let i = 0; i < this.getLength(); i += 1) {
+      totalWork += this.getBlockHeader(i).getDifficulty();
     }
 
-    const loadedHeaders = await Promise.all(promises);
-    console.log(loadedHeaders);
-    return 1;
+    return totalWork;
   }
 
-  getTotalWork() {
-    return this.totalWork;
-  }
-
-  setTotalWork(totalWork) {
-    this.totalWork = totalWork;
-  }
+  // setTotalWork(totalWork) {
+  //   this.totalWork = totalWork;
+  // }
 
   static async save(chain) {
     const key = 'chain';
-
     const data = {
       // totalWork: chain.getTotalWork(),
-      blockHashes: chain.getBlockHashes().map((hash) => hash.toString('hex')),
+      // blockHashes: chain.getBlockHashes().map((hash) => hash.toString('hex')),
+      blockHashes: chain.getBlockHeaders().map((header) => header.getHash().toString('hex')),
     };
 
     await DB.put(key, data, { valueEncoding: 'json' });
 
     return { key, data };
+  }
+
+  static async loadHeaders(blockHashes) {
+    const promises = [];
+
+    for (let i = 0; i < blockHashes.length; i += 1) {
+      promises.push(new Promise((resolve) => resolve(Header.load(blockHashes[i]))));
+    }
+
+    const headers = await Promise.all(promises);
+    return headers;
   }
 
   static async load() {
@@ -105,27 +118,11 @@ class Chain {
       // return null;
     }
 
-    chain.setBlockHashes(blockHashes);
-    // chain.setTotalWork(totalWork);
+    const headers = await Chain.loadHeaders(blockHashes);
+    chain.setBlockHeaders(headers);
 
     return chain;
   }
-
-  // static async saveBlocks(chain) {
-  //   const saveBlock = (block) => new Promise((resolve) => {
-  //     const { key } = Block.save(block);
-  //     resolve(key);
-  //   });
-
-  //   const promises = [];
-  //   const blockHashes = chain.getBlockHashes();
-
-  //   for (let i = 0; i < chain.getHeight(); i += 1) {
-  //     promises.push(saveBlock(blockHashes[i]));
-  //   }
-
-  //   return Promise.all(promises);
-  // }
 
   static async clear() {
     // TODO: Clear all blocks

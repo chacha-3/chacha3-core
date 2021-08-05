@@ -59,17 +59,16 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
 
+  const blocks = await Promise.all(
+    Array.from({ length: numOfBlocks }, () => mock.blockWithTransactions(transactionsPerBlock)),
+  );
+
   const chain = new Chain();
 
-  const createBlock = () => new Promise((resolve) => {
-    resolve(mock.blockWithTransactions(5));
-  });
-
-  const promises = Array.from({ length: numOfBlocks }, () => createBlock());
-  const blocks = await Promise.all(promises);
-
   for (let i = 0; i < numOfBlocks; i += 1) {
-    chain.addBlockHash(blocks[i]);
+    // await chain.addBlock(blocks[i]);
+    await Block.save(blocks[i]);
+    chain.addBlockHeader(blocks[i].getHeader());
   }
 
   return chain;
