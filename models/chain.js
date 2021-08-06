@@ -5,10 +5,14 @@ const BN = require('bn.js');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
-const { DB, BlockDB } = require('../util/db');
+const { DB, BlockDB, runningManualTest } = require('../util/db');
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
+
+if (runningManualTest(process.argv)) {
+  process.env.NODE_ENV = 'test';
+}
 
 class Chain {
   constructor() {
@@ -16,6 +20,26 @@ class Chain {
     // this.totalWork = 0;
 
     this.blockHeaders = [];
+  }
+
+  static getAdjustInterval() {
+    const adjustInterval = {
+      production: 2000,
+      development: 2000,
+      test: 8,
+    };
+
+    return adjustInterval[process.env.NODE_ENV || 'development'];
+  }
+
+  static getExpectedTimePerBlock() {
+    const expectedTime = {
+      production: 200000,
+      development: 200000,
+      test: 1000,
+    };
+
+    return expectedTime[process.env.NODE_ENV || 'development'];
   }
 
   getBlockHeaders() {
@@ -79,16 +103,17 @@ class Chain {
       return difficulty;
     }
 
-    const adjustInterval = 20;
+    const adjustInterval = Chain.getAdjustInterval();
     const maxAdjustFactor = 4;
-    const expectedTimePerBlock = 1000; // Milliseconds
+    const expectedTimePerBlock = Chain.getExpectedTimePerBlock(); // Milliseconds
 
     // let totalDiff = 0;
     const timeDifferences = [];
 
     for (let i = 1; i < headers.length; i += 1) {
-      if (i % adjustInterval === 0) {
-        // Set new difficulty
+      const timeToAdjust = i % adjustInterval === 0;
+
+      if (timeToAdjust) {
         const medianTimePerBlock = median(timeDifferences);
 
         const adjustFactor = clamp(
@@ -98,7 +123,7 @@ class Chain {
         );
 
         difficulty *= adjustFactor;
-
+        
         // Clear differences array for next adjustInterval n block
         timeDifferences.length = 0;
       }

@@ -65,6 +65,26 @@ test('no average block time when chain has only one block', async (t) => {
   t.end();
 });
 
+test('get correct difficulty', async (t) => {
+  t.equal(Chain.getAdjustInterval(), 8);
+  t.equal(Chain.getExpectedTimePerBlock(), 1000);
+
+  const numOfBlocks = 20;
+  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+  const actualTimePerBlock = 600;
+
+  for (let i = 0; i < numOfBlocks; i += 1) {
+    chain.blockHeaders[i].setTime(1628163920000 + (actualTimePerBlock * i));
+  }
+
+  const numOfAdjustments = Math.floor(numOfBlocks / Chain.getAdjustInterval());
+  const adjustFactor = Chain.getExpectedTimePerBlock() / actualTimePerBlock;
+
+  t.equal(chain.getCurrentDifficulty(), adjustFactor ** numOfAdjustments);
+  t.end();
+});
+
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
