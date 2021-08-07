@@ -12,9 +12,9 @@ mock.createWallets = async (count) => {
     wallet.setLabel(`addWallet${i}`);
     wallet.generate();
 
-    // console.log(wallet.getAddressEncoded());
-
-    wallet.save().then(() => resolve(wallet));
+    Wallet.save(wallet);
+    resolve(wallet);
+    // wallet.save().then(() => resolve(wallet));
   });
 
   const promises = [];

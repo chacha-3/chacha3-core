@@ -167,23 +167,23 @@ class Wallet {
     this.publicKey = Buffer.from(data.publicKey, 'hex');
   }
 
-  async save() {
-    const address = this.getAddressEncoded();
-    await WalletDB.put(address, this.toSaveData(), { valueEncoding: 'json' });
+  static async save(wallet) {
+    await WalletDB.put(wallet.getAddressEncoded(), wallet.toSaveData(), { valueEncoding: 'json' });
   }
 
-  async load(address) {
+  static async load(address) {
     let data;
 
     try {
       data = await WalletDB.get(address, { valueEncoding: 'json' });
     } catch (e) {
-      return false;
+      return null;
     }
 
-    this.fromSaveData(data);
+    const wallet = new Wallet();
+    wallet.fromSaveData(data);
 
-    return true;
+    return wallet;
   }
 
   static async delete(address) {

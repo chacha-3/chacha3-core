@@ -20,7 +20,8 @@ actions.createWallet = {
     const wallet = new Wallet();
     wallet.generate();
     wallet.setLabel(options.label);
-    wallet.save();
+
+    Wallet.save(wallet);
 
     const data = {
       privateKey: wallet.getPrivateKeyHex(),

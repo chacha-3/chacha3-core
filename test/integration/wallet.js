@@ -22,6 +22,7 @@ test('list all wallet', async (t) => {
   t.equal(response.statusCode, 200);
 
   const { data } = response.json();
+  console.log(data);
   t.equal(data.length, 3);
 
   t.equal(typeof data[0].label, 'string');
