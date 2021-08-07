@@ -25,7 +25,7 @@ class Chain {
   static getAdjustInterval() {
     const adjustInterval = {
       production: 2000,
-      development: 2000,
+      development: 20,
       test: 8,
     };
 
@@ -35,11 +35,21 @@ class Chain {
   static getExpectedTimePerBlock() {
     const expectedTime = {
       production: 200000,
-      development: 200000,
+      development: 1000,
       test: 1000,
     };
 
     return expectedTime[process.env.NODE_ENV || 'development'];
+  }
+
+  static calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock) {
+    const adjustFactorLimit = 4;
+
+    const factor = expectedTimePerBlock / medianTimePerBlock;
+    const max = adjustFactorLimit;
+    const min = 1 / adjustFactorLimit;
+
+    return clamp(factor, min, max);
   }
 
   getBlockHeaders() {
@@ -104,7 +114,6 @@ class Chain {
     }
 
     const adjustInterval = Chain.getAdjustInterval();
-    const maxAdjustFactor = 4;
     const expectedTimePerBlock = Chain.getExpectedTimePerBlock(); // Milliseconds
 
     // let totalDiff = 0;
@@ -115,15 +124,10 @@ class Chain {
 
       if (timeToAdjust) {
         const medianTimePerBlock = median(timeDifferences);
-
-        const adjustFactor = clamp(
-          expectedTimePerBlock / medianTimePerBlock,
-          1 / maxAdjustFactor,
-          maxAdjustFactor,
-        );
+        const adjustFactor = Chain.calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock);
 
         difficulty *= adjustFactor;
-        
+
         // Clear differences array for next adjustInterval n block
         timeDifferences.length = 0;
       }

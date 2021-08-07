@@ -79,7 +79,10 @@ test('get correct difficulty', async (t) => {
   }
 
   const numOfAdjustments = Math.floor(numOfBlocks / Chain.getAdjustInterval());
-  const adjustFactor = Chain.getExpectedTimePerBlock() / actualTimePerBlock;
+  const adjustFactor = Chain.calculateAdjustFactor(
+    Chain.getExpectedTimePerBlock(),
+    actualTimePerBlock,
+  );
 
   t.equal(chain.getCurrentDifficulty(), adjustFactor ** numOfAdjustments);
   t.end();

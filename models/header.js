@@ -27,7 +27,7 @@ class Header {
     this.time = Date.now();
 
     this.difficulty = 1.0;
-    this.nonce = 0;
+    this.nonce = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
 
     this.hash = null;
   }
@@ -62,7 +62,7 @@ class Header {
     try {
       data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
     } catch (e) {
-      console.log('Header not saved. Could not load.')
+      console.log('Header not saved. Could not load.');
       return null;
     }
 
@@ -180,44 +180,14 @@ class Header {
   }
 
   setNonce(nonce) {
+    assert(nonce > 0);
+
     this.nonce = nonce;
   }
 
   incrementNonce() {
-    this.nonce += 1;
+    this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
   }
-
-  // async save() {
-  //   const data = {
-  //     version: this.version,
-  //     previous: this.previous ? this.previous.toString('hex') : null,
-  //     time: this.time,
-  //     difficulty: this.difficulty,
-  //     nonce: this.nonce,
-  //     checksum: this.checksum.toString('hex'),
-  //   };
-
-  //   await HeaderDB.put(`${this.getHash()}`, data, { valueEncoding: 'json' });
-  // }
-
-  // async load(hash) {
-  //   let data;
-
-  //   try {
-  //     data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
-  //   } catch (e) {
-  //     return false;
-  //   }
-
-  //   this.version = data.version;
-  //   this.previous = Buffer.from(data.previous, 'hex');
-  //   this.time = data.time;
-  //   this.difficulty = data.difficulty;
-  //   this.nonce = data.nonce;
-  //   this.checksum = Buffer.from(data.checksum, 'hex');
-
-  //   return true;
-  // }
 
   toObject() {
     return {

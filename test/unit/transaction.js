@@ -172,3 +172,19 @@ test('save and load transaction', async (t) => {
 
   t.end();
 });
+
+test('unable to load unsaved transaction', async (t) => {
+  // const block = mock.blockWithTransactions(3);
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+
+  const loaded = await Transaction.load(transaction.getId());
+  t.equal(loaded, null);
+
+  t.end();
+});

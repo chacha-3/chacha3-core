@@ -186,8 +186,8 @@ class Wallet {
     return true;
   }
 
-  async delete() {
-    WalletDB.del(this.getAddressEncoded());
+  static async delete(address) {
+    WalletDB.del(address);
   }
 
   recover(privateKey, password) {

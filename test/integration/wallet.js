@@ -5,17 +5,23 @@ const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
 
 const actions = require('../../actions');
-// const app = require('../../app')();
+const app = require('../../app')();
 
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
 
-  const { permission, handler } = actions.listWallets;
-  const { data, code } = await handler();
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'listWallets',
+      label: 'MyWalletLabel',
+    },
+  });
 
-  t.equal(permission, 'public'); // TODO: Change later
-  t.equal(code, 'ok');
+  t.equal(response.statusCode, 200);
 
+  const { data } = response.json();
   t.equal(data.length, 3);
 
   t.equal(typeof data[0].label, 'string');
@@ -28,21 +34,71 @@ test('list all wallet', async (t) => {
 });
 
 test('create wallet', async (t) => {
-  const { permission, handler } = actions.createWallet;
-  const { data, code } = await handler({ label: 'myLabel' });
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'createWallet',
+      label: 'MyWalletLabel',
+    },
+  });
 
-  t.equal(permission, 'public'); // TODO: Change later
-  t.equal(code, 'ok');
+  t.equal(response.statusCode, 200);
+
+  const { data } = response.json();
+  t.equal(data.label, 'MyWalletLabel');
 
   t.equal(typeof data.label, 'string');
   t.equal(typeof data.privateKey, 'string');
   t.equal(typeof data.publicKey, 'string');
   t.equal(typeof data.address, 'string');
 
-  const wallets = await Wallet.all();
-  t.equal(wallets.length, 1);
-
   await Wallet.clearAll();
 
   t.end();
 });
+
+test('generate wallet', async (t) => {
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'generateWallet',
+    },
+  });
+
+  t.equal(response.statusCode, 200);
+
+  const { data } = response.json();
+  t.equal(typeof data.privateKey, 'string');
+  t.equal(typeof data.publicKey, 'string');
+  t.equal(typeof data.address, 'string');
+
+  t.end();
+});
+
+// test('remove saved wallet', async (t) => {
+//   const wallets = await mock.createWallets(1);
+
+//   const response = await app.inject({
+//     method: 'POST',
+//     url: '/',
+//     payload: {
+//       action: 'removeWallet',
+//       address: wallets[0].getAddressEncoded(),
+//     },
+//   });
+
+//   console.log(wallets[0].getAddressEncoded());
+
+//   t.equal(response.statusCode, 200);
+
+//   const { data } = response.json();
+//   console.log(response.body);
+//   t.equal(typeof data.privateKey, 'string');
+//   t.equal(typeof data.publicKey, 'string');
+//   t.equal(typeof data.address, 'string');
+
+//   t.end();
+// });
+

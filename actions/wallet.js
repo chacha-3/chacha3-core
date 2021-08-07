@@ -22,7 +22,14 @@ actions.createWallet = {
     wallet.setLabel(options.label);
     wallet.save();
 
-    return { data: wallet.toObject(), code: 'ok' };
+    const data = {
+      privateKey: wallet.getPrivateKeyHex(),
+      publicKey: wallet.getPublicKeyHex(),
+      address: wallet.getAddressEncoded(),
+      label: wallet.getLabel(),
+    };
+
+    return { data, code: 'ok' };
   },
 };
 
@@ -33,7 +40,30 @@ actions.generateWallet = {
     wallet.generate();
     // wallet.save();
 
-    return { data: wallet.toObject(), code: 'ok' };
+    const data = {
+      privateKey: wallet.getPrivateKeyHex(),
+      publicKey: wallet.getPublicKeyHex(),
+      address: wallet.getAddressEncoded(),
+    };
+
+    return { data, code: 'ok' };
+  },
+};
+
+actions.removeWallet = {
+  permission: 'public',
+  handler: async (options) => {
+    const wallet = await Wallet.load(options.address);
+
+    if (!wallet) {
+      return { error: 'Wallet not found', code: 'not_found' };
+    }
+
+    const data = {
+      address: wallet.getAddressEncoded(),
+    };
+
+    return { data, code: 'ok' };
   },
 };
 

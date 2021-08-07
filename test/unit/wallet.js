@@ -55,8 +55,10 @@ test('set and get wallet label', (t) => {
   const wallet = new Wallet();
   t.equal(wallet.getLabel(), '', 'wallet label is blank');
 
-  wallet.setLabel('testLabel');
+  wallet.setLabel(null);
+  t.equal(wallet.getLabel(), '', 'wallet label is empty');
 
+  wallet.setLabel('testLabel');
   t.equal(wallet.getLabel(), 'testLabel', 'wallet label is correct');
   t.end();
 });
@@ -125,7 +127,7 @@ test('save and load wallet', async (t) => {
   t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
   t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
 
-  await loadWallet.delete();
+  await Wallet.delete(loadWallet.getAddressEncoded());
   t.end();
 });
 
@@ -146,7 +148,7 @@ test('delete wallet', async (t) => {
   const before = await Wallet.all();
   t.equal(before.length, 1);
 
-  await wallet.delete();
+  await Wallet.delete(wallet.getAddressEncoded());
 
   const after = await Wallet.all();
   t.equal(after.length, 0);
