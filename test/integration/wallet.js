@@ -111,12 +111,10 @@ test('should fail to remove unsaved wallet', async (t) => {
     },
   });
 
-  console.log(response.body);
-  // t.equal(response.statusCode, 200);
+  t.equal(response.statusCode, 200);
 
-  // const { data } = response.json();
-  // t.equal(typeof data.address, 'string');
+  const { error } = response.json();
+  t.equal(typeof error, 'string');
 
   t.end();
 });
-
