@@ -87,14 +87,19 @@ test('should recover a wallet', (t) => {
   t.end();
 });
 
-test('should recover a wallet', (t) => {
+test('should not recover a wallet with invalid key', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();
 
-  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
+  try {
+    const recoverWallet = Wallet.recover('not_a_key', '');
+    t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
+    t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
+  } catch (e) {
+    // console.log(e);
+  }
+  // TODO: Check error
 
-  t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
-  t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
   t.end();
 });
 

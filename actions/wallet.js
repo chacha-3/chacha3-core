@@ -57,7 +57,7 @@ actions.generateWallet = {
 };
 
 actions.recoverWallet = {
-  permission: 'authOnly',
+  permission: 'public',
   schema: {
     properties: {
       privateKey: { type: 'string' },
@@ -66,7 +66,25 @@ actions.recoverWallet = {
     required: ['privateKey'],
   },
   handler: async (options) => {
-    
+    let wallet;
+
+    try {
+      wallet = Wallet.recover(Buffer.from(options.privateKey, 'hex'));
+      wallet.setLabel(options.label);
+
+      await Wallet.save(wallet);
+    } catch (e) {
+      return { error: 'Could not recover wallet', code: 'fail' };
+    }
+
+    const data = {
+      label: wallet.getLabel(),
+      address: wallet.getAddressEncoded(),
+      privateKey: wallet.getPrivateKeyHex(),
+      publicKey: wallet.getPublicKeyHex(),
+    };
+
+    return { data, code: 'ok', message: 'Recover wallet' };
   },
 };
 
