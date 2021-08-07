@@ -69,7 +69,7 @@ const server = require('./app')({
 const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, async (err, address) => {
-  runMiner();
+  // runMiner();
   console.log(`Server started ${address}`);
   if (err) {
     // Block.clearAll();

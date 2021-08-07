@@ -9,6 +9,7 @@
     "shell": "node ./shell.js"
   },
   "dependencies": {
+    "ajv": "^8.6.2",
     "argon2-ffi": "^2.0.0",
     "bn.js": "^5.2.0",
     "bs58": "^4.0.1",

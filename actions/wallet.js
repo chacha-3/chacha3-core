@@ -16,6 +16,11 @@ actions.listWallets = {
 
 actions.createWallet = {
   permission: 'public',
+  schema: {
+    properties: {
+      label: { type: 'string' },
+    },
+  },
   handler: async (options) => {
     const wallet = new Wallet();
     wallet.generate();
@@ -36,7 +41,7 @@ actions.createWallet = {
 
 actions.generateWallet = {
   permission: 'public',
-  handler: async (options) => {
+  handler: async () => {
     const wallet = new Wallet();
     wallet.generate();
     // wallet.save();

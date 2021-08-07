@@ -1,15 +1,18 @@
 const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
 
+const Ajv = require('ajv');
+const ajv = new Ajv({ coerceTypes: true });
+
 const Peer = require('./models/peer');
 
 const actions = require('./actions');
 
-const schema = {
-  body: {
-    action: { type: 'string' },
-  },
-};
+// const schema = {
+//   body: {
+//     action: { type: 'string' },
+//   },
+// };
 
 const router = async (request, reply) => {
   const { action } = request.body;
@@ -61,13 +64,21 @@ function build(opts = {}) {
       }
 
       const { permission, schema } = action;
-
-      if (permission === 'public') {
-        done();
-      }
+      // if (permission === 'public') {
+      //   done();
+      // }
 
       if (permission === 'authOnly') {
         reply.code(401);
+      }
+
+      if (schema) {
+        const validate = ajv.compile(schema);
+
+        if (!validate(request.body)) {
+          reply.code(400).send({ error: validate.errors[0].message, code: 'invalid_params' });
+          done();
+        }
       }
 
       // TODO: Verify action params
@@ -83,8 +94,13 @@ function build(opts = {}) {
 
       const { handler } = action;
 
-      const { data, code } = await handler(request.body);
-      reply.send(JSON.stringify({ data }));
+      const { data, code, error } = await handler(request.body);
+
+      if (error) {
+        reply.send(JSON.stringify({ error, code }));
+      } else {
+        reply.send(JSON.stringify({ data, code }));
+      }
     },
   });
 

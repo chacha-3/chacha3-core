@@ -22,7 +22,6 @@ test('list all wallet', async (t) => {
   t.equal(response.statusCode, 200);
 
   const { data } = response.json();
-  console.log(data);
   t.equal(data.length, 3);
 
   t.equal(typeof data[0].label, 'string');
@@ -78,28 +77,46 @@ test('generate wallet', async (t) => {
   t.end();
 });
 
-// test('remove saved wallet', async (t) => {
-//   const wallets = await mock.createWallets(1);
+test('should remove saved wallet', async (t) => {
+  const wallets = await mock.createWallets(1);
 
-//   const response = await app.inject({
-//     method: 'POST',
-//     url: '/',
-//     payload: {
-//       action: 'removeWallet',
-//       address: wallets[0].getAddressEncoded(),
-//     },
-//   });
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'removeWallet',
+      address: wallets[0].getAddressEncoded(),
+    },
+  });
 
-//   console.log(wallets[0].getAddressEncoded());
+  console.log(wallets[0].getAddressEncoded());
 
-//   t.equal(response.statusCode, 200);
+  t.equal(response.statusCode, 200);
 
-//   const { data } = response.json();
-//   console.log(response.body);
-//   t.equal(typeof data.privateKey, 'string');
-//   t.equal(typeof data.publicKey, 'string');
-//   t.equal(typeof data.address, 'string');
+  const { data } = response.json();
+  t.equal(typeof data.address, 'string');
 
-//   t.end();
-// });
+  t.end();
+});
+
+test('should fail to remove unsaved wallet', async (t) => {
+  // const wallets = await mock.createWallets(1);
+
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'removeWallet',
+      address: 'random_address',
+    },
+  });
+
+  console.log(response.body);
+  // t.equal(response.statusCode, 200);
+
+  // const { data } = response.json();
+  // t.equal(typeof data.address, 'string');
+
+  t.end();
+});
 
