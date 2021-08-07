@@ -10,7 +10,7 @@ actions.listWallets = {
     const data = [];
     wallets.forEach((wallet) => data.push(wallet.toObject()));
 
-    return { data, code: 'ok' };
+    return { data, code: 'ok', message: 'Wallet list' };
   },
 };
 
@@ -35,7 +35,7 @@ actions.createWallet = {
       publicKey: wallet.getPublicKeyHex(),
     };
 
-    return { data, code: 'ok' };
+    return { data, code: 'ok', message: 'Create wallet' };
   },
 };
 
@@ -52,7 +52,7 @@ actions.generateWallet = {
       publicKey: wallet.getPublicKeyHex(),
     };
 
-    return { data, code: 'ok' };
+    return { data, code: 'ok', message: 'Generate Wallet' };
   },
 };
 
@@ -71,7 +71,7 @@ actions.deleteWallet = {
       address: wallet.getAddressEncoded(),
     };
 
-    return { data, code: 'ok', message: `Deleted wallet ${wallet.getAddressEncoded()}` };
+    return { data, code: 'ok', message: 'Delete wallet' };
   },
 };
 

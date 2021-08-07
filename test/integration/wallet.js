@@ -106,7 +106,7 @@ test('should fail to remove unsaved wallet', async (t) => {
     method: 'POST',
     url: '/',
     payload: {
-      action: 'removeWallet',
+      action: 'deleteWallet',
       address: 'random_address',
     },
   });
