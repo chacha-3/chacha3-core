@@ -58,6 +58,12 @@ actions.generateWallet = {
 
 actions.deleteWallet = {
   permission: 'public',
+  schema: {
+    properties: {
+      address: { type: 'string' },
+    },
+    required: ['address'],
+  },
   handler: async (options) => {
     const wallet = await Wallet.load(options.address);
 

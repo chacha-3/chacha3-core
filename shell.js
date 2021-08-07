@@ -1,18 +1,24 @@
 const readline = require('readline');
 const chalk = require('chalk');
 
+const Ajv = require('ajv');
+const ajv = new Ajv({ coerceTypes: true, logger: false });
+
 const { parse } = require('shell-quote');
 
 const actions = require('./actions');
 
-function completer(line) {
-  const completions = '.help .error .exit .quit .q'.split(' ');
-  const hits = completions.filter((c) => c.startsWith(line));
-  // Show all completions if none found
-  return [hits.length ? hits : completions, line];
-}
+// function completer(line) {
+//   // console.log(line);
+//   const completions = '.help .error .exit .quit .q'.split(' ');
+//   const hits = completions.filter((c) => c.startsWith(line));
+//   // Show all completions if none found
+//   return [hits.length ? hits : completions, line];
+// }
 
-const rl = readline.createInterface(process.stdin, process.stdout, completer);
+function completer(linePartial, callback) { callback(null, [['123'], linePartial]); }
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 function camelCaseToTitle(camelCase) {
   if (!camelCase) {
@@ -74,10 +80,18 @@ rl.on('line', async (line) => {
   const action = actions[actionName];
 
   if (action) {
-    const result = await actions[actionName].handler(options);
-    printResult(result);
+    let validate;
+
+    if (action.schema && !(validate = ajv.compile(action.schema))) {
+      validate.errors.forEach((error) => {
+        console.log(chalk.bold.red(error.message));
+      });
+    } else {
+      const result = await actions[actionName].handler(options);
+      printResult(result);
+    }
   } else {
-    console.log(`Action ${action} not found`);
+    console.log(`Action ${actionName} not found`);
   }
 
   rl.prompt();
