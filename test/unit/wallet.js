@@ -80,8 +80,7 @@ test('should recover a wallet', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();
 
-  const recoverWallet = new Wallet();
-  recoverWallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
+  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
 
   t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
   t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
@@ -92,8 +91,7 @@ test('should recover a wallet', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();
 
-  const recoverWallet = new Wallet();
-  recoverWallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
+  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
 
   t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
   t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');

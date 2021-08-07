@@ -15,8 +15,7 @@ actions.createTransaction = {
     },
   },
   handler: async (options) => {
-    const senderWallet = new Wallet();
-    senderWallet.recover(Buffer.from(options.key, 'hex'));
+    const senderWallet = Wallet.recover(Buffer.from(options.key, 'hex'));
 
     const transaction = new Transaction(
       senderWallet.getPublicKey(),

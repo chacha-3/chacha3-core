@@ -92,8 +92,16 @@ class Wallet {
     return this.privateKey;
   }
 
+  setPrivateKey(privateKey) {
+    this.privateKey = privateKey;
+  }
+
   getPublicKey() {
     return this.publicKey;
+  }
+
+  setPublicKey(publicKey) {
+    this.publicKey = publicKey;
   }
 
   getPublicKeyHex() {
@@ -190,15 +198,22 @@ class Wallet {
     WalletDB.del(address);
   }
 
-  recover(privateKey, password) {
+  static recover(privateKey, password) {
     const passphrase = password || '';
-    this.privateKey = privateKey;
+
+    const wallet = new Wallet();
+    wallet.setPrivateKey(privateKey);
 
     const privateKeyObject = crypto.createPrivateKey({
       key: privateKey, format: 'der', type: 'pkcs8', passphrase,
     });
 
-    this.publicKey = crypto.createPublicKey(privateKeyObject).export({ format: 'der', type: 'spki' });
+    const publicKey = crypto.createPublicKey(privateKeyObject).export(
+      { format: 'der', type: 'spki' },
+    );
+
+    wallet.setPublicKey(publicKey);
+    return wallet;
   }
 
   toObject() {

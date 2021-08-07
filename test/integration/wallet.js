@@ -89,8 +89,6 @@ test('should remove saved wallet', async (t) => {
     },
   });
 
-  console.log(wallets[0].getAddressEncoded());
-
   t.equal(response.statusCode, 200);
 
   const { data } = response.json();
@@ -118,3 +116,28 @@ test('should fail to remove unsaved wallet', async (t) => {
 
   t.end();
 });
+
+// test('should recover a wallet', async (t) => {
+//   // const wallets = await mock.createWallets(1);
+//   const wallet = new Wallet();
+//   wallet.generate();
+
+//   const response = await app.inject({
+//     method: 'POST',
+//     url: '/',
+//     payload: {
+//       action: 'recoverWallet',
+//       privateKey: wallet.getPrivateKeyHex(),
+//       label: 'Recovered wallet',
+//     },
+//   });
+//   console.log(response);
+//   t.equal(response.statusCode, 200);
+
+//   const { data } = response.json();
+//   t.equal(typeof data.privateKey, 'string');
+//   t.equal(typeof data.publicKey, 'string');
+//   t.equal(typeof data.address, 'string');
+
+//   t.end();
+// });

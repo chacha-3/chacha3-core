@@ -56,6 +56,20 @@ actions.generateWallet = {
   },
 };
 
+actions.recoverWallet = {
+  permission: 'authOnly',
+  schema: {
+    properties: {
+      privateKey: { type: 'string' },
+      label: { type: 'string' },
+    },
+    required: ['privateKey'],
+  },
+  handler: async (options) => {
+    
+  },
+};
+
 actions.deleteWallet = {
   permission: 'public',
   schema: {
