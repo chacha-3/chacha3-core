@@ -29,10 +29,10 @@ actions.createWallet = {
     Wallet.save(wallet);
 
     const data = {
+      label: wallet.getLabel(),
+      address: wallet.getAddressEncoded(),
       privateKey: wallet.getPrivateKeyHex(),
       publicKey: wallet.getPublicKeyHex(),
-      address: wallet.getAddressEncoded(),
-      label: wallet.getLabel(),
     };
 
     return { data, code: 'ok' };
@@ -47,16 +47,16 @@ actions.generateWallet = {
     // wallet.save();
 
     const data = {
+      address: wallet.getAddressEncoded(),
       privateKey: wallet.getPrivateKeyHex(),
       publicKey: wallet.getPublicKeyHex(),
-      address: wallet.getAddressEncoded(),
     };
 
     return { data, code: 'ok' };
   },
 };
 
-actions.removeWallet = {
+actions.deleteWallet = {
   permission: 'public',
   handler: async (options) => {
     const wallet = await Wallet.load(options.address);
@@ -65,11 +65,23 @@ actions.removeWallet = {
       return { error: 'Wallet not found', code: 'not_found' };
     }
 
+    await Wallet.delete(wallet.getAddressEncoded());
+
     const data = {
       address: wallet.getAddressEncoded(),
     };
 
-    return { data, code: 'ok' };
+    return { data, code: 'ok', message: `Deleted wallet ${wallet.getAddressEncoded()}` };
+  },
+};
+
+actions.deleteAllWallets = {
+  permission: 'auth',
+  handler: async () => {
+    await Wallet.clearAll();
+
+    const data = {};
+    return { data, code: 'ok', message: 'Deleted all saved wallets' };
   },
 };
 

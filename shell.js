@@ -1,4 +1,5 @@
 const readline = require('readline');
+const { parse } = require('shell-quote');
 
 const actions = require('./actions');
 
@@ -8,20 +9,25 @@ rl.setPrompt('> ');
 rl.prompt();
 
 rl.on('line', async (line) => {
-  const inputParsed = JSON.parse(line);
+  const parseQuote = parse(line);
+  const actionName = parseQuote[0];
 
-  const actionName = inputParsed.action;
-  const action = actions[actionName];
+  const options = {};
 
-  if (!action) {
-    console.log(`Action ${actionName} not found`);
+  for (let i = 1; i < parseQuote.length; i += 1) {
+    const [key, value] = parseQuote[i].split(':');
+    options[key] = value;
   }
 
-  const { handler } = action;
+  const action = actions[actionName];
 
-  const { data, code } = await handler(inputParsed);
-  // console.log(`Code: ${code}`);
-  console.log(JSON.stringify({ data }, null, 2));
+  if (action) {
+    const result = await actions[actionName].handler(options);
+    console.log(result);
+  } else {
+    console.log(`Action ${action} not found`);
+  }
+
 
   rl.prompt();
 }).on('close', () => {

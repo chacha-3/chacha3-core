@@ -84,7 +84,7 @@ test('should remove saved wallet', async (t) => {
     method: 'POST',
     url: '/',
     payload: {
-      action: 'removeWallet',
+      action: 'deleteWallet',
       address: wallets[0].getAddressEncoded(),
     },
   });
