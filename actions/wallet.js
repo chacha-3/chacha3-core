@@ -62,6 +62,7 @@ actions.recoverWallet = {
     properties: {
       privateKey: { type: 'string' },
       label: { type: 'string' },
+      password: { type: 'string' },
     },
     required: ['privateKey'],
   },
@@ -74,7 +75,7 @@ actions.recoverWallet = {
 
       await Wallet.save(wallet);
     } catch (e) {
-      return { message: 'Could not recover wallet', code: 'fail' };
+      return { message: 'Unable to recover wallet', code: 'fail' };
     }
 
     const data = {

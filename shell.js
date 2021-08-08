@@ -2,6 +2,7 @@ const readline = require('readline');
 const chalk = require('chalk');
 
 const Ajv = require('ajv');
+
 const ajv = new Ajv({ coerceTypes: true, logger: false });
 
 const { parse } = require('shell-quote');
@@ -49,11 +50,22 @@ function printArray(dataArray) {
 }
 
 function printResult(result) {
-  const { data, code, message, error } = result;
+  const {
+    data, code, message, errors,
+  } = result;
+  // console.log(data, errors);
+  if (code !== 'ok') {
+    console.log(chalk.bold.red(message));
 
-  if (error) {
-    return console.log(chalk.bold.red(error));
+    if (errors) {
+      errors.forEach((error) => {
+        console.log(chalk.bold.red(error));
+      });
+    }
+
+    return;
   }
+
   console.log(chalk.bold.green(message));
   // console.log(result);
   if (Array.isArray(data)) {
@@ -88,8 +100,9 @@ rl.on('line', async (line) => {
     }
 
     if (validate && validate.errors) {
+      console.log(chalk.bold.red('Invalid params'));
       validate.errors.forEach((error) => {
-        console.log(chalk.bold.red(error.message));
+        console.log(`- ${error.message}`);
       });
     } else {
       const result = await actions[actionName].handler(options);
