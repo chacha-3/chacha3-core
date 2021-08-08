@@ -1,9 +1,13 @@
 const wallet = require('./wallet');
 const transaction = require('./transaction');
+const miner = require('./miner');
+const chain = require('./chain');
 
 const actions = {
   ...wallet,
   ...transaction,
+  ...miner,
+  ...chain,
 };
 
 actions.handshake = {
