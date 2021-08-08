@@ -25,6 +25,7 @@
     "levelup": "^5.0.0",
     "mock-socket": "^9.0.3",
     "morgan": "~1.10.0",
+    "node-ipc": "<10.0.0",
     "selfsigned": "^1.10.11",
     "shell-quote": "^1.7.2",
     "subleveldown": "^5.0.1",

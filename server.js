@@ -2,6 +2,7 @@
  * Normalize a port into a number, string, or false.
  */
 const selfsigned = require('selfsigned');
+const ipc = require('node-ipc');
 
 const Block = require('./models/block');
 
@@ -76,5 +77,34 @@ server.listen(port, async (err, address) => {
     process.exit(1);
   }
 });
+
+ipc.config.id = 'world';
+ipc.config.retry = 1500;
+// ipc.config.silent = true;
+
+ipc.serve(
+  () => {
+    ipc.server.on(
+      'message',
+      (data, socket) => {
+        // ipc.log('got a message : '.debug, data);
+        ipc.server.emit(
+          socket,
+          'message', // this can be anything you want so long as
+          // your client knows.
+          `${data} world!`,
+        );
+      },
+    );
+    ipc.server.on(
+      'socket.disconnected',
+      (socket, destroyedSocketID) => {
+        ipc.log(`client ${destroyedSocketID} has disconnected!`);
+      },
+    );
+  },
+);
+
+ipc.server.start();
 
 module.exports = server;
