@@ -2,6 +2,7 @@ const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
 
 const Ajv = require('ajv');
+
 const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
 
 const Peer = require('./models/peer');
@@ -14,12 +15,12 @@ const actions = require('./actions');
 //   },
 // };
 
-const router = async (request, reply) => {
-  const { action } = request.body;
-  const { handler } = await actions[action];
+// const router = async (request, reply) => {
+//   const { action } = request.body;
+//   const { handler } = await actions[action];
 
-  handler(request, reply);
-};
+//   handler(request, reply);
+// };
 
 const errorHandler = (error, request, reply) => {
   console.log(error);
@@ -28,7 +29,7 @@ const errorHandler = (error, request, reply) => {
     return;
   }
 
-  reply.send({ error: 'errorHandler' });
+  reply.send({ message: 'errorHandler' });
 };
 
 function build(opts = {}) {
@@ -60,7 +61,7 @@ function build(opts = {}) {
       const action = actions[actionName];
 
       if (!action) {
-        reply.code(400).send();
+        reply.send({ code: 'unimplemented', message: 'Action not available' });
       }
 
       const { permission, schema } = action;
@@ -69,14 +70,14 @@ function build(opts = {}) {
       // }
 
       if (permission === 'authOnly') {
-        reply.code(401);
+        reply.send({ code: 'unauthenticated', message: 'Auth required' });
       }
 
       if (schema) {
         const validate = ajv.compile(schema);
 
         if (!validate(request.body)) {
-          reply.code(400).send({ error: validate.errors[0].message, code: 'invalid_params' });
+          reply.send({ errors: [validate.errors[0].message], code: 'invalid_argument', message: 'Invalid argument' });
           done();
         }
       }
@@ -94,12 +95,14 @@ function build(opts = {}) {
 
       const { handler } = action;
 
-      const { data, code, error } = await handler(request.body);
+      const {
+        data, code, errors, message,
+      } = await handler(request.body);
 
-      if (error) {
-        reply.send(JSON.stringify({ error, code }));
+      if (code !== 'ok') {
+        reply.send(JSON.stringify({ errors, code, message }));
       } else {
-        reply.send(JSON.stringify({ data, code }));
+        reply.send(JSON.stringify({ data, code, message }));
       }
     },
   });

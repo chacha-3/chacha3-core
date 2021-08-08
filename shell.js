@@ -82,7 +82,12 @@ rl.on('line', async (line) => {
   if (action) {
     let validate;
 
-    if (action.schema && !(validate = ajv.compile(action.schema))) {
+    if (action.schema) {
+      validate = ajv.compile(action.schema);
+      validate(options);
+    }
+
+    if (validate && validate.errors) {
       validate.errors.forEach((error) => {
         console.log(chalk.bold.red(error.message));
       });

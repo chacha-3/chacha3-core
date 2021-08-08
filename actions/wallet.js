@@ -74,7 +74,7 @@ actions.recoverWallet = {
 
       await Wallet.save(wallet);
     } catch (e) {
-      return { error: 'Could not recover wallet', code: 'fail' };
+      return { message: 'Could not recover wallet', code: 'fail' };
     }
 
     const data = {
@@ -100,7 +100,7 @@ actions.deleteWallet = {
     const wallet = await Wallet.load(options.address);
 
     if (!wallet) {
-      return { error: 'Wallet not found', code: 'not_found' };
+      return { message: 'Wallet not found', code: 'not_found' };
     }
 
     await Wallet.delete(wallet.getAddressEncoded());

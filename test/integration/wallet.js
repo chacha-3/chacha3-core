@@ -111,8 +111,8 @@ test('should fail to remove unsaved wallet', async (t) => {
 
   t.equal(response.statusCode, 200);
 
-  const { error } = response.json();
-  t.equal(typeof error, 'string');
+  const { code } = response.json();
+  t.equal(code, 'not_found');
 
   t.end();
 });
@@ -140,6 +140,24 @@ test('should recover a wallet', async (t) => {
   t.equal(typeof data.publicKey, 'string');
   t.equal(typeof data.address, 'string');
 
+  t.end();
+
+  await Wallet.clearAll();
+});
+
+test('should not recover a wallet without private key', async (t) => {
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'recoverWallet',
+      privateKey: 'notAPrivateKey',
+      label: 'Not key',
+    },
+  });
+
+  // console.log(response)
+  t.equal(response.statusCode, 200);
   t.end();
 
   await Wallet.clearAll();
