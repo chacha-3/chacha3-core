@@ -8,63 +8,6 @@ const ajv = new Ajv({ coerceTypes: true, logger: false });
 
 const { parse } = require('shell-quote');
 
-// const actions = require('./actions');
-
-// function completer(line) {
-//   // console.log(line);
-//   const completions = '.help .error .exit .quit .q'.split(' ');
-//   const hits = completions.filter((c) => c.startsWith(line));
-//   // Show all completions if none found
-//   return [hits.length ? hits : completions, line];
-// }
-
-const rl = readline.createInterface(process.stdin, process.stdout);
-
-ipc.config.id = 'hello';
-ipc.config.retry = 1500;
-ipc.config.silent = true;
-
-ipc.connectTo(
-  'world',
-  () => {
-    ipc.of.world.on(
-      'connect',
-      () => {
-        // ipc.log('## connected to world ##'.rainbow, ipc.config.delay);
-        ipc.of.world.emit(
-          'message', // any event or message type your server listens for
-          'hello',
-        );
-
-        rl.setPrompt('> ');
-        rl.prompt();
-
-        rl.on('line', async (line) => {
-          console.log('new line');
-          rl.prompt();
-        });
-      },
-    );
-    ipc.of.world.on(
-      'disconnect',
-      () => {
-        // ipc.log('disconnected from world'.notice);
-      },
-    );
-    ipc.of.world.on(
-      'message', // any event or message type your server listens for
-      (data) => {
-        ipc.log('got a message from world : '.debug, data);
-      },
-    );
-  },
-);
-
-
-function completer(linePartial, callback) { callback(null, [['123'], linePartial]); }
-
-
-
 function camelCaseToTitle(camelCase) {
   if (!camelCase) {
     return '';
@@ -118,6 +61,108 @@ function printResult(result) {
     printObject(data);
   }
 }
+
+
+// const actions = require('./actions');
+
+// function completer(line) {
+//   // console.log(line);
+//   const completions = '.help .error .exit .quit .q'.split(' ');
+//   const hits = completions.filter((c) => c.startsWith(line));
+//   // Show all completions if none found
+//   return [hits.length ? hits : completions, line];
+// }
+
+const rl = readline.createInterface(process.stdin, process.stdout);
+
+ipc.config.id = 'hello';
+ipc.config.retry = 1500;
+ipc.config.silent = true;
+
+ipc.connectTo(
+  'world',
+  () => {
+    ipc.of.world.on(
+      'connect',
+      () => {
+        // ipc.log('## connected to world ##'.rainbow, ipc.config.delay);
+        ipc.of.world.emit(
+          'message', // any event or message type your server listens for
+          'hi',
+        );
+        rl.setPrompt('> ');
+        rl.prompt();
+
+        rl.on('line', async (line) => {
+          const parseQuote = parse(line.trim());
+          const actionName = parseQuote[0];
+
+          const options = {
+            action: actionName,
+          };
+
+          for (let i = 1; i < parseQuote.length; i += 1) {
+            const [key, value] = parseQuote[i].split(':');
+            options[key] = value;
+          }
+
+          ipc.of.world.emit(
+            'message', // any event or message type your server listens for
+            JSON.stringify(options),
+          );
+
+          // const action = actions[actionName];
+
+          // if (action) {
+          //   let validate;
+
+          //   if (action.schema) {
+          //     validate = ajv.compile(action.schema);
+          //     validate(options);
+          //   }
+
+          //   if (validate && validate.errors) {
+          //     console.log(chalk.bold.red('Invalid params'));
+          //     validate.errors.forEach((error) => {
+          //       console.log(`- ${error.message}`);
+          //     });
+          //   } else {
+          //     const result = await actions[actionName].handler(options);
+          //     printResult(result);
+          //   }
+          // } else {
+          //   console.log(`Action ${actionName} not found`);
+          // }
+          // rl.prompt();
+        }).on('close', () => {
+          console.log('Have a great day!');
+          process.exit(0);
+        });
+      },
+    );
+    ipc.of.world.on(
+      'disconnect',
+      () => {
+        // ipc.log('disconnected from world'.notice);
+        console.log('disconnect');
+      },
+    );
+    ipc.of.world.on(
+      'message', // any event or message type your server listens for
+      (data) => {
+        // ipc.log('got a message from world : '.debug, data);
+        printResult(JSON.parse(data));
+        rl.prompt();
+      },
+    );
+  },
+);
+
+
+function completer(linePartial, callback) { callback(null, [['123'], linePartial]); }
+
+
+
 
 // rl.setPrompt('> ');
 // rl.prompt();

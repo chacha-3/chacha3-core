@@ -3,10 +3,14 @@
  */
 const selfsigned = require('selfsigned');
 const ipc = require('node-ipc');
+const Ajv = require('ajv');
+
+const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
 
 const Block = require('./models/block');
-
 const Chain = require('./models/chain');
+
+const actions = require('./actions');
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
@@ -23,30 +27,6 @@ function normalizePort(val) {
 
   return false;
 }
-
-// TODO: Peer list
-const runMiner = async () => {
-  // TODO: Remove
-  await Chain.clear();
-
-  const mining = true;
-  const chain = await Chain.load();
-  console.log(`Miner started. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
-
-  while (mining) {
-    const block = new Block();
-    block.addCoinbase('1Ah75Y9e93DBWSqGMEBHRBgDMmje4CFv2C');
-    const mineTime = await block.mine(chain.getCurrentDifficulty());
-
-    console.log(`New block mined ${block.getHeader().getHash().toString('hex')}. Time: ${mineTime}. Nonce: ${block.getHeader().getNonce()}, Difficulty: ${chain.getCurrentDifficulty()}`);
-
-    Block.save(block);
-    chain.addBlockHeader(block.getHeader());
-
-    console.log(`New block saved. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
-    Chain.save(chain);
-  }
-};
 
 const attrs = [{ name: 'commonName', value: 'bong' }];
 const pems = selfsigned.generate(attrs, {
@@ -86,13 +66,57 @@ ipc.serve(
   () => {
     ipc.server.on(
       'message',
-      (data, socket) => {
+      async (request, socket) => {
         // ipc.log('got a message : '.debug, data);
+        const options = JSON.parse(request);
+
+        const actionName = options.action;
+        const action = actions[actionName];
+
+        if (!action) {
+          ipc.server.emit(
+            socket,
+            'message', // this can be anything you want so long as
+            // your client knows.
+            JSON.stringify({ code: 'unimplemented', message: 'Action not available' }),
+          );
+        }
+
+        const { schema, handler } = action;
+
+        // console.log(data);
+
+        if (schema) {
+          const validate = ajv.compile(schema);
+
+          if (!validate(options)) {
+            const message = { errors: [validate.errors[0].message], code: 'invalid_argument', message: 'Invalid argument' };
+
+            ipc.server.emit(
+              socket,
+              'message', // this can be anything you want so long as
+              // your client knows.
+              JSON.stringify(message),
+            );
+          }
+        }
+
+        const {
+          data, code, errors, message,
+        } = await handler(request.body);
+
+        let response;
+        if (code !== 'ok') {
+          response = { errors, code, message };
+        } else {
+          response = { data, code, message };
+        }
+
         ipc.server.emit(
           socket,
           'message', // this can be anything you want so long as
           // your client knows.
-          `${data} world!`,
+          JSON.stringify(response),
         );
       },
     );
