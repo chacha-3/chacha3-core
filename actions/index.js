@@ -13,19 +13,19 @@ const actions = {
   ...chain,
 };
 
-actions.handshake = {
-  permission: 'public',
-  handler: async (requestData) => {
-    const { version } = requestData;
+// actions.handshake = {
+//   permission: 'public',
+//   handler: async (requestData) => {
+//     const { version } = requestData;
 
-    const data = {
-      accepted: version >= 1,
-      version: 1,
-    };
+//     const data = {
+//       accepted: version >= 1,
+//       version: 1,
+//     };
 
-    return { data, code: 'ok' };
-  },
-};
+//     return { data, code: 'ok' };
+//   },
+// };
 
 const routeAction = (options) => {
   const actionName = options.action;
@@ -43,9 +43,9 @@ const checkPermission = (action, permission) => {
     return true;
   }
 
-  if (actionPermission === 'authOnly') {
-    return userPermission === 'auth';
-  }
+  // if (actionPermission === 'authOnly') {
+  //   return userPermission === 'auth';
+  // }
 
   return false;
 };

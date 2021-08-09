@@ -26,7 +26,7 @@ class Miner {
     // await Chain.clear();
 
     const chain = await Chain.load();
-    console.log(`Miner started. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
+    // console.log(`Miner started. Current height: ${chain.getLength()}. Current total work: ${chain.getTotalWork()}`);
 
     while (this.mining) {
       const block = new Block();
@@ -44,7 +44,7 @@ class Miner {
   }
 
   isMining() {
-    return this.isMining;
+    return this.mining;
   }
 
   stop() {
