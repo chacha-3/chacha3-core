@@ -86,10 +86,10 @@ ipc.connectTo(
       'connect',
       () => {
         // ipc.log('## connected to world ##'.rainbow, ipc.config.delay);
-        ipc.of.world.emit(
-          'message', // any event or message type your server listens for
-          'hi',
-        );
+        // ipc.of.world.emit(
+        //   'message', // any event or message type your server listens for
+        //   'hi',
+        // );
         rl.setPrompt('> ');
         rl.prompt();
 

@@ -4,7 +4,7 @@ const mock = require('../../util/mock');
 
 const Wallet = require('../../models/wallet');
 
-const actions = require('../../actions');
+const { routeAction } = require('../../actions');
 const app = require('../../app')();
 
 test('list all wallet', async (t) => {
