@@ -19,6 +19,10 @@ actions.startMiner = {
     required: ['address'],
   },
   handler: (options) => {
+    if (miner.isMining()) {
+      return { code: 'failed_precondition', message: 'Miner already running' };
+    }
+
     miner.setReceiverAddress(options.address);
     miner.start();
 
@@ -45,6 +49,26 @@ actions.stopMiner = {
     };
 
     return { data, code: 'ok', message: 'Stopped miner' };
+  },
+};
+
+actions.minerStatus = {
+  permission: 'public', // TODO: Change to private
+  // schema: {
+  //   properties: {
+  //     address: { type: 'string' },
+  //   },
+  // },
+  handler: async (options) => {
+    const data = {
+      isMining: miner.isMining(),
+    };
+
+    if (miner.isMining()) {
+      data.address = miner.getReceiverAddress();
+    }
+
+    return { data, code: 'ok', message: 'Miner status' };
   },
 };
 

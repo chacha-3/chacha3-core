@@ -20,6 +20,8 @@ class Chain {
     // this.totalWork = 0;
 
     this.blockHeaders = [];
+    Transaction.pendingList.push(5);
+    console.log(Transaction.pendingList);
   }
 
   static getAdjustInterval() {
@@ -108,6 +110,7 @@ class Chain {
   getCurrentDifficulty() {
     let difficulty = 1.0;
     const headers = this.getBlockHeaders();
+    // console.log(headers);
 
     if (headers.length < 2) {
       return difficulty;
@@ -131,7 +134,8 @@ class Chain {
         // Clear differences array for next adjustInterval n block
         timeDifferences.length = 0;
       }
-
+      // console.log(headers);
+      // console.log(i, headers[i].getTime(), headers[i - 1].getTime());
       timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
     }
 
@@ -153,7 +157,9 @@ class Chain {
     const promises = [];
 
     for (let i = 0; i < blockHashes.length; i += 1) {
-      promises.push(new Promise((resolve) => resolve(Header.load(blockHashes[i]))));
+      promises.push(new Promise((resolve) => {
+        resolve(Header.load(blockHashes[i]));
+      }));
     }
 
     const headers = await Promise.all(promises);
@@ -169,16 +175,16 @@ class Chain {
 
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
-
       // totalWork = data.totalWork;
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     } catch (e) {
       // return null;
     }
-
+    // console.log(blockHashes);
     const headers = await Chain.loadHeaders(blockHashes);
+    // console.log(headers);
     chain.setBlockHeaders(headers);
-
+    // console.log(chain);
     return chain;
   }
 

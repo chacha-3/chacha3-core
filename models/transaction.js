@@ -19,6 +19,8 @@ class Transaction {
     this.signature = null;
   }
 
+  // static pendingList = [];
+
   hashData() {
     const data = {
       version: this.version,
@@ -123,5 +125,7 @@ class Transaction {
     await TransactionDB.clear();
   }
 }
+
+Transaction.pendingList = [];
 
 module.exports = Transaction;

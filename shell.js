@@ -24,7 +24,14 @@ function camelCaseToTitle(camelCase) {
 function printObject(objectData) {
   Object.keys(objectData).forEach((key) => {
     const niceKeyName = camelCaseToTitle(key);
-    console.log(`${chalk.bold.cyan(niceKeyName)}: ${objectData[key]}`);
+
+    let value = objectData[key];
+
+    if (typeof (value) === 'boolean') {
+      value = value ? 'Yes' : 'No';
+    }
+
+    console.log(`${chalk.bold.cyan(niceKeyName)}: ${value}`);
   });
 }
 
@@ -46,7 +53,7 @@ function printResult(result) {
 
     if (errors) {
       errors.forEach((error) => {
-        console.log(chalk.bold.red(error));
+        console.log(`- ${chalk.bold.yellow(error)}`);
       });
     }
 
