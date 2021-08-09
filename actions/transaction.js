@@ -26,7 +26,24 @@ actions.createTransaction = {
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
     transaction.verify(); // TODO: See if required
 
-    return { data: transaction.toObject(), code: 'ok' };
+    const data = {
+      id: transaction.getId().toString('hex'),
+      version: transaction.version,
+      senderKey: null,
+      receiverAddress: transaction.receiverAddress,
+      amount: transaction.amount,
+      signature: null,
+    };
+
+    if (transaction.senderKey) {
+      data.senderKey = transaction.getSenderKey().toString('hex');
+    }
+
+    if (transaction.signature) {
+      data.signature = transaction.getSignature().toString('hex');
+    }
+
+    return { data, code: 'ok', message: 'Transaction created' };
   },
 };
 

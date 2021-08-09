@@ -47,18 +47,18 @@ test('increment the nonce', (t) => {
   t.end();
 });
 
-test('get object representation of header', (t) => {
-  const header = new Header();
-  const result = header.toObject();
+// test('get object representation of header', (t) => {
+//   const header = new Header();
+//   const result = header.toObject();
 
-  const properties = ['version', 'checksum', 'date', 'difficulty', 'nonce'];
+//   const properties = ['version', 'checksum', 'date', 'difficulty', 'nonce'];
 
-  properties.forEach((property) => {
-    t.ok(Object.prototype.hasOwnProperty.call(result, property));
-  });
+//   properties.forEach((property) => {
+//     t.ok(Object.prototype.hasOwnProperty.call(result, property));
+//   });
 
-  t.end();
-});
+//   t.end();
+// });
 
 test('save and load header', async (t) => {
   const block = await mock.blockWithTransactions(1);

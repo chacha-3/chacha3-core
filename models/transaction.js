@@ -78,27 +78,6 @@ class Transaction {
     }
   }
 
-  toObject() {
-    const data = {
-      id: this.getId().toString('hex'),
-      version: this.version,
-      senderKey: null,
-      receiverAddress: this.receiverAddress,
-      amount: this.amount,
-      signature: null,
-    };
-
-    if (this.senderKey) {
-      data.senderKey = this.getSenderKey().toString('hex');
-    }
-
-    if (this.signature) {
-      data.signature = this.getSignature().toString('hex');
-    }
-
-    return data;
-  }
-
   static async save(transaction) {
     assert(transaction.getId() != null);
     const key = transaction.getId();

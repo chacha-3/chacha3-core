@@ -189,15 +189,15 @@ class Header {
     this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
   }
 
-  toObject() {
-    return {
-      version: this.version,
-      checksum: (this.checksum) ? this.checksum.toString('hex') : null,
-      date: this.date,
-      difficulty: this.difficulty,
-      nonce: this.nonce,
-    };
-  }
+  // toObject() {
+  //   return {
+  //     version: this.version,
+  //     checksum: (this.checksum) ? this.checksum.toString('hex') : null,
+  //     date: this.date,
+  //     difficulty: this.difficulty,
+  //     nonce: this.nonce,
+  //   };
+  // }
 }
 
 module.exports = Header;
