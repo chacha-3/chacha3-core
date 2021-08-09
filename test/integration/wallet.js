@@ -5,6 +5,7 @@ const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
+const { WalletDB } = require('../../util/db');
 const app = require('../../app')();
 
 test('list all wallet', async (t) => {
@@ -56,7 +57,7 @@ test('generate wallet', async (t) => {
   t.end();
 });
 
-test('should remove saved wallet', async (t) => {
+test('should delete a saved wallet', async (t) => {
   const wallets = await mock.createWallets(1);
 
   const { data } = await runAction({
@@ -65,6 +66,26 @@ test('should remove saved wallet', async (t) => {
   });
 
   t.equal(typeof data.address, 'string');
+  t.end();
+});
+
+test('should delete all saved wallet', async (t) => {
+  const numOfWallets = 3;
+
+  await mock.createWallets(3);
+
+  const before = await Wallet.all();
+  t.equal(before.length, numOfWallets);
+
+  const { code } = await runAction({
+    action: 'deleteAllWallets',
+  });
+
+  t.equal(code, 'ok');
+
+  const after = await Wallet.all();
+  t.equal(after.length, 0);
+
   t.end();
 });
 
@@ -100,20 +121,13 @@ test('should recover a wallet', async (t) => {
   await Wallet.clearAll();
 });
 
-// test('should not recover a wallet without private key', async (t) => {
-//   const response = await app.inject({
-//     method: 'POST',
-//     url: '/',
-//     payload: {
-//       action: 'recoverWallet',
-//       privateKey: 'notAPrivateKey',
-//       label: 'Not key',
-//     },
-//   });
+test('should not recover a wallet without correct private key', async (t) => {
+  const { code } = await runAction({
+    action: 'recoverWallet',
+    privateKey: 'notAPrivateKey',
+    label: 'Not key',
+  });
 
-//   // console.log(response)
-//   t.equal(response.statusCode, 200);
-//   t.end();
-
-//   await Wallet.clearAll();
-// });
+  t.equal(code, 'fail');
+  t.end();
+});
