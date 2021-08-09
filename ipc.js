@@ -1,9 +1,5 @@
 const ipc = require('node-ipc');
-const Ajv = require('ajv');
-
-const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
-
-const { routeAction } = require('./actions');
+const { runAction } = require('./actions');
 
 ipc.config.id = 'world';
 ipc.config.retry = 1500;
@@ -17,7 +13,7 @@ ipc.serve(
         // ipc.log('got a message : '.debug, data);
         const options = JSON.parse(request);
 
-        const response = await routeAction(options);
+        const response = await runAction(options, 'full');
         ipc.server.emit(
           socket,
           'message', // this can be anything you want so long as

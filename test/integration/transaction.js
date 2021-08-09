@@ -4,7 +4,7 @@ const mock = require('../../util/mock');
 
 const Wallet = require('../../models/wallet');
 
-const { routeAction } = require('../../actions');
+const { runAction } = require('../../actions');
 const { options } = require('yargs');
 
 // test('create a transaction', async (t) => {

@@ -27,12 +27,38 @@ actions.handshake = {
   },
 };
 
-const routeAction = async (options) => {
+const routeAction = (options) => {
   const actionName = options.action;
-  const action = actions[actionName];
+  return actions[actionName];
+};
+
+// TODO: Implement actual auth check
+const checkPermission = (action, permission) => {
+  const permissionDefault = process.env.NODE_ENV === 'test' ? 'full' : 'none';
+  const userPermission = permission || permissionDefault;
+
+  const actionPermission = action.permission;
+
+  if (actionPermission === 'public' || userPermission === 'full') {
+    return true;
+  }
+
+  if (actionPermission === 'authOnly') {
+    return userPermission === 'auth';
+  }
+
+  return false;
+};
+
+const runAction = async (options, permission) => {
+  const action = routeAction(options);
 
   if (!action) {
     return { code: 'unimplemented', message: 'Action not available' };
+  }
+
+  if (!checkPermission(action, permission)) {
+    return { code: 'unauthenticated', message: 'Auth required' };
   }
 
   const { schema, handler } = action;
@@ -57,6 +83,5 @@ const routeAction = async (options) => {
 };
 
 module.exports = {
-  // actionPermission,
-  routeAction,
+  runAction,
 };

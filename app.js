@@ -7,20 +7,7 @@ const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for serv
 
 const Peer = require('./models/peer');
 
-const { routeAction } = require('./actions');
-
-// const schema = {
-//   body: {
-//     action: { type: 'string' },
-//   },
-// };
-
-// const router = async (request, reply) => {
-//   const { action } = request.body;
-//   const { handler } = await actions[action];
-
-//   handler(request, reply);
-// };
+const { runAction } = require('./actions');
 
 const errorHandler = (error, request, reply) => {
   console.log(error);
@@ -52,18 +39,7 @@ function build(opts = {}) {
 
   // RPC endpoint
   app.post('/', {
-    // schema,
-    // preValidation: (request, reply, done) => {
-    //   // console.log(request);
-    // },
     preHandler: async (request, reply, done) => {
-      // const actionName = request.body.action;
-      // const action = actions[actionName];
-
-      // if (!action) {
-      //   reply.send({ code: 'unimplemented', message: 'Action not available' });
-      // }
-
       // const { permission, schema } = action;
       // // if (permission === 'public') {
       // //   done();
@@ -72,25 +48,11 @@ function build(opts = {}) {
       // if (permission === 'authOnly') {
       //   reply.send({ code: 'unauthenticated', message: 'Auth required' });
       // }
-
-      // if (schema) {
-      //   const validate = ajv.compile(schema);
-
-      //   if (!validate(request.body)) {
-      //     reply.send({ errors: [validate.errors[0].message], code: 'invalid_argument', message: 'Invalid argument' });
-      //     done();
-      //   }
-      // }
-
-      // TODO: Verify action params
-
-      // E.g. check authentication
-      // reply.code(401);
     },
     handler: async (request, reply) => {
       reply.type('application/json');
 
-      const response = await routeAction(request.body);
+      const response = await runAction(request.body, 'auth');
       reply.send(response);
     },
   });
