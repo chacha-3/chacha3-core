@@ -88,6 +88,13 @@ test('get correct difficulty', async (t) => {
   t.end();
 });
 
+test('get default difficulty when one or less blocks', async (t) => {
+  const chain = await mock.chainWithBlocks(1, 2);
+
+  t.equal(chain.getCurrentDifficulty(), 1.0);
+  t.end();
+});
+
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);

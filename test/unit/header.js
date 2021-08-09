@@ -82,3 +82,11 @@ test('save and load header', async (t) => {
   Header.clearAll();
   t.end();
 });
+
+test('unable to load unsaved header', async (t) => {
+  const block = await mock.blockWithTransactions(1);
+  const loaded = await Header.load(block.getHeader().getHash());
+
+  t.equal(loaded, null, 'unsaved header load with value null');
+  t.end();
+});
