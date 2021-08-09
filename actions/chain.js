@@ -20,7 +20,6 @@ actions.chainInfo = {
   // },
   handler: async (options) => {
     const chain = await Chain.load();
-
     const data = {
       length: chain.getLength(),
       currentDifficulty: chain.getCurrentDifficulty(),

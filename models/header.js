@@ -62,7 +62,6 @@ class Header {
     try {
       data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
     } catch (e) {
-      console.log('Header not saved. Could not load.');
       return null;
     }
 

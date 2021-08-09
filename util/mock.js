@@ -71,6 +71,7 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
     chain.addBlockHeader(blocks[i].getHeader());
   }
 
+  await Chain.save(chain);
   return chain;
 };
 
