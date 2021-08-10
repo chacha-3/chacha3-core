@@ -20,8 +20,8 @@ class Chain {
     // this.totalWork = 0;
 
     this.blockHeaders = [];
-    Transaction.pendingList.push(5);
-    console.log(Transaction.pendingList);
+    // Transaction.pendingList.push(5);
+    // console.log(Transaction.pendingList);
   }
 
   static getAdjustInterval() {

@@ -177,44 +177,47 @@ test('delete all wallet', async (t) => {
   t.end();
 });
 
-// test('set a selected wallet', async (t) => {
-//   const numOfWallets = 3;
-//   await mock.createWallets(numOfWallets);
+test('set a selected wallet', async (t) => {
+  const numOfWallets = 3;
+  await mock.createWallets(numOfWallets);
 
-//   const list = await Wallet.all();
-//   const selectWallet = list[Math.floor(Math.random() * numOfWallets)];
+  const list = await Wallet.all();
+  const selectWallet = list[Math.floor(Math.random() * numOfWallets)];
 
-//   let selected = await Wallet.getSelected();
-//   t.equal(selected, null, 'Have not selected wallet');
+  let selectedAddress = await Wallet.getSelected();
+  t.equal(selectedAddress, null, 'Have not selected wallet');
 
-//   await Wallet.setSelected(selectWallet);
-//   selected = await Wallet.getSelected();
-//   t.equal(selectWallet.getAddressEncoded(), selected.getAddressEncoded());
+  await Wallet.setSelected(selectWallet.getAddressEncoded());
+  selectedAddress = await Wallet.getSelected();
 
-//   await Wallet.clearAll();
+  t.equal(selectWallet.getAddressEncoded(), selectedAddress);
 
-//   t.end();
-// });
+  await Wallet.clearAll();
 
-// test('unselect a selected wallet', async (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
-//   await wallet.save();
+  t.end();
+});
 
-//   await Wallet.setSelected(wallet);
+test('unselect a selected wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+  await Wallet.save(wallet);
 
-//   let selected = await Wallet.getSelected();
-//   t.equal(wallet.getAddressEncoded(), selected.getAddressEncoded(), 'Have wallet before unselect');
+  await Wallet.setSelected(wallet.getAddressEncoded());
 
-//   await Wallet.setSelected(null);
-//   selected = await Wallet.getSelected();
+  let selectedAddress = await Wallet.getSelected();
+  t.equal(wallet.getAddressEncoded(), selectedAddress, 'Have wallet before unselect');
 
-//   t.equal(selected, null, 'Have no wallet after unselect');
+  const result = await Wallet.setSelected(null);
+  t.equal(result, true);
 
-//   await Wallet.clearAll();
+  selectedAddress = await Wallet.getSelected();
 
-//   t.end();
-// });
+  t.equal(selectedAddress, null, 'Have no wallet after unselect');
+
+  await Wallet.clearAll();
+
+  t.end();
+});
 
 test('verify wallet address checksum', async (t) => {
   t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF'), true, 'Valid address');

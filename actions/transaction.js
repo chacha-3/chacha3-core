@@ -8,12 +8,15 @@ const actions = {};
 
 actions.createTransaction = {
   permission: 'public', // TODO: Change to private
-  // schema: {
-  //   key: {
-  //     required: true,
-  //     type: 'hex',
-  //   },
-  // },
+  schema: {
+    properties: {
+      key: { type: 'string' },
+      address: { type: 'string' },
+      amount: { type: 'string' },
+      password: { type: 'string' },
+    },
+    required: ['key', 'address', 'amount'],
+  },
   handler: async (options) => {
     const senderWallet = Wallet.recover(Buffer.from(options.key, 'hex'));
 
@@ -26,17 +29,20 @@ actions.createTransaction = {
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
     transaction.verify(); // TODO: See if required
 
+    Transaction.pendingList.push(transaction);
+
     const data = {
       id: transaction.getId().toString('hex'),
-      version: transaction.version,
-      senderKey: null,
-      receiverAddress: transaction.receiverAddress,
+      // version: transaction.version,
+      sender: null,
+      receiver: transaction.receiverAddress,
       amount: transaction.amount,
       signature: null,
     };
 
     if (transaction.senderKey) {
-      data.senderKey = transaction.getSenderKey().toString('hex');
+      // data.sender = transaction.getSenderKey().toString('hex');
+      data.sender = Wallet.generateAddressEncoded(transaction.getSenderKey());
     }
 
     if (transaction.signature) {

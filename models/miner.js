@@ -16,12 +16,7 @@ class Miner {
     this.receiverAddress = null;
     this.mining = false;
 
-    this.pendingTransactions = Transaction.pendingList;
-    console.log('helllo');
-    console.log(Transaction.pendingList);
-    Transaction.pendingList = [1, 2];
-
-    console.log(Transaction.pendingList);
+    // this.pendingTransactions = Transaction.pendingList;
   }
 
   // async mine(difficulty) {
@@ -65,9 +60,10 @@ class Miner {
     block.addCoinbase(this.receiverAddress);
 
     while (this.mining) {
-      const pendingTransaction = [];
-      if (pendingTransaction.length > 0) {
+      if (Transaction.pendingList.length > 0) {
         // Add transaction to block
+        block.addTransaction(Transaction.pendingList.pop());
+        console.log('Added pending transaction');
       }
 
       block.header.setDifficulty(chain.getCurrentDifficulty());
@@ -75,6 +71,7 @@ class Miner {
       await block.header.computeHash();
 
       if (block.verifyHash()) {
+        console.log(`New block: ${block.getTransactionCount()}`);
         await Block.save(block);
         chain.addBlockHeader(block.getHeader());
 

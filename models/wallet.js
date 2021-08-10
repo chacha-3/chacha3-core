@@ -43,6 +43,15 @@ class Wallet {
     await WalletDB.clear();
   }
 
+  static generateAddressEncoded(publicKey) {
+    const version = Buffer.from([0x00]);
+
+    const fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest().slice(-20);
+    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+
+    return `${Wallet.AddressPrefix}${bs58.encode(Buffer.concat([version, fingerprint, checksum]))}`;
+  }
+
   static verifyAddress(address) {
     const bytes = bs58.decode(address);
 
@@ -50,6 +59,34 @@ class Wallet {
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
     return bytes.slice(21, 25).equals(checksum);
+  }
+
+  static async setSelected(address) {
+    if (address === null) {
+      WalletDB.del('selected');
+      return true;
+    }
+
+    const wallet = await Wallet.load(address);
+
+    if (wallet) {
+      await WalletDB.put('selected', wallet.getAddressEncoded());
+      return true;
+    }
+
+    return false;
+  }
+
+  static async getSelected() {
+    let selected;
+
+    try {
+      selected = await WalletDB.get('selected');
+    } catch (e) {
+      return null;
+    }
+
+    return selected;
   }
 
   constructor() {
@@ -149,13 +186,7 @@ class Wallet {
 
   getAddressEncoded() {
     assert(this.publicKey != null);
-
-    const version = Buffer.from([0x00]);
-
-    const fingerprint = crypto.createHash('SHA3-256').update(this.getPublicKey()).digest().slice(-20);
-    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
-
-    return `${Wallet.AddressPrefix}${bs58.encode(Buffer.concat([version, fingerprint, checksum]))}`;
+    return Wallet.generateAddressEncoded(this.publicKey);
   }
 
   toSaveData() {
