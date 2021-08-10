@@ -3,7 +3,7 @@ const bs58 = require('bs58');
 const assert = require('assert');
 
 // const DB = require('../util/database');
-const { WalletDB } = require('../util/db');
+const { WalletDB, DB } = require('../util/db');
 
 // const addressPrefix = '420_';
 
@@ -63,14 +63,14 @@ class Wallet {
 
   static async setSelected(address) {
     if (address === null) {
-      WalletDB.del('selected');
+      DB.del('selectedWallet');
       return true;
     }
 
     const wallet = await Wallet.load(address);
 
     if (wallet) {
-      await WalletDB.put('selected', wallet.getAddressEncoded());
+      await DB.put('selectedWallet', wallet.getAddressEncoded());
       return true;
     }
 
@@ -81,7 +81,7 @@ class Wallet {
     let selected;
 
     try {
-      selected = await WalletDB.get('selected');
+      selected = await DB.get('selectedWallet');
     } catch (e) {
       return null;
     }
@@ -226,7 +226,13 @@ class Wallet {
   }
 
   static async delete(address) {
-    WalletDB.del(address);
+    const selected = await Wallet.getSelected();
+
+    if (address === selected) {
+      await Wallet.setSelected(null);
+    }
+
+    await WalletDB.del(address);
   }
 
   static recover(privateKey, password) {

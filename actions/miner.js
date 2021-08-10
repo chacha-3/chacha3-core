@@ -18,6 +18,20 @@ actions.startMiner = {
     },
     required: ['address'],
   },
+  preValidation: async (options) => {
+    const newOptions = options;
+
+    if (!options.address) {
+      const selectedWallet = await Wallet.getSelected();
+
+      if (selectedWallet) {
+        // eslint-disable-next-line no-param-reassign
+        options.address = selectedWallet;
+      }
+    }
+
+    return newOptions;
+  },
   handler: (options) => {
     if (miner.isMining()) {
       return { code: 'failed_precondition', message: 'Miner already running' };

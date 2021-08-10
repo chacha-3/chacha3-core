@@ -29,6 +29,8 @@ function printObject(objectData) {
 
     if (typeof (value) === 'boolean') {
       value = value ? 'Yes' : 'No';
+    } else if (value === null) {
+      value = 'None';
     }
 
     console.log(`${chalk.bold.cyan(niceKeyName)}: ${value}`);

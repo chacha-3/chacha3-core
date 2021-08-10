@@ -197,6 +197,18 @@ test('set a selected wallet', async (t) => {
   t.end();
 });
 
+test('cannot select an unsaved wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const result = await Wallet.setSelected(wallet.getAddressEncoded());
+  t.equal(result, false);
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 test('unselect a selected wallet', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -218,6 +230,28 @@ test('unselect a selected wallet', async (t) => {
 
   t.end();
 });
+
+test('unselect a deleted wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+  await Wallet.save(wallet);
+
+  await Wallet.setSelected(wallet.getAddressEncoded());
+
+  let selectedAddress = await Wallet.getSelected();
+  t.equal(wallet.getAddressEncoded(), selectedAddress, 'Have wallet before delete');
+
+  await Wallet.delete(wallet.getAddressEncoded());
+
+  selectedAddress = await Wallet.getSelected();
+
+  t.equal(selectedAddress, null, 'Have wallet unselected after delete');
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 
 test('verify wallet address checksum', async (t) => {
   t.equal(Wallet.verifyAddress('114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF'), true, 'Valid address');

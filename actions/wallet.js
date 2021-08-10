@@ -124,4 +124,91 @@ actions.deleteAllWallets = {
   },
 };
 
+actions.selectWallet = {
+  permission: 'public',
+  schema: {
+    properties: {
+      address: { type: 'string' },
+    },
+    required: ['address'],
+  },
+  handler: async (options) => {
+    const result = await Wallet.setSelected(options.address);
+
+    if (!result) {
+      return { message: 'Wallet not found', code: 'not_found' };
+    }
+
+    const selected = await Wallet.getSelected();
+
+    const data = {
+      selected,
+    };
+
+    return { data, code: 'ok', message: 'Wallet' };
+  },
+};
+
+actions.unselectWallet = {
+  permission: 'public',
+  // schema: {
+  //   properties: {
+  //     address: { type: 'string' },
+  //   },
+  //   required: ['address'],
+  // },
+  handler: async () => {
+    await Wallet.setSelected(null);
+
+    const data = {
+      selected: null,
+    };
+
+    return { data, code: 'ok', message: 'Wallet' };
+  },
+};
+
+actions.selectedWallet = {
+  permission: 'public',
+  // schema: {
+  //   properties: {
+  //     address: { type: 'string' },
+  //   },
+  //   required: ['address'],
+  // },
+  handler: async () => {
+    const selected = await Wallet.getSelected();
+
+    const data = {
+      selected,
+    };
+
+    return { data, code: 'ok', message: 'Wallet' };
+  },
+};
+
+// actions.walletInfo = {
+//   permission: 'public',
+//   schema: {
+//     properties: {
+//       address: { type: 'string' },
+//     },
+//   },
+//   handler: async (options) => {
+//     await Wallet.setSelected(null);
+
+//     let { address } = options;
+
+//     if (!address) {
+//       address = await Wallet.getSelected();
+//     }
+
+//     const data = {
+//       selected: null,
+//     };
+
+//     return { data, code: 'ok', message: 'Unselect wallet' };
+//   },
+// };
+
 module.exports = actions;

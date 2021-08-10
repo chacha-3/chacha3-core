@@ -5,6 +5,7 @@ const wallet = require('./wallet');
 const transaction = require('./transaction');
 const miner = require('./miner');
 const chain = require('./chain');
+const { option } = require('yargs');
 
 const actions = {
   ...wallet,
@@ -59,6 +60,10 @@ const runAction = async (options, permission) => {
 
   if (!checkPermission(action, permission)) {
     return { code: 'unauthenticated', message: 'Auth required' };
+  }
+
+  if (action.preValidation) {
+    await action.preValidation(options);
   }
 
   const { schema, handler } = action;
