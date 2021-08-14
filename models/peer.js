@@ -9,6 +9,8 @@ const bs58 = require('bs58');
 class Peer {
   constructor() {
     this.connection = null;
+    this.version = null;
+    this.listeningPort = 0;
   }
 
   setConnection(connection) {
