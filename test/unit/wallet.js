@@ -82,8 +82,8 @@ test('should recover a wallet', (t) => {
 
   const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
 
-  t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
-  t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
+  t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
+  t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
   t.end();
 });
 
@@ -93,8 +93,8 @@ test('should not recover a wallet with invalid key', (t) => {
 
   try {
     const recoverWallet = Wallet.recover('not_a_key', '');
-    t.equal(recoverWallet.getKeysHex().privateKey, oldWallet.getKeysHex().privateKey, 'recovered private key is set');
-    t.equal(recoverWallet.getKeysHex().publicKey, oldWallet.getKeysHex().publicKey, 'public key is recovered');
+    t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
+    t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
   } catch (e) {
     // console.log(e);
   }
@@ -125,8 +125,8 @@ test('save and load wallet', async (t) => {
   const loadWallet = await Wallet.load(saveWallet.getAddressEncoded());
   t.equal(loadWallet.getLabel(), 'myLabel');
 
-  t.equal(saveWallet.getKeysHex().privateKey, loadWallet.getKeysHex().privateKey);
-  t.equal(saveWallet.getKeysHex().publicKey, loadWallet.getKeysHex().publicKey);
+  t.equal(saveWallet.getPrivateKeyHex(), loadWallet.getPrivateKeyHex());
+  t.equal(saveWallet.getPublicKeyHex(), loadWallet.getPublicKeyHex());
 
   await Wallet.clearAll();
   t.end();

@@ -167,35 +167,16 @@ class Wallet {
     });
   }
 
-  // TODO: Remove, not in use
-  // getKeysPem() {
-  //   // const { privateKey, publicKey } = this.getKeys();
-
-  //   return {
-  //     privateKey: this.privateKey.export({ format: 'pem', type: 'pkcs8' }),
-  //     publicKey: this.publicKey.export({ format: 'pem', type: 'spki' }),
-  //   };
-  // }
-
-  getKeysHex() {
-    return {
-      privateKey: this.privateKey.toString('hex'),
-      publicKey: this.publicKey.toString('hex'),
-    };
-  }
-
   getAddressEncoded() {
     assert(this.publicKey != null);
     return Wallet.generateAddressEncoded(this.publicKey);
   }
 
   toSaveData() {
-    const { privateKey, publicKey } = this.getKeysHex();
-
     return {
       label: this.label,
-      privateKey,
-      publicKey,
+      privateKey: this.getPrivateKeyHex(),
+      publicKey: this.getPublicKeyHex(),
     };
   }
 
@@ -254,12 +235,10 @@ class Wallet {
   }
 
   toObject() {
-    const { privateKey, publicKey } = this.getKeysHex();
-
     const data = {
       label: this.label,
-      privateKey,
-      publicKey,
+      privateKey: this.getPrivateKeyHex(),
+      publicKey: this.getPublicKeyHex(),
       address: this.getAddressEncoded(),
     };
 

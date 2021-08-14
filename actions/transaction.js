@@ -20,6 +20,7 @@ actions.createTransaction = {
   preValidation: async (options) => {
     let selectedWallet;
 
+    // Set selected wallet private key if default wallet has been selected
     if (!options.key && (selectedWallet = await Wallet.getSelected())) {
       const wallet = await Wallet.load(selectedWallet);
 
@@ -37,49 +38,21 @@ actions.createTransaction = {
     );
 
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
-    // transaction.verify(); // TODO: See if required
 
-    const { valid, errors } = transaction.validate();
+    const errors = transaction.validate();
 
-    if (!valid) {
+    if (errors.length > 0) {
       return { code: 'failed_precondition', message: 'Invalid transaction', errors };
     }
 
     Transaction.addPending(transaction);
-
-    // const data = {
-    //   id: transaction.getId().toString('hex'),
-    //   // version: transaction.version,
-    //   sender: null,
-    //   receiver: transaction.receiverAddress,
-    //   amount: transaction.amount,
-    //   signature: null,
-    // };
-
-    // if (transaction.senderKey) {
-    //   // data.sender = transaction.getSenderKey().toString('hex');
-    //   data.sender = Wallet.generateAddressEncoded(transaction.getSenderKey());
-    // }
-
-    // if (transaction.signature) {
-    //   data.signature = transaction.getSignature().toString('hex');
-    // }
 
     return { data: transaction.toObject(), code: 'ok', message: 'Transaction created' };
   },
 };
 
 actions.pendingTransactions = {
-  permission: 'public', // TODO: Change to private
-  // schema: {
-  //   properties: {
-  //     key: { type: 'string' },
-  //     address: { type: 'string' },
-  //     amount: { type: 'string' },
-  //     password: { type: 'string' },
-  //   },
-  //   required: ['key', 'address', 'amount'],
-  // },
+  permission: 'public',
   handler: async () => {
     const transactions = Transaction.pendingList;
     const data = transactions.map((transaction) => transaction.toObject());

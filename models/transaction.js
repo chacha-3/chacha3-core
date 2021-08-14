@@ -90,13 +90,13 @@ class Transaction {
       errors.push('Amount has to be greater than 0');
     }
 
-    return { valid: errors.length === 0, errors };
+    return errors;
   }
 
   verify() {
-    const { valid } = this.validate();
+    const errors = this.validate();
 
-    if (!valid) {
+    if (errors.length > 0) {
       return false;
     }
 
