@@ -17,6 +17,16 @@ actions.createTransaction = {
     },
     required: ['key', 'address', 'amount'],
   },
+  preValidation: async (options) => {
+    let selectedWallet;
+
+    if (!options.key && (selectedWallet = await Wallet.getSelected())) {
+      const wallet = await Wallet.load(selectedWallet);
+
+      // eslint-disable-next-line no-param-reassign
+      options.key = wallet.getPrivateKeyHex();
+    }
+  },
   handler: async (options) => {
     const senderWallet = Wallet.recover(Buffer.from(options.key, 'hex'));
 
@@ -27,30 +37,56 @@ actions.createTransaction = {
     );
 
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
-    transaction.verify(); // TODO: See if required
+    // transaction.verify(); // TODO: See if required
 
-    Transaction.pendingList.push(transaction);
+    const { valid, errors } = transaction.validate();
 
-    const data = {
-      id: transaction.getId().toString('hex'),
-      // version: transaction.version,
-      sender: null,
-      receiver: transaction.receiverAddress,
-      amount: transaction.amount,
-      signature: null,
-    };
-
-    if (transaction.senderKey) {
-      // data.sender = transaction.getSenderKey().toString('hex');
-      data.sender = Wallet.generateAddressEncoded(transaction.getSenderKey());
+    if (!valid) {
+      return { code: 'failed_precondition', message: 'Invalid transaction', errors };
     }
 
-    if (transaction.signature) {
-      data.signature = transaction.getSignature().toString('hex');
-    }
+    Transaction.addPending(transaction);
 
-    return { data, code: 'ok', message: 'Transaction created' };
+    // const data = {
+    //   id: transaction.getId().toString('hex'),
+    //   // version: transaction.version,
+    //   sender: null,
+    //   receiver: transaction.receiverAddress,
+    //   amount: transaction.amount,
+    //   signature: null,
+    // };
+
+    // if (transaction.senderKey) {
+    //   // data.sender = transaction.getSenderKey().toString('hex');
+    //   data.sender = Wallet.generateAddressEncoded(transaction.getSenderKey());
+    // }
+
+    // if (transaction.signature) {
+    //   data.signature = transaction.getSignature().toString('hex');
+    // }
+
+    return { data: transaction.toObject(), code: 'ok', message: 'Transaction created' };
   },
 };
+
+actions.pendingTransactions = {
+  permission: 'public', // TODO: Change to private
+  // schema: {
+  //   properties: {
+  //     key: { type: 'string' },
+  //     address: { type: 'string' },
+  //     amount: { type: 'string' },
+  //     password: { type: 'string' },
+  //   },
+  //   required: ['key', 'address', 'amount'],
+  // },
+  handler: async () => {
+    const transactions = Transaction.pendingList;
+    const data = transactions.map((transaction) => transaction.toObject());
+
+    return { data, code: 'ok', message: 'Pending transactions' };
+  },
+};
+
 
 module.exports = actions;

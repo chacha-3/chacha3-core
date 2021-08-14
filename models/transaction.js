@@ -3,7 +3,10 @@ const crypto = require('crypto');
 
 const Wallet = require('./wallet');
 
+
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 const { WalletDB, TransactionDB } = require('../util/db');
+const { generateAddressEncoded } = require('./wallet');
 
 class Transaction {
   constructor(senderKey, receiverAddress, amount) {
@@ -17,6 +20,7 @@ class Transaction {
     assert.strictEqual(amount > 0, true);
 
     this.signature = null;
+    this.time = Date.now();
   }
 
   // static pendingList = [];
@@ -26,6 +30,7 @@ class Transaction {
       version: this.version,
       receiverAddress: this.receiverAddress, // Base54
       amount: this.amount,
+      time: this.time,
     };
 
     if (this.senderKey) {
@@ -56,6 +61,10 @@ class Transaction {
     return this.receiverAddress;
   }
 
+  getTime() {
+    return this.time;
+  }
+
   getAmount() {
     return this.amount;
   }
@@ -64,8 +73,30 @@ class Transaction {
     return this.signature;
   }
 
-  verify() {
+  validate() {
+    const senderAddress = Wallet.generateAddressEncoded(this.senderKey);
+
+    const errors = [];
+
+    if (this.receiverAddress === senderAddress) {
+      errors.push('Same sender and receiver');
+    }
+
     if (!Wallet.verifyAddress(this.receiverAddress)) {
+      errors.push('Invalid receiver address');
+    }
+
+    if (this.amount <= 0) {
+      errors.push('Amount has to be greater than 0');
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  verify() {
+    const { valid } = this.validate();
+
+    if (!valid) {
       return false;
     }
 
@@ -78,6 +109,18 @@ class Transaction {
     } catch {
       return false;
     }
+  }
+
+  toObject() {
+    return {
+      id: serializeBuffer(this.getId()),
+      sender: generateAddressEncoded(this.getSenderKey()),
+      receiver: this.getReceiverAddress(),
+      amount: this.getAmount(),
+      version: this.getVersion(),
+      time: this.getTime(),
+      signature: serializeBuffer(this.getSignature()),
+    };
   }
 
   static async save(transaction) {
@@ -127,5 +170,13 @@ class Transaction {
 }
 
 Transaction.pendingList = [];
+
+Transaction.addPending = (transaction) => {
+  const index = Transaction.pendingList.findIndex((t) => t.getId().equals(transaction.getId()));
+
+  if (index === -1) {
+    Transaction.pendingList.push(transaction);
+  }
+};
 
 module.exports = Transaction;

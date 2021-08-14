@@ -19,18 +19,12 @@ actions.startMiner = {
     required: ['address'],
   },
   preValidation: async (options) => {
-    const newOptions = options;
+    let selectedWallet;
 
-    if (!options.address) {
-      const selectedWallet = await Wallet.getSelected();
-
-      if (selectedWallet) {
-        // eslint-disable-next-line no-param-reassign
-        options.address = selectedWallet;
-      }
+    if (!options.address && (selectedWallet = await Wallet.getSelected())) {
+      // eslint-disable-next-line no-param-reassign
+      options.address = selectedWallet;
     }
-
-    return newOptions;
   },
   handler: (options) => {
     if (miner.isMining()) {

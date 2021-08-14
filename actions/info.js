@@ -10,7 +10,7 @@ const actions = {};
 
 const miner = new Miner();
 
-actions.chainInfo = {
+actions.nodeInfo = {
   permission: 'public', // TODO: Change to private
   // schema: {
   //   properties: {
@@ -18,16 +18,14 @@ actions.chainInfo = {
   //   },
   //   required: ['address'],
   // },
-  handler: async () => {
-    const chain = await Chain.load();
+  handler: (options) => {
     const data = {
-      length: chain.getLength(),
-      currentDifficulty: chain.getCurrentDifficulty(),
-      totalWork: chain.getTotalWork(),
+      version: process.env.npm_package_version,
     };
 
-    return { data, code: 'ok', message: 'Chain info' };
+    return { data, code: 'ok', message: 'Info' };
   },
 };
 
 module.exports = actions;
+

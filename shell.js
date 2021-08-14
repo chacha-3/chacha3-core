@@ -38,11 +38,17 @@ function printObject(objectData) {
 }
 
 function printArray(dataArray) {
-  dataArray.forEach((data) => {
-    // console.log(data);
-    printObject(data);
+  const { length } = dataArray;
+
+  if (length === 0) {
+    console.log('None');
+    return;
+  }
+
+  for (let i = 0; i < length; i += 1) {
+    printObject(dataArray[i]);
     console.log('');
-  });
+  }
 }
 
 function printResult(result) {
