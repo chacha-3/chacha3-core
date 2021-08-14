@@ -88,5 +88,4 @@ actions.pendingTransactions = {
   },
 };
 
-
 module.exports = actions;
