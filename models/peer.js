@@ -9,6 +9,8 @@ const { PeerDB } = require('../util/db');
 
 // const addressPrefix = '420_';
 
+const nonce = Math.floor(Math.random() * 4294967296);
+
 class Peer {
   constructor(address, port) {
     this.connection = null;
@@ -18,6 +20,10 @@ class Peer {
 
     this.address = address || null;
     this.port = port || 0;
+  }
+
+  static get nonce() {
+    return nonce;
   }
 
   static async all() {
@@ -98,6 +104,15 @@ class Peer {
     }
 
     this.address = address;
+  }
+
+  toObject() {
+    return {
+      address: this.getAddress(),
+      port: this.getPort(),
+      version: this.getVersion(),
+      chainLength: this.getChainLength(),
+    };
   }
 
   static async clear(key) {

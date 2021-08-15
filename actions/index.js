@@ -6,6 +6,7 @@ const transaction = require('./transaction');
 const miner = require('./miner');
 const chain = require('./chain');
 const info = require('./info');
+const peer = require('./peer');
 
 const { option } = require('yargs');
 
@@ -15,6 +16,7 @@ const actions = {
   ...miner,
   ...chain,
   ...info,
+  ...peer,
 };
 
 // actions.handshake = {

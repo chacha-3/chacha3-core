@@ -6,6 +6,7 @@ const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const Chain = require('../models/chain');
 const Miner = require('../models/miner');
+const Peer = require('../models/peer');
 
 const actions = {};
 
@@ -31,6 +32,7 @@ actions.nodeInfo = {
       time: Date.now(),
       listening: process.env.PORT || 0,
       length: chain.getLength(),
+      nonce: Peer.nonce,
     };
 
     return { data, code: 'ok', message: 'Info' };
