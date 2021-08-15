@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 /**
  * Normalize a port into a number, string, or false.
  */
@@ -9,6 +11,7 @@ const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for serv
 
 const Block = require('./models/block');
 const Chain = require('./models/chain');
+const Peer = require('./models/peer');
 
 const ipc = require('./ipc');
 

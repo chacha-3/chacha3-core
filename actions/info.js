@@ -23,12 +23,14 @@ actions.nodeInfo = {
   //   },
   //   required: ['address'],
   // },
-  handler: () => {
+  handler: async () => {
+    const chain = await Chain.load();
+
     const data = {
       version: process.env.npm_package_version,
       time: Date.now(),
       listening: process.env.PORT || 0,
-      // TODO: Chain length
+      length: chain.getLength(),
     };
 
     return { data, code: 'ok', message: 'Info' };

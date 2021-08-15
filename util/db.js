@@ -18,6 +18,7 @@ const BlockDB = sub(DB, 'block');
 const ChainDB = sub(DB, 'chain');
 const HeaderDB = sub(DB, 'header');
 const TransactionDB = sub(DB, 'transaction');
+const PeerDB = sub(DB, 'peer');
 
 module.exports = {
   DB,
@@ -26,5 +27,6 @@ module.exports = {
   ChainDB,
   HeaderDB,
   TransactionDB,
+  PeerDB,
   runningManualTest, // Export to use for unit test
 };
