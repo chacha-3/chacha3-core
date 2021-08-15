@@ -39,6 +39,22 @@ mock.nodePeer = () => {
   return peer;
 };
 
+mock.createPeers = async (count) => {
+  const createPeer = () => new Promise((resolve) => {
+    const peer = mock.nodePeer();
+
+    Peer.save(peer);
+    resolve(peer);
+  });
+
+  const promises = [];
+  for (let i = 0; i < count; i += 1) {
+    promises.push(createPeer());
+  }
+
+  return Promise.all(promises);
+};
+
 mock.blockWithTransactions = async (numOfTransactions) => {
   assert(numOfTransactions > 0);
 

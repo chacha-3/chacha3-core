@@ -48,5 +48,17 @@ test('load peer list', async (t) => {
   const emptyList = await Peer.all();
   t.equal(emptyList.length, 0);
 
+  const numOfPeers = 3;
+  await mock.createPeers(numOfPeers);
+
+  const list = await Peer.all();
+  t.equal(list.length, numOfPeers);
+
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'version'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'chainLength'));
+
+  Peer.clearAll();
   t.end();
 });
