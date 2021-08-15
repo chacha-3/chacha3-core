@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const assert = require('assert');
 const bs58 = require('bs58');
+const bent = require('bent');
 
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
@@ -68,6 +69,14 @@ class Peer {
     return Buffer.concat([ipBytes, portBytes]);
   }
 
+  getNonce() {
+    return this.nonce;
+  }
+
+  setNonce(nonce) {
+    this.nonce = nonce;
+  }
+
   setConnection(connection) {
     this.connection = connection;
   }
@@ -93,7 +102,7 @@ class Peer {
   }
 
   setPort(port) {
-    if (port < 1024 || port > 49151 ) {
+    if (port < 1024 || port > 49151) {
       throw Error('Invalid port. Range 1024 - 49151');
     }
 
@@ -110,6 +119,55 @@ class Peer {
     }
 
     this.address = address;
+  }
+
+  compatibleVersion() {
+    // No real check now. Compatible with all.
+    const [major, minor, build] = this.getVersion().split('.');
+
+    if (major < 0) {
+      return false;
+    }
+
+    if (minor < 0) {
+      return false;
+    }
+
+    if (build < 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  setPeerInfo(version, chainLength) {
+    this.setVersion(version);
+    this.setChainLength(chainLength);
+  }
+
+  notSelf() {
+    return this.getNonce() !== myNonce;
+  }
+
+  isCompatible() {
+    return this.compatibleVersion();
+  }
+
+  static async reactOut(peer) {
+    const post = bent(`https://${peer.getAddress()}:${peer.getPort()}`, 'POST', 'json', 200);
+
+    try {
+      const { data } = await post('', { action: 'nodeInfo' });
+      peer.setPeerInfo(data.version, data.chainLength);
+      peer.setNonce(data.nonce);
+    } catch (e) {
+      // console.log(e);
+    }
+
+    if (!peer.notSelf() || !peer.isCompatible()) {
+      console.log(peer.getId());
+      Peer.clear(peer.getId());
+    }
   }
 
   toObject() {

@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+
 /**
  * Normalize a port into a number, string, or false.
  */
@@ -32,6 +34,7 @@ function normalizePort(val) {
 }
 
 const attrs = [{ name: 'commonName', value: 'bong' }];
+
 const pems = selfsigned.generate(attrs, {
   keySize: 2048,
   days: 530,

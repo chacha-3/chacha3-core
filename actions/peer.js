@@ -28,6 +28,8 @@ actions.addPeer = {
     const peer = new Peer(options.address, options.port);
     const { data } = await Peer.save(peer);
 
+    Peer.reactOut(peer);
+
     return { data, code: 'ok', message: 'Add peer' };
   },
 };
