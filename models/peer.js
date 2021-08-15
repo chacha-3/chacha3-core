@@ -10,14 +10,41 @@ const { PeerDB } = require('../util/db');
 // const addressPrefix = '420_';
 
 class Peer {
-  constructor() {
+  constructor(address, port) {
     this.connection = null;
 
     this.version = null;
     this.chainLength = null;
 
-    this.address = null;
-    this.port = 0;
+    this.address = address || null;
+    this.port = port || 0;
+  }
+
+  static async all() {
+    const readValues = () => new Promise((resolve) => {
+      const values = [];
+
+      PeerDB
+        .createValueStream({ valueEncoding: 'json' })
+        .on('data', async (data) => {
+          values.push(data);
+        })
+        .on('end', () => resolve(values));
+    });
+
+    const values = await readValues();
+
+    const loadPeer = (data) => new Promise((resolve) => {
+      const peer = new Peer(data.address, data.port);
+      peer.setVersion(data.version);
+
+      resolve(peer);
+    });
+
+    const promises = [];
+
+    values.forEach((value) => promises.push(loadPeer(value)));
+    return Promise.all(promises);
   }
 
   getId() {
@@ -73,18 +100,46 @@ class Peer {
     this.address = address;
   }
 
-  saveData() {
+  static async clear(key) {
+    PeerDB.del(key);
+  }
+
+  static async clearAll() {
+    await PeerDB.clear();
+  }
+
+  static toSaveData(peer) {
     return {
-      version: this.getVersion(),
-      chainLength: this.getChainLength(),
-      address: this.getAddress(),
-      port: this.getPort(),
+      version: peer.getVersion(),
+      chainLength: peer.getChainLength(),
+      address: peer.getAddress(),
+      port: peer.getPort(),
     };
+  }
+
+  static fromSaveData(data) {
+    const peer = new Peer(data.address, data.port);
+    peer.setVersion(data.version);
+    peer.setChainLength(data.chainLength);
+
+    return peer;
+  }
+
+  static async load(key) {
+    let data;
+
+    try {
+      data = await PeerDB.get(key, { valueEncoding: 'json' });
+    } catch (e) {
+      return null;
+    }
+
+    return Peer.fromSaveData(data);
   }
 
   static async save(peer) {
     const key = peer.getId();
-    const data = peer.saveData();
+    const data = Peer.toSaveData(peer);
 
     await PeerDB.put(key, data, { valueEncoding: 'json' });
     return { key, data };

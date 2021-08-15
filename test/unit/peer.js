@@ -10,21 +10,19 @@ const mock = require('../../util/mock');
 // chai.use(dirtyChai);
 
 test('should create a peer', (t) => {
-  const peer = new Peer();
-  peer.setAddress('192.168.1.1');
-  peer.setPort(8888);
+  const peer = new Peer('192.168.1.1', 8888);
+
+  t.equal(peer.getAddress(), '192.168.1.1');
+  t.equal(peer.getPort(), 8888);
 
   t.end();
 });
 
 test('peer have correct key', (t) => {
-  const peer = new Peer();
-  peer.setAddress('192.168.1.1');
-  peer.setPort(8888);
-
+  const peer = new Peer('192.168.1.1', 8888);
   const result = Buffer.from([192, 168, 1, 1, 0x22, 0xb8]);
-  t.ok(peer.getId().equals(result));
 
+  t.ok(peer.getId().equals(result));
   t.end();
 });
 
@@ -35,10 +33,20 @@ test('save and load peer', async (t) => {
 
   t.ok(key.equals(peer.getId()));
 
-  t.equal(data.version, peer.getVersion());
-  t.equal(data.chainLength, peer.getChainLength());
-  t.equal(data.address, peer.getAddress());
-  t.equal(data.port, peer.getPort());
+  const loaded = await Peer.load(key);
+
+  t.equal(data.version, loaded.getVersion());
+  t.equal(data.chainLength, loaded.getChainLength());
+  t.equal(data.address, loaded.getAddress());
+  t.equal(data.port, loaded.getPort());
+
+  Peer.clear(key);
+  t.end();
+});
+
+test('load peer list', async (t) => {
+  const emptyList = await Peer.all();
+  t.equal(emptyList.length, 0);
 
   t.end();
 });

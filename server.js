@@ -54,7 +54,6 @@ const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, async (err, address) => {
   // runMiner();
-  console.log(`Server started ${address}`);
   if (err) {
     // Block.clearAll();
     process.exit(1);
