@@ -3,7 +3,7 @@ const Wallet = require('../models/wallet');
 const actions = {};
 
 actions.listWallets = {
-  permission: 'public',
+  permission: 'authOnly',
   handler: async () => {
     const wallets = await Wallet.all();
 
@@ -15,7 +15,7 @@ actions.listWallets = {
 };
 
 actions.createWallet = {
-  permission: 'public',
+  permission: 'authOnly',
   schema: {
     properties: {
       label: { type: 'string' },
@@ -57,7 +57,7 @@ actions.generateWallet = {
 };
 
 actions.recoverWallet = {
-  permission: 'public',
+  permission: 'authOnly',
   schema: {
     properties: {
       privateKey: { type: 'string' },
@@ -90,7 +90,7 @@ actions.recoverWallet = {
 };
 
 actions.deleteWallet = {
-  permission: 'public',
+  permission: 'authOnly',
   schema: {
     properties: {
       address: { type: 'string' },
@@ -115,7 +115,7 @@ actions.deleteWallet = {
 };
 
 actions.deleteAllWallets = {
-  permission: 'auth',
+  permission: 'authOnly',
   handler: async () => {
     await Wallet.clearAll();
 

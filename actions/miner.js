@@ -11,7 +11,7 @@ const actions = {};
 const miner = new Miner();
 
 actions.startMiner = {
-  permission: 'public', // TODO: Change to private
+  permission: 'authOnly', // TODO: Change to private
   schema: {
     properties: {
       address: { type: 'string' },
@@ -43,7 +43,7 @@ actions.startMiner = {
 };
 
 actions.stopMiner = {
-  permission: 'public', // TODO: Change to private
+  permission: 'authOnly', // TODO: Change to private
   // schema: {
   //   properties: {
   //     address: { type: 'string' },

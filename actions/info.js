@@ -32,7 +32,7 @@ actions.nodeInfo = {
       time: Date.now(),
       listening: process.env.PORT || 0,
       length: chain.getLength(),
-      nonce: Peer.nonce,
+      nonce: Peer.myNonce,
     };
 
     return { data, code: 'ok', message: 'Info' };

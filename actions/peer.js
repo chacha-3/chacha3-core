@@ -16,7 +16,7 @@ actions.peerList = {
 };
 
 actions.addPeer = {
-  permission: 'public', // TODO: Change to private
+  permission: 'authOnly', // TODO: Change to private
   schema: {
     properties: {
       address: { type: 'string' },
@@ -27,7 +27,7 @@ actions.addPeer = {
   handler: async (options) => {
     const peer = new Peer(options.address, options.port);
     const { data } = await Peer.save(peer);
-    console.log(data);
+
     return { data, code: 'ok', message: 'Add peer' };
   },
 };
