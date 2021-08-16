@@ -3,21 +3,26 @@ const { test } = require('tap');
 const build = require('../../app');
 const { runAction } = require('../../actions');
 
+test('cannot call action with failed pre-validation', async (t) => {
+  const app = build();
 
-// test('cannot use unavailable action', async (t) => {
-//   const app = build();
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'createTransaction',
+    },
+  });
 
-//   const response = await app.inject({
-//     method: 'POST',
-//     url: '/',
-//     payload: {
-//       action: 'iAmFree',
-//     },
-//   });
+  const { errors, code, message } = response.json();
 
-//   t.equal(response.statusCode, 200, 'returns a status code of 200');
-//   t.end();
-// });
+  t.ok(Array.isArray(errors));
+  t.equal(code, 'invalid_argument');
+  t.equal(typeof (message), 'string');
+
+  t.equal(response.statusCode, 200, 'returns a status code of 200');
+  t.end();
+});
 
 test('cannot use unavailable action', async (t) => {
   const { code } = await runAction({
