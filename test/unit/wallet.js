@@ -169,11 +169,17 @@ test('list all wallet', async (t) => {
 });
 
 test('delete all wallet', async (t) => {
-  await mock.createWallets(3);
+  const wallets = await mock.createWallets(3);
+
+  await Wallet.setSelected(wallets[0].getAddressEncoded());
   await Wallet.clearAll();
 
   const all = await Wallet.all();
   t.equal(all.length, 0, 'No wallet in list');
+
+  const selectedWallet = await Wallet.getSelected();
+  t.equal(selectedWallet, null, 'Unselected wallet after deleting all');
+
   t.end();
 });
 
