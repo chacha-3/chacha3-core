@@ -10,13 +10,7 @@ const Peer = require('./models/peer');
 const { runAction } = require('./actions');
 
 const errorHandler = (error, request, reply) => {
-  console.log(error);
-  if (error.validation) {
-    reply.status(400).send(error.validation);
-    return;
-  }
-
-  reply.send({ message: 'errorHandler' });
+  reply.send({ error: error.message, code: 'internal' });
 };
 
 function build(opts = {}) {
@@ -26,16 +20,15 @@ function build(opts = {}) {
   app.setErrorHandler(errorHandler);
 
   // Websocket endpoint
-  app.get('/', {
-    websocket: true,
-    // schema,
-  }, (connection, req) => {
-    console.log('connect');
-    connection.socket.on('message', (message) => {
-      const requestData = JSON.parse(message);
-      connection.socket.send(requestData);
-    });
-  });
+  // app.get('/', {
+  //   websocket: true,
+  //   // schema,
+  // }, (connection, req) => {
+  //   connection.socket.on('message', (message) => {
+  //     const requestData = JSON.parse(message);
+  //     connection.socket.send(requestData);
+  //   });
+  // });
 
   // RPC endpoint
   app.post('/', {
@@ -52,7 +45,7 @@ function build(opts = {}) {
     handler: async (request, reply) => {
       reply.type('application/json');
 
-      const response = await runAction(request.body, 'auth');
+      const response = await runAction(request.body, 'none');
       reply.send(response);
     },
   });

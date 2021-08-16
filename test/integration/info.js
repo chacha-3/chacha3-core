@@ -8,6 +8,10 @@ const { runAction } = require('../../actions');
 const { WalletDB } = require('../../util/db');
 const app = require('../../app')();
 
+process.on('unhandledRejection', (err) => {
+  console.log('handler');
+});
+
 test('should get node info', async (t) => {
   await mock.createWallets(3);
 

@@ -39,4 +39,12 @@ actions.nodeInfo = {
   },
 };
 
+// Throws an error. Used for testing error handler only
+actions.teapot = {
+  permission: 'public',
+  handler: async () => {
+    throw Error('Out of coffee');
+  },
+};
+
 module.exports = actions;

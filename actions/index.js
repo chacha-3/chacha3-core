@@ -19,20 +19,6 @@ const actions = {
   ...peer,
 };
 
-// actions.handshake = {
-//   permission: 'public',
-//   handler: async (requestData) => {
-//     const { version } = requestData;
-
-//     const data = {
-//       accepted: version >= 1,
-//       version: 1,
-//     };
-
-//     return { data, code: 'ok' };
-//   },
-// };
-
 const routeAction = (options) => {
   const actionName = options.action;
   return actions[actionName];
@@ -57,6 +43,10 @@ const checkPermission = (action, permission) => {
 };
 
 const runAction = async (options, permission) => {
+  // if (options.action === 'teapot') {
+  //   throw Error('Out of coffee');
+  // }
+
   const action = routeAction(options);
 
   if (!action) {
