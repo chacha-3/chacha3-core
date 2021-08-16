@@ -7,7 +7,7 @@ const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for serv
 
 const Peer = require('./models/peer');
 
-const { runAction } = require('./actions');
+const { runAction, checkPermission } = require('./actions');
 
 const errorHandler = (error, request, reply) => {
   reply.send({ message: error.message, code: 'internal' });
@@ -33,13 +33,10 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
-      // const { permission, schema } = action;
-      // // if (permission === 'public') {
-      // //   done();
-      // // }
+      // const result = checkPermission(request.body);
 
-      // if (permission === 'authOnly') {
-      //   reply.send({ code: 'unauthenticated', message: 'Auth required' });
+      // if (result) {
+      //   reply.send(result);
       // }
     },
     handler: async (request, reply) => {

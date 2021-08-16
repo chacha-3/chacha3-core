@@ -36,7 +36,6 @@ test('should not be able to call authenticated actions', async (t) => {
   });
 
   const { data, code, message } = response.json();
-
   t.equal(code, 'unauthenticated');
   t.equal(data, undefined);
   t.equal(typeof (message), 'string');

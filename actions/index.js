@@ -26,27 +26,17 @@ const routeAction = (options) => {
 
 // TODO: Implement actual auth check
 const checkPermission = (action, permission) => {
-  const permissionDefault = process.env.NODE_ENV === 'test' ? 'full' : 'none';
-  const userPermission = permission || permissionDefault;
-
+  const userPermission = permission || 'full';
   const actionPermission = action.permission;
 
   if (actionPermission === 'public' || userPermission === 'full') {
     return true;
   }
 
-  // if (actionPermission === 'authOnly') {
-  //   return userPermission === 'auth';
-  // }
-
   return false;
 };
 
 const runAction = async (options, permission) => {
-  // if (options.action === 'teapot') {
-  //   throw Error('Out of coffee');
-  // }
-
   const action = routeAction(options);
 
   if (!action) {
@@ -83,5 +73,6 @@ const runAction = async (options, permission) => {
 };
 
 module.exports = {
+  checkPermission,
   runAction,
 };
