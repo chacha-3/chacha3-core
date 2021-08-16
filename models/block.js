@@ -7,7 +7,7 @@ const { performance } = require('perf_hooks');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
-const { WalletDB, BlockDB } = require('../util/db');
+const { BlockDB } = require('../util/db');
 
 class Block {
   constructor() {

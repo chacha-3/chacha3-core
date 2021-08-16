@@ -1,11 +1,7 @@
-const crypto = require('crypto');
-const assert = require('assert');
-const bs58 = require('bs58');
 const bent = require('bent');
 
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
-const { option } = require('yargs');
 
 // const db = level('wallets');
 

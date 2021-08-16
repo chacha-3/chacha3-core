@@ -1,9 +1,8 @@
-const crypto = require('crypto');
-const { argon2d } = require('argon2-ffi');
-
 const BN = require('bn.js');
 const assert = require('assert');
-const { BlockDB, HeaderDB, runningManualTest } = require('../util/db');
+const { argon2d } = require('argon2-ffi');
+
+const { HeaderDB, runningManualTest } = require('../util/db');
 
 // TODO: Cleaner way for this. Add generic environment check
 

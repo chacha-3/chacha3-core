@@ -8,8 +8,6 @@ const chain = require('./chain');
 const info = require('./info');
 const peer = require('./peer');
 
-const { option } = require('yargs');
-
 const actions = {
   ...wallet,
   ...transaction,

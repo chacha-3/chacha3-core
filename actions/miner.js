@@ -1,9 +1,4 @@
-// const bs58 = require('bs58');
-// const { option } = require('yargs');
-
-const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
-const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 
 const actions = {};

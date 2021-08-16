@@ -1,13 +1,9 @@
-const crypto = require('crypto');
 const assert = require('assert');
-const bs58 = require('bs58');
 
 // const db = level('wallets');
 const Block = require('./block');
 const Chain = require('./chain');
 const Transaction = require('./transaction');
-
-const { BlockDB, ChainDB } = require('../util/db');
 
 // const addressPrefix = '420_';
 

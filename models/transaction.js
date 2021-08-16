@@ -3,9 +3,8 @@ const crypto = require('crypto');
 
 const Wallet = require('./wallet');
 
-
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
-const { WalletDB, TransactionDB } = require('../util/db');
+const { serializeBuffer } = require('../util/serialize');
+const { TransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
 class Transaction {

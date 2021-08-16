@@ -1,6 +1,3 @@
-// const bs58 = require('bs58');
-// const { option } = require('yargs');
-
 const Peer = require('../models/peer');
 
 const actions = {};
