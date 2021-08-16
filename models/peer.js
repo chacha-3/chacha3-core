@@ -60,7 +60,7 @@ class Peer {
 
     const loadPeer = (data) => new Promise((resolve) => {
       const peer = new Peer(data.address, data.port);
-      peer.setVersion(data.version);
+      peer.setPeerInfo(data.version, data.chainLength);
 
       resolve(peer);
     });
@@ -158,7 +158,7 @@ class Peer {
     if (!data) {
       return;
     }
-
+    console.log(data);
     peer.setPeerInfo(data.version, data.chainLength);
     peer.setNonce(data.nonce);
 
@@ -167,6 +167,7 @@ class Peer {
       return;
     }
 
+    console.log(peer);
     Peer.save(peer);
   }
 
@@ -211,6 +212,7 @@ class Peer {
   }
 
   static fromSaveData(data) {
+    console.log(data);
     const peer = new Peer(data.address, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);

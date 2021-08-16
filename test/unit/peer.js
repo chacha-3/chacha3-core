@@ -83,6 +83,9 @@ test('load peer list', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'chainLength'));
 
-  Peer.clearAll();
+  t.equal(typeof (list[0].port), 'number');
+  t.equal(typeof (list[0].chainLength), 'number');
+
+  await Peer.clearAll();
   t.end();
 });
