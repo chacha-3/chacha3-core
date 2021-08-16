@@ -24,6 +24,18 @@ const routeAction = (options) => {
   return actions[actionName];
 };
 
+const execute = async (options, handler) => {
+  const {
+    data, code, errors, message,
+  } = await handler(options);
+
+  if (code !== 'ok') {
+    return { errors, code, message };
+  }
+
+  return { data, code, message };
+};
+
 // TODO: Implement actual auth check
 const checkPermission = (action, permission) => {
   const userPermission = permission || 'full';
@@ -61,15 +73,15 @@ const runAction = async (options, permission) => {
     }
   }
 
-  const {
-    data, code, errors, message,
-  } = await handler(options);
+  let result;
 
-  if (code !== 'ok') {
-    return { errors, code, message };
+  try {
+    result = await execute(options, handler);
+  } catch (e) {
+    result = { message: e.message, code: 'internal' };
   }
 
-  return { data, code, message };
+  return result;
 };
 
 module.exports = {

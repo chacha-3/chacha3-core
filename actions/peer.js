@@ -16,7 +16,7 @@ actions.listPeers = {
 };
 
 actions.addPeer = {
-  permission: 'authOnly', // TODO: Change to private
+  permission: 'authOnly',
   schema: {
     properties: {
       address: { type: 'string' },
@@ -31,6 +31,23 @@ actions.addPeer = {
     Peer.reachOut(peer);
 
     return { data, code: 'ok', message: 'Add peer' };
+  },
+};
+
+actions.removePeer = {
+  permission: 'authOnly',
+  schema: {
+    properties: {
+      address: { type: 'string' },
+      port: { type: 'string' },
+    },
+    required: ['address', 'port'],
+  },
+  handler: async (options) => {
+    await Peer.clear(Peer.generateKey(options.address, options.port));
+
+    const data = {};
+    return { data, code: 'ok', message: 'Remove peer' };
   },
 };
 

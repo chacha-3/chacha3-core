@@ -35,6 +35,15 @@ class Peer {
     return myNonce;
   }
 
+  static generateKey(address, port) {
+    const ipBytes = Buffer.from(ipaddr.parse(address).toByteArray());
+
+    const portBytes = Buffer.allocUnsafe(2);
+    portBytes.writeUInt16BE(port);
+
+    return Buffer.concat([ipBytes, portBytes]);
+  }
+
   static async all() {
     const readValues = () => new Promise((resolve) => {
       const values = [];
@@ -63,12 +72,7 @@ class Peer {
   }
 
   getId() {
-    const ipBytes = Buffer.from(ipaddr.parse(this.getAddress()).toByteArray());
-
-    const portBytes = Buffer.allocUnsafe(2);
-    portBytes.writeUInt16BE(this.getPort());
-
-    return Buffer.concat([ipBytes, portBytes]);
+    return Peer.generateKey(this.getAddress(), this.getPort());
   }
 
   getNonce() {
@@ -187,7 +191,7 @@ class Peer {
   }
 
   static async clear(key) {
-    PeerDB.del(key);
+    await PeerDB.del(key);
   }
 
   static async clearAll() {
