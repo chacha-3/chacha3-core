@@ -5,6 +5,7 @@ const bent = require('bent');
 
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
+const { option } = require('yargs');
 
 // const db = level('wallets');
 
@@ -27,6 +28,7 @@ class Peer {
     this.port = port || 0;
 
     this.nonce = randomNonce();
+    this.status = '';
   }
 
   static get myNonce() {
@@ -133,7 +135,7 @@ class Peer {
       return false;
     }
 
-    if (build < 0) {
+    if (build < 1) {
       return false;
     }
 
@@ -145,29 +147,42 @@ class Peer {
     this.setChainLength(chainLength);
   }
 
-  notSelf() {
-    return this.getNonce() !== myNonce;
+  isSelf() {
+    return this.getNonce() === myNonce;
   }
 
   isCompatible() {
+    // TODO: Other compatibility check
     return this.compatibleVersion();
   }
 
-  static async reactOut(peer) {
-    const post = bent(`https://${peer.getAddress()}:${peer.getPort()}`, 'POST', 'json', 200);
+  static async reachOut(peer) {
+    const { data } = await peer.callAction('nodeInfo');
 
-    try {
-      const { data } = await post('', { action: 'nodeInfo' });
-      peer.setPeerInfo(data.version, data.chainLength);
-      peer.setNonce(data.nonce);
-    } catch (e) {
-      // console.log(e);
+    if (!data) {
+      return;
     }
 
-    if (!peer.notSelf() || !peer.isCompatible()) {
-      console.log(peer.getId());
+    peer.setPeerInfo(data.version, data.chainLength);
+    peer.setNonce(data.nonce);
+
+    if (peer.isSelf() || !peer.isCompatible()) {
       Peer.clear(peer.getId());
     }
+  }
+
+  async callAction(actionName, options) {
+    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
+
+    const params = Object.assign(options || {}, { action: actionName });
+    try {
+      const response = await post('', params);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+    console.log('null');
+    return null;
   }
 
   toObject() {

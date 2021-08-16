@@ -5,7 +5,7 @@ const Peer = require('../models/peer');
 
 const actions = {};
 
-actions.peerList = {
+actions.listPeers = {
   permission: 'public', // TODO: Change to private
   handler: async () => {
     const peers = await Peer.all();
@@ -28,7 +28,7 @@ actions.addPeer = {
     const peer = new Peer(options.address, options.port);
     const { data } = await Peer.save(peer);
 
-    Peer.reactOut(peer);
+    Peer.reachOut(peer);
 
     return { data, code: 'ok', message: 'Add peer' };
   },

@@ -26,6 +26,30 @@ test('peer have correct key', (t) => {
   t.end();
 });
 
+test('peer is self when matching nonce', (t) => {
+  const peer = new Peer('192.168.1.1', 8888);
+
+  peer.setNonce(Peer.myNonce);
+  t.equal(peer.isSelf(), true);
+
+  peer.setNonce(Peer.myNonce + 1);
+  t.equal(peer.isSelf(), false);
+
+  t.end();
+});
+
+test('peer check compatibility', (t) => {
+  const peer = new Peer('192.168.1.1', 8888);
+
+  peer.setVersion('0.0.1');
+  t.equal(peer.isCompatible(), true);
+
+  peer.setVersion('0.0.0');
+  t.equal(peer.isCompatible(), false);
+
+  t.end();
+});
+
 test('save and load peer', async (t) => {
   const peer = mock.nodePeer();
 
