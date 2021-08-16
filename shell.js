@@ -87,7 +87,7 @@ function start() {
   rl.prompt();
 }
 
-ipc.config.id = 'hello';
+ipc.config.id = 'bong';
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
@@ -124,7 +124,7 @@ const onConnect = () => {
       options[key] = value;
     }
 
-    ipc.of.world.emit(
+    ipc.of.bong.emit(
       'message', // any event or message type your server listens for
       JSON.stringify(options),
     );
@@ -149,8 +149,8 @@ const onMessage = (data) => {
   rl.prompt();
 };
 
-ipc.connectTo('world', () => {
-  ipc.of.world.on('connect', onConnect);
-  ipc.of.world.on('disconnect', onDisconnect);
-  ipc.of.world.on('message', onMessage);
+ipc.connectTo('bong', () => {
+  ipc.of.bong.on('connect', onConnect);
+  ipc.of.bong.on('disconnect', onDisconnect);
+  ipc.of.bong.on('message', onMessage);
 });

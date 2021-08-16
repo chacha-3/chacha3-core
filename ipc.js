@@ -1,7 +1,7 @@
 const ipc = require('node-ipc');
 const { runAction } = require('./actions');
 
-ipc.config.id = 'world';
+ipc.config.id = 'bong';
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 

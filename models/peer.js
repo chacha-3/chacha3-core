@@ -154,7 +154,7 @@ class Peer {
     if (!data) {
       return;
     }
-    console.log(data);
+
     peer.setPeerInfo(data.version, data.chainLength);
     peer.setNonce(data.nonce);
 
@@ -163,7 +163,6 @@ class Peer {
       return;
     }
 
-    console.log(peer);
     Peer.save(peer);
   }
 
