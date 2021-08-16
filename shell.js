@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const readline = require('readline');
 const chalk = require('chalk');
 const ipc = require('node-ipc');
@@ -33,7 +34,7 @@ function printObject(objectData) {
       value = 'None';
     }
 
-    console.log(`${chalk.bold.cyan(niceKeyName)}: ${value}`);
+    console.log(`${chalk.bold.cyanBright(niceKeyName)}: ${value}`);
   });
 }
 
@@ -79,15 +80,38 @@ function printResult(result) {
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 
+function start() {
+  console.clear();
+  console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${process.env.npm_package_version})`)}`);
+
+  rl.prompt();
+}
+
 ipc.config.id = 'hello';
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
+let retrying;
+
 const onConnect = () => {
-  rl.setPrompt('> ');
-  rl.prompt();
+  retrying = false;
+
+  rl.setPrompt(chalk.bold.redBright('$ '));
+
+  start();
 
   rl.on('line', async (line) => {
+    // eslint-disable-next-line no-param-reassign
+    line = line.trim();
+
+    if (line === 'exit' || line === 'quit') {
+      process.exit(0);
+    } else if (line === 'clear') {
+      console.clear();
+      start();
+      return;
+    }
+
     const parseQuote = parse(line.trim());
     const actionName = parseQuote[0];
 
@@ -105,14 +129,18 @@ const onConnect = () => {
       JSON.stringify(options),
     );
   }).on('close', () => {
-    console.log('Have a great day!');
+    console.log('\nDisconnect');
     process.exit(0);
   });
 };
 
 const onDisconnect = () => {
-  // ipc.log('disconnected from world'.notice);
-  console.log('disconnect');
+  // Check retrying to avoid repetitive disconnect message
+  if (!retrying) {
+    console.log('\nDisconnect');
+  }
+
+  retrying = true;
 };
 
 const onMessage = (data) => {

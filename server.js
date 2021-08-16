@@ -2,9 +2,7 @@ require('dotenv').config();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-/**
- * Normalize a port into a number, string, or false.
- */
+const debug = require('debug')('server');
 const selfsigned = require('selfsigned');
 
 const Ajv = require('ajv');
@@ -17,6 +15,9 @@ const Peer = require('./models/peer');
 
 const ipc = require('./ipc');
 
+/**
+ * Normalize a port into a number, string, or false.
+ */
 function normalizePort(val) {
   const port = parseInt(val, 10);
 
@@ -56,7 +57,7 @@ const server = require('./app')({
 const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, async (err, address) => {
-  // runMiner();
+  debug(`Server listening on port ${port}`);
   if (err) {
     // Block.clearAll();
     process.exit(1);
