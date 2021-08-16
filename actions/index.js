@@ -47,6 +47,10 @@ const checkPermission = (action, permission) => {
 };
 
 const runAction = async (options, permission) => {
+  if (!options || !options.action) {
+    return { code: 'invalid_argument', message: 'Action is missing' };
+  }
+
   const action = routeAction(options);
 
   if (!action) {

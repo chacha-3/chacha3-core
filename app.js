@@ -33,11 +33,7 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
-      // const result = checkPermission(request.body);
-
-      // if (result) {
-      //   reply.send(result);
-      // }
+      // TODO: maybe
     },
     handler: async (request, reply) => {
       reply.type('application/json');

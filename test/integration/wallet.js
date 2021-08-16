@@ -1,12 +1,9 @@
 const { test } = require('tap');
 
 const mock = require('../../util/mock');
-
 const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
-const { WalletDB } = require('../../util/db');
-const app = require('../../app')();
 
 test('list all wallet', async (t) => {
   await mock.createWallets(3);

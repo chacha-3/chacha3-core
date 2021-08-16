@@ -83,52 +83,46 @@ ipc.config.id = 'hello';
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
-ipc.connectTo(
-  'world',
-  () => {
-    ipc.of.world.on(
-      'connect',
-      () => {
-        rl.setPrompt('> ');
-        rl.prompt();
+const onConnect = () => {
+  rl.setPrompt('> ');
+  rl.prompt();
 
-        rl.on('line', async (line) => {
-          const parseQuote = parse(line.trim());
-          const actionName = parseQuote[0];
+  rl.on('line', async (line) => {
+    const parseQuote = parse(line.trim());
+    const actionName = parseQuote[0];
 
-          const options = {
-            action: actionName,
-          };
+    const options = {
+      action: actionName,
+    };
 
-          for (let i = 1; i < parseQuote.length; i += 1) {
-            const [key, value] = parseQuote[i].split(':');
-            options[key] = value;
-          }
+    for (let i = 1; i < parseQuote.length; i += 1) {
+      const [key, value] = parseQuote[i].split(':');
+      options[key] = value;
+    }
 
-          ipc.of.world.emit(
-            'message', // any event or message type your server listens for
-            JSON.stringify(options),
-          );
-        }).on('close', () => {
-          console.log('Have a great day!');
-          process.exit(0);
-        });
-      },
-    );
-    ipc.of.world.on(
-      'disconnect',
-      () => {
-        // ipc.log('disconnected from world'.notice);
-        console.log('disconnect');
-      },
-    );
-    ipc.of.world.on(
+    ipc.of.world.emit(
       'message', // any event or message type your server listens for
-      (data) => {
-        // ipc.log('got a message from world : '.debug, data);
-        printResult(JSON.parse(data));
-        rl.prompt();
-      },
+      JSON.stringify(options),
     );
-  },
-);
+  }).on('close', () => {
+    console.log('Have a great day!');
+    process.exit(0);
+  });
+};
+
+const onDisconnect = () => {
+  // ipc.log('disconnected from world'.notice);
+  console.log('disconnect');
+};
+
+const onMessage = (data) => {
+  // ipc.log('got a message from world : '.debug, data);
+  printResult(JSON.parse(data));
+  rl.prompt();
+};
+
+ipc.connectTo('world', () => {
+  ipc.of.world.on('connect', onConnect);
+  ipc.of.world.on('disconnect', onDisconnect);
+  ipc.of.world.on('message', onMessage);
+});

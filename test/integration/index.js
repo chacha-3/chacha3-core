@@ -32,3 +32,19 @@ test('cannot use unavailable action', async (t) => {
   t.equal(code, 'unimplemented');
   t.end();
 });
+
+test('cannot call empty action', async (t) => {
+  const { code } = await runAction({
+    action: null,
+  });
+
+  t.equal(code, 'invalid_argument');
+  t.end();
+});
+
+test('cannot call with empty options', async (t) => {
+  const { code } = await runAction();
+
+  t.equal(code, 'invalid_argument');
+  t.end();
+});
