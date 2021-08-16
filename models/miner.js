@@ -45,7 +45,7 @@ class Miner {
 
     assert(this.receiverAddress !== null);
     if (this.mining) {
-      return;
+      return false;
     }
 
     this.mining = true;
@@ -82,6 +82,8 @@ class Miner {
 
       await Chain.save(chain);
     }
+
+    return true;
   }
 
   isMining() {

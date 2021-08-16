@@ -22,3 +22,21 @@ test('start and stop miner', (t) => {
   t.equal(miner.isMining(), false);
   t.end();
 });
+
+test('does not start miner when already running', async (t) => {
+  const miner = new Miner();
+  miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');
+
+  const promise = miner.start();
+
+  const startAgain = await miner.start();
+  t.equal(startAgain, false);
+
+  miner.stop();
+
+  await promise.then((result) => {
+    // Miner stopped
+    t.equal(result, true);
+    t.end();
+  });
+});
