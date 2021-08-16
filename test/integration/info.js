@@ -21,8 +21,8 @@ test('should get node info', async (t) => {
 
   t.ok(Object.prototype.hasOwnProperty.call(data, 'version'));
   t.ok(Object.prototype.hasOwnProperty.call(data, 'time'));
-  t.ok(Object.prototype.hasOwnProperty.call(data, 'listening'));
-  t.ok(Object.prototype.hasOwnProperty.call(data, 'length'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'listenPort'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'chainLength'));
   t.ok(Object.prototype.hasOwnProperty.call(data, 'nonce'));
 
   await Wallet.clearAll();

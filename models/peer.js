@@ -164,7 +164,10 @@ class Peer {
 
     if (peer.isSelf() || !peer.isCompatible()) {
       Peer.clear(peer.getId());
+      return;
     }
+
+    Peer.save(peer);
   }
 
   async callAction(actionName, options) {

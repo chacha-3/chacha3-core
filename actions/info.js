@@ -30,8 +30,8 @@ actions.nodeInfo = {
     const data = {
       version: process.env.npm_package_version,
       time: Date.now(),
-      listening: process.env.PORT || 0,
-      length: chain.getLength(),
+      listenPort: process.env.PORT || 0,
+      chainLength: chain.getLength(),
       nonce: Peer.myNonce,
     };
 
