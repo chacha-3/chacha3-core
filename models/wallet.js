@@ -40,6 +40,7 @@ class Wallet {
   }
 
   static async clearAll() {
+    await Wallet.setSelected(null);
     await WalletDB.clear();
   }
 

@@ -127,15 +127,7 @@ class Peer {
     // No real check now. Compatible with all.
     const [major, minor, build] = this.getVersion().split('.');
 
-    if (major < 0) {
-      return false;
-    }
-
-    if (minor < 0) {
-      return false;
-    }
-
-    if (build < 1) {
+    if (major < 0 || minor < 0 || build < 1) {
       return false;
     }
 

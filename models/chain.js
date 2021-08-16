@@ -189,7 +189,6 @@ class Chain {
   }
 
   static async clear() {
-    // TODO: Clear all blocks
     await BlockDB.clear();
     await DB.del('chain');
   }

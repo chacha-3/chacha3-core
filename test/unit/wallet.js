@@ -192,6 +192,7 @@ test('set a selected wallet', async (t) => {
 
   t.equal(selectWallet.getAddressEncoded(), selectedAddress);
 
+  // selectedAddress = await Wallet.getSelected();
   await Wallet.clearAll();
 
   t.end();

@@ -27,14 +27,14 @@ test('does not start miner when already running', async (t) => {
   const miner = new Miner();
   miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');
 
-  const promise = miner.start();
+  const initialStart = miner.start();
 
   const startAgain = await miner.start();
   t.equal(startAgain, false);
 
   miner.stop();
 
-  await promise.then((result) => {
+  await initialStart.then((result) => {
     // Miner stopped
     t.equal(result, true);
     t.end();

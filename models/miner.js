@@ -19,30 +19,7 @@ class Miner {
     // this.pendingTransactions = Transaction.pendingList;
   }
 
-  // async mine(difficulty) {
-  //   const start = performance.now();
-  //   let found = false;
-
-  //   this.header.setDifficulty(difficulty || 1);
-
-  //   while (!found) {
-  //     this.header.incrementNonce();
-
-  //     // eslint-disable-next-line no-await-in-loop
-  //     await this.header.computeHash();
-
-  //     found = this.verifyHash();
-  //   }
-
-  //   const end = performance.now();
-
-  //   return end - start;
-  // }
-
   async start() {
-    // await Block.clearAll();
-    // await Chain.clear();
-
     assert(this.receiverAddress !== null);
     if (this.mining) {
       return false;
@@ -50,11 +27,7 @@ class Miner {
 
     this.mining = true;
 
-    // TODO: Remove
-    // await Chain.clear();
-
     const chain = await Chain.load();
-    // console.log(chain);
 
     let block = new Block();
     block.addCoinbase(this.receiverAddress);

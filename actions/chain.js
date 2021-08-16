@@ -30,4 +30,14 @@ actions.chainInfo = {
   },
 };
 
+actions.destroyChain = {
+  permission: 'authOnly',
+  handler: async () => {
+    await Chain.clear()
+    const data = {};
+
+    return { data, code: 'ok', message: 'Delete all blocks' };
+  },
+};
+
 module.exports = actions;
