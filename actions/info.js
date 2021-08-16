@@ -12,9 +12,9 @@ const actions = {};
 
 const miner = new Miner();
 
-function networkIPs() {
-  return Object.values(os.networkInterfaces()).reduce((r, list) => r.concat(list.reduce((rr, i) => rr.concat((i.family === 'IPv4' && !i.internal && i.address) || []), [])), []);
-}
+// function networkIPs() {
+//   return Object.values(os.networkInterfaces()).reduce((r, list) => r.concat(list.reduce((rr, i) => rr.concat((i.family === 'IPv4' && !i.internal && i.address) || []), [])), []);
+// }
 
 actions.nodeInfo = {
   permission: 'public', // TODO: Change to private

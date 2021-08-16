@@ -1,11 +1,11 @@
 const assert = require('assert');
 
 const serializeBuffer = (buffer) => {
-  assert(Buffer.isBuffer(buffer));
   if (buffer === null) {
     return null;
   }
 
+  assert(Buffer.isBuffer(buffer));
   return buffer.toString('hex');
 };
 
