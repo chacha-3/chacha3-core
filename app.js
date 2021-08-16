@@ -10,7 +10,7 @@ const Peer = require('./models/peer');
 const { runAction } = require('./actions');
 
 const errorHandler = (error, request, reply) => {
-  reply.send({ error: error.message, code: 'internal' });
+  reply.send({ message: error.message, code: 'internal' });
 };
 
 function build(opts = {}) {

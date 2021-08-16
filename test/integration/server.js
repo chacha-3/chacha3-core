@@ -18,11 +18,28 @@ test('should be able to call public actions', async (t) => {
     },
   });
 
-  const { error, data, code } = response.json();
+  const { data, code } = response.json();
 
-  t.equal(error, undefined);
   t.equal(typeof (data), 'object');
   t.equal(code, 'ok');
+
+  t.end();
+});
+
+test('should not be able to call authenticated actions', async (t) => {
+  const response = await app.inject({
+    method: 'POST',
+    url: '/',
+    payload: {
+      action: 'listWallets',
+    },
+  });
+
+  const { data, code, message } = response.json();
+
+  t.equal(code, 'unauthenticated');
+  t.equal(data, undefined);
+  t.equal(typeof (message), 'string');
 
   t.end();
 });
@@ -37,10 +54,9 @@ test('should not brew coffee with a teapot', async (t) => {
     },
   });
 
-  const { code, error } = response.json();
-
-  t.equal(error, 'Out of coffee');
+  const { code, message } = response.json();
   t.equal(code, 'internal');
+  t.equal(message, 'Out of coffee');
 
   t.end();
 });
