@@ -9,7 +9,7 @@ const { WalletDB } = require('../../util/db');
 const Chain = require('../../models/chain');
 const app = require('../../app')();
 
-test('list all wallet', async (t) => {
+test('display chain info', async (t) => {
   const chain = await mock.chainWithBlocks(5, 3);
 
   const { data } = await runAction({
@@ -21,5 +21,19 @@ test('list all wallet', async (t) => {
   t.equal(data.totalWork, chain.getTotalWork());
 
   Chain.clear();
+  t.end();
+});
+
+test('delete chain', async (t) => {
+  const chain = await mock.chainWithBlocks(5, 3);
+
+  const { code } = await runAction({
+    action: 'destroyChain',
+  });
+
+  t.equal(code, 'ok');
+
+  // FIXME: Chain is caching
+  // t.equal(chain.getLength(), 0);
   t.end();
 });
