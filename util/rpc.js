@@ -5,7 +5,7 @@ const SuccessCode = 'ok';
 const ErrorCode = {
   InvalidArgument: 'invalidArgument',
   NotFound: 'notFound',
-  AlreadyExist: 'alreadyExists',
+  AlreadyExists: 'alreadyExists',
   PermissionDenied: 'permissionDenied',
   FailedPrecondition: 'failedPrecondition',
   Unimplemented: 'unimplemented',
@@ -15,6 +15,8 @@ const ErrorCode = {
 };
 
 const okResponse = (data, message) => {
+  assert(message != null);
+
   const response = {
     message,
     code: SuccessCode,
@@ -32,8 +34,16 @@ const errorResponse = (code, message, errors) => {
     assert(Array.isArray(errors));
   }
 
-  const msg = message || ErrorCode[code] || '';
-  return { code, message: msg, errors };
+  const response = {
+    code,
+    message,
+  };
+
+  if (errors) {
+    response.errors = errors;
+  }
+
+  return response;
 };
 
 module.exports = {

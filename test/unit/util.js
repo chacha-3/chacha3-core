@@ -2,6 +2,7 @@ const { test } = require('tap');
 
 const { runningManualTest } = require('../../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
+const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 
 test('detect running unit test', (t) => {
   const argvTest = [
@@ -31,10 +32,53 @@ test('serialize and deserialize buffer', (t) => {
 });
 
 test('serialize and deserialize null buffer', (t) => {
-  const buffer = null;
-
   t.equal(serializeBuffer(null), null);
   t.equal(deserializeBuffer(null), null);
+
+  t.end();
+});
+
+test('ok response has correct format', (t) => {
+  const data = { a: 'value' };
+
+  const response = okResponse(data, 'my message');
+
+  t.equal(response.code, 'ok');
+  t.equal(response.data.a, 'value');
+  t.equal(response.message, 'my message');
+
+  t.end();
+});
+
+test('ok response has format without data', (t) => {
+  const response = okResponse(null, 'no data');
+
+  t.equal(response.code, 'ok');
+  t.equal(response.message, 'no data');
+
+  t.ok(!Object.prototype.hasOwnProperty.call('response', 'data'));
+
+  t.end();
+});
+
+test('error response has correct format without errors', (t) => {
+  const response = errorResponse(ErrorCode.NotFound, 'error message');
+
+  t.equal(response.code, ErrorCode.NotFound);
+  t.equal(response.message, 'error message');
+
+  t.ok(!Object.prototype.hasOwnProperty.call('response', 'errors'));
+
+  t.end();
+});
+
+test('error response has correct format with errors', (t) => {
+  const response = errorResponse(ErrorCode.NotFound, 'error message', ['error 1']);
+
+  t.equal(response.code, ErrorCode.NotFound);
+  t.equal(response.message, 'error message');
+
+  t.equal(response.errors[0], 'error 1');
 
   t.end();
 });
