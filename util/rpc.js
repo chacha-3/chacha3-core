@@ -1,15 +1,15 @@
 const SuccessCode = 'ok';
 
 const ErrorCode = {
-  invalidArgument: 'Invalid argument',
-  notFound: 'Not found',
-  alreadyExists: 'Already exists',
-  permissionDenied: 'Permission denied',
-  failedPrecondition: 'Failed precondition',
-  unimplemented: 'Unimplemented',
-  internal: 'Internal',
-  unavailable: 'Unavailable',
-  unauthenticated: 'Unauthenticated',
+  InvalidArgument: 'invalidArgument',
+  NotFound: 'notFound',
+  AlreadyExist: 'alreadyExists',
+  PermissionDenied: 'permissionDenied',
+  FailedPrecondition: 'failedPrecondition',
+  Unimplemented: 'unimplemented',
+  Internal: 'internal',
+  Unavailable: 'unavailable',
+  Unauthenticated: 'unauthenticated',
 };
 
 const okResponse = (message, data) => ({ message, data, code: SuccessCode });
