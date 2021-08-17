@@ -15,7 +15,7 @@ actions.nodeInfo = {
   handler: async () => {
     const chain = await Chain.load();
 
-    Peer.generateLocalNonce();
+    Peer.randomizeLocalNonce();
 
     const data = {
       version: process.env.npm_package_version,

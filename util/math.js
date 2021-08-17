@@ -17,6 +17,10 @@ function randomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// function randomNumberUpTo(max) {
+//   return Math.floor(Math.random() * max + 1);
+// }
+
 module.exports = {
   median,
   clamp,

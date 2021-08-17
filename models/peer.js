@@ -3,14 +3,15 @@ const debug = require('debug')('peer:model');
 
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
+const { randomNumberBetween } = require('../util/math');
 
 // const db = level('wallets');
 
 // const addressPrefix = '420_';
 
-function randomNonce() {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
-}
+// function randomNonce() {
+//   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
+// }
 
 // const myNonce = randomNonce();
 
@@ -30,13 +31,9 @@ class Peer {
     this.status = Peer.Status.INACTIVE;
   }
 
-  static generateLocalNonce() {
-    Peer.localNonce = randomNonce();
+  static randomizeLocalNonce() {
+    Peer.localNonce = randomNumberBetween(1, Number.MAX_SAFE_INTEGER);
   }
-
-  // static get localNonce() {
-  //   return Peer.nonce;
-  // }
 
   static generateKey(address, port) {
     const ipBytes = Buffer.from(ipaddr.parse(address).toByteArray());
@@ -152,8 +149,15 @@ class Peer {
   }
 
   static async reachOut(peer) {
-    const { data } = await peer.callAction('nodeInfo');
+    let data;
     debug(`Reach out to peer ${peer.getAddress()}:${peer.getPort()}`);
+
+    try {
+      const response = await peer.callAction('nodeInfo');
+      data = response.data;
+    } catch(e) {
+      // TODO:
+    }
 
     if (!data) {
       return;

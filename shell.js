@@ -2,6 +2,7 @@
 const readline = require('readline');
 const chalk = require('chalk');
 const ipc = require('node-ipc');
+const debug = require('debug')('shell');
 
 const Ajv = require('ajv');
 
@@ -137,7 +138,17 @@ const onConnect = () => {
 const onDisconnect = () => {
   // Check retrying to avoid repetitive disconnect message
   if (!retrying) {
-    console.log('\nDisconnect');
+    console.log('\nDisconnect. Retrying...');
+  }
+
+  retrying = true;
+};
+
+const onError = (error) => {
+  debug(`Error connecting to IPC: ${error}`);
+
+  if (!retrying) {
+    console.log('Could not connect to server, ensure that it is running...');
   }
 
   retrying = true;
@@ -152,5 +163,6 @@ const onMessage = (data) => {
 ipc.connectTo('bong', () => {
   ipc.of.bong.on('connect', onConnect);
   ipc.of.bong.on('disconnect', onDisconnect);
+  ipc.of.bong.on('error', onError);
   ipc.of.bong.on('message', onMessage);
 });

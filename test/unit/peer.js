@@ -42,7 +42,7 @@ test('peer nonce generate', (t) => {
   const initial = Peer.localNonce;
   t.equal(initial, 0);
 
-  Peer.generateLocalNonce();
+  Peer.randomizeLocalNonce();
 
   const regenerated = Peer.localNonce;
 
