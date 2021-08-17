@@ -1,4 +1,5 @@
 const bent = require('bent');
+const debug = require('debug')('peer:model');
 
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
@@ -8,10 +9,10 @@ const { PeerDB } = require('../util/db');
 // const addressPrefix = '420_';
 
 function randomNonce() {
-  return Math.floor(Math.random() * 4294967296);
+  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
 }
 
-const myNonce = randomNonce();
+// const myNonce = randomNonce();
 
 class Peer {
   constructor(address, port) {
@@ -23,13 +24,19 @@ class Peer {
     this.address = address || null;
     this.port = port || 0;
 
-    this.nonce = randomNonce();
+    // this.nonce = 0;
     this.status = '';
+
+    this.status = Peer.Status.INACTIVE;
   }
 
-  static get myNonce() {
-    return myNonce;
+  static generateLocalNonce() {
+    Peer.localNonce = randomNonce();
   }
+
+  // static get localNonce() {
+  //   return Peer.nonce;
+  // }
 
   static generateKey(address, port) {
     const ipBytes = Buffer.from(ipaddr.parse(address).toByteArray());
@@ -73,10 +80,6 @@ class Peer {
 
   getNonce() {
     return this.nonce;
-  }
-
-  setNonce(nonce) {
-    this.nonce = nonce;
   }
 
   setConnection(connection) {
@@ -139,9 +142,9 @@ class Peer {
     this.setChainLength(chainLength);
   }
 
-  isSelf() {
-    return this.getNonce() === myNonce;
-  }
+  // isSelf() {
+  //   return this.getNonce() === Peer.localNonce;
+  // }
 
   isCompatible() {
     // TODO: Other compatibility check
@@ -150,18 +153,25 @@ class Peer {
 
   static async reachOut(peer) {
     const { data } = await peer.callAction('nodeInfo');
+    debug(`Reach out to peer ${peer.getAddress()}:${peer.getPort()}`);
 
     if (!data) {
       return;
     }
 
+    debug(`Receive response from peer ${peer.getAddress()}:${peer.getPort()}`);
     peer.setPeerInfo(data.version, data.chainLength);
-    peer.setNonce(data.nonce);
 
-    if (peer.isSelf() || !peer.isCompatible()) {
+    const isSelf = Peer.localNonce === data.nonce;
+
+    if (!peer.isCompatible() || isSelf) {
+      debug(`Reject peer ${peer.getAddress()}:${peer.getPort()}: Same nonce`);
+
       Peer.clear(peer.getId());
       return;
     }
+
+    debug(`Accept peer ${peer.getAddress()}:${peer.getPort()}`);
 
     Peer.save(peer);
   }
@@ -207,7 +217,7 @@ class Peer {
   }
 
   static fromSaveData(data) {
-    console.log(data);
+    // console.log(data);
     const peer = new Peer(data.address, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);
@@ -235,5 +245,11 @@ class Peer {
     return { key, data };
   }
 }
+
+Peer.localNonce = 0;
+
+Peer.Status = {
+  INACTIVE: 'inactive',
+};
 
 module.exports = Peer;

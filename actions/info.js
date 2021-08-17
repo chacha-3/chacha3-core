@@ -11,22 +11,18 @@ const miner = new Miner();
 // }
 
 actions.nodeInfo = {
-  permission: 'public', // TODO: Change to private
-  // schema: {
-  //   properties: {
-  //     address: { type: 'string' },
-  //   },
-  //   required: ['address'],
-  // },
+  permission: 'public',
   handler: async () => {
     const chain = await Chain.load();
+
+    Peer.generateLocalNonce();
 
     const data = {
       version: process.env.npm_package_version,
       time: Date.now(),
       port: process.env.PORT || 0,
       chainLength: chain.getLength(),
-      nonce: Peer.myNonce,
+      nonce: Peer.localNonce,
     };
 
     return { data, code: 'ok', message: 'Info' };

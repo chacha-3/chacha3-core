@@ -26,14 +26,27 @@ test('peer have correct key', (t) => {
   t.end();
 });
 
-test('peer is self when matching nonce', (t) => {
-  const peer = new Peer('192.168.1.1', 8888);
+// test('peer is self when matching nonce', (t) => {
+//   const peer = new Peer('192.168.1.1', 8888);
 
-  peer.setNonce(Peer.myNonce);
-  t.equal(peer.isSelf(), true);
+//   // t.equal(peer.isSelf(), true);
 
-  peer.setNonce(Peer.myNonce + 1);
-  t.equal(peer.isSelf(), false);
+//   // t.equal(peer.isSelf(), false);
+
+//   t.end();
+// });
+
+test('peer nonce generate', (t) => {
+  // const peer = new Peer('192.168.1.1', 8888);
+
+  const initial = Peer.localNonce;
+  t.equal(initial, 0);
+
+  Peer.generateLocalNonce();
+
+  const regenerated = Peer.localNonce;
+
+  t.not(initial, regenerated);
 
   t.end();
 });
