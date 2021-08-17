@@ -5,6 +5,8 @@ const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
 
+const { SuccessCode, ErrorCode } = require('../../util/rpc');
+
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
 
@@ -94,7 +96,7 @@ test('should delete all saved wallet', async (t) => {
     action: 'deleteAllWallets',
   });
 
-  t.equal(code, 'ok');
+  t.equal(code, SuccessCode);
 
   const after = await Wallet.all();
   t.equal(after.length, 0);
@@ -110,7 +112,7 @@ test('should fail to remove unsaved wallet', async (t) => {
     address: 'random_address',
   });
 
-  t.equal(code, 'not_found');
+  t.equal(code, ErrorCode.NotFound);
   t.end();
 });
 
@@ -141,6 +143,6 @@ test('should not recover a wallet without correct private key', async (t) => {
     label: 'Not key',
   });
 
-  t.equal(code, 'fail');
+  t.equal(code, ErrorCode.InvalidArgument);
   t.end();
 });

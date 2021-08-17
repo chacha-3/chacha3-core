@@ -8,7 +8,7 @@ const chain = require('./chain');
 const info = require('./info');
 const peer = require('./peer');
 
-const { SuccessCode } = require('../util/rpc');
+const { SuccessCode, ErrorCode, errorResponse } = require('../util/rpc');
 
 const actions = {
   ...wallet,
@@ -50,17 +50,17 @@ const checkPermission = (action, permission) => {
 
 const runAction = async (options, permission) => {
   if (!options || !options.action) {
-    return { code: 'invalid_argument', message: 'Action is missing' };
+    return errorResponse(ErrorCode.InvalidArgument, 'Action is missing');
   }
 
   const action = routeAction(options);
 
   if (!action) {
-    return { code: 'unimplemented', message: 'Action not available' };
+    return errorResponse(ErrorCode.Unimplemented, 'Action not available');
   }
 
   if (!checkPermission(action, permission)) {
-    return { code: 'unauthenticated', message: 'Auth required' };
+    return errorResponse(ErrorCode.Unauthenticated, 'Auth required');
   }
 
   if (action.preValidation) {
@@ -73,7 +73,7 @@ const runAction = async (options, permission) => {
     const validate = ajv.compile(schema);
 
     if (!validate(options)) {
-      return { errors: [validate.errors[0].message], code: 'invalid_argument', message: 'Invalid argument' };
+      return errorResponse(ErrorCode.InvalidArgument, 'Invalid argument', [validate.errors[0].message]);
     }
   }
 

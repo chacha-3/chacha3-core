@@ -2,6 +2,8 @@ const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 const Peer = require('../models/peer');
 
+const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+
 const actions = {};
 
 const miner = new Miner();
@@ -25,7 +27,7 @@ actions.nodeInfo = {
       nonce: Peer.localNonce,
     };
 
-    return { data, code: 'ok', message: 'Info' };
+    return okResponse(data, 'Info');
   },
 };
 

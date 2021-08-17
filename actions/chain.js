@@ -6,6 +6,8 @@ const Wallet = require('../models/wallet');
 const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 
+const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+
 const actions = {};
 
 const miner = new Miner();
@@ -26,7 +28,7 @@ actions.chainInfo = {
       totalWork: chain.getTotalWork(),
     };
 
-    return { data, code: 'ok', message: 'Chain info' };
+    return okResponse(data, 'Chain Info');
   },
 };
 
@@ -34,9 +36,7 @@ actions.destroyChain = {
   permission: 'authOnly',
   handler: async () => {
     await Chain.clear();
-    const data = {};
-
-    return { data, code: 'ok', message: 'Delete all blocks' };
+    return okResponse(null, 'Delete all blocks');
   },
 };
 

@@ -1,4 +1,5 @@
 const Wallet = require('../models/wallet');
+const { okResponse, ErrorCode, errorResponse } = require('../util/rpc');
 
 const actions = {};
 
@@ -10,7 +11,7 @@ actions.listWallets = {
     const data = [];
     wallets.forEach((wallet) => data.push(wallet.toObject()));
 
-    return { data, code: 'ok', message: 'Wallet list' };
+    return okResponse(data, 'Wallet list');
   },
 };
 
@@ -35,7 +36,7 @@ actions.createWallet = {
       publicKey: wallet.getPublicKeyHex(),
     };
 
-    return { data, code: 'ok', message: 'Create wallet' };
+    return okResponse(data, 'Create wallet');
   },
 };
 
@@ -52,7 +53,7 @@ actions.generateWallet = {
       publicKey: wallet.getPublicKeyHex(),
     };
 
-    return { data, code: 'ok', message: 'Generate Wallet' };
+    return okResponse(data, 'Generate Wallet');
   },
 };
 
@@ -75,7 +76,8 @@ actions.recoverWallet = {
 
       await Wallet.save(wallet);
     } catch (e) {
-      return { message: 'Unable to recover wallet', code: 'fail' };
+      // TODO: Check error type
+      return errorResponse(ErrorCode.InvalidArgument, 'Unable to recover wallet');
     }
 
     const data = {
@@ -85,7 +87,7 @@ actions.recoverWallet = {
       publicKey: wallet.getPublicKeyHex(),
     };
 
-    return { data, code: 'ok', message: 'Recover wallet' };
+    return okResponse(data, 'Recover wallet');
   },
 };
 
@@ -101,7 +103,7 @@ actions.deleteWallet = {
     const wallet = await Wallet.load(options.address);
 
     if (!wallet) {
-      return { message: 'Wallet not found', code: 'not_found' };
+      return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
     await Wallet.delete(wallet.getAddressEncoded());
@@ -110,7 +112,7 @@ actions.deleteWallet = {
       address: wallet.getAddressEncoded(),
     };
 
-    return { data, code: 'ok', message: 'Delete wallet' };
+    return okResponse(data, 'Delete wallet');
   },
 };
 
@@ -119,8 +121,7 @@ actions.deleteAllWallets = {
   handler: async () => {
     await Wallet.clearAll();
 
-    const data = {};
-    return { data, code: 'ok', message: 'Deleted all saved wallets' };
+    return okResponse(null, 'Deleted all saved wallets');
   },
 };
 
@@ -136,7 +137,7 @@ actions.selectWallet = {
     const result = await Wallet.setSelected(options.address);
 
     if (!result) {
-      return { message: 'Wallet not found', code: 'not_found' };
+      return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
     const selected = await Wallet.getSelected();
@@ -145,7 +146,7 @@ actions.selectWallet = {
       selected,
     };
 
-    return { data, code: 'ok', message: 'Wallet' };
+    return okResponse(data, 'Wallet');
   },
 };
 
@@ -164,7 +165,7 @@ actions.unselectWallet = {
       selected: null,
     };
 
-    return { data, code: 'ok', message: 'Wallet' };
+    return okResponse(data, 'Wallet');
   },
 };
 
@@ -183,7 +184,7 @@ actions.selectedWallet = {
       selected,
     };
 
-    return { data, code: 'ok', message: 'Wallet' };
+    return okResponse(data, 'Wallet');
   },
 };
 

@@ -9,8 +9,10 @@ const Peer = require('./models/peer');
 
 const { runAction, checkPermission } = require('./actions');
 
+const { errorResponse, ErrorCode } = require('./util/rpc');
+
 const errorHandler = (error, request, reply) => {
-  reply.send({ message: error.message, code: 'internal' });
+  reply.send(errorResponse(ErrorCode.Internal, error.message));
 };
 
 function build(opts = {}) {

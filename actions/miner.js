@@ -1,6 +1,8 @@
 const Wallet = require('../models/wallet');
 const Miner = require('../models/miner');
 
+const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+
 const actions = {};
 
 const miner = new Miner();
@@ -23,7 +25,7 @@ actions.startMiner = {
   },
   handler: (options) => {
     if (miner.isMining()) {
-      return { code: 'failed_precondition', message: 'Miner already running' };
+      return errorResponse(ErrorCode.FailedPrecondition, 'Miner already running');
     }
 
     miner.setReceiverAddress(options.address);
@@ -33,7 +35,7 @@ actions.startMiner = {
       address: options.address,
     };
 
-    return { data, code: 'ok', message: 'Running miner' };
+    return okResponse(data, 'Running miner');
   },
 };
 
@@ -51,7 +53,7 @@ actions.stopMiner = {
       // address: options.address,
     };
 
-    return { data, code: 'ok', message: 'Stopped miner' };
+    return okResponse(data, 'Stopped miner');
   },
 };
 
@@ -71,7 +73,7 @@ actions.minerStatus = {
       data.address = miner.getReceiverAddress();
     }
 
-    return { data, code: 'ok', message: 'Miner status' };
+    return okResponse(data, 'Miner status');
   },
 };
 

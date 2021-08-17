@@ -1,5 +1,6 @@
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
+const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
 
 const actions = {};
 
@@ -39,12 +40,11 @@ actions.createTransaction = {
     const errors = transaction.validate();
 
     if (errors.length > 0) {
-      return { code: 'failed_precondition', message: 'Invalid transaction', errors };
+      return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
     }
 
     Transaction.addPending(transaction);
-
-    return { data: transaction.toObject(), code: 'ok', message: 'Transaction created' };
+    return okResponse(transaction.toObject(), 'Transaction created');
   },
 };
 
@@ -54,7 +54,7 @@ actions.pendingTransactions = {
     const transactions = Transaction.pendingList;
     const data = transactions.map((transaction) => transaction.toObject());
 
-    return { data, code: 'ok', message: 'Pending transactions' };
+    return okResponse(data, 'Pending transactions');
   },
 };
 

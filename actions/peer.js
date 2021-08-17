@@ -1,4 +1,5 @@
 const Peer = require('../models/peer');
+const { okResponse } = require('../util/rpc');
 
 const actions = {};
 
@@ -26,8 +27,7 @@ actions.addPeer = {
     const { data } = await Peer.save(peer);
 
     Peer.reachOut(peer);
-
-    return { data, code: 'ok', message: 'Add peer' };
+    return okResponse(data, 'Add peer');
   },
 };
 
@@ -42,9 +42,7 @@ actions.removePeer = {
   },
   handler: async (options) => {
     await Peer.clear(Peer.generateKey(options.address, options.port));
-
-    const data = {};
-    return { data, code: 'ok', message: 'Remove peer' };
+    return okResponse(null, 'Remove peer');
   },
 };
 

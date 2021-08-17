@@ -6,6 +6,8 @@ const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
 const { WalletDB } = require('../../util/db');
+const { SuccessCode } = require('../../util/rpc');
+
 const Chain = require('../../models/chain');
 const app = require('../../app')();
 
@@ -31,7 +33,7 @@ test('delete chain', async (t) => {
     action: 'destroyChain',
   });
 
-  t.equal(code, 'ok');
+  t.equal(code, SuccessCode);
 
   // FIXME: Chain is caching
   // t.equal(chain.getLength(), 0);
