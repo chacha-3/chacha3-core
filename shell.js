@@ -10,6 +10,8 @@ const ajv = new Ajv({ coerceTypes: true, logger: false });
 
 const { parse } = require('shell-quote');
 
+const { SuccessCode } = require('./util/rpc');
+
 function camelCaseToTitle(camelCase) {
   if (!camelCase) {
     return '';
@@ -58,7 +60,7 @@ function printResult(result) {
     data, code, message, errors,
   } = result;
   // console.log(data, errors);
-  if (code !== 'ok') {
+  if (code !== SuccessCode) {
     console.log(chalk.bold.red(message));
 
     if (errors) {

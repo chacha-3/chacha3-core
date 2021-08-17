@@ -8,6 +8,8 @@ const chain = require('./chain');
 const info = require('./info');
 const peer = require('./peer');
 
+const { SuccessCode } = require('../util/rpc');
+
 const actions = {
   ...wallet,
   ...transaction,
@@ -27,7 +29,7 @@ const execute = async (options, handler) => {
     data, code, errors, message,
   } = await handler(options);
 
-  if (code !== 'ok') {
+  if (code !== SuccessCode) {
     return { errors, code, message };
   }
 
