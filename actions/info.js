@@ -1,3 +1,5 @@
+const { version } = require('../package.json');
+
 const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 const Peer = require('../models/peer');
@@ -20,12 +22,14 @@ actions.nodeInfo = {
     Peer.randomizeLocalNonce();
 
     const data = {
-      version: process.env.npm_package_version,
+      version,
       time: Date.now(),
       port: process.env.PORT || 0,
       chainLength: chain.getLength(),
       nonce: Peer.localNonce,
     };
+
+    console.log(data);
 
     return okResponse(data, 'Info');
   },

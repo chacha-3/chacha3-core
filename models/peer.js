@@ -156,7 +156,7 @@ class Peer {
     return this.compatibleVersion();
   }
 
-  async reachOut() {
+  async reachOut(allowSelf) {
     let data;
     debug(`Reach out to peer ${this.getAddress()}:${this.getPort()}`);
 
@@ -176,7 +176,7 @@ class Peer {
 
     const isSelf = Peer.localNonce === data.nonce;
 
-    if (isSelf) {
+    if (isSelf && !(allowSelf || false)) {
       debug(`Reject peer ${this.getAddress()}:${this.getPort()}: Same nonce`);
 
       Peer.clear(this.getId());
@@ -196,8 +196,7 @@ class Peer {
   }
 
   async callAction(actionName, options) {
-    const post = bent(`http://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
-
+    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
     const params = Object.assign(options || {}, { action: actionName });
     try {
       const response = await post('', params);
@@ -236,7 +235,6 @@ class Peer {
   }
 
   static fromSaveData(data) {
-    // console.log(data);
     const peer = new Peer(data.address, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);

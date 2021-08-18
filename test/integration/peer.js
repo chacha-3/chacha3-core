@@ -7,30 +7,20 @@ const mock = require('../../util/mock');
 
 const { runAction } = require('../../actions');
 
-const build = require('../../app');
+// const build = require('../../app');
+const server = require('../../server');
 const { all } = require('../../models/peer');
 
-test('reach out to peer', async (t) => {
+test('successfully reach out to peer', (t) => {
   // const app = build();
-  // t.plan(5);
+  t.plan(1);
 
-  // t.teardown(() => app.close());
+  t.teardown(() => server.close());
 
-  // app.listen(0, (err) => {
-  //   t.error(err);
+  server.listen(2999, '127.0.0.1', async () => {
+    const peer = new Peer('127.0.0.1', 2999);
+    await peer.reachOut(true);
 
-  //   const peer = new Peer('127.0.0.1', 0);
-  //   peer.reachOut();
-  // });
-  // const peer = new Peer('127.0.0.1', process.env.PORT);
-  // console.log(peer);
-  // const response = await app.inject({
-  //   method: 'POST',
-  //   url: '/',
-  //   payload: {
-  //     action: 'createTransaction',
-  //   },
-  // });
-
-  // t.end();
+    t.equal(peer.getStatus(), Peer.Status.Active);
+  });
 });

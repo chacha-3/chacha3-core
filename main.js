@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
-
 const debug = require('debug')('main');
 const server = require('./server');
 const ipc = require('./ipc');
@@ -9,7 +7,7 @@ const ipc = require('./ipc');
 /**
  * Normalize a port into a number, string, or false.
  */
- function normalizePort(val) {
+function normalizePort(val) {
   const port = parseInt(val, 10);
 
   if (Number.isNaN(port)) {
@@ -34,5 +32,6 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 });
+
 
 ipc.server.start();

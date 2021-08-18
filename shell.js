@@ -3,12 +3,12 @@ const readline = require('readline');
 const chalk = require('chalk');
 const ipc = require('node-ipc');
 const debug = require('debug')('shell');
-
 const Ajv = require('ajv');
 
+const { parse } = require('shell-quote');
 const ajv = new Ajv({ coerceTypes: true, logger: false });
 
-const { parse } = require('shell-quote');
+const { version } = require('./package.json');
 
 const { SuccessCode } = require('./util/rpc');
 
@@ -85,7 +85,7 @@ const rl = readline.createInterface(process.stdin, process.stdout);
 
 function start() {
   console.clear();
-  console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${process.env.npm_package_version})`)}`);
+  console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${version})`)}`);
 
   rl.prompt();
 }
