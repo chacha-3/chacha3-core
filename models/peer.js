@@ -1,4 +1,6 @@
+const assert = require('assert');
 const bent = require('bent');
+
 const debug = require('debug')('peer:model');
 
 const ipaddr = require('ipaddr.js');
@@ -25,10 +27,8 @@ class Peer {
     this.address = address || null;
     this.port = port || 0;
 
-    // this.nonce = 0;
-    this.status = '';
-
-    this.status = Peer.Status.INACTIVE;
+    this.status = Peer.Status.Initial;
+    this.failedConnect = 0;
   }
 
   static randomizeLocalNonce() {
@@ -134,6 +134,14 @@ class Peer {
     return true;
   }
 
+  getStatus() {
+    return this.status;
+  }
+
+  setStatus(status) {
+    this.status = status;
+  }
+
   setPeerInfo(version, chainLength) {
     this.setVersion(version);
     this.setChainLength(chainLength);
@@ -148,49 +156,56 @@ class Peer {
     return this.compatibleVersion();
   }
 
-  static async reachOut(peer) {
+  async reachOut() {
     let data;
-    debug(`Reach out to peer ${peer.getAddress()}:${peer.getPort()}`);
+    debug(`Reach out to peer ${this.getAddress()}:${this.getPort()}`);
 
     try {
-      const response = await peer.callAction('nodeInfo');
+      const response = await this.callAction('nodeInfo');
       data = response.data;
-    } catch(e) {
-      // TODO:
-    }
-
-    if (!data) {
+    } catch (e) {
+      this.setStatus(Peer.Status.Unreachable);
+      Peer.save(this);
       return;
     }
 
-    debug(`Receive response from peer ${peer.getAddress()}:${peer.getPort()}`);
-    peer.setPeerInfo(data.version, data.chainLength);
+    assert(data);
+
+    debug(`Receive response from peer ${this.getAddress()}:${this.getPort()}`);
+    this.setPeerInfo(data.version, data.chainLength);
 
     const isSelf = Peer.localNonce === data.nonce;
 
-    if (!peer.isCompatible() || isSelf) {
-      debug(`Reject peer ${peer.getAddress()}:${peer.getPort()}: Same nonce`);
+    if (isSelf) {
+      debug(`Reject peer ${this.getAddress()}:${this.getPort()}: Same nonce`);
 
-      Peer.clear(peer.getId());
+      Peer.clear(this.getId());
       return;
     }
 
-    debug(`Accept peer ${peer.getAddress()}:${peer.getPort()}`);
+    if (!this.isCompatible()) {
+      this.setStatus(Peer.Status.Incompatible);
+      debug(`Incompatible peer ${this.getAddress()}:${this.getPort()}. Version ${this.getVersion()}`);
+    } else {
+      this.setStatus(Peer.Status.Active);
+    }
 
-    Peer.save(peer);
+    debug(`Accept peer ${this.getAddress()}:${this.getPort()}`);
+
+    Peer.save(this);
   }
 
   async callAction(actionName, options) {
-    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
+    const post = bent(`http://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
 
     const params = Object.assign(options || {}, { action: actionName });
     try {
       const response = await post('', params);
       return response;
     } catch (e) {
-      console.log(e);
+      debug(`Peer call action error: ${e}`);
     }
-    console.log('null');
+
     return null;
   }
 
@@ -253,7 +268,11 @@ class Peer {
 Peer.localNonce = 0;
 
 Peer.Status = {
-  INACTIVE: 'inactive',
+  Initial: 'initial',
+  Inactive: 'inactive',
+  Unreachable: 'unreachable',
+  Active: 'active',
+  Incompatible: 'incompatible',
 };
 
 module.exports = Peer;
