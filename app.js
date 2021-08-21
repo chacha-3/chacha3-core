@@ -36,6 +36,7 @@ function build(opts = {}) {
   app.post('/', {
     preHandler: async (request, reply, done) => {
       console.log(request.ip);
+      console.loog(request.headers.bongPort);
       // TODO: maybe
     },
     handler: async (request, reply) => {
