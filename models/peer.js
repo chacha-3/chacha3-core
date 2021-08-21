@@ -206,7 +206,7 @@ class Peer {
   }
 
   async callAction(actionName, options) {
-    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200);
+    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200, { bongPort: process.env.PORT || 3000 });
     const params = Object.assign(options || {}, { action: actionName });
     try {
       const response = await post('', params);
