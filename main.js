@@ -32,7 +32,7 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
-  Peer.reachOutAll();
+  // Peer.reachOutAll();
 });
 
 ipc.server.start();

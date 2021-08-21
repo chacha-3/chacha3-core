@@ -69,6 +69,10 @@ class Peer {
     return Promise.all(promises);
   }
 
+  static async broadcastAction(options) {
+    // bent
+  }
+
   static async reachOutAll() {
     const peers = await Peer.all();
 
@@ -205,17 +209,22 @@ class Peer {
     return true;
   }
 
-  async callAction(actionName, options) {
+  async sendRequest(options) {
     const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200, { 'bong-port': process.env.PORT || 3000 });
-    const params = Object.assign(options || {}, { action: actionName });
+
     try {
-      const response = await post('', params);
+      const response = await post('', options);
       return response;
     } catch (e) {
       debug(`Peer call action error: ${e}`);
     }
 
     return null;
+  }
+
+  async callAction(actionName, options) {
+    const params = Object.assign(options || {}, { action: actionName });
+    return this.sendRequest(params);
   }
 
   toObject() {

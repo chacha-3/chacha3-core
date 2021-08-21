@@ -67,7 +67,7 @@ test('should select a default wallet', async (t) => {
 
   t.equal(data.selected, address);
 
-  Wallet.clearAll();
+  await Wallet.clearAll();
 
   t.end();
 });
@@ -81,6 +81,8 @@ test('should delete a saved wallet', async (t) => {
   });
 
   t.equal(typeof data.address, 'string');
+
+  // await Wallet.clearAll();
   t.end();
 });
 
@@ -100,6 +102,8 @@ test('should delete all saved wallet', async (t) => {
 
   const after = await Wallet.all();
   t.equal(after.length, 0);
+
+  // await Wallet.clearAll();
 
   t.end();
 });

@@ -36,10 +36,14 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
+      if (process.env.NODE_ENV === 'test') {
+        return done();
+      }
+
       const port = request.headers['bong-port'];
 
       if (!port) {
-        done();
+        return done();
       }
 
       const { ip } = request;

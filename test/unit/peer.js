@@ -78,7 +78,7 @@ test('save and load peer', async (t) => {
   t.equal(data.port, loaded.getPort());
   t.equal(data.status, loaded.getStatus());
 
-  Peer.clear(key);
+  await Peer.clear(key);
   t.end();
 });
 
