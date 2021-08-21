@@ -71,6 +71,10 @@ class Peer {
   }
 
   static async broadcastAction(options) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const peers = await Peer.all();
 
     peers.forEach((peer) => {
