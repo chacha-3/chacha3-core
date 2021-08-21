@@ -4,6 +4,7 @@ const bent = require('bent');
 const debug = require('debug')('peer:model');
 
 const ipaddr = require('ipaddr.js');
+const { option } = require('yargs');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 
@@ -70,7 +71,12 @@ class Peer {
   }
 
   static async broadcastAction(options) {
-    // bent
+    const peers = await Peer.all();
+
+    peers.forEach((peer) => {
+      debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(options)}`);
+      peer.sendRequest(options);
+    });
   }
 
   static async reachOutAll() {

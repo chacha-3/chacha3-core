@@ -1,5 +1,6 @@
 const debug = require('debug')('transaction:model');
 
+const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
@@ -46,6 +47,16 @@ actions.createTransaction = {
     }
 
     Transaction.addPending(transaction);
+
+    Peer.broadcastAction({
+      action: 'pushTransaction',
+      key: transaction.getSenderKey().toString('hex'),
+      address: transaction.getReceiverAddress(),
+      amount: transaction.getAmount(),
+      signature: transaction.getSignature().toString('hex'),
+      time: transaction.getTime(),
+    });
+
     return okResponse(transaction.toObject(), 'Transaction created');
   },
 };
