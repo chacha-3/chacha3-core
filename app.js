@@ -45,9 +45,10 @@ function build(opts = {}) {
       const { ip } = request;
       const key = Peer.generateKey(ip, port);
 
-      if (await Peer.checkExist(key)) {
+      const exist = await Peer.checkExist(key);
+      if (!exist) {
         const newPeer = new Peer(ip, port);
-        Peer.save(newPeer);
+        newPeer.reachOut();
       }
     },
     handler: async (request, reply) => {
