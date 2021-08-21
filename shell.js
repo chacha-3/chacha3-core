@@ -76,7 +76,7 @@ function printResult(result) {
   // console.log(result);
   if (Array.isArray(data)) {
     printArray(data);
-  } else {
+  } else if (data) {
     printObject(data);
   }
 }

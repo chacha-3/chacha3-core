@@ -26,7 +26,6 @@ actions.addPeer = {
     const peer = new Peer(options.address, options.port);
     const { data } = await Peer.save(peer);
 
-    // Peer.reachOut(peer);
     peer.reachOut();
     return okResponse(data, 'Add peer');
   },

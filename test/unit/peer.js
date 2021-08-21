@@ -76,6 +76,7 @@ test('save and load peer', async (t) => {
   t.equal(data.chainLength, loaded.getChainLength());
   t.equal(data.address, loaded.getAddress());
   t.equal(data.port, loaded.getPort());
+  t.equal(data.status, loaded.getStatus());
 
   Peer.clear(key);
   t.end();
@@ -91,10 +92,13 @@ test('load peer list', async (t) => {
   const list = await Peer.all();
   t.equal(list.length, numOfPeers);
 
+  // TODO: Check loaded value matches
+
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'version'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'address'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'chainLength'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'status'));
 
   t.equal(typeof (list[0].port), 'number');
   t.equal(typeof (list[0].chainLength), 'number');

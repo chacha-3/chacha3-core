@@ -29,8 +29,6 @@ actions.nodeInfo = {
       nonce: Peer.localNonce,
     };
 
-    console.log(data);
-
     return okResponse(data, 'Info');
   },
 };

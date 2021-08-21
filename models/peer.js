@@ -27,7 +27,7 @@ class Peer {
     this.address = address || null;
     this.port = port || 0;
 
-    this.status = Peer.Status.Initial;
+    this.status = Peer.Status.Idle;
     this.failedConnect = 0;
   }
 
@@ -59,9 +59,7 @@ class Peer {
     const values = await readValues();
 
     const loadPeer = (data) => new Promise((resolve) => {
-      const peer = new Peer(data.address, data.port);
-      peer.setPeerInfo(data.version, data.chainLength);
-
+      const peer = Peer.fromSaveData(data);
       resolve(peer);
     });
 
@@ -69,6 +67,12 @@ class Peer {
 
     values.forEach((value) => promises.push(loadPeer(value)));
     return Promise.all(promises);
+  }
+
+  static async reachOutAll() {
+    const peers = await Peer.all();
+
+    peers.forEach((peer) => peer.reachOut());
   }
 
   getId() {
@@ -164,9 +168,13 @@ class Peer {
       const response = await this.callAction('nodeInfo');
       data = response.data;
     } catch (e) {
-      this.setStatus(Peer.Status.Unreachable);
+      const status = (this.getStatus() === Peer.Status.Active)
+        ? Peer.Status.Inactive
+        : Peer.Status.Unreachable;
+
+      this.setStatus(status);
       Peer.save(this);
-      return;
+      return false;
     }
 
     assert(data);
@@ -179,20 +187,22 @@ class Peer {
     if (isSelf && !(allowSelf || false)) {
       debug(`Reject peer ${this.getAddress()}:${this.getPort()}: Same nonce`);
 
-      Peer.clear(this.getId());
-      return;
+      await Peer.clear(this.getId());
+      return false;
     }
 
     if (!this.isCompatible()) {
       this.setStatus(Peer.Status.Incompatible);
       debug(`Incompatible peer ${this.getAddress()}:${this.getPort()}. Version ${this.getVersion()}`);
     } else {
+      debug(`Active peer ${this.getAddress()}:${this.getPort()}. Version ${this.getVersion()}`);
       this.setStatus(Peer.Status.Active);
     }
 
     debug(`Accept peer ${this.getAddress()}:${this.getPort()}`);
 
-    Peer.save(this);
+    await Peer.save(this);
+    return true;
   }
 
   async callAction(actionName, options) {
@@ -214,6 +224,7 @@ class Peer {
       port: this.getPort(),
       version: this.getVersion(),
       chainLength: this.getChainLength(),
+      status: this.getStatus(),
     };
   }
 
@@ -231,6 +242,7 @@ class Peer {
       chainLength: peer.getChainLength(),
       address: peer.getAddress(),
       port: peer.getPort(),
+      status: peer.getStatus(),
     };
   }
 
@@ -238,6 +250,7 @@ class Peer {
     const peer = new Peer(data.address, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);
+    peer.setStatus(data.status);
 
     return peer;
   }
@@ -258,6 +271,8 @@ class Peer {
     const key = peer.getId();
     const data = Peer.toSaveData(peer);
 
+    debug(`Peer save data: ${JSON.stringify(data)}`);
+
     await PeerDB.put(key, data, { valueEncoding: 'json' });
     return { key, data };
   }
@@ -266,7 +281,7 @@ class Peer {
 Peer.localNonce = 0;
 
 Peer.Status = {
-  Initial: 'initial',
+  Idle: 'idle',
   Inactive: 'inactive',
   Unreachable: 'unreachable',
   Active: 'active',
