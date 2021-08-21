@@ -1,3 +1,4 @@
+const debug = require('debug')('app');
 const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
 
@@ -35,9 +36,19 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
-      console.log(request.ip);
-      console.loog(request.headers.bongPort);
-      // TODO: maybe
+      const port = request.headers['bong-port'];
+
+      if (!port) {
+        done();
+      }
+
+      const { ip } = request;
+      const key = Peer.generateKey(ip, port);
+
+      if (await Peer.checkExist(key)) {
+        const newPeer = new Peer(ip, port);
+        Peer.save(newPeer);
+      }
     },
     handler: async (request, reply) => {
       reply.type('application/json');

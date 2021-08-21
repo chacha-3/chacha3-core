@@ -206,7 +206,7 @@ class Peer {
   }
 
   async callAction(actionName, options) {
-    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200, { bongPort: process.env.PORT || 3000 });
+    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200, { 'bong-port': process.env.PORT || 3000 });
     const params = Object.assign(options || {}, { action: actionName });
     try {
       const response = await post('', params);
@@ -265,6 +265,16 @@ class Peer {
     }
 
     return Peer.fromSaveData(data);
+  }
+
+  static async checkExist(key) {
+    try {
+      await PeerDB.get(key, { valueEncoding: 'json' });
+    } catch (e) {
+      return false;
+    }
+
+    return true;
   }
 
   static async save(peer) {
