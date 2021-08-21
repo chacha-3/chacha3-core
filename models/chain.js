@@ -16,12 +16,7 @@ if (runningManualTest(process.argv)) {
 
 class Chain {
   constructor() {
-    // this.blockHashes = [];
-    // this.totalWork = 0;
-
     this.blockHeaders = [];
-    // Transaction.pendingList.push(5);
-    // console.log(Transaction.pendingList);
   }
 
   static getAdjustInterval() {
@@ -110,7 +105,6 @@ class Chain {
   getCurrentDifficulty() {
     let difficulty = 1.0;
     const headers = this.getBlockHeaders();
-    // console.log(headers);
 
     if (headers.length < 2) {
       return difficulty;
@@ -134,8 +128,7 @@ class Chain {
         // Clear differences array for next adjustInterval n block
         timeDifferences.length = 0;
       }
-      // console.log(headers);
-      // console.log(i, headers[i].getTime(), headers[i - 1].getTime());
+
       timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
     }
 
@@ -180,11 +173,10 @@ class Chain {
     } catch (e) {
       // return null;
     }
-    // console.log(blockHashes);
+
     const headers = await Chain.loadHeaders(blockHashes);
-    // console.log(headers);
+
     chain.setBlockHeaders(headers);
-    // console.log(chain);
     return chain;
   }
 

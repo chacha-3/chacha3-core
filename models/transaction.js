@@ -1,6 +1,8 @@
 const assert = require('assert');
 const crypto = require('crypto');
 
+const debug = require('debug')('transaction:model');
+
 const Wallet = require('./wallet');
 
 const { serializeBuffer } = require('../util/serialize');
@@ -64,12 +66,20 @@ class Transaction {
     return this.time;
   }
 
+  setTime(time) {
+    this.time = time;
+  }
+
   getAmount() {
     return this.amount;
   }
 
   getSignature() {
     return this.signature;
+  }
+
+  setSignature(signature) {
+    this.signature = signature;
   }
 
   validate() {
@@ -96,6 +106,7 @@ class Transaction {
     const errors = this.validate();
 
     if (errors.length > 0) {
+      debug(`Failed transaction verification: ${JSON.stringify(errors.length)}`);
       return false;
     }
 
@@ -164,6 +175,7 @@ class Transaction {
   }
 
   static async clearAll() {
+    Transaction.pendingList = [];
     await TransactionDB.clear();
   }
 }

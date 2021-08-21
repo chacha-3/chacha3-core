@@ -81,14 +81,13 @@ class Block {
     return end - start;
   }
 
-  
 
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
     const hashNum = new BN(this.header.getHash(), 16);
     const targetNum = new BN(this.header.getTarget(), 16);
-    // console.log(hashNum.toString('hex'));
+
     return hashNum.lt(targetNum);
   }
 

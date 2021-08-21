@@ -10,28 +10,6 @@ const { runAction } = require('../../actions');
 // const build = require('../../app');
 const server = require('../../server');
 
-// test('successfully reach out to peer', (t) => {
-//   // const app = build();
-//   // t.plan(1);
-
-//   // t.teardown(() => server.close(() => {
-//   //   console.log('closed');
-//   // }));
-
-//   server.listen(2999, '127.0.0.1', async () => {
-//     const peer = new Peer('127.0.0.1', 2999);
-//     await peer.reachOut(true);
-
-//     t.equal(peer.getStatus(), Peer.Status.Active);
-
-//     t.end();
-//     // server.close(() => {
-//     //   console.log('end');
-//     //   t.end();
-//     // });
-//   });
-// });
-
 test('list all peers', async (t) => {
   await mock.createPeers(2);
 

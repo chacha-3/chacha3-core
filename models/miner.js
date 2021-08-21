@@ -32,7 +32,6 @@ class Miner {
       if (Transaction.pendingList.length > 0) {
         // Add transaction to block
         block.addTransaction(Transaction.pendingList.pop());
-        console.log('Added pending transaction');
       }
 
       block.header.setDifficulty(chain.getCurrentDifficulty());
@@ -40,7 +39,6 @@ class Miner {
       await block.header.computeHash();
 
       if (block.verifyHash()) {
-        console.log(`New block: ${block.getTransactionCount()}`);
         await Block.save(block);
         chain.addBlockHeader(block.getHeader());
 

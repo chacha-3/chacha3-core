@@ -190,8 +190,6 @@ test('block is invalid if adding transaction after mining', async (t) => {
 test('correct block object format', async (t) => {
   const block = await mock.blockWithTransactions(3);
 
-  // console.log(JSON.stringify(block.toObject(), null, 2));
-
   t.end();
 });
 
