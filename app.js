@@ -35,6 +35,7 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
+      console.log(request.headers);
       // TODO: maybe
     },
     handler: async (request, reply) => {
