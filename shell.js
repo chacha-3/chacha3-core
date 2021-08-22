@@ -11,8 +11,16 @@ const debug = require('debug')('shell');
 const { version } = require('./package.json');
 const { SuccessCode } = require('./util/rpc');
 
+function completer(line) {
+  const completions = '/exit /quit /clear'.split(' ');
+  // const completions = actionList;
+  const hits = completions.filter((c) => c.startsWith(line));
+  // Show all completions if none found
+  return [hits.length ? hits : completions, line];
+}
+
 let retrying;
-const rl = readline.createInterface(process.stdin, process.stdout);
+const rl = readline.createInterface(process.stdin, process.stdout, completer);
 const ipcId = `bong${process.env.PORT || 3000}`;
 
 ipc.config.id = ipcId;
@@ -99,9 +107,9 @@ const onLineInput = async (line) => {
   // eslint-disable-next-line no-param-reassign
   line = line.trim();
 
-  if (line === 'exit' || line === 'quit') {
+  if (line === '/exit' || line === '/quit') {
     rl.close();
-  } else if (line === 'clear') {
+  } else if (line === '/clear') {
     console.clear();
     start();
     return;

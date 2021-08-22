@@ -196,8 +196,7 @@ class Header {
   toPushData() {
     const data = {
       version: this.getVersion(),
-      // FIXME: Previous should be required field, unless genesis block
-      previous: (this.getPrevious() != null) ? this.getPrevious().toString('hex') : null,
+      previous: this.getPrevious().toString('hex'),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
       nonce: this.getNonce(),
@@ -206,15 +205,6 @@ class Header {
 
     return data;
   }
-  // toObject() {
-  //   return {
-  //     version: this.version,
-  //     checksum: (this.checksum) ? this.checksum.toString('hex') : null,
-  //     date: this.date,
-  //     difficulty: this.difficulty,
-  //     nonce: this.nonce,
-  //   };
-  // }
 }
 
 module.exports = Header;

@@ -19,6 +19,9 @@ const actions = {
   ...peer,
 };
 
+// const actionList = Object.keys(actions);
+const actionList = [];
+
 const routeAction = (options) => {
   const actionName = options.action;
   return actions[actionName];
@@ -91,4 +94,5 @@ const runAction = async (options, permission) => {
 module.exports = {
   checkPermission,
   runAction,
+  actionList,
 };
