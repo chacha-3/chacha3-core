@@ -4,15 +4,20 @@ require('dotenv').config();
 const readline = require('readline');
 const chalk = require('chalk');
 const ipc = require('node-ipc');
-const debug = require('debug')('shell');
-const Ajv = require('ajv');
 
 const { parse } = require('shell-quote');
-const ajv = new Ajv({ coerceTypes: true, logger: false });
+const debug = require('debug')('shell');
 
 const { version } = require('./package.json');
-
 const { SuccessCode } = require('./util/rpc');
+
+let retrying;
+const rl = readline.createInterface(process.stdin, process.stdout);
+const ipcId = `bong${process.env.PORT || 3000}`;
+
+ipc.config.id = ipcId;
+ipc.config.retry = 1500;
+ipc.config.silent = true;
 
 function camelCaseToTitle(camelCase) {
   if (!camelCase) {
@@ -83,8 +88,6 @@ function printResult(result) {
   }
 }
 
-const rl = readline.createInterface(process.stdin, process.stdout);
-
 function start() {
   console.clear();
   console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${version})`)}`);
@@ -92,56 +95,49 @@ function start() {
   rl.prompt();
 }
 
-const ipcId = `bong${process.env.PORT || 3000}`;
+const onLineInput = async (line) => {
+  // eslint-disable-next-line no-param-reassign
+  line = line.trim();
 
-ipc.config.id = ipcId;
-ipc.config.retry = 1500;
-ipc.config.silent = true;
+  if (line === 'exit' || line === 'quit') {
+    rl.close();
+  } else if (line === 'clear') {
+    console.clear();
+    start();
+    return;
+  }
 
-let retrying;
+  const parseQuote = parse(line);
+  const actionName = parseQuote[0];
 
-const onConnect = () => {
-  retrying = false;
+  const options = {
+    action: actionName,
+  };
 
-  rl.setPrompt(chalk.bold.redBright('$ '));
+  for (let i = 1; i < parseQuote.length; i += 1) {
+    const [key, value] = parseQuote[i].split(':');
+    options[key] = value;
+  }
 
-  start();
-
-  rl.on('line', async (line) => {
-    // eslint-disable-next-line no-param-reassign
-    line = line.trim();
-
-    if (line === 'exit' || line === 'quit') {
-      process.exit(0);
-    } else if (line === 'clear') {
-      console.clear();
-      start();
-      return;
-    }
-
-    const parseQuote = parse(line.trim());
-    const actionName = parseQuote[0];
-
-    const options = {
-      action: actionName,
-    };
-
-    for (let i = 1; i < parseQuote.length; i += 1) {
-      const [key, value] = parseQuote[i].split(':');
-      options[key] = value;
-    }
-
-    ipc.of[ipcId].emit(
-      'message', // any event or message type your server listens for
-      JSON.stringify(options),
-    );
-  }).on('close', () => {
-    console.log('\nDisconnect');
-    process.exit(0);
-  });
+  ipc.of[ipcId].emit(
+    'message', // any event or message type your server listens for
+    JSON.stringify(options),
+  );
 };
 
-const onDisconnect = () => {
+const onClose = () => {
+  console.log('\nDisconnect');
+  rl.write();
+  process.exit(0);
+};
+
+const ipcConnect = () => {
+  retrying = false;
+  start();
+};
+
+const ipcDisconnect = () => {
+  // rl.pause();
   // Check retrying to avoid repetitive disconnect message
   if (!retrying) {
     console.log('\nDisconnect. Retrying...');
@@ -150,7 +146,7 @@ const onDisconnect = () => {
   retrying = true;
 };
 
-const onError = (error) => {
+const ipcError = (error) => {
   debug(`Error connecting to IPC: ${error}`);
 
   if (!retrying) {
@@ -160,15 +156,19 @@ const onError = (error) => {
   retrying = true;
 };
 
-const onMessage = (data) => {
+const ipcMessage = (data) => {
   // ipc.log('got a message from world : '.debug, data);
   printResult(JSON.parse(data));
   rl.prompt();
 };
 
+rl.setPrompt(chalk.bold.redBright('$ '));
+rl.on('line', onLineInput);
+rl.on('close', onClose);
+
 ipc.connectTo(ipcId, () => {
-  ipc.of[ipcId].on('connect', onConnect);
-  ipc.of[ipcId].on('disconnect', onDisconnect);
-  ipc.of[ipcId].on('error', onError);
-  ipc.of[ipcId].on('message', onMessage);
+  ipc.of[ipcId].on('connect', ipcConnect);
+  ipc.of[ipcId].on('disconnect', ipcDisconnect);
+  ipc.of[ipcId].on('error', ipcError);
+  ipc.of[ipcId].on('message', ipcMessage);
 });
