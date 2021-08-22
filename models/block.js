@@ -20,6 +20,10 @@ class Block {
     // this.coinbase = new Transaction();
   }
 
+  setPreviousHash(hash) {
+    this.header.setPrevious(hash);
+  }
+
   addCoinbase(receiverAddress) {
     const transaction = new Transaction(null, receiverAddress, 100);
     this.addTransaction(transaction);

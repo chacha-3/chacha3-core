@@ -36,6 +36,8 @@ test('should mine a block', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
   await block.mine();
 
   t.equal(await block.verifyHash(), true, 'mined block has verified hash');
@@ -63,6 +65,8 @@ test('get object representation of a block', async (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
+  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
   await block.mine();
 
   t.end();
@@ -87,6 +91,8 @@ test('verify block with checksum', async (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
+  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
   await block.mine();
 
   t.equal(block.verifyChecksum(), true);
@@ -123,6 +129,8 @@ test('checksum is updated when adding transaction', async (t) => {
     transaction.sign(sender.getPrivateKeyObject());
 
     block.addTransaction(transaction);
+    block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
     await block.mine();
 
     if (previousChecksum) {
@@ -142,6 +150,8 @@ test('block is invalid when checksum is incorrect', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
   await block.mine();
 
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
@@ -159,6 +169,8 @@ test('block is invalid if adding transaction after mining', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+
   await block.mine();
 
   t.equal(block.verifyHash(), true, 'mined block has verified hash');

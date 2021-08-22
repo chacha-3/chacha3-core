@@ -87,10 +87,12 @@ class Header {
 
   hashData() {
     assert(this.checksum !== null && this.time != null);
+    assert(this.previous !== null);
 
     const data = {
       version: this.version,
-      previous: this.previous ? this.previous.toString('hex') : null,
+      // previous: this.previous ? this.previous.toString('hex') : null,
+      previous: this.previous.toString('hex'),
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
@@ -191,6 +193,19 @@ class Header {
     this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
   }
 
+  toPushData() {
+    const data = {
+      version: this.getVersion(),
+      // FIXME: Previous should be required field, unless genesis block
+      previous: (this.getPrevious() != null) ? this.getPrevious().toString('hex') : null,
+      time: this.getTime(),
+      difficulty: this.getDifficulty(),
+      nonce: this.getNonce(),
+      checksum: this.getChecksum().toString('hex'),
+    };
+
+    return data;
+  }
   // toObject() {
   //   return {
   //     version: this.version,
