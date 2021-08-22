@@ -5,9 +5,10 @@ const debug = require('debug')('transaction:model');
 
 const Wallet = require('./wallet');
 
-const { serializeBuffer } = require('../util/serialize');
+const { serializeBuffer, serializeObject, deserializeObject } = require('../util/serialize');
 const { TransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
+
 
 class Transaction {
   constructor(senderKey, receiverAddress, amount) {
@@ -155,40 +156,39 @@ class Transaction {
     const key = transaction.getId();
 
     const data = {
-      id: transaction.getId().toString('hex'),
+      id: transaction.getId(),
       version: transaction.getVersion(),
-      senderKey: transaction.getSenderKey() ? transaction.getSenderKey().toString('hex') : null,
+      senderKey: transaction.getSenderKey(),
       receiverAddress: transaction.getReceiverAddress(),
       amount: transaction.getAmount(),
-      signature: transaction.getSignature() ? transaction.getSignature().toString('hex') : null,
+      signature: transaction.getSignature(),
     };
 
-    await TransactionDB.put(key, data, { valueEncoding: 'json' });
+    await TransactionDB.put(key, serializeObject(data), { valueEncoding: 'json' });
     return { key, data };
   }
 
   static async load(id) {
-    let data;
+    let loaded;
 
     try {
-      data = await TransactionDB.get(id, { valueEncoding: 'json' });
+      loaded = await TransactionDB.get(id, { valueEncoding: 'json' });
     } catch (e) {
       return null;
     }
 
-    const loaded = new Transaction(
-      (data.senderKey) ? Buffer.from(data.senderKey, 'hex') : null,
+    const data = deserializeObject(loaded);
+
+    const transaction = new Transaction(
+      data.senderKey,
       data.receiverAddress,
       data.amount,
     );
 
-    loaded.version = data.version;
+    transaction.setVersion(data.version);
+    transaction.setSignature(data.signature);
 
-    if (data.signature) {
-      loaded.signature = Buffer.from(data.signature, 'hex');
-    }
-
-    return loaded;
+    return transaction;
   }
 
   static async clearAll() {

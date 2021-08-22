@@ -46,11 +46,11 @@ const serializeObject = (obj) => {
     serialized[key] = serializeIfBuffer(obj[key]);
   });
 
-  return JSON.stringify(serialized);
+  return serialized;
 };
 
 const deserializeObject = (data, exemptFields) => {
-  const obj = JSON.parse(data);
+  const obj = { ...data };
 
   Object.keys(obj).forEach((key) => {
     if (exemptFields && exemptFields.includes(key)) {
