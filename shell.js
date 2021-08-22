@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 /* eslint-disable no-console */
 const readline = require('readline');
 const chalk = require('chalk');
@@ -90,7 +92,9 @@ function start() {
   rl.prompt();
 }
 
-ipc.config.id = 'bong';
+const ipcId = `bong${process.env.PORT || 3000}`;
+
+ipc.config.id = ipcId;
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
@@ -127,7 +131,7 @@ const onConnect = () => {
       options[key] = value;
     }
 
-    ipc.of.bong.emit(
+    ipc.of[ipcId].emit(
       'message', // any event or message type your server listens for
       JSON.stringify(options),
     );
@@ -162,9 +166,9 @@ const onMessage = (data) => {
   rl.prompt();
 };
 
-ipc.connectTo('bong', () => {
-  ipc.of.bong.on('connect', onConnect);
-  ipc.of.bong.on('disconnect', onDisconnect);
-  ipc.of.bong.on('error', onError);
-  ipc.of.bong.on('message', onMessage);
+ipc.connectTo(ipcId, () => {
+  ipc.of[ipcId].on('connect', onConnect);
+  ipc.of[ipcId].on('disconnect', onDisconnect);
+  ipc.of[ipcId].on('error', onError);
+  ipc.of[ipcId].on('message', onMessage);
 });

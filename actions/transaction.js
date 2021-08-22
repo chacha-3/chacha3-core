@@ -8,7 +8,7 @@ const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
 const actions = {};
 
 actions.createTransaction = {
-  permission: 'public', // TODO: Change to private
+  permission: 'authOnly',
   schema: {
     properties: {
       key: { type: 'string' },
@@ -47,15 +47,7 @@ actions.createTransaction = {
     }
 
     Transaction.addPending(transaction);
-
-    Peer.broadcastAction({
-      action: 'pushTransaction',
-      key: transaction.getSenderKey().toString('hex'),
-      address: transaction.getReceiverAddress(),
-      amount: transaction.getAmount(),
-      signature: transaction.getSignature().toString('hex'),
-      time: transaction.getTime(),
-    });
+    Peer.broadcastAction('pushTransaction', transaction.toPushData());
 
     return okResponse(transaction.toObject(), 'Transaction created');
   },

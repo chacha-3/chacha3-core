@@ -70,16 +70,17 @@ class Peer {
     return Promise.all(promises);
   }
 
-  static async broadcastAction(options) {
+  static async broadcastAction(actionName, options) {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
 
     const peers = await Peer.all();
+    const merged = Object.assign(options || {}, { action: actionName });
 
     peers.forEach((peer) => {
-      debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(options)}`);
-      peer.sendRequest(options);
+      debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(merged)}`);
+      peer.sendRequest(merged);
     });
   }
 

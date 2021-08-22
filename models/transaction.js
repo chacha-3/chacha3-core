@@ -133,6 +133,18 @@ class Transaction {
     };
   }
 
+  toPushData() {
+    assert(this.getSignature() !== null);
+
+    return {
+      key: this.getSenderKey().toString('hex'),
+      address: this.getReceiverAddress(),
+      amount: this.getAmount(),
+      signature: this.getSignature().toString('hex'),
+      time: this.getTime(),
+    };
+  }
+
   static async save(transaction) {
     assert(transaction.getId() != null);
     const key = transaction.getId();
