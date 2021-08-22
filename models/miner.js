@@ -1,3 +1,4 @@
+const debug = require('debug')('miner:model');
 const assert = require('assert');
 
 // const db = level('wallets');
@@ -36,18 +37,28 @@ class Miner {
 
       block.header.setDifficulty(chain.getCurrentDifficulty());
       block.header.incrementNonce();
+
+      const latestBlock = chain.latestBlockHeader();
+
+      if (latestBlock) {
+        block.setPreviousHash(latestBlock.getHash());
+      } else {
+        block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+      }
+
       await block.header.computeHash();
 
       if (block.verifyHash()) {
+        debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
         await Block.save(block);
-        chain.addBlockHeader(block.getHeader());
 
-        // New block
+        chain.addBlockHeader(block.getHeader());
+        await Chain.save(chain);
+
+        // Init new block for mining
         block = new Block();
         block.addCoinbase(this.receiverAddress);
       }
-
-      await Chain.save(chain);
     }
 
     return true;

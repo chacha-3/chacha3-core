@@ -65,7 +65,7 @@ mock.blockWithTransactions = async (numOfTransactions) => {
 
   const block = new Block();
   block.addCoinbase(receiver.getAddressEncoded());
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   for (let i = 0; i < minusCoinbase; i += 1) {
     const sender = new Wallet();

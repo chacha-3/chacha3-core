@@ -88,8 +88,10 @@ class Block {
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
-    const hashNum = new BN(this.header.getHash(), 16);
-    const targetNum = new BN(this.header.getTarget(), 16);
+    const hex = 16;
+
+    const hashNum = new BN(this.header.getHash(), hex);
+    const targetNum = new BN(this.header.getTarget(), hex);
 
     return hashNum.lt(targetNum);
   }

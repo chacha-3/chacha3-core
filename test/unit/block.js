@@ -36,7 +36,7 @@ test('should mine a block', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
 
@@ -65,7 +65,7 @@ test('get object representation of a block', async (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
 
@@ -91,7 +91,7 @@ test('verify block with checksum', async (t) => {
   transaction1.sign(sender.getPrivateKeyObject());
 
   block.addTransaction(transaction1);
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
 
@@ -129,7 +129,7 @@ test('checksum is updated when adding transaction', async (t) => {
     transaction.sign(sender.getPrivateKeyObject());
 
     block.addTransaction(transaction);
-    block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+    block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
     await block.mine();
 
@@ -150,7 +150,7 @@ test('block is invalid when checksum is incorrect', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
 
@@ -169,7 +169,7 @@ test('block is invalid if adding transaction after mining', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddressEncoded());
-  block.setPreviousHash(Buffer.from('00000000000000000000000000000000', 'hex'));
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
 

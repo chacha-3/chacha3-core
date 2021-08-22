@@ -135,6 +135,10 @@ class Chain {
     return difficulty;
   }
 
+  latestBlockHeader() {
+    return this.blockHeaders[this.blockHeaders.length - 1];
+  }
+
   static async save(chain) {
     const key = 'chain';
     const data = {
