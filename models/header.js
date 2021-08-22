@@ -55,15 +55,7 @@ class Header {
     return { key, data };
   }
 
-  static async load(hash) {
-    let data;
-
-    try {
-      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
-    } catch (e) {
-      return null;
-    }
-
+  static fromSaveData(data, hash) {
     const header = new Header();
 
     header.setVersion(data.version);
@@ -75,6 +67,18 @@ class Header {
     header.setHash(hash);
 
     return header;
+  }
+
+  static async load(hash) {
+    let data;
+
+    try {
+      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
+    } catch (e) {
+      return null;
+    }
+
+    return Header.fromSaveData(data, hash);
   }
 
   static async clearAll() {
