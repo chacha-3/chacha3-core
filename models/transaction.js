@@ -49,6 +49,10 @@ class Transaction {
     return this.version;
   }
 
+  setVersion(version) {
+    this.version = version;
+  }
+
   sign(privateKey) {
     assert(this.senderKey != null);
     this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
@@ -140,8 +144,9 @@ class Transaction {
       key: this.getSenderKey().toString('hex'),
       address: this.getReceiverAddress(),
       amount: this.getAmount(),
-      signature: this.getSignature().toString('hex'),
+      version: this.getVersion(),
       time: this.getTime(),
+      signature: this.getSignature().toString('hex'),
     };
   }
 

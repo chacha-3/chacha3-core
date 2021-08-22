@@ -46,6 +46,7 @@ test('push transaction', async (t) => {
     amount: transaction.getAmount(),
     signature: transaction.getSignature().toString('hex'),
     time: transaction.getTime(),
+    version: transaction.getVersion(),
   });
 
   t.equal(code, SuccessCode);

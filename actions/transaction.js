@@ -62,8 +62,9 @@ actions.pushTransaction = {
       amount: { type: 'string' },
       signature: { type: 'string' },
       time: { type: 'integer' },
+      version: { type: 'integer' },
     },
-    required: ['key', 'address', 'amount', 'signature', 'time'],
+    required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
   },
   handler: async (options) => {
     const transaction = new Transaction(
@@ -74,6 +75,7 @@ actions.pushTransaction = {
 
     transaction.setTime(options.time);
     transaction.setSignature(Buffer.from(options.signature, 'hex'));
+    transaction.setVersion(options.version);
 
     const errors = transaction.validate();
 

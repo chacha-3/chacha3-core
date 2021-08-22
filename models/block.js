@@ -81,7 +81,6 @@ class Block {
     return end - start;
   }
 
-
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
