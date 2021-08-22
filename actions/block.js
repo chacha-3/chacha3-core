@@ -1,5 +1,6 @@
 const debug = require('debug')('transaction:model');
 
+const Block = require('../models/block');
 const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
@@ -21,31 +22,10 @@ actions.pushBlock = {
   //   required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
   // },
   handler: async (options) => {
-    const transaction = new Transaction(
-      Buffer.from(options.key, 'hex'),
-      options.address,
-      Number.parseInt(options.amount, 10),
-    );
+    const block = new Block();
 
-    transaction.setTime(options.time);
-    transaction.setSignature(Buffer.from(options.signature, 'hex'));
-    transaction.setVersion(options.version);
 
-    const errors = transaction.validate();
-
-    if (errors.length > 0) {
-      return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
-    }
-
-    if (!transaction.verify()) {
-      debug(`Transaction failed verification: ${JSON.stringify(options)}`);
-      return errorResponse(ErrorCode.FailedPrecondition, 'Transaction failed verification');
-    }
-
-    Transaction.addPending(transaction);
-    debug('Add to pending transaction');
-
-    return okResponse(transaction.toObject(), 'Transaction pushed');
+    return okResponse(block.toObject(), 'Block pushed');
   },
 };
 

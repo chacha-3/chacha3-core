@@ -3,6 +3,7 @@ const assert = require('assert');
 const { argon2d } = require('argon2-ffi');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 // TODO: Cleaner way for this. Add generic environment check
 
@@ -91,7 +92,6 @@ class Header {
 
     const data = {
       version: this.version,
-      // previous: this.previous ? this.previous.toString('hex') : null,
       previous: this.previous.toString('hex'),
       time: this.time,
       difficulty: this.difficulty,
@@ -193,17 +193,30 @@ class Header {
     this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
   }
 
-  toPushData() {
+  static toPushData(header) {
     const data = {
-      version: this.getVersion(),
-      previous: this.getPrevious().toString('hex'),
-      time: this.getTime(),
-      difficulty: this.getDifficulty(),
-      nonce: this.getNonce(),
-      checksum: this.getChecksum().toString('hex'),
+      version: header.getVersion(),
+      previous: serializeBuffer(header.getPrevious()),
+      time: header.getTime(),
+      difficulty: header.getDifficulty(),
+      nonce: header.getNonce(),
+      checksum: serializeBuffer(header.getChecksum()),
     };
 
     return data;
+  }
+
+  static fromPushData(data) {
+    const header = new Header();
+
+    header.setVersion(data.version);
+    header.setPrevious(deserializeBuffer(data.previous));
+    header.setTime(data.time);
+    header.setDifficulty(data.difficulty);
+    header.setNonce(data.nonce);
+    header.setChecksum(deserializeBuffer(data.checksum));
+
+    return header;
   }
 }
 
