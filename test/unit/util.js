@@ -1,7 +1,7 @@
 const { test } = require('tap');
 
 const { runningManualTest } = require('../../util/db');
-const { serializeBuffer, deserializeBuffer, serializeObject, deserializeObject } = require('../../util/serialize');
+const { serializeBuffer, deserializeBuffer, serializeBuffers, deserializeBuffers} = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 
 test('detect running unit test', (t) => {
@@ -22,6 +22,8 @@ test('detect running unit test', (t) => {
   t.end();
 });
 
+//
+
 test('serialize and deserialize buffer', (t) => {
   const buffer = Buffer.from([0x00, 0x01, 0x02]);
 
@@ -38,30 +40,26 @@ test('serialize and deserialize null buffer', (t) => {
   t.end();
 });
 
-test('serialize and deserialize object', (t) => {
+//
+
+test('serialize and deserialize buffer in object', (t) => {
   const source = {
     a: 1,
     b: 'value',
     c: Buffer.from([0x00, 0x02]),
-    d: '0102aa', // Hex injection, to exempt
-    e: '0304aa', // To test without exempt
+    d: null,
   };
 
-  const serialized = serializeObject(source);
-  const deserialized = deserializeObject(serialized, ['d']);
+  const serialized = serializeBuffers(source, ['c', 'd']);
+  t.equal(serialized.c, '0002');
+  t.equal(serialized.d, null);
 
-  t.equal(deserialized.a, source.a);
-  t.equal(deserialized.b, source.b);
-
+  const deserialized = deserializeBuffers(serialized, ['c', 'd']);
   t.ok(deserialized.c.equals(source.c));
   t.equal(deserialized.d, source.d);
 
-  // Not exempted hex string that would be accidently converted to buffer
-  t.ok(deserialized.e.equals(Buffer.from([0x03, 0x04, 0xaa])));
-
   t.end();
 });
-
 
 test('ok response has correct format', (t) => {
   const data = { a: 'value' };

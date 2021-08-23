@@ -5,7 +5,7 @@ const debug = require('debug')('transaction:model');
 
 const Wallet = require('./wallet');
 
-const { serializeBuffer, serializeObject, deserializeObject } = require('../util/serialize');
+const { serializeBuffer, serializeBuffers, deserializeBuffers } = require('../util/serialize');
 const { TransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
@@ -164,7 +164,9 @@ class Transaction {
       signature: transaction.getSignature(),
     };
 
-    await TransactionDB.put(key, serializeObject(data), { valueEncoding: 'json' });
+    const serialized = serializeBuffers(data, ['id', 'senderKey', 'signature']);
+    await TransactionDB.put(key, serialized, { valueEncoding: 'json' });
+
     return { key, data };
   }
 
@@ -177,7 +179,7 @@ class Transaction {
       return null;
     }
 
-    const data = deserializeObject(loaded);
+    const data = deserializeBuffers(loaded, ['id', 'senderKey', 'signature']);
 
     const transaction = new Transaction(
       data.senderKey,

@@ -39,30 +39,38 @@ const deserializeBuffer = (hexString) => {
   return Buffer.from(hexString, 'hex');
 };
 
-const serializeObject = (obj) => {
+const serializeBuffers = (obj, keys) => {
+  assert(keys.length > 0);
+
   const serialized = { ...obj };
 
-  Object.keys(obj).forEach((key) => {
-    serialized[key] = serializeIfBuffer(obj[key]);
+  keys.forEach((key) => {
+    if (!serialized[key]) {
+      return;
+    }
+
+    serialized[key] = serialized[key].toString('hex');
   });
 
   return serialized;
 };
 
-const deserializeObject = (data, exemptFields) => {
-  const obj = { ...data };
+const deserializeBuffers = (obj, keys) => {
+  assert(keys.length > 0);
 
-  Object.keys(obj).forEach((key) => {
-    if (exemptFields && exemptFields.includes(key)) {
+  const deserialized = { ...obj };
+
+  keys.forEach((key) => {
+    if (!deserialized[key]) {
       return;
     }
 
-    obj[key] = deserializeIfHex(obj[key]);
+    deserialized[key] = Buffer.from(deserialized[key], 'hex');
   });
 
-  return obj;
+  return deserialized;
 };
 
 module.exports = {
-  serializeBuffer, deserializeBuffer, serializeObject, deserializeObject,
+  serializeBuffers, deserializeBuffers, serializeBuffer, deserializeBuffer,
 };
