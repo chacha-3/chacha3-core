@@ -1,7 +1,7 @@
 const { test } = require('tap');
 
 const { runningManualTest } = require('../../util/db');
-const { serializeBuffer, deserializeBuffer, serializeBuffers, deserializeBuffers} = require('../../util/serialize');
+const { serializeBuffers, deserializeBuffers } = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 
 test('detect running unit test', (t) => {
@@ -21,26 +21,6 @@ test('detect running unit test', (t) => {
 
   t.end();
 });
-
-//
-
-test('serialize and deserialize buffer', (t) => {
-  const buffer = Buffer.from([0x00, 0x01, 0x02]);
-
-  t.equal(serializeBuffer(buffer), '000102');
-  t.ok(deserializeBuffer('000102').equals(buffer));
-
-  t.end();
-});
-
-test('serialize and deserialize null buffer', (t) => {
-  t.equal(serializeBuffer(null), null);
-  t.equal(deserializeBuffer(null), null);
-
-  t.end();
-});
-
-//
 
 test('serialize and deserialize buffer in object', (t) => {
   const source = {

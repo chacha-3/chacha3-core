@@ -5,10 +5,9 @@ const debug = require('debug')('transaction:model');
 
 const Wallet = require('./wallet');
 
-const { serializeBuffer, serializeBuffers, deserializeBuffers } = require('../util/serialize');
+const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
 const { TransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
-
 
 class Transaction {
   constructor(senderKey, receiverAddress, amount) {
@@ -127,15 +126,17 @@ class Transaction {
   }
 
   toObject() {
-    return {
-      id: serializeBuffer(this.getId()),
+    const data = {
+      id: this.getId(),
       sender: generateAddressEncoded(this.getSenderKey()),
       receiver: this.getReceiverAddress(),
       amount: this.getAmount(),
       version: this.getVersion(),
       time: this.getTime(),
-      signature: serializeBuffer(this.getSignature()),
+      signature: this.getSignature(),
     };
+
+    return serializeBuffers(data, ['id', 'signature']);
   }
 
   toPushData() {

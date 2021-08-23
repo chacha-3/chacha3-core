@@ -3,7 +3,7 @@ const assert = require('assert');
 const { argon2d } = require('argon2-ffi');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffers, deserializeBuffers, deserializeBuffer} = require('../util/serialize');
 
 // TODO: Cleaner way for this. Add generic environment check
 
@@ -196,17 +196,18 @@ class Header {
   static toPushData(header) {
     const data = {
       version: header.getVersion(),
-      previous: serializeBuffer(header.getPrevious()),
+      previous: header.getPrevious(),
       time: header.getTime(),
       difficulty: header.getDifficulty(),
       nonce: header.getNonce(),
-      checksum: serializeBuffer(header.getChecksum()),
+      checksum: header.getChecksum(),
     };
 
-    return data;
+    return serializeBuffers(data, ['previous', 'checksum']);
   }
 
-  static fromPushData(data) {
+  static fromPushData(obj) {
+    const data = deserializeBuffers(obj, ['previous', 'checksum']);
     const header = new Header();
 
     header.setVersion(data.version);
