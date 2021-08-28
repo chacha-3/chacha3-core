@@ -8,6 +8,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const blockData = require('../data/blocks.json');
+const { generateAddressEncoded } = require('../../models/wallet');
 
 test('create an empty chain', (t) => {
   const chain = new Chain();
@@ -132,14 +133,41 @@ test('compare current chain with longer chain', async (t) => {
   t.end();
 });
 
-test('verify block balances', async (t) => {
+test('update block balances', async (t) => {
   const chain = new Chain();
-  // const blocks = 
 
-  // for (let i = 0; i < blockData.length; i += 1) {
-  //   const block = 
-  // }
-  // chain.verifyBlockBalance();
+  const [block1] = await mock.blockList(1, 2);
+  chain.updateBlockBalances(block1);
+
+  // Post coinbase transaction
+  const transaction = block1.getTransaction(1);
+
+  const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+  const receiverAddress = transaction.getReceiverAddress();
+
+  chain.getAccountBalance(senderAddress);
+
+  const senderBalance = chain.getAccountBalance(senderAddress);
+  const receiverBalance = chain.getAccountBalance(receiverAddress);
+
+  t.ok(senderBalance < 10000);
+  t.ok(receiverBalance > 0);
+
+  t.equal(senderBalance + receiverBalance, 10000);
+
+  t.end();
+});
+
+test('have zero balance for account without transaction', async (t) => {
+  const chain = new Chain();
+
+  const [block1] = await mock.blockList(1, 2);
+  chain.updateBlockBalances(block1);
+
+  const randomWallet = new Wallet();
+  randomWallet.generate();
+
+  t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0);
 
   t.end();
 });

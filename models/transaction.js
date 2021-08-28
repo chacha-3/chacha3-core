@@ -45,6 +45,10 @@ class Transaction {
     return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
   }
 
+  getIdHex() {
+    return this.getId().toString('hex');
+  }
+
   getVersion() {
     return this.version;
   }
@@ -126,7 +130,7 @@ class Transaction {
   }
 
   static fromObject(obj) {
-    const data = deserializeBuffers(obj, ['id', 'signature']);
+    const data = deserializeBuffers(obj, ['id', 'sender', 'signature']);
 
     const transaction = new Transaction(data.sender, data.receiver, data.amount);
     transaction.setVersion(data.version);
@@ -148,7 +152,7 @@ class Transaction {
       signature: this.getSignature(),
     };
 
-    return serializeBuffers(data, ['id', 'signature']);
+    return serializeBuffers(data, ['id', 'sender', 'signature']);
   }
 
   toPushData() {

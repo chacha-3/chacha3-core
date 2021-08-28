@@ -10,6 +10,7 @@ const { DB, BlockDB, runningManualTest } = require('../util/db');
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
+const { generateAddressEncoded } = require('./wallet');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -18,7 +19,7 @@ if (runningManualTest(process.argv)) {
 class Chain {
   constructor() {
     this.blockHeaders = [];
-    this.balances = {};
+    this.accounts = {};
   }
 
   static getAdjustInterval() {
@@ -51,9 +52,104 @@ class Chain {
     return clamp(factor, min, max);
   }
 
-  verifyBlockBalance(block) {
-    
+  getAccountBalance(address) {
+    debug(`Get account balance for ${address}`);
+    const account = this.accounts[address];
+
+    debug(`Found account balance: ${JSON.stringify(account)}`);
+    if (!account) {
+      return 0;
+    }
+
+    return account.balance;
   }
+
+  getAccountTransactions(address) {
+    const account = this.accounts[address];
+
+    if (!account) {
+      return [];
+    }
+
+    return account.transactions;
+  }
+
+  transactionUpdate(transaction) {
+    if (transaction.getSenderKey()) {
+      const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+
+      if (!this.accounts[senderAddress]) {
+        // Sender has no transaction history
+        // No balance to send
+        return false;
+      }
+
+      const sufficientBalance = this.accounts[senderAddress].balance - transaction.getAmount() >= 0;
+
+      if (!sufficientBalance) {
+        return false;
+      }
+
+      this.accounts[senderAddress].transactions.push(transaction.getIdHex());
+      this.accounts[senderAddress].balance -= transaction.getAmount();
+    }
+
+    const receiverAddress = transaction.getReceiverAddress();
+
+    if (!this.accounts[receiverAddress]) {
+      this.accounts[receiverAddress] = {
+        balance: 0,
+        transactions: [],
+      };
+    }
+
+    this.accounts[receiverAddress].transactions.push(transaction.getIdHex());
+    this.accounts[receiverAddress].balance += transaction.getAmount();
+
+    return true;
+  }
+
+  transactionRevert(transaction) {
+    const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+
+    this.accounts[senderAddress].transactions.pop();
+    this.accounts[senderAddress].balance += transaction.getAmount();
+
+    const receiverAddress = transaction.getReceiverAddress();
+    this.accounts[receiverAddress].transactions.pop();
+    this.accounts[receiverAddress].balance -= transaction.getAmount();
+
+    if (this.accounts[receiverAddress].transactions.length === 0) {
+      delete this.accounts[receiverAddress];
+    }
+  }
+
+  updateBlockBalances(block) {
+    let valid = true;
+    let i = 0;
+
+    for (; i < block.getTransactionCount(); i += 1) {
+      valid = this.transactionUpdate(block.getTransaction(i));
+
+      if (!valid) {
+        break;
+      }
+    }
+
+    if (valid) {
+      return true;
+    }
+
+    for (i -= 1; i >= 0; i -= 1) {
+      this.transactionRevert(block.getTransaction(i));
+    }
+
+    return false;
+  }
+
+  // getAccountBalance(address) {
+  //   return this.accounts[address];
+  // }
 
   getBlockHeaders() {
     return this.blockHeaders;
@@ -77,6 +173,16 @@ class Chain {
 
   getLength() {
     return this.blockHeaders.length;
+  }
+
+  blockRewardAtIndex(index) {
+    // TODO: Add later
+    // Not a real formula
+    if (this.getLength() >= 0) {
+      return 10000;
+    }
+
+    return 0;
   }
 
   getTotalWork() {
