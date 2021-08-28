@@ -90,3 +90,30 @@ test('unable to load unsaved header', async (t) => {
   t.equal(loaded, null, 'unsaved header load with value null');
   t.end();
 });
+
+test('to and from header object', async (t) => {
+  const block = await mock.blockWithTransactions(1);
+  const header = block.getHeader();
+
+  const data = header.toObject();
+  const loaded = Header.fromObject(data);
+
+  t.ok(loaded.getHash().equals(header.getHash()));
+  t.ok(loaded.getPrevious().equals(header.getPrevious()));
+  t.ok(loaded.getChecksum().equals(header.getChecksum()));
+
+  t.equal(loaded.getTime(), header.getTime());
+  t.equal(loaded.getDifficulty(), header.getDifficulty());
+  t.equal(loaded.getNonce(), header.getNonce());
+  t.equal(loaded.getVersion(), header.getVersion());
+
+  t.end();
+});
+
+test('unable to load unsaved header', async (t) => {
+  const block = await mock.blockWithTransactions(1);
+  const loaded = await Header.load(block.getHeader().getHash());
+
+  t.equal(loaded, null, 'unsaved header load with value null');
+  t.end();
+});

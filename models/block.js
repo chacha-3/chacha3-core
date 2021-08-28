@@ -12,12 +12,7 @@ const { BlockDB } = require('../util/db');
 class Block {
   constructor() {
     this.header = new Header();
-    // this.transactionCount = 0;
     this.transactions = [];
-
-    // this.lastChecksum = Buffer.from([]);
-
-    // this.coinbase = new Transaction();
   }
 
   setPreviousHash(hash) {
@@ -25,7 +20,7 @@ class Block {
   }
 
   addCoinbase(receiverAddress) {
-    const transaction = new Transaction(null, receiverAddress, 100);
+    const transaction = new Transaction(null, receiverAddress, 10000);
     this.addTransaction(transaction);
   }
 
@@ -36,8 +31,6 @@ class Block {
     }
 
     this.transactions.push(transaction);
-    // this.transactionCount += 1;
-
     this.updateChecksum(transaction.getId());
   }
 
@@ -148,24 +141,34 @@ class Block {
 
   // }
 
-  // toObject() {
-  //   const data = {
-  //     header: this.getHeader().toObject(),
-  //     transactionCount: this.transactionCount,
-  //     transactions: [],
-  //   };
+  toObject() {
+    const data = {
+      header: this.getHeader().toObject(),
+      transactions: [],
+    };
 
-  //   for (let i = 0; i < this.transactionCount; i += 1) {
-  //     const transaction = this.transactions[i];
-  //     data.transactions.push(transaction.toObject());
-  //   }
+    for (let i = 0; i < this.transactions.length; i += 1) {
+      const transaction = this.transactions[i];
+      data.transactions.push(transaction.toObject());
+    }
 
-  //   return data;
-  // }
+    return data;
+  }
 
-  // fromObject() {
+  static fromObject(obj) {
+    const block = new Block();
 
-  // }
+    const header = Header.from(obj.header);
+    block.setHeader(header);
+
+    const { transactions } = obj;
+
+    for (let i = 0; i < transactions.length; i += 1) {
+      block.transactions[i] = Transaction.fromObject(transactions[i]);
+    }
+
+    return block;
+  }
 
   static async saveTransactions(block) {
     const saveTransaction = (transaction) => new Promise((resolve) => {

@@ -118,3 +118,5 @@ dist
 # LevelDB storage
 data
 testdata
+
+scripts/output

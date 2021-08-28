@@ -1,4 +1,6 @@
 const assert = require('assert');
+const clone = require('rfdc')();
+
 const Block = require('../models/block');
 const Chain = require('../models/chain');
 const Transaction = require('../models/transaction');
@@ -86,6 +88,23 @@ mock.blockWithTransactions = async (numOfTransactions) => {
   return block;
 };
 
+mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
+  assert(numOfBlocks > 0);
+  assert(transactionsPerBlock > 0);
+
+  const blocks = await Promise.all(
+    Array.from({ length: numOfBlocks }, () => mock.blockWithTransactions(transactionsPerBlock)),
+  );
+
+  const chain = new Chain();
+
+  for (let i = 0; i < numOfBlocks; i += 1) {
+    chain.addBlockHeader(blocks[i].getHeader());
+  }
+
+  return chain;
+};
+
 mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
@@ -105,5 +124,25 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   await Chain.save(chain);
   return chain;
 };
+
+mock.transaction = () => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddressEncoded(),
+    Math.floor(Math.random() * (100 - 1) + 1),
+  );
+
+  transaction.sign(sender.getPrivateKeyObject());
+
+  return transaction;
+};
+
+mock.clone = (instance) => clone(Object.create(Object.getPrototypeOf(instance)), instance);
 
 module.exports = mock;

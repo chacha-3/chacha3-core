@@ -13,7 +13,7 @@ const actions = {};
 const miner = new Miner();
 
 actions.chainInfo = {
-  permission: 'public', // TODO: Change to private
+  permission: 'public',
   // schema: {
   //   properties: {
   //     address: { type: 'string' },
@@ -29,6 +29,21 @@ actions.chainInfo = {
     };
 
     return okResponse(data, 'Chain Info');
+  },
+};
+
+actions.blockHeaders = {
+  permission: 'public',
+  handler: async () => {
+    const chain = await Chain.load();
+
+    const headers = chain.getBlockHeaders();
+    const data = [];
+    for (let i = 0; i < headers.length; i += 1) {
+      data.push(headers[i].toObject());
+    }
+
+    return okResponse(data, 'Block headers');
   },
 };
 

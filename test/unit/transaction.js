@@ -5,6 +5,7 @@ const { test } = require('tap');
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
 
+const mock = require('../../util/mock');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -222,6 +223,24 @@ test('correct push data', async (t) => {
   fields.forEach((field) => {
     t.ok(Object.prototype.hasOwnProperty.call(pushData, field));
   });
+
+  t.end();
+});
+
+test('to and from transaction object', async (t) => {
+  const transaction = mock.transaction();
+  const data = transaction.toObject();
+
+  const loaded = Transaction.fromObject(data);
+
+  t.ok(loaded.getId().equals(transaction.getId()));
+  t.ok(loaded.getSenderKey().equals(transaction.getSenderKey()));
+  t.ok(loaded.getSignature().equals(transaction.getSignature()));
+
+  t.equal(loaded.getReceiverAddress(), transaction.getReceiverAddress());
+  t.equal(loaded.getVersion(), transaction.getVersion());
+  t.equal(loaded.getTime(), transaction.getTime());
+  t.equal(loaded.getAmount(), transaction.getAmount());
 
   t.end();
 });

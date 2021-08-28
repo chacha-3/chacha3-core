@@ -125,10 +125,22 @@ class Transaction {
     }
   }
 
+  static fromObject(obj) {
+    const data = deserializeBuffers(obj, ['id', 'signature']);
+
+    const transaction = new Transaction(data.sender, data.receiver, data.amount);
+    transaction.setVersion(data.version);
+    transaction.setTime(data.time);
+    transaction.setSignature(data.signature);
+
+    return transaction;
+  }
+
   toObject() {
     const data = {
-      id: this.getId(),
-      sender: generateAddressEncoded(this.getSenderKey()),
+      id: this.getId(), // Remove?
+      // sender: this.getSenderKey() ? generateAddressEncoded(this.getSenderKey()) : null,
+      sender: this.getSenderKey(),
       receiver: this.getReceiverAddress(),
       amount: this.getAmount(),
       version: this.getVersion(),

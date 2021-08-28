@@ -1,3 +1,4 @@
+const debug = require('debug')('chain:model');
 const assert = require('assert');
 const crypto = require('crypto');
 const BN = require('bn.js');
@@ -17,6 +18,7 @@ if (runningManualTest(process.argv)) {
 class Chain {
   constructor() {
     this.blockHeaders = [];
+    this.balances = {};
   }
 
   static getAdjustInterval() {
@@ -47,6 +49,10 @@ class Chain {
     const min = 1 / adjustFactorLimit;
 
     return clamp(factor, min, max);
+  }
+
+  verifyBlockBalance(block) {
+    
   }
 
   getBlockHeaders() {
@@ -187,6 +193,43 @@ class Chain {
   static async clear() {
     await BlockDB.clear();
     await DB.del('chain');
+  }
+
+  static compareWork(currentChain, newChain) {
+    const currentWork = currentChain.getTotalWork();
+    const newWork = newChain.getTotalWork();
+    // FIXME:
+
+    debug(`Compare block work. Current: ${currentWork}, New: ${newWork}`);
+    const isAhead = newWork >= currentWork + currentChain.getCurrentDifficulty();
+
+    if (!isAhead) {
+      return -1;
+    }
+
+    let i = 0;
+
+    for (; i < currentChain.getLength(); i += 1) {
+      if (currentChain.getBlockHeader(i).getHash() !== newChain.getBlockHeader(i).getHash()) {
+        // Diverge index
+        return i;
+      }
+    }
+
+    // Update start index
+    return i;
+  }
+
+  toObject() {
+    const data = {
+      blockHeaders: this.blockHeaders.map((header) => header.toObject()),
+    };
+
+    return data;
+  }
+
+  fromObject() {
+
   }
 }
 

@@ -1,3 +1,4 @@
+const clone = require('rfdc')();
 const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
@@ -5,6 +6,8 @@ const Block = require('../../models/block');
 const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
+
+const blockData = require('../data/blocks.json');
 
 test('create an empty chain', (t) => {
   const chain = new Chain();
@@ -110,12 +113,33 @@ test('save and load chain', async (t) => {
   t.end();
 });
 
-// test('load block headers', async (t) => {
-//   const numOfBlocks = 3;
-//   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
-//   // Chain.saveBlocks(chain);
-//   // t.ok(await chain.getBlockHeaders());
+test('compare current chain with longer chain', async (t) => {
+  const currentChain = await mock.chainWithHeaders(3, 5);
+  // const newBlock = await mock.blockWithTransactions(1);
 
-//   Chain.clear();
-//   t.end();
-// });
+  // console.log(currentChain.toObject());
+  // const longerChain = mock.clone(currentChain);
+  // console.log(newBlock.getHeader());
+  // // longerChain.addBlockHeader(newBlock.getHeader());
+
+  // console.log(currentChain);
+  // console.log('---------------------------------------------');
+  // console.log(longerChain);
+
+  // const result = Chain.compareWork(currentChain, longerChain);
+
+  // t.equal(result, 3);
+  t.end();
+});
+
+test('verify block balances', async (t) => {
+  const chain = new Chain();
+  // const blocks = 
+
+  // for (let i = 0; i < blockData.length; i += 1) {
+  //   const block = 
+  // }
+  // chain.verifyBlockBalance();
+
+  t.end();
+});

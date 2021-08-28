@@ -219,6 +219,36 @@ class Header {
 
     return header;
   }
+
+  static fromObject(obj) {
+    const data = deserializeBuffers(obj, ['hash', 'previous', 'checksum']);
+
+    const header = new Header();
+
+    header.setHash(data.hash);
+    header.setPrevious(data.previous);
+    header.setTime(data.time);
+    header.setDifficulty(data.difficulty);
+    header.setNonce(data.nonce);
+    header.setChecksum(data.checksum);
+    header.setVersion(data.version);
+
+    return header;
+  }
+
+  toObject() {
+    const data = {
+      hash: this.getHash(),
+      previous: this.getPrevious(),
+      time: this.getTime(),
+      difficulty: this.getDifficulty(),
+      nonce: this.getNonce(),
+      checksum: this.getChecksum(),
+      version: this.getVersion(),
+    };
+
+    return serializeBuffers(data, ['hash', 'previous', 'checksum']);
+  }
 }
 
 module.exports = Header;
