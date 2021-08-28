@@ -143,31 +143,34 @@ mock.transaction = () => {
   return transaction;
 };
 
-mock.blockList = async (numberOfBlocks, transactionsPerBlock) => {
+mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
   const blocks = [];
   let previousHash = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
 
-  // Coinbase receiver to send out
-  const sender = new Wallet();
-  sender.generate();
+  let wallet = minerWallet;
+
+  if (!wallet) {
+    wallet = new Wallet();
+    wallet.generate();
+  }
 
   for (let i = 0; i < numberOfBlocks; i += 1) {
     const receiver = new Wallet();
     receiver.generate();
 
     const block = new Block();
-    block.addCoinbase(sender.getAddressEncoded());
+    block.addCoinbase(wallet.getAddressEncoded());
     block.setPreviousHash(previousHash);
 
     const minusCoinbase = transactionsPerBlock - 1;
     for (let j = 0; j < minusCoinbase; j += 1) {
       const transaction = new Transaction(
-        sender.getPublicKey(),
+        wallet.getPublicKey(),
         receiver.getAddressEncoded(),
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
-      transaction.sign(sender.getPrivateKeyObject());
+      transaction.sign(wallet.getPrivateKeyObject());
       block.addTransaction(transaction);
     }
 

@@ -133,30 +133,75 @@ test('compare current chain with longer chain', async (t) => {
   t.end();
 });
 
-test('update block balances', async (t) => {
+test('update and reverts block balances', async (t) => {
   const chain = new Chain();
 
-  const [block1] = await mock.blockList(1, 2);
-  chain.updateBlockBalances(block1);
+  const numOfBlocks = 2;
 
-  // Post coinbase transaction
-  const transaction = block1.getTransaction(1);
+  // Coinbase wallet to send to
+  const wallet = new Wallet();
+  wallet.generate();
 
-  const senderAddress = generateAddressEncoded(transaction.getSenderKey());
-  const receiverAddress = transaction.getReceiverAddress();
+  const blocks = await mock.blockList(numOfBlocks, 2, wallet);
+  const receiverAddresses = new Array(numOfBlocks);
 
-  chain.getAccountBalance(senderAddress);
+  for (let i = 0; i < numOfBlocks; i += 1) {
+    chain.updateBlockBalances(blocks[i]);
 
-  const senderBalance = chain.getAccountBalance(senderAddress);
-  const receiverBalance = chain.getAccountBalance(receiverAddress);
+    // Post coinbase transaction
+    const transaction = blocks[i].getTransaction(1);
 
-  t.ok(senderBalance < 10000);
-  t.ok(receiverBalance > 0);
+    const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+    receiverAddresses[i] = transaction.getReceiverAddress();
 
-  t.equal(senderBalance + receiverBalance, 10000);
+    const senderBalance = chain.getAccountBalance(senderAddress);
+    const receiverBalance = chain.getAccountBalance(receiverAddresses[i]);
 
+    const updatedBlocks = i + 1;
+
+    t.ok(senderBalance < 10000 * updatedBlocks);
+    t.ok(receiverBalance > 0);
+  }
+
+  const senderBalance = chain.getAccountBalance(wallet.getAddressEncoded());
+
+  const totalReceiverBalance = receiverAddresses.reduce(
+    (total, value) => total + chain.getAccountBalance(value),
+    0,
+  );
+
+  const totalSupply = 10000 * numOfBlocks;
+  t.equal(senderBalance + totalReceiverBalance, totalSupply);
   t.end();
 });
+
+// test('reverts transaction for invalid blocks block balances', async (t) => {
+//   const chain = new Chain();
+
+//   const [block1] = await mock.blockList(1, 2);
+//   chain.updateBlockBalances(block1);
+
+//   // Post coinbase transaction
+//   const transaction = block1.getTransaction(1);
+
+//   const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+//   const receiverAddress = transaction.getReceiverAddress();
+
+//   chain.getAccountBalance(senderAddress);
+
+//   const senderBalance = chain.getAccountBalance(senderAddress);
+//   const receiverBalance = chain.getAccountBalance(receiverAddress);
+
+//   t.ok(senderBalance < 10000);
+//   t.ok(receiverBalance > 0);
+
+//   t.equal(senderBalance + receiverBalance, 10000);
+
+//   t.equal(chain.getAccountTransactions(senderAddress).length, 2);
+//   t.equal(chain.getAccountTransactions(receiverAddress).length, 1);
+
+//   t.end();
+// });
 
 test('have zero balance for account without transaction', async (t) => {
   const chain = new Chain();
