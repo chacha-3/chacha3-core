@@ -175,33 +175,73 @@ test('update and reverts block balances', async (t) => {
   t.end();
 });
 
-// test('reverts transaction for invalid blocks block balances', async (t) => {
-//   const chain = new Chain();
+test('reverts transaction for invalid blocks block balances', async (t) => {
+  const chain = new Chain();
 
-//   const [block1] = await mock.blockList(1, 2);
-//   chain.updateBlockBalances(block1);
+  const [block1, block2] = await mock.blockList(2, 5);
+  const result1 = chain.updateBlockBalances(block1);
 
-//   // Post coinbase transaction
-//   const transaction = block1.getTransaction(1);
+  const initialState = { ...chain.accounts };
 
-//   const senderAddress = generateAddressEncoded(transaction.getSenderKey());
-//   const receiverAddress = transaction.getReceiverAddress();
+  // Tamper block, set value exceeding account balance
+  block2.transactions[2].amount = 1000000;
+  // console.log(block2);
+  const result2 = chain.updateBlockBalances(block2);
 
-//   chain.getAccountBalance(senderAddress);
+  t.equal(result1, true, 'Successfully updated block balances');
+  t.equal(result2, false, 'Invalid transaction. No update to block balance');
 
-//   const senderBalance = chain.getAccountBalance(senderAddress);
-//   const receiverBalance = chain.getAccountBalance(receiverAddress);
+  const revertedState = { ...chain.accounts };
+  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
 
-//   t.ok(senderBalance < 10000);
-//   t.ok(receiverBalance > 0);
+  t.end();
+});
 
-//   t.equal(senderBalance + receiverBalance, 10000);
+test('reverts transaction for invalid blocks block balances', async (t) => {
+  const chain = new Chain();
 
-//   t.equal(chain.getAccountTransactions(senderAddress).length, 2);
-//   t.equal(chain.getAccountTransactions(receiverAddress).length, 1);
+  const [block1, block2] = await mock.blockList(2, 5);
+  const result1 = chain.updateBlockBalances(block1);
 
-//   t.end();
-// });
+  const initialState = { ...chain.accounts };
+
+  // Tamper block, set value exceeding account balance
+  block2.transactions[2].amount = 1000000;
+
+  const result2 = chain.updateBlockBalances(block2);
+
+  t.equal(result1, true, 'Successfully updated block balances');
+  t.equal(result2, false, 'Invalid transaction. No update to block balance');
+
+  const revertedState = { ...chain.accounts };
+  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
+
+  t.end();
+});
+
+test('reverts a specific valid transaction', async (t) => {
+  const chain = new Chain();
+
+  const [block1, block2] = await mock.blockList(2, 5);
+  const result1 = chain.updateBlockBalances(block1);
+
+  const initialState = { ...chain.accounts };
+  const result2 = chain.updateBlockBalances(block2);
+
+  t.equal(result1, true, 'Successfully update balance for block 1');
+  t.equal(result2, true, 'Successfully update balance for block 2');
+
+  const updatedState = { ...chain.accounts };
+
+  t.not(JSON.stringify(initialState), JSON.stringify(updatedState));
+
+  chain.revertBlockBalances(block2);
+
+  const revertedState = { ...chain.accounts };
+  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
+
+  t.end();
+});
 
 test('have zero balance for account without transaction', async (t) => {
   const chain = new Chain();

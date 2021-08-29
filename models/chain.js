@@ -110,10 +110,12 @@ class Chain {
   }
 
   transactionRevert(transaction) {
-    const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+    if (transaction.getSenderKey()) {
+      const senderAddress = generateAddressEncoded(transaction.getSenderKey());
 
-    this.accounts[senderAddress].transactions.pop();
-    this.accounts[senderAddress].balance += transaction.getAmount();
+      this.accounts[senderAddress].transactions.pop();
+      this.accounts[senderAddress].balance += transaction.getAmount();
+    }
 
     const receiverAddress = transaction.getReceiverAddress();
     this.accounts[receiverAddress].transactions.pop();
@@ -124,6 +126,7 @@ class Chain {
     }
   }
 
+  // Update account balances from transactions of a block
   updateBlockBalances(block) {
     let valid = true;
     let i = 0;
@@ -147,9 +150,12 @@ class Chain {
     return false;
   }
 
-  // getAccountBalance(address) {
-  //   return this.accounts[address];
-  // }
+  // Undo updateBlockBalance
+  revertBlockBalances(block) {
+    for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      this.transactionRevert(block.getTransaction(i));
+    }
+  }
 
   getBlockHeaders() {
     return this.blockHeaders;
