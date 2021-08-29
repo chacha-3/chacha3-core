@@ -14,6 +14,34 @@ const miner = new Miner();
 //   return Object.values(os.networkInterfaces()).reduce((r, list) => r.concat(list.reduce((rr, i) => rr.concat((i.family === 'IPv4' && !i.internal && i.address) || []), [])), []);
 // }
 
+actions.ping = {
+  permission: 'public',
+  handler: () => okResponse(null, 'Pong'),
+};
+
+actions.pingNode = {
+  permission: 'public',
+  schema: {
+    properties: {
+      address: { type: 'string' },
+      port: { type: 'integer' },
+    },
+    required: ['address', 'port'],
+  },
+  handler: async (options) => {
+    const peer = new Peer(options.address, options.port);
+    const result = await peer.callAction('ping');
+
+    if (result) {
+      // TODO: Check response
+      return okResponse(null, 'Pong');
+    }
+
+    return errorResponse(ErrorCode.Unavailable, 'Unavailable');
+  },
+};
+
+
 actions.nodeInfo = {
   permission: 'public',
   handler: async () => {

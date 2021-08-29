@@ -31,6 +31,7 @@ const port = normalizePort(process.env.PORT || '3000');
 server.listen(port, async (err) => {
   debug(`Server listening on port ${port}`);
   if (err) {
+    console.log(err);
     process.exit(1);
   }
 
