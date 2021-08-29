@@ -12,13 +12,12 @@ const Chain = require('../../models/chain');
 const app = require('../../app')();
 
 test('display chain info', async (t) => {
-  const chain = await mock.chainWithBlocks(5, 3);
+  Chain.mainChain = await mock.chainWithBlocks(5, 3);
 
+  const chain = Chain.mainChain;
   const { data } = await runAction({
     action: 'chainInfo',
   });
-
-  console.log(data);
 
   t.equal(data.length, chain.getLength());
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
