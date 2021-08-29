@@ -22,6 +22,10 @@ class Chain {
     this.accounts = {};
   }
 
+  // static initMainChain() {
+  //   return Chain.load();
+  // }
+
   static getAdjustInterval() {
     const adjustInterval = {
       production: 2000,
@@ -157,6 +161,22 @@ class Chain {
     }
   }
 
+  // Revert chain to previous blocks length
+  // Update the account balance and header
+  // To use this method only on copies of main chain
+  async revertHeaderIndex(index) {
+    if (index <= this.getLength()) {
+      return false;
+    }
+
+    for (let i = this.getLength(); i > index; i -= 1) {
+      const block = await Block.load(this.getBlockHeader(i));
+      this.revertBlockBalances(block);
+    }
+
+    return true;
+  }
+
   getBlockHeaders() {
     return this.blockHeaders;
   }
@@ -290,7 +310,6 @@ class Chain {
 
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
-      // totalWork = data.totalWork;
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     } catch (e) {
       // return null;
@@ -305,6 +324,16 @@ class Chain {
   static async clear() {
     await BlockDB.clear();
     await DB.del('chain');
+  }
+
+  static acceptNewChain(currentChain, newChain) {
+    const divergeIndex = this.compareWork(currentChain, newChain);
+    if (divergeIndex < 0) {
+      return false;
+    }
+
+    // TODO: Check new blocks are valid
+
   }
 
   static compareWork(currentChain, newChain) {
@@ -344,5 +373,7 @@ class Chain {
 
   }
 }
+
+Chain.mainChain = null;
 
 module.exports = Chain;

@@ -24,7 +24,7 @@ class Miner {
 
     this.mining = true;
 
-    const chain = await Chain.load();
+    const chain = Chain.mainChain;
 
     let block = new Block();
     block.addCoinbase(this.receiverAddress);

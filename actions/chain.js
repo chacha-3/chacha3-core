@@ -21,7 +21,9 @@ actions.chainInfo = {
   //   required: ['address'],
   // },
   handler: async () => {
-    const chain = await Chain.load();
+    // const chain = await Chain.load();
+    const chain = Chain.mainChain;
+
     const data = {
       length: chain.getLength(),
       currentDifficulty: chain.getCurrentDifficulty(),

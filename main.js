@@ -3,7 +3,9 @@ require('dotenv').config();
 const debug = require('debug')('main');
 const server = require('./server');
 const ipc = require('./ipc');
+
 const Peer = require('./models/peer');
+const Chain = require('./models/chain');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -33,6 +35,7 @@ server.listen(port, async (err) => {
   }
 
   Peer.reachOutAll();
+  Chain.mainChain = await Chain.load();
 });
 
 ipc.server.start();
