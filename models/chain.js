@@ -22,10 +22,6 @@ class Chain {
     this.accounts = {};
   }
 
-  // static initMainChain() {
-  //   return Chain.load();
-  // }
-
   static getAdjustInterval() {
     const adjustInterval = {
       production: 2000,
@@ -322,6 +318,8 @@ class Chain {
   }
 
   static async clear() {
+    Chain.mainChain = new Chain();
+
     await BlockDB.clear();
     await DB.del('chain');
   }
@@ -374,6 +372,6 @@ class Chain {
   }
 }
 
-Chain.mainChain = null;
+Chain.mainChain = new Chain();
 
 module.exports = Chain;

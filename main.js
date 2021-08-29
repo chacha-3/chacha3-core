@@ -34,8 +34,8 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
-  Peer.reachOutAll();
   Chain.mainChain = await Chain.load();
+  Peer.reachOutAll();
 });
 
 ipc.server.start();

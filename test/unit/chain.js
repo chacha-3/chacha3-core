@@ -42,14 +42,14 @@ test('add block headers to the chain', async (t) => {
 test('get total work in chain', async (t) => {
   const numOfBlocks = 4;
 
-  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+  const chain = await mock.chainWithHeaders(numOfBlocks, 5);
   t.equal(chain.getTotalWork(), 4);
   t.end();
 });
 
 test('calculate average block time difference in chain', async (t) => {
   const numOfBlocks = 3;
-  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+  const chain = await mock.chainWithHeaders(numOfBlocks, 5);
 
   chain.blockHeaders[0].setTime(1628163920000);
   chain.blockHeaders[1].setTime(1628163940000);
@@ -63,7 +63,7 @@ test('calculate average block time difference in chain', async (t) => {
 });
 
 test('no average block time when chain has only one block', async (t) => {
-  const chain = await mock.chainWithBlocks(1, 3);
+  const chain = await mock.chainWithHeaders(1, 3);
 
   t.equal(chain.getAverageBlockTime(), 0);
   t.end();
@@ -74,7 +74,7 @@ test('get correct difficulty', async (t) => {
   t.equal(Chain.getExpectedTimePerBlock(), 1000);
 
   const numOfBlocks = 20;
-  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+  const chain = await mock.chainWithHeaders(numOfBlocks, 3);
 
   const actualTimePerBlock = 600;
 
@@ -93,7 +93,7 @@ test('get correct difficulty', async (t) => {
 });
 
 test('get default difficulty when one or less blocks', async (t) => {
-  const chain = await mock.chainWithBlocks(1, 2);
+  const chain = await mock.chainWithHeaders(1, 2);
 
   t.equal(chain.getCurrentDifficulty(), 1.0);
   t.end();

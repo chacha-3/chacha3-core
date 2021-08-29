@@ -21,7 +21,6 @@ actions.chainInfo = {
   //   required: ['address'],
   // },
   handler: async () => {
-    // const chain = await Chain.load();
     const chain = Chain.mainChain;
 
     const data = {
@@ -37,7 +36,7 @@ actions.chainInfo = {
 actions.blockHeaders = {
   permission: 'public',
   handler: async () => {
-    const chain = await Chain.load();
+    const chain = Chain.mainChain;
 
     const headers = chain.getBlockHeaders();
     const data = [];

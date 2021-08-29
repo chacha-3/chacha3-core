@@ -18,6 +18,8 @@ test('display chain info', async (t) => {
     action: 'chainInfo',
   });
 
+  console.log(data);
+
   t.equal(data.length, chain.getLength());
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
   t.equal(data.totalWork, chain.getTotalWork());
