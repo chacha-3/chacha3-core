@@ -37,6 +37,7 @@ mock.nodePeer = () => {
   peer.setPort(8888);
   peer.setChainLength(100);
   peer.setVersion('0.0.1');
+  peer.setTotalWork(100);
 
   return peer;
 };

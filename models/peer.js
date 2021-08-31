@@ -93,12 +93,15 @@ class Peer {
 
   static async withMostTotalWork() {
     const peers = await Peer.all();
+    let mostWorkPeer = null;
 
-    const mostWork = null;
+    for (let i = 0; i < peers.length; i += 1) {
+      if (mostWorkPeer === null || peers[i].getTotalWork() > mostWorkPeer.getTotalWork()) {
+        mostWorkPeer = peers[i];
+      }
+    }
 
-    // for (let i = 0; i < peers.length; i += 1) {
-    //   if (peers[i].)
-    // }
+    return mostWorkPeer;
   }
 
   getId() {
@@ -282,6 +285,7 @@ class Peer {
     return {
       version: peer.getVersion(),
       chainLength: peer.getChainLength(),
+      chainWork: peer.getTotalWork(),
       address: peer.getAddress(),
       port: peer.getPort(),
       status: peer.getStatus(),
@@ -293,6 +297,7 @@ class Peer {
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);
     peer.setStatus(data.status);
+    peer.setTotalWork(data.chainWork);
 
     return peer;
   }
