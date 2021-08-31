@@ -4,7 +4,7 @@ const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 const Peer = require('../models/peer');
 
-const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+const { errorResponse, ErrorCode, SuccessCode, okResponse } = require('../util/rpc');
 
 const actions = {};
 
@@ -32,15 +32,14 @@ actions.pingNode = {
     const peer = new Peer(options.address, options.port);
     const result = await peer.callAction('ping');
 
-    if (result) {
-      // TODO: Check response
-      return okResponse(null, 'Pong');
+    if (result && result.code === SuccessCode) {
+      const { message } = result;
+      return okResponse(null, message);
     }
 
     return errorResponse(ErrorCode.Unavailable, 'Unavailable');
   },
 };
-
 
 actions.nodeInfo = {
   permission: 'public',

@@ -40,7 +40,7 @@ function camelCaseToTitle(camelCase) {
     .replace(/([0-9])([a-z])/gi, '$1 $2');
 }
 
-function printObject(objectData) {
+function printObject(objectData, sub = 0) {
   Object.keys(objectData).forEach((key) => {
     const niceKeyName = camelCaseToTitle(key);
 
@@ -50,9 +50,18 @@ function printObject(objectData) {
       value = value ? 'Yes' : 'No';
     } else if (value === null) {
       value = 'None';
+    } else if (Array.isArray(value)) {
+      value = `[${value.length}]`;
     }
 
-    console.log(`${chalk.bold.cyanBright(niceKeyName)}: ${value}`);
+    if (typeof (value) === 'object') {
+      console.log(`${chalk.bold.cyanBright(niceKeyName)}`);
+      printObject(value, sub + 1);
+      value = '';
+    } else {
+      const subPrefix = (sub > 0) ? '- ' : '';
+      console.log(`${subPrefix}${chalk.bold.cyanBright(niceKeyName)}: ${value}`);
+    }
   });
 }
 
@@ -65,8 +74,12 @@ function printArray(dataArray) {
   }
 
   for (let i = 0; i < length; i += 1) {
-    printObject(dataArray[i]);
-    console.log('');
+    if (typeof (dataArray[i]) === 'object') {
+      printObject(dataArray[i]);
+      console.log('');
+    } else {
+      console.log(dataArray[i]);
+    }
   }
 }
 

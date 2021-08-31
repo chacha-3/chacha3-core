@@ -195,7 +195,6 @@ class Block {
   }
 
   static async save(block) {
-    // assert(transaction.getId() != null);
     if (!block.verify()) {
       throw Error('Cannot save unverified block');
     }

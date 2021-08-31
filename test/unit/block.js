@@ -201,6 +201,13 @@ test('block is invalid if adding transaction after mining', async (t) => {
 
 test('correct block object format', async (t) => {
   const block = await mock.blockWithTransactions(3);
+  const obj = block.toObject();
+
+  t.ok(Object.prototype.hasOwnProperty.call(obj, 'header'));
+  t.ok(typeof (obj.header), 'object');
+
+  t.ok(Object.prototype.hasOwnProperty.call(obj, 'transactions'));
+  t.equal(obj.transactions.length, 3);
 
   t.end();
 });

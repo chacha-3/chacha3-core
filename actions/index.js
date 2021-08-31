@@ -7,6 +7,7 @@ const miner = require('./miner');
 const chain = require('./chain');
 const info = require('./info');
 const peer = require('./peer');
+const block = require('./block');
 
 const { SuccessCode, ErrorCode, errorResponse } = require('../util/rpc');
 
@@ -17,6 +18,7 @@ const actions = {
   ...chain,
   ...info,
   ...peer,
+  ...block,
 };
 
 // const actionList = Object.keys(actions);

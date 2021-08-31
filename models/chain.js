@@ -324,14 +324,16 @@ class Chain {
     await DB.del('chain');
   }
 
-  static acceptNewChain(currentChain, newChain) {
+  static acceptNewChain(currentChain, newChain, sourcePeer) {
     const divergeIndex = this.compareWork(currentChain, newChain);
     if (divergeIndex < 0) {
       return false;
     }
 
     // TODO: Check new blocks are valid
-
+    for (let i = 0; i < newChain.length; i += 1) {
+      // await sourcePeer.call
+    }
   }
 
   static compareWork(currentChain, newChain) {
