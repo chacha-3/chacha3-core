@@ -324,15 +324,19 @@ class Chain {
     await DB.del('chain');
   }
 
-  static acceptNewChain(currentChain, newChain, sourcePeer) {
+  static async acceptNewChain(currentChain, newChain, sourcePeer) {
     const divergeIndex = this.compareWork(currentChain, newChain);
     if (divergeIndex < 0) {
       return false;
     }
 
     // TODO: Check new blocks are valid
-    for (let i = 0; i < newChain.length; i += 1) {
-      // await sourcePeer.call
+    for (let i = divergeIndex; i < newChain.getLength(); i += 1) {
+      const hash = newChain.getBlockHeader(i);
+      const blockData = await sourcePeer.callAction('blockInfo', {hash});
+
+      const newBlock = Block.fromObject(blockData);
+      await Block.save(newBlock)
     }
   }
 

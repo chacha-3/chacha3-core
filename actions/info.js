@@ -53,6 +53,7 @@ actions.nodeInfo = {
       time: Date.now(),
       port: process.env.PORT || 0,
       chainLength: chain.getLength(),
+      chainWork: chain.getTotalWork(),
       nonce: Peer.localNonce,
     };
 

@@ -24,6 +24,7 @@ class Peer {
 
     this.version = null;
     this.chainLength = null;
+    this.chainWork = 0;
 
     this.address = address || null;
     this.port = port || 0;
@@ -90,6 +91,16 @@ class Peer {
     peers.forEach((peer) => peer.reachOut());
   }
 
+  static async withMostTotalWork() {
+    const peers = await Peer.all();
+
+    const mostWork = null;
+
+    // for (let i = 0; i < peers.length; i += 1) {
+    //   if (peers[i].)
+    // }
+  }
+
   getId() {
     return Peer.generateKey(this.getAddress(), this.getPort());
   }
@@ -116,6 +127,14 @@ class Peer {
 
   setChainLength(length) {
     this.chainLength = length;
+  }
+
+  getTotalWork() {
+    return this.chainWork;
+  }
+
+  setTotalWork(work) {
+    this.chainWork = work;
   }
 
   getPort() {
@@ -161,9 +180,10 @@ class Peer {
     this.status = status;
   }
 
-  setPeerInfo(version, chainLength) {
+  setPeerInfo(version, chainLength, chainWork) {
     this.setVersion(version);
     this.setChainLength(chainLength);
+    this.setTotalWork(chainWork);
   }
 
   // isSelf() {
@@ -188,6 +208,7 @@ class Peer {
         : Peer.Status.Unreachable;
 
       this.setStatus(status);
+  
       Peer.save(this);
       return false;
     }
@@ -195,7 +216,7 @@ class Peer {
     assert(data);
 
     debug(`Receive response from peer ${this.getAddress()}:${this.getPort()}`);
-    this.setPeerInfo(data.version, data.chainLength);
+    this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
     const isSelf = Peer.localNonce === data.nonce;
 
@@ -244,6 +265,7 @@ class Peer {
       port: this.getPort(),
       version: this.getVersion(),
       chainLength: this.getChainLength(),
+      chainWork: this.getTotalWork(),
       status: this.getStatus(),
     };
   }
