@@ -67,4 +67,26 @@ actions.blockInfo = {
   },
 };
 
+actions.blockTransactions = {
+  permission: 'public',
+  schema: {
+    properties: {
+      hash: { type: 'string' },
+    },
+    required: ['hash'],
+  },
+  handler: async (options) => {
+    const block = await Block.load(Buffer.from(options.hash, 'hex'));
+
+    if (!block) {
+      return errorResponse(ErrorCode.NotFound, 'Block not found');
+    }
+
+    const transactions = block.getTransactions();
+    const data = transactions.map((transaction) => transaction.toObject());
+
+    return okResponse(data, 'Block transactions');
+  },
+};
+
 module.exports = actions;
