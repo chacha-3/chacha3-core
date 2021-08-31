@@ -373,8 +373,14 @@ class Chain {
     return data;
   }
 
-  fromObject() {
+  static fromObject(obj) {
+    const chain = new Chain();
 
+    for (let i = 0; i < obj.blockHeaders.length; i += 1) {
+      chain.addBlockHeader(Header.fromObject(obj.blockHeaders[i]));
+    }
+
+    return chain;
   }
 }
 

@@ -33,18 +33,13 @@ actions.chainInfo = {
   },
 };
 
-actions.blockHeaders = {
+actions.pullChain = {
   permission: 'public',
   handler: async () => {
     const chain = Chain.mainChain;
 
-    const headers = chain.getBlockHeaders();
-    const data = [];
-    for (let i = 0; i < headers.length; i += 1) {
-      data.push(headers[i].toObject());
-    }
-
-    return okResponse(data, 'Block headers');
+    // const chain = chain.getBlockHeaders();
+    return okResponse(chain.toObject(), 'Chain data');
   },
 };
 

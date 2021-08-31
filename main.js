@@ -36,7 +36,18 @@ server.listen(port, async (err) => {
   }
 
   Chain.mainChain = await Chain.load();
-  Peer.reachOutAll();
+  await Peer.reachOutAll();
+
+  // Sync with longest chain
+  const mostWorkPeer = await Peer.withMostTotalWork();
+  console.log(mostWorkPeer);
+  const chainData = await mostWorkPeer.callAction('pullChain');
+
+  console.log(chainData);
+  const pulledChain = Chain.fromObject(chainData);
+
+  console.log(pulledChain);
+  // Chain.compareWork(Chain.mainChain, )
 });
 
 ipc.server.start();

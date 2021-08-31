@@ -256,3 +256,15 @@ test('have zero balance for account without transaction', async (t) => {
 
   t.end();
 });
+
+test('to and from object', async (t) => {
+  const chain = await mock.chainWithHeaders(3, 5);
+
+  const obj = chain.toObject();
+  t.equal(obj.blockHeaders.length, 3);
+
+  const loaded = Chain.fromObject(obj);
+  t.equal(loaded.blockHeaders.length, 3);
+
+  t.end();
+});

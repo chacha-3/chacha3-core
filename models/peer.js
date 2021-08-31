@@ -88,7 +88,17 @@ class Peer {
   static async reachOutAll() {
     const peers = await Peer.all();
 
-    peers.forEach((peer) => peer.reachOut());
+    const reachOutPeer = (peer) => new Promise((resolve) => {
+      resolve(peer.reachOut());
+    });
+
+    const promises = [];
+
+    for (let i = 0; i < peers.length; i += 1) {
+      promises.push(reachOutPeer(peers[i]));
+    }
+
+    return Promise.all(promises);
   }
 
   static async withMostTotalWork() {
