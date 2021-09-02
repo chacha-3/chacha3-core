@@ -214,6 +214,15 @@ class Block {
     return { key, data };
   }
 
+  static async verifyAndSave(block) {
+    if (!block.verify()) {
+      return false;
+    }
+
+    await Block.save(block);
+    return true;
+  }
+
   static async load(hash) {
     let data;
 

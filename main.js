@@ -8,6 +8,7 @@ const Peer = require('./models/peer');
 const Chain = require('./models/chain');
 const Block = require('./models/block');
 const { mainChain } = require('./models/chain');
+// const { verifyAndSave } = require('./models/block');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -38,7 +39,6 @@ server.listen(port, async (err) => {
   }
 
   Chain.mainChain = await Chain.load();
-  console.log(Chain.mainChain);
   await Peer.reachOutAll();
 
   // Sync with longest chain
@@ -50,45 +50,15 @@ server.listen(port, async (err) => {
     const connectPeer = peerPriority[i];
     debug(`Connecting to peer: ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
 
-    const { data } = await connectPeer.callAction('pullChain');
+    // const { data } = await connectPeer.callAction('pullChain');
 
-    const pulledChain = Chain.fromObject(data);
-    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+    // const pulledChain = Chain.fromObject(data);
+    // const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
 
-    let valid = true;
-    debug(`Diverge index: ${divergeIndex}. Pulled chain length: ${pulledChain.getLength()}`);
-    for (let j = divergeIndex; j < pulledChain.getLength() && j >= 0 && valid; j += 1) {
-      const header = pulledChain.getBlockHeader(j);
+    const valid = await Chain.syncWithPeer(connectPeer);
 
-      debug(`Request block data: ${header.getHash().toString('hex')}`);
-      debug(`Peer info: ${connectPeer.getAddress()}:${connectPeer.getPort()}`);
-      const { data } = await connectPeer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
-      debug(`Receive new block data: ${header.getHash().toString('hex')}`);
-      if (data) {
-        debug('Receive data for block');
-        const block = Block.fromObject(data);
+    debug('Done chain synchronization');
 
-        if (block.verify()) {
-          const { key } = await Block.save(block);
-          debug(`Saved new block: ${key.toString('hex')}`);
-        } else {
-          debug('Block not valid');
-          valid = false;
-        }
-      } else {
-        debug('No data');
-      }
-    }
-
-    debug('Done getting block infos');
-
-    if (valid) {
-      debug('Chain up to latest');
-      await Chain.save(pulledChain);
-      break;
-    } else {
-      debug('Invalid chain');
-    }
   }
 });
 
