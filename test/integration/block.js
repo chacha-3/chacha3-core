@@ -29,10 +29,6 @@ test('push new block', async (t) => {
 
 test('get block info', async (t) => {
   const block = await mock.blockWithTransactions(5);
-  block.getTransactions().forEach((t) => {
-    console.log(t.hashData());
-  });
-  // console.log(block.getHeader());
   await Block.save(block);
 
   const { data } = await runAction({
@@ -40,19 +36,11 @@ test('get block info', async (t) => {
     hash: block.getHeader().getHash().toString('hex'),
   });
 
-  console.log('---------------------------------------------------');
   const loaded = Block.fromObject(data);
-  loaded.getTransactions().forEach((t) => {
-    console.log(t.hashData());
-  });
-  // console.log(block.getHeader());
-  // console.log(loaded)
-  // console.log(loaded.getTransactions().map((t) => console.log(t.getId())));
-  // t.equal(loaded.verify());
-  // t.equal(data.length, chain.getLength());
-  // t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
-  // t.equal(data.totalWork, chain.getTotalWork());
+  t.equal(loaded.verify(), 'Loaded block is verified');
+  t.equal(loaded.getTransactionCount(), block.getTransactionCount());
 
-  // Chain.clear();
+  t.ok(loaded.getTransaction(0).getId().equals(block.getTransaction(0).getId()));
+
   t.end();
 });
