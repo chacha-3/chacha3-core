@@ -41,7 +41,7 @@ server.listen(port, async (err) => {
   await Peer.reachOutAll();
 
   // Sync with longest chain
-  const peer = await Peer.withMostTotalWork();
+  const peer = await Peer.withLongestActiveChains()[0];
   console.log(peer);
 
   // Check active

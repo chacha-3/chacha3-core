@@ -101,17 +101,22 @@ class Peer {
     return Promise.all(promises);
   }
 
-  static async withMostTotalWork() {
+  static async withLongestActiveChains() {
     const peers = await Peer.all();
-    let mostWorkPeer = null;
+    const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
 
-    for (let i = 0; i < peers.length; i += 1) {
-      if (mostWorkPeer === null || peers[i].getTotalWork() > mostWorkPeer.getTotalWork()) {
-        mostWorkPeer = peers[i];
-      }
-    }
+    // Sort by total work descending order
+    const peerPriority = activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
 
-    return mostWorkPeer;
+    // let mostWorkPeer = null;
+
+    // for (let i = 0; i < peers.length; i += 1) {
+    //   if (mostWorkPeer === null || peers[i].getTotalWork() > mostWorkPeer.getTotalWork()) {
+    //     mostWorkPeer = peers[i];
+    //   }
+    // }
+
+    return peerPriority;
   }
 
   getId() {

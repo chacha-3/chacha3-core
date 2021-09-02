@@ -113,12 +113,17 @@ test('get peer with most total work', async (t) => {
   for (let i = 0; i < work.length; i += 1) {
     const peer = mock.nodePeer();
     peer.setTotalWork(work[i]);
+    peer.setStatus(Peer.Status.Active);
     await Peer.save(peer);
   }
 
-  const mostWorkPeer = await Peer.withMostTotalWork();
-  const value = mostWorkPeer.getTotalWork();
-  t.equal(value, Math.max(...work));
+  const peerPriority = await Peer.withLongestActiveChains();
+
+  t.equal(peerPriority[0].getTotalWork(), 10);
+  t.equal(peerPriority[1].getTotalWork(), 8);
+  t.equal(peerPriority[2].getTotalWork(), 4);
+  t.equal(peerPriority[3].getTotalWork(), 3);
+  t.equal(peerPriority[4].getTotalWork(), 2);
 
   await Peer.clearAll();
   t.end();
