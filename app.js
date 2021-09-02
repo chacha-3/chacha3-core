@@ -13,6 +13,7 @@ const { runAction, checkPermission } = require('./actions');
 const { errorResponse, ErrorCode } = require('./util/rpc');
 
 const errorHandler = (error, request, reply) => {
+  console.log(error);
   reply.send(errorResponse(ErrorCode.Internal, error.message));
 };
 

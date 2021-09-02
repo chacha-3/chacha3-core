@@ -239,7 +239,7 @@ class Chain {
   getCurrentDifficulty() {
     let difficulty = 1.0;
     const headers = this.getBlockHeaders();
-
+    console.log(this.getBlockHeaders());
     if (headers.length < 2) {
       return difficulty;
     }
@@ -309,10 +309,14 @@ class Chain {
       data = await DB.get('chain', { valueEncoding: 'json' });
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     } catch (e) {
+      console.log('Error load chain');
+      // FIXME: Comes here when there is no existing chain
       // return null;
     }
 
+    // TODO: Load genesis block here
     const headers = await Chain.loadHeaders(blockHashes);
+    console.log('set block headers: ' + JSON.stringify(headers));
     chain.setBlockHeaders(headers);
 
     return chain;

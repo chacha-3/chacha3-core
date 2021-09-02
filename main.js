@@ -38,50 +38,54 @@ server.listen(port, async (err) => {
   }
 
   Chain.mainChain = await Chain.load();
+  console.log(Chain.mainChain);
   await Peer.reachOutAll();
 
   // Sync with longest chain
-  const peer = await Peer.withLongestActiveChains()[0];
-  console.log(peer);
+  const peerPriority = await Peer.withLongestActiveChains();
+  debug(`Peer priority: ${peerPriority[0].getAddress()}:${peerPriority[0].getPort()}`);
 
   // Check active
-  if (peer) {
-    const { data } = await peer.callAction('pullChain');
+  for (let i = 0; i < peerPriority.length; i += 1) {
+    const connectPeer = peerPriority[i];
+    debug(`Connecting to peer: ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
+
+    const { data } = await connectPeer.callAction('pullChain');
 
     const pulledChain = Chain.fromObject(data);
-
-    console.log(mainChain);
     const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
 
     let valid = true;
-
-    for (let i = divergeIndex; i < pulledChain.getLength(); i += 1) {
-      const header = pulledChain.getBlockHeader(i);
+    debug(`Diverge index: ${divergeIndex}. Pulled chain length: ${pulledChain.getLength()}`);
+    for (let j = divergeIndex; j < pulledChain.getLength() && j >= 0 && valid; j += 1) {
+      const header = pulledChain.getBlockHeader(j);
 
       debug(`Request block data: ${header.getHash().toString('hex')}`);
-      debug(`Peer info: ${peer.getAddress()}:${peer.getPort()}`);
-      const { data } = await peer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
+      debug(`Peer info: ${connectPeer.getAddress()}:${connectPeer.getPort()}`);
+      const { data } = await connectPeer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
       debug(`Receive new block data: ${header.getHash().toString('hex')}`);
       if (data) {
         debug('Receive data for block');
         const block = Block.fromObject(data);
 
         if (block.verify()) {
-          debug(`Saved new block: ${header.getHash().toString('hex')}`);
-          await Block.save(block);
+          const { key } = await Block.save(block);
+          debug(`Saved new block: ${key.toString('hex')}`);
         } else {
           debug('Block not valid');
           valid = false;
-          break;
         }
       } else {
         debug('No data');
       }
     }
 
+    debug('Done getting block infos');
+
     if (valid) {
-      debug('Updated to new chain');
+      debug('Chain up to latest');
       await Chain.save(pulledChain);
+      break;
     } else {
       debug('Invalid chain');
     }
