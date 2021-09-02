@@ -59,6 +59,7 @@ server.listen(port, async (err) => {
       const header = pulledChain.getBlockHeader(i);
 
       debug(`Request block data: ${header.getHash().toString('hex')}`);
+      debug(`Peer info: ${peer.getAddress()}:${peer.getPort()}`);
       const { data } = await peer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
       debug(`Receive new block data: ${header.getHash().toString('hex')}`);
       if (data) {

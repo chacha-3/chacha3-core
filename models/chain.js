@@ -281,6 +281,7 @@ class Chain {
 
     await DB.put(key, data, { valueEncoding: 'json' });
 
+    Chain.mainChain = chain;
     return { key, data };
   }
 
