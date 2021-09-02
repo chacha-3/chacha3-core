@@ -37,7 +37,7 @@ test('get block info', async (t) => {
   });
 
   const loaded = Block.fromObject(data);
-  t.equal(loaded.verify(), 'Loaded block is verified');
+  t.equal(loaded.verify(), true, 'Loaded block is verified');
   t.equal(loaded.getTransactionCount(), block.getTransactionCount());
 
   t.ok(loaded.getTransaction(0).getId().equals(block.getTransaction(0).getId()));
