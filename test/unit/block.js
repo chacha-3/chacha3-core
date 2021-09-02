@@ -217,9 +217,12 @@ test('correct block object format', async (t) => {
 
 test('save and load block', async (t) => {
   const block = await mock.blockWithTransactions(3);
+  t.equal(block.verify(), true);
+
   const { key } = await Block.save(block);
 
   const loaded = await Block.load(key);
+  t.equal(loaded.verify(), true);
 
   // Simple equality check
   // TODO: Add more checks

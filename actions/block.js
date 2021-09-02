@@ -1,4 +1,5 @@
 const debug = require('debug')('transaction:model');
+const assert = require('assert');
 
 const Block = require('../models/block');
 const Chain = require('../models/chain');
@@ -58,6 +59,7 @@ actions.blockInfo = {
   },
   handler: async (options) => {
     const block = await Block.load(Buffer.from(options.hash, 'hex'));
+    assert(block.verify());
 
     if (!block) {
       return errorResponse(ErrorCode.NotFound, 'Block not found');
