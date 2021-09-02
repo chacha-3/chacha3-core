@@ -172,6 +172,8 @@ class Transaction {
     assert(transaction.getId() != null);
     const key = transaction.getId();
 
+    // FIXME: Use to object.
+    // Unit test for set time not checking correct, prob time set is same before and after load
     const data = {
       id: transaction.getId(),
       version: transaction.getVersion(),
@@ -179,6 +181,7 @@ class Transaction {
       receiverAddress: transaction.getReceiverAddress(),
       amount: transaction.getAmount(),
       signature: transaction.getSignature(),
+      time: transaction.getTime(),
     };
 
     const serialized = serializeBuffers(data, ['id', 'senderKey', 'signature']);
@@ -206,6 +209,7 @@ class Transaction {
 
     transaction.setVersion(data.version);
     transaction.setSignature(data.signature);
+    transaction.setTime(data.time);
 
     return transaction;
   }

@@ -312,8 +312,8 @@ class Chain {
     }
 
     const headers = await Chain.loadHeaders(blockHashes);
-
     chain.setBlockHeaders(headers);
+
     return chain;
   }
 
@@ -344,6 +344,10 @@ class Chain {
     const currentWork = currentChain.getTotalWork();
     const newWork = newChain.getTotalWork();
     // FIXME:
+
+    if (newWork === 0) {
+      return -1;
+    }
 
     debug(`Compare block work. Current: ${currentWork}, New: ${newWork}`);
     const isAhead = newWork >= currentWork + currentChain.getCurrentDifficulty();

@@ -69,12 +69,3 @@ const generateBlocks = async () => {
 
   return blocksData;
 };
-
-// generateBlocks().then((results) => {
-//   fs.writeFileSync('./scripts/output/test-chain.json', JSON.stringify(results));
-// }).catch((error) => {
-//   console.log(error);
-// });
-
-// // Or
-

@@ -116,18 +116,6 @@ test('save and load chain', async (t) => {
 
 test('compare current chain with longer chain', async (t) => {
   const currentChain = await mock.chainWithHeaders(3, 5);
-  // const newBlock = await mock.blockWithTransactions(1);
-
-  // console.log(currentChain.toObject());
-  // const longerChain = mock.clone(currentChain);
-  // console.log(newBlock.getHeader());
-  // // longerChain.addBlockHeader(newBlock.getHeader());
-
-  // console.log(currentChain);
-  // console.log('---------------------------------------------');
-  // console.log(longerChain);
-
-  // const result = Chain.compareWork(currentChain, longerChain);
 
   // t.equal(result, 3);
   t.end();
@@ -185,7 +173,6 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
 
   // Tamper block, set value exceeding account balance
   block2.transactions[2].amount = 1000000;
-  // console.log(block2);
   const result2 = chain.updateBlockBalances(block2);
 
   t.equal(result1, true, 'Successfully updated block balances');

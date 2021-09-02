@@ -6,6 +6,8 @@ const ipc = require('./ipc');
 
 const Peer = require('./models/peer');
 const Chain = require('./models/chain');
+const Block = require('./models/block');
+const { mainChain } = require('./models/chain');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -39,15 +41,50 @@ server.listen(port, async (err) => {
   await Peer.reachOutAll();
 
   // Sync with longest chain
-  const mostWorkPeer = await Peer.withMostTotalWork();
-  console.log(mostWorkPeer);
-  const chainData = await mostWorkPeer.callAction('pullChain');
+  const peer = await Peer.withMostTotalWork();
+  console.log(peer);
 
-  console.log(chainData);
-  const pulledChain = Chain.fromObject(chainData);
+  // Check active
+  if (peer) {
+    const { data } = await peer.callAction('pullChain');
 
-  console.log(pulledChain);
-  // Chain.compareWork(Chain.mainChain, )
+    const pulledChain = Chain.fromObject(data);
+
+    console.log(mainChain);
+    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+
+    let valid = true;
+
+    for (let i = divergeIndex; i < pulledChain.getLength(); i += 1) {
+      const header = pulledChain.getBlockHeader(i);
+
+      debug(`Request block data: ${header.getHash().toString('hex')}`);
+      const { data } = await peer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
+      debug(`Receive new block data: ${header.getHash().toString('hex')}`);
+      if (data) {
+        debug('Receive data for block');
+        const block = Block.fromObject(data);
+
+        if (block.verify()) {
+          debug(`Saved new block: ${header.getHash().toString('hex')}`);
+          await Block.save(block);
+        } else {
+          debug('Block not valid');
+          valid = false;
+          break;
+        }
+      } else {
+        debug('No data');
+      }
+    }
+
+    if (valid) {
+      debug('Updated to new chain');
+      await Chain.save(pulledChain);
+    } else {
+      debug('Invalid chain');
+    }
+  }
 });
 
 ipc.server.start();

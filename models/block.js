@@ -158,7 +158,7 @@ class Block {
   static fromObject(obj) {
     const block = new Block();
 
-    const header = Header.from(obj.header);
+    const header = Header.fromObject(obj.header);
     block.setHeader(header);
 
     const { transactions } = obj;

@@ -87,7 +87,6 @@ function printResult(result) {
   const {
     data, code, message, errors,
   } = result;
-  // console.log(data, errors);
   if (code !== SuccessCode) {
     console.log(chalk.bold.red(message));
 
@@ -101,7 +100,6 @@ function printResult(result) {
   }
 
   console.log(chalk.bold.green(message));
-  // console.log(result);
   if (Array.isArray(data)) {
     printArray(data);
   } else if (data) {

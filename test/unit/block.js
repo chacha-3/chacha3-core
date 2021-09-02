@@ -209,6 +209,9 @@ test('correct block object format', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(obj, 'transactions'));
   t.equal(obj.transactions.length, 3);
 
+  const loaded = Block.fromObject(obj);
+  t.equal(loaded.verify(), true);
+
   t.end();
 });
 
@@ -222,6 +225,8 @@ test('save and load block', async (t) => {
   // TODO: Add more checks
   t.ok(block.getHeader().getHash().equals(loaded.getHeader().getHash()));
   t.equal(block.getTransactionCount(), loaded.getTransactionCount());
+
+  t.equal(block.getTransaction(0).getTime(), loaded.getTransaction(0).getTime());
 
   Block.clearAll();
 

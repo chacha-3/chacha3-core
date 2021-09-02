@@ -259,8 +259,10 @@ class Peer {
 
     try {
       const response = await post('', options);
+      console.log(response);
       return response;
     } catch (e) {
+      console.log(e);
       debug(`Peer call action error: ${e}`);
     }
 

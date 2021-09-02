@@ -96,7 +96,7 @@ test('should not recover a wallet with invalid key', (t) => {
     t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
     t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
   } catch (e) {
-    // console.log(e);
+
   }
   // TODO: Check error
 

@@ -229,6 +229,7 @@ test('correct push data', async (t) => {
 
 test('to and from transaction object', async (t) => {
   const transaction = mock.transaction();
+
   const data = transaction.toObject();
 
   const loaded = Transaction.fromObject(data);
@@ -241,6 +242,7 @@ test('to and from transaction object', async (t) => {
   t.equal(loaded.getVersion(), transaction.getVersion());
   t.equal(loaded.getTime(), transaction.getTime());
   t.equal(loaded.getAmount(), transaction.getAmount());
+  t.equal(loaded.hashData(), transaction.hashData());
 
   t.end();
 });
