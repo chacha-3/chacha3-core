@@ -4,19 +4,8 @@ const bent = require('bent');
 const debug = require('debug')('peer:model');
 
 const ipaddr = require('ipaddr.js');
-const { option } = require('yargs');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
-
-// const db = level('wallets');
-
-// const addressPrefix = '420_';
-
-// function randomNonce() {
-//   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
-// }
-
-// const myNonce = randomNonce();
 
 class Peer {
   constructor(address, port) {
@@ -105,18 +94,8 @@ class Peer {
     const peers = await Peer.all();
     const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
 
-    // Sort by total work descending order
-    const peerPriority = activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
-
-    // let mostWorkPeer = null;
-
-    // for (let i = 0; i < peers.length; i += 1) {
-    //   if (mostWorkPeer === null || peers[i].getTotalWork() > mostWorkPeer.getTotalWork()) {
-    //     mostWorkPeer = peers[i];
-    //   }
-    // }
-
-    return peerPriority;
+    // Sort by total work in descending order
+    return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
   getId() {
@@ -204,10 +183,6 @@ class Peer {
     this.setTotalWork(chainWork);
   }
 
-  // isSelf() {
-  //   return this.getNonce() === Peer.localNonce;
-  // }
-
   isCompatible() {
     // TODO: Other compatibility check
     return this.compatibleVersion();
@@ -226,7 +201,7 @@ class Peer {
         : Peer.Status.Unreachable;
 
       this.setStatus(status);
-  
+
       Peer.save(this);
       return false;
     }
@@ -266,7 +241,6 @@ class Peer {
       const response = await post('', options);
       return response;
     } catch (e) {
-      console.log(e);
       debug(`Peer call action error: ${e}`);
     }
 
@@ -274,6 +248,8 @@ class Peer {
   }
 
   async callAction(actionName, options) {
+    debug(`Call peer action: ${actionName}`);
+
     const params = Object.assign(options || {}, { action: actionName });
     return this.sendRequest(params);
   }

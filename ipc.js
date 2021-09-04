@@ -14,7 +14,6 @@ ipc.serve(
     ipc.server.on(
       'message',
       async (request, socket) => {
-        // ipc.log('got a message : '.debug, data);
         const options = JSON.parse(request);
 
         const response = await runAction(options, 'full');

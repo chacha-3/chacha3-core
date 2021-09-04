@@ -45,22 +45,18 @@ server.listen(port, async (err) => {
 
   // Sync with longest chain
   const peerPriority = await Peer.withLongestActiveChains();
-  debug(`Peer priority: ${peerPriority[0].getAddress()}:${peerPriority[0].getPort()}`);
 
   // Check active
   for (let i = 0; i < peerPriority.length; i += 1) {
     const connectPeer = peerPriority[i];
     debug(`Connecting to peer: ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
 
-    // const { data } = await connectPeer.callAction('pullChain');
-
-    // const pulledChain = Chain.fromObject(data);
-    // const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
-
     const valid = await Chain.syncWithPeer(connectPeer);
 
-    debug(`Chain is valid: ${valid}`);
-    debug('Done chain synchronization');
+    if (valid) {
+      debug(`Chain is valid: ${valid}. Synced with peer ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
+      break;
+    }
   }
 });
 

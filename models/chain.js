@@ -380,7 +380,13 @@ class Chain {
   }
 
   static async syncWithPeer(peer) {
-    const { data } = await peer.callAction('pullChain');
+    const response = await peer.callAction('pullChain');
+
+    if (!response) {
+      return false;
+    }
+
+    const { data } = response;
 
     const pulledChain = Chain.fromObject(data);
     const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
@@ -402,22 +408,6 @@ class Chain {
 
     return valid;
   }
-  // static async acceptNewChain()
-  // static async acceptNewChain(currentChain, newChain, sourcePeer) {
-  //   const divergeIndex = this.compareWork(currentChain, newChain);
-  //   if (divergeIndex < 0) {
-  //     return false;
-  //   }
-
-  //   // TODO: Check new blocks are valid
-  //   for (let i = divergeIndex; i < newChain.getLength(); i += 1) {
-  //     const hash = newChain.getBlockHeader(i);
-  //     const blockData = await sourcePeer.callAction('blockInfo', {hash});
-
-  //     const newBlock = Block.fromObject(blockData);
-  //     await Block.save(newBlock)
-  //   }
-  // }
 
   static async initializeGenesisBlock() {
     const chain = await Chain.load();
