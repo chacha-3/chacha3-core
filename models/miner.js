@@ -24,27 +24,21 @@ class Miner {
 
     this.mining = true;
 
-    const chain = Chain.mainChain;
-
     let block = new Block();
     block.addCoinbase(this.receiverAddress);
 
     while (this.mining) {
+      const chain = Chain.mainChain;
       if (Transaction.pendingList.length > 0) {
         // Add transaction to block
         block.addTransaction(Transaction.pendingList.pop());
       }
 
-      block.header.setDifficulty(chain.getCurrentDifficulty());
+      block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
       block.header.incrementNonce();
 
       const latestBlock = chain.latestBlockHeader();
-
-      if (latestBlock) {
-        block.setPreviousHash(latestBlock.getHash());
-      } else {
-        block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
-      }
+      block.setPreviousHash(latestBlock.getHash());
 
       await block.header.computeHash();
 
