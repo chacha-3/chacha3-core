@@ -5,6 +5,7 @@ const assert = require('assert');
 const Block = require('./block');
 const Chain = require('./chain');
 const Transaction = require('./transaction');
+const Peer = require('./peer');
 
 // const addressPrefix = '420_';
 
@@ -48,6 +49,8 @@ class Miner {
 
         chain.addBlockHeader(block.getHeader());
         await Chain.save(chain);
+
+        Peer.broadcastAction('pushBlock', block.toObject());
 
         // Init new block for mining
         block = new Block();
