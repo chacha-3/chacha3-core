@@ -235,3 +235,11 @@ test('save and load block', async (t) => {
 
   t.end();
 });
+
+test('get genesis block', async (t) => {
+  const block = Block.genesis();
+
+  // TODO: Check
+
+  t.end();
+});

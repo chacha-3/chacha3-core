@@ -302,8 +302,6 @@ class Chain {
 
     const chain = new Chain();
     let blockHashes = [];
-    // let totalWork = 0;
-
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
@@ -327,21 +325,33 @@ class Chain {
     await DB.del('chain');
   }
 
-  static async syncWithPeer(peer) {
-    const { data } = await peer.callAction('pullChain');
+  static async clearRejectedBlocks(chain, startIndex) {
+    const clearBlocks = [];
+    for (let x = startIndex; x < chain.getLength(); x += 1) {
+      clearBlocks.push(chain.getBlockHeader(x).getHash());
+    }
 
-    const pulledChain = Chain.fromObject(data);
-    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+    debug('Chain up to latest');
+    await Chain.save(chain);
 
+    clearBlocks.forEach((hash) => {
+      debug(`Clear rejected block: ${hash.toString('hex')}`);
+      Block.clear(hash);
+    });
+  }
+
+  static async verifyForwardBlocks(peer, pulledChain, startIndex) {
     let valid = true;
-    debug(`Diverge index: ${divergeIndex}. Pulled chain length: ${pulledChain.getLength()}`);
-    for (let j = divergeIndex; j < pulledChain.getLength() && j >= 0 && valid; j += 1) {
+
+    debug(`Diverge index: ${startIndex}. Pulled chain length: ${pulledChain.getLength()}`);
+    for (let j = startIndex; j < pulledChain.getLength() && valid; j += 1) {
       const header = pulledChain.getBlockHeader(j);
 
       debug(`Request block data: ${header.getHash().toString('hex')}`);
       debug(`Peer info: ${peer.getAddress()}:${peer.getPort()}`);
       const { data } = await peer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
       debug(`Receive new block data: ${header.getHash().toString('hex')}`);
+
       if (data) {
         debug('Receive data for block');
         const block = Block.fromObject(data);
@@ -351,19 +361,27 @@ class Chain {
       }
     }
 
+    if (!valid) {
+      // TODO: Clear blocks
+    }
+
+    return valid;
+  }
+
+  static async syncWithPeer(peer) {
+    const { data } = await peer.callAction('pullChain');
+
+    const pulledChain = Chain.fromObject(data);
+    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+
+    if (divergeIndex < 0) {
+      return false;
+    }
+
+    const valid = Chain.verifyForwardBlocks(peer, pulledChain, divergeIndex);
+
     if (valid) {
-      const clearBlocks = [];
-      for (let x = divergeIndex; x < Chain.mainChain.getLength(); x += 1) {
-        clearBlocks.push(Chain.mainChain.getBlockHeader(x).getHash());
-      }
-
-      debug('Chain up to latest');
-      await Chain.save(pulledChain);
-
-      clearBlocks.forEach((hash) => {
-        debug(`Clear rejected block: ${hash.toString('hex')}`);
-        Block.clear(hash);
-      });
+      Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
     } else {
       debug('Invalid chain');
     }

@@ -56,9 +56,7 @@ server.listen(port, async (err) => {
     // const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
 
     const valid = await Chain.syncWithPeer(connectPeer);
-
     debug('Done chain synchronization');
-
   }
 });
 
