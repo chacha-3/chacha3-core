@@ -29,3 +29,27 @@ test('get block info', async (t) => {
 
   t.end();
 });
+
+test('push new block', async (t) => {
+  const initialBlockCount = 5;
+  Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 3);
+  const chain = Chain.mainChain;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(chain.lastBlockHeader().getHash());
+
+  await block.mine();
+
+  const options = { action: 'pushBlock', ...block.toObject() };
+
+  const { data, code } = await runAction(options);
+  t.equal(code, SuccessCode);
+
+  t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
+  t.end();
+});

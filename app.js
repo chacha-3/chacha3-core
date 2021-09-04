@@ -8,7 +8,7 @@ const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for serv
 
 const Peer = require('./models/peer');
 
-const { runAction, checkPermission } = require('./actions');
+const { runAction, checkPermission, actionList } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
 

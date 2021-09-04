@@ -21,7 +21,7 @@ const actions = {
   ...block,
 };
 
-const actionList = [];
+const actionList = Object.keys(actions);
 
 const routeAction = (options) => {
   const actionName = options.action;

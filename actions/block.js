@@ -14,6 +14,7 @@ const actions = {};
 
 actions.pushBlock = {
   permission: 'public',
+  // TODO: Schema
   // schema: {
   //   properties: {
   //     key: { type: 'string' },
@@ -27,6 +28,13 @@ actions.pushBlock = {
   // },
   handler: async (options) => {
     const block = Block.fromObject(options);
+
+    if (!block.verify()) {
+      return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
+    }
+
+    await Block.save(block);
+    Chain.mainChain.addBlockHeader(block.getHeader()); // TODO: Check add success
 
     return okResponse(block.toObject(), 'Block pushed');
   },
