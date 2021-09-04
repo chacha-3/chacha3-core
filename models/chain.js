@@ -364,13 +364,15 @@ class Chain {
       if (data) {
         debug('Receive data for block');
         const block = Block.fromObject(data);
-        valid = Block.verifyAndSave(block);
+        valid = await Block.verifyAndSave(block);
+        debug(`Block index ${j} is valid: ${valid}`);
       } else {
         debug('No data');
       }
     }
 
     if (!valid) {
+      debug('Forward blocks not valid');
       // TODO: Clear blocks
     }
 
@@ -383,14 +385,17 @@ class Chain {
     const pulledChain = Chain.fromObject(data);
     const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
 
-    if (divergeIndex < 0) {
+    if (divergeIndex < 1) {
+      debug(`Did not sync. Diverge index: ${divergeIndex}`);
       return false;
     }
 
-    const valid = Chain.verifyForwardBlocks(peer, pulledChain, divergeIndex);
+    const valid = await Chain.verifyForwardBlocks(peer, pulledChain, divergeIndex);
 
     if (valid) {
       Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
+
+      await Chain.save(pulledChain);
     } else {
       debug('Invalid chain');
     }
