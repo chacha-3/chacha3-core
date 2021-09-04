@@ -189,8 +189,16 @@ class Chain {
     this.blockHeaders = headers;
   }
 
-  verify() {
+  verifyGenesisBlock() {
+    return this.getBlockHeader(0).equals(Block.Genesis.getHeader());
+  }
 
+  verify() {
+    if (!this.verifyGenesisBlock()) {
+      return false;
+    }
+
+    return true;
   }
 
   getLength() {
@@ -319,10 +327,11 @@ class Chain {
   }
 
   static async clear() {
-    Chain.mainChain = new Chain();
-
     await BlockDB.clear();
     await DB.del('chain');
+
+    await Chain.initializeGenesisBlock();
+    Chain.mainChain = await Chain.load();
   }
 
   static async clearRejectedBlocks(chain, startIndex) {

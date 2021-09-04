@@ -249,6 +249,10 @@ class Header {
 
     return serializeBuffers(data, ['hash', 'previous', 'checksum']);
   }
+
+  equals(header) {
+    return JSON.stringify(this.toObject()) === JSON.stringify(header.toObject());
+  }
 }
 
 module.exports = Header;

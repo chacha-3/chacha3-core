@@ -104,7 +104,8 @@ test('get default difficulty when one or less blocks', async (t) => {
 test('load empty chain', async (t) => {
   const loaded = await Chain.load();
 
-  t.equal(loaded.getLength(), 0);
+  // Only genesis block
+  t.equal(loaded.getLength(), 1);
   t.end();
 });
 
@@ -262,5 +263,26 @@ test('to and from object', async (t) => {
   const loaded = Chain.fromObject(obj);
   t.equal(loaded.blockHeaders.length, 3);
 
+  t.end();
+});
+
+test('verify genesis block', async (t) => {
+  const chain = await mock.chainWithHeaders(2, 3);
+  const verify = chain.verifyGenesisBlock();
+
+  t.equal(verify, true);
+
+  t.end();
+});
+
+test('invalid genesis block', async (t) => {
+  const randomBlock = await mock.blockWithTransactions(2);
+
+  const chain = new Chain();
+  chain.addBlockHeader(randomBlock.getHeader());
+
+  const verify = chain.verifyGenesisBlock();
+
+  t.equal(verify, false);
   t.end();
 });
