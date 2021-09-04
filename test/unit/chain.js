@@ -96,8 +96,17 @@ test('get default difficulty when one or less blocks', async (t) => {
   const chain = await mock.chainWithHeaders(1, 2);
 
   t.equal(chain.getCurrentDifficulty(), 1.0);
+
+  await Chain.clear();
   t.end();
 });
+
+// test('load empty chain', async (t) => {
+//   const loaded = await Chain.load();
+
+//   t.equal(loaded, null);
+//   t.end();
+// });
 
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;

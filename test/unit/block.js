@@ -237,7 +237,7 @@ test('save and load block', async (t) => {
 });
 
 test('get genesis block', async (t) => {
-  const block = Block.genesis();
+  const block = Block.Genesis;
 
   // TODO: Check
 

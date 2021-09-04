@@ -38,6 +38,8 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
+  await Chain.initializeGenesisBlock();
+
   Chain.mainChain = await Chain.load();
   await Peer.reachOutAll();
 

@@ -302,6 +302,7 @@ class Chain {
 
     const chain = new Chain();
     let blockHashes = [];
+
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
@@ -311,7 +312,6 @@ class Chain {
       // return null;
     }
 
-    // TODO: Load genesis block here
     const headers = await Chain.loadHeaders(blockHashes);
     chain.setBlockHeaders(headers);
 
@@ -404,6 +404,20 @@ class Chain {
   //     await Block.save(newBlock)
   //   }
   // }
+
+  static async initializeGenesisBlock() {
+    if (Chain.load() != null) {
+      return;
+    }
+
+    const chain = new Chain();
+
+    const block = Block.Genesis;
+    await Block.save(block);
+
+    chain.addBlockHeader(block.getHeader());
+    await Chain.save(chain);
+  }
 
   static compareWork(currentChain, newChain) {
     const currentWork = currentChain.getTotalWork();

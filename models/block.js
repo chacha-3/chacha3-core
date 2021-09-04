@@ -8,11 +8,39 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB } = require('../util/db');
+const Chain = require('./chain');
 
 class Block {
   constructor() {
     this.header = new Header();
     this.transactions = [];
+  }
+
+  static get Genesis() {
+    const data = {
+      header: {
+        hash: '0075f9696f7680592d84b65051d155367b109049fa5ece4176f7dd2efa2414b7',
+        previous: '0000000000000000000000000000000000000000000000000000000000000000',
+        time: 1630724227525,
+        difficulty: 1,
+        nonce: 3648059698804014,
+        checksum: '7ff68d966bb84cf700a471f35a8315f4723c1b3cf19c5e0c7aa319c14582311d',
+        version: 1,
+      },
+      transactions: [
+        {
+          id: 'd9bec02b8d0560f1f68e5da5f892fa66b30b3ef6c9d955b79fc317e51e9f2daf',
+          sender: null,
+          receiver: '14ztbkqKZEYgGupdQJ9zKaJV3py6YSbzc3',
+          amount: 10000,
+          version: 1,
+          time: 1630724227526,
+          signature: null,
+        },
+      ],
+    };
+
+    return Block.fromObject(data);
   }
 
   setPreviousHash(hash) {
@@ -252,37 +280,6 @@ class Block {
 
   static async clearAll() {
     BlockDB.clear();
-  }
-
-  static initializeGenesis() {
-    
-  }
-
-  static genesis() {
-    const data = {
-      header: {
-        hash: '0075f9696f7680592d84b65051d155367b109049fa5ece4176f7dd2efa2414b7',
-        previous: '0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1630724227525,
-        difficulty: 1,
-        nonce: 3648059698804014,
-        checksum: '7ff68d966bb84cf700a471f35a8315f4723c1b3cf19c5e0c7aa319c14582311d',
-        version: 1,
-      },
-      transactions: [
-        {
-          id: 'd9bec02b8d0560f1f68e5da5f892fa66b30b3ef6c9d955b79fc317e51e9f2daf',
-          sender: null,
-          receiver: '14ztbkqKZEYgGupdQJ9zKaJV3py6YSbzc3',
-          amount: 10000,
-          version: 1,
-          time: 1630724227526,
-          signature: null,
-        },
-      ],
-    };
-
-    return Block.fromObject(data);
   }
 }
 
