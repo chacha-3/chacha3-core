@@ -101,12 +101,12 @@ test('get default difficulty when one or less blocks', async (t) => {
   t.end();
 });
 
-// test('load empty chain', async (t) => {
-//   const loaded = await Chain.load();
+test('load empty chain', async (t) => {
+  const loaded = await Chain.load();
 
-//   t.equal(loaded, null);
-//   t.end();
-// });
+  t.equal(loaded.getLength(), 0);
+  t.end();
+});
 
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;

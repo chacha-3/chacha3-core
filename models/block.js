@@ -8,7 +8,6 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB } = require('../util/db');
-const Chain = require('./chain');
 
 class Block {
   constructor() {

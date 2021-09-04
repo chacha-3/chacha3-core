@@ -406,11 +406,10 @@ class Chain {
   // }
 
   static async initializeGenesisBlock() {
-    if (Chain.load() != null) {
+    const chain = await Chain.load();
+    if (chain.getLength() > 0) {
       return;
     }
-
-    const chain = new Chain();
 
     const block = Block.Genesis;
     await Block.save(block);
