@@ -188,9 +188,13 @@ class Peer {
     return this.compatibleVersion();
   }
 
+  formattedAddress() {
+    return `${this.getAddress()}:${this.getPort()}`;
+  }
+
   async reachOut(allowSelf) {
     let data;
-    debug(`Reach out to peer ${this.getAddress()}:${this.getPort()}`);
+    debug(`Reach out to peer ${this.formattedAddress()}`);
 
     try {
       const response = await this.callAction('nodeInfo');
@@ -208,13 +212,13 @@ class Peer {
 
     assert(data);
 
-    debug(`Receive response from peer ${this.getAddress()}:${this.getPort()}`);
+    debug(`Receive response from peer ${this.formattedAddress()}`);
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
     const isSelf = Peer.localNonce === data.nonce;
 
     if (isSelf && !(allowSelf || false)) {
-      debug(`Reject peer ${this.getAddress()}:${this.getPort()}: Same nonce`);
+      debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
 
       await Peer.clear(this.getId());
       return false;
@@ -222,29 +226,39 @@ class Peer {
 
     if (!this.isCompatible()) {
       this.setStatus(Peer.Status.Incompatible);
-      debug(`Incompatible peer ${this.getAddress()}:${this.getPort()}. Version ${this.getVersion()}`);
+      debug(`Incompatible peer ${this.formattedAddress()}. Version ${this.getVersion()}`);
     } else {
-      debug(`Active peer ${this.getAddress()}:${this.getPort()}. Version ${this.getVersion()}`);
+      debug(`Active peer ${this.formattedAddress()}. Version ${this.getVersion()}`);
       this.setStatus(Peer.Status.Active);
     }
 
-    debug(`Accept peer ${this.getAddress()}:${this.getPort()}`);
+    debug(`Accept peer ${this.formattedAddress()}`);
 
     await Peer.save(this);
     return true;
   }
 
   async sendRequest(options) {
-    const post = bent(`https://${this.getAddress()}:${this.getPort()}`, 'POST', 'json', 200, { 'bong-port': process.env.PORT || 3000 });
+    const post = bent(`https://${this.formattedAddress()}`, 'POST', 'json', 200, { 'bong-port': process.env.PORT || 3000 });
 
     try {
       const response = await post('', options);
       return response;
     } catch (e) {
-      debug(`Peer call action error: ${e}`);
+      await this.handleRequestError(e);
     }
 
     return null;
+  }
+
+  async handleRequestError(e) {
+    if (e.code === 'ECONNREFUSED') {
+      debug(`Connection ${this.formattedAddress()} refused, set peer status to inactive`);
+      this.setStatus(Peer.Status.Inactive);
+      console.log(this);
+      await Peer.save(this);
+    }
+    debug(`Peer call action error: ${e}`);
   }
 
   async callAction(actionName, options) {

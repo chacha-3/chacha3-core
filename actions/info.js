@@ -20,7 +20,7 @@ actions.ping = {
 };
 
 actions.pingNode = {
-  permission: 'public',
+  permission: 'authOnly',
   schema: {
     properties: {
       address: { type: 'string' },
@@ -29,7 +29,11 @@ actions.pingNode = {
     required: ['address', 'port'],
   },
   handler: async (options) => {
-    const peer = new Peer(options.address, options.port);
+    // Check if existing peer, otherwise create new
+    // The reason is to maintain peers state such as peer status
+    const existingPeer = await Peer.load(Peer.generateKey(options.address, options.port));
+    const peer = existingPeer || new Peer(options.address, options.port);
+
     const result = await peer.callAction('ping');
 
     if (result && result.code === SuccessCode) {
