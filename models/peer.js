@@ -66,9 +66,11 @@ class Peer {
     }
 
     const peers = await Peer.all();
+    const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+
     const merged = Object.assign(options || {}, { action: actionName });
 
-    peers.forEach((peer) => {
+    activePeers.forEach((peer) => {
       debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(merged)}`);
       peer.sendRequest(merged);
     });
