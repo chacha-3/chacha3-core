@@ -12,21 +12,6 @@ const Chain = require('../../models/chain');
 const Block = require('../../models/block');
 const app = require('../../app')();
 
-test('push new block', async (t) => {
-  // const block = await mock.blockWithTransactions();
-
-  // const { data } = await runAction({
-  //   action: 'chainInfo',
-  // });
-
-  // t.equal(data.length, chain.getLength());
-  // t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
-  // t.equal(data.totalWork, chain.getTotalWork());
-
-  // Chain.clear();
-  t.end();
-});
-
 test('get block info', async (t) => {
   const block = await mock.blockWithTransactions(5);
   await Block.save(block);

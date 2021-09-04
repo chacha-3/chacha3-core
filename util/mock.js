@@ -93,14 +93,17 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
 
-  const blocks = await Promise.all(
-    Array.from({ length: numOfBlocks }, () => mock.blockWithTransactions(transactionsPerBlock)),
+  const minusGenesis = numOfBlocks - 1;
+
+  const additionalBlocks = await Promise.all(
+    Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
   );
 
   const chain = new Chain();
+  chain.addBlockHeader(Block.Genesis.getHeader());
 
-  for (let i = 0; i < numOfBlocks; i += 1) {
-    chain.addBlockHeader(blocks[i].getHeader());
+  for (let i = 0; i < minusGenesis; i += 1) {
+    chain.addBlockHeader(additionalBlocks[i].getHeader());
   }
 
   return chain;
@@ -110,16 +113,20 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
 
-  const blocks = await Promise.all(
-    Array.from({ length: numOfBlocks }, () => mock.blockWithTransactions(transactionsPerBlock)),
+  const minusGenesis = numOfBlocks - 1;
+
+  const additionalBlocks = await Promise.all(
+    Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
   );
 
   const chain = new Chain();
+  await Block.save(Block.Genesis);
+  chain.addBlockHeader(Block.Genesis.getHeader());
 
-  for (let i = 0; i < numOfBlocks; i += 1) {
+  for (let i = 0; i < minusGenesis; i += 1) {
     // await chain.addBlock(blocks[i]);
-    await Block.save(blocks[i]);
-    chain.addBlockHeader(blocks[i].getHeader());
+    await Block.save(additionalBlocks[i]);
+    chain.addBlockHeader(additionalBlocks[i].getHeader());
   }
 
   await Chain.save(chain);
