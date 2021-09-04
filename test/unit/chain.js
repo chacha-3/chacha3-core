@@ -127,7 +127,7 @@ test('save and load chain', async (t) => {
   t.equal(loaded.getLength(), numOfBlocks);
   t.ok(loaded.getBlockHeaders()[0].getHash().equals(chain.getBlockHeaders()[0].getHash()));
 
-  Chain.clear();
+  await Chain.clear();
   t.end();
 });
 

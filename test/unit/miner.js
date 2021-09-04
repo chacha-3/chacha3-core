@@ -9,8 +9,8 @@ const mock = require('../../util/mock');
 // const { expect } = chai;
 
 test('start and stop miner', async (t) => {
-  Chain.mainChain = await Chain.load();
   await Chain.initializeGenesisBlock();
+  Chain.mainChain = await Chain.load();
 
   const miner = new Miner();
   miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');
@@ -29,8 +29,8 @@ test('start and stop miner', async (t) => {
 });
 
 test('does not start miner when already running', async (t) => {
-  Chain.mainChain = await Chain.load();
   await Chain.initializeGenesisBlock();
+  Chain.mainChain = await Chain.load();
 
   const miner = new Miner();
   miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');

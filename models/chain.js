@@ -288,6 +288,8 @@ class Chain {
   }
 
   latestBlockHeader() {
+    assert(this.blockHeaders.length > 0);
+    assert(this.blockHeaders[this.blockHeaders.length - 1] != null);
     return this.blockHeaders[this.blockHeaders.length - 1];
   }
 
