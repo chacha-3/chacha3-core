@@ -173,6 +173,10 @@ class Chain {
     return true;
   }
 
+  lastBlockHeader() {
+    return this.blockHeaders[this.getLength() - 1];
+  }
+
   getBlockHeaders() {
     return this.blockHeaders;
   }
@@ -182,6 +186,13 @@ class Chain {
   }
 
   addBlockHeader(header) {
+    const isFirst = this.getLength() === 0;
+    const lastHeader = this.lastBlockHeader();
+
+    if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
+      throw Error('Invalid new block');
+    }
+
     this.blockHeaders.push(header);
   }
 
@@ -315,9 +326,7 @@ class Chain {
       data = await DB.get('chain', { valueEncoding: 'json' });
       blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
     } catch (e) {
-      console.log('Error load chain');
-      // FIXME: Comes here when there is no existing chain
-      // return null;
+      // Do nothing. Leave array empty
     }
 
     const headers = await Chain.loadHeaders(blockHashes);

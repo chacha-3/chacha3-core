@@ -26,7 +26,7 @@ actions.pushBlock = {
   //   required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
   // },
   handler: async (options) => {
-    const block = new Block();
+    const block = Block.fromObject(options);
 
     return okResponse(block.toObject(), 'Block pushed');
   },

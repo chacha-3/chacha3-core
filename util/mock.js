@@ -58,7 +58,7 @@ mock.createPeers = async (count) => {
   return Promise.all(promises);
 };
 
-mock.blockWithTransactions = async (numOfTransactions) => {
+mock.blockWithTransactions = async (numOfTransactions, previousBlock) => {
   assert(numOfTransactions > 0);
 
   const minusCoinbase = numOfTransactions - 1;
@@ -68,7 +68,12 @@ mock.blockWithTransactions = async (numOfTransactions) => {
 
   const block = new Block();
   block.addCoinbase(receiver.getAddressEncoded());
-  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+
+  if (previousBlock) {
+    block.setPreviousHash(previousBlock.getHeader().getHash());
+  } else {
+    block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+  }
 
   for (let i = 0; i < minusCoinbase; i += 1) {
     const sender = new Wallet();
@@ -95,15 +100,16 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
 
   const minusGenesis = numOfBlocks - 1;
 
-  const additionalBlocks = await Promise.all(
-    Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
-  );
-
   const chain = new Chain();
   chain.addBlockHeader(Block.Genesis.getHeader());
 
+  let previousBlock = Block.Genesis;
+
   for (let i = 0; i < minusGenesis; i += 1) {
-    chain.addBlockHeader(additionalBlocks[i].getHeader());
+    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock)
+    chain.addBlockHeader(block.getHeader());
+
+    previousBlock = block;
   }
 
   return chain;
@@ -115,18 +121,22 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
 
   const minusGenesis = numOfBlocks - 1;
 
-  const additionalBlocks = await Promise.all(
-    Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
-  );
+  // const additionalBlocks = await Promise.all(
+  //   Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
+  // );
 
   const chain = new Chain();
   await Block.save(Block.Genesis);
   chain.addBlockHeader(Block.Genesis.getHeader());
 
+  let previousBlock = Block.Genesis;
+
   for (let i = 0; i < minusGenesis; i += 1) {
-    // await chain.addBlock(blocks[i]);
-    await Block.save(additionalBlocks[i]);
-    chain.addBlockHeader(additionalBlocks[i].getHeader());
+    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock);
+    await Block.save(block);
+    chain.addBlockHeader(block.getHeader());
+
+    previousBlock = block;
   }
 
   await Chain.save(chain);

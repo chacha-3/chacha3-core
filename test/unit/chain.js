@@ -18,21 +18,28 @@ test('create an empty chain', (t) => {
 });
 
 test('add block headers to the chain', async (t) => {
-  const numOfBlocks = 3;
-
-  const blocks = await Promise.all(
-    Array.from({ length: numOfBlocks }, () => mock.blockWithTransactions(5)),
-  );
+  const numOfBlocks = 4;
 
   const chain = new Chain();
+  chain.addBlockHeader(Block.Genesis.getHeader());
 
-  for (let i = 0; i < numOfBlocks; i += 1) {
+  const minusGenesis = numOfBlocks - 1;
+  let previousBlock = Block.Genesis;
+
+  const blocks = Array.from({ length: minusGenesis });
+
+  for (let i = 0; i < minusGenesis; i += 1) {
+    blocks[i] = await mock.blockWithTransactions(5, previousBlock);
     chain.addBlockHeader(blocks[i].getHeader());
+
+    previousBlock = blocks[i];
   }
 
   const headers = chain.getBlockHeaders();
-  for (let i = 0; i < numOfBlocks; i += 1) {
-    t.ok(headers[i].getHash().equals(blocks[i].getHeader().getHash()));
+  t.ok(headers[0].getHash().equals(Block.Genesis.getHeader().getHash()));
+
+  for (let i = 1; i < numOfBlocks; i += 1) {
+    t.ok(headers[i].getHash().equals(blocks[i - 1].getHeader().getHash()));
   }
 
   t.equal(chain.getLength(), numOfBlocks, 'chain has correct length');
