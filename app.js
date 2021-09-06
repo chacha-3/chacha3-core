@@ -70,9 +70,7 @@ function build(opts = {}) {
       const syncActions = ['nodeInfo', 'pushBlock'];
 
       const significantlyAhead = Number.parseInt(chainLength, 10) > Chain.mainChain.getLength() + 5;
-      console.log(chainLength, Chain.mainChain.getLength(), Chain.mainChain.getLength() + 5, significantlyAhead);
 
-      console.log(request.body.action, syncActions.includes(request.body.action));
       if (syncActions.includes(request.body.action) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
 
