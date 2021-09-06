@@ -65,6 +65,7 @@ class Miner {
 
         chain.addBlockHeader(block.getHeader());
         await Chain.save(chain);
+        console.log(`Block length: ${Chain.mainChain.getLength()}`);
 
         Peer.broadcastAction('pushBlock', block.toObject());
 
