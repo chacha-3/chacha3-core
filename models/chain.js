@@ -20,7 +20,6 @@ class Chain {
   constructor() {
     this.blockHeaders = [];
     this.accounts = {};
-    this.synching = false;
   }
 
   static getAdjustInterval() {
@@ -51,14 +50,6 @@ class Chain {
     const min = 1 / adjustFactorLimit;
 
     return clamp(factor, min, max);
-  }
-
-  isSynching() {
-    return this.synching;
-  }
-
-  setSynching(synching) {
-    this.synching = synching;
   }
 
   getAccountBalance(address) {
@@ -354,6 +345,14 @@ class Chain {
     Chain.mainChain = await Chain.load();
   }
 
+  static isSynching() {
+    return Chain.synching;
+  }
+
+  static setSynching(synching) {
+    Chain.synching = synching;
+  }
+
   static async clearRejectedBlocks(chain, startIndex) {
     const clearBlocks = [];
     for (let x = startIndex; x < chain.getLength(); x += 1) {
@@ -401,7 +400,7 @@ class Chain {
 
   static async syncWithPeer(peer) {
     // Avoid synching with more than one at a time
-    if (this.isSynching()) {
+    if (Chain.isSynching()) {
       return true;
     }
 
@@ -421,7 +420,7 @@ class Chain {
       return false;
     }
 
-    this.setSynching(true);
+    Chain.setSynching(true);
 
     const valid = await Chain.verifyForwardBlocks(peer, pulledChain, divergeIndex);
 
@@ -433,7 +432,7 @@ class Chain {
       debug('Invalid chain');
     }
 
-    this.setSynching(false);
+    Chain.setSynching(false);
 
     return valid;
   }
@@ -500,5 +499,6 @@ class Chain {
 }
 
 Chain.mainChain = new Chain();
+Chain.synching = false;
 
 module.exports = Chain;
