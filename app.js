@@ -67,7 +67,7 @@ function build(opts = {}) {
         return done();
       }
 
-      if (chainLength > Chain.mainChain.getLength() + 5) {
+      if (request.body.action === 'nodeInfo' && chainLength > Chain.mainChain.getLength() + 5) {
         debug('Sync with chain significantly ahead');
 
         peer.setChainLength(chainLength);
