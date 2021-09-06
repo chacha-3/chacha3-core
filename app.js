@@ -45,7 +45,7 @@ function build(opts = {}) {
       const port = request.headers['bong-port'];
       const chainLength = request.headers['bong-chain-work'];
       const chainWork = request.headers['bong-chain-length'];
-
+      console.log(port, chainLength, chainWork);
       // TODO: Validate input
       if (!port) {
         return done();
@@ -55,16 +55,24 @@ function build(opts = {}) {
       const key = Peer.generateKey(ip, port);
 
       const peer = await Peer.load(key);
-      peer.setChainLength(chainLength);
-      peer.setTotalWork(chainWork);
 
       if (!peer) {
         const newPeer = new Peer(ip, port);
         newPeer.reachOut();
-      } else if (peer && peer.status !== Peer.Status.Active) {
+        return done();
+      }
+
+      if (peer.status !== Peer.Status.Active) {
         peer.reachOut();
-      } else if (peer.isSignificantlyAhead()) {
+        return done();
+      }
+
+      if (chainLength > Chain.mainChain.getLength() + 5) {
         debug('Sync with chain significantly ahead');
+
+        peer.setChainLength(chainLength);
+        peer.setTotalWork(chainWork);
+
         Chain.mainChain.syncWithPeer(peer);
       }
     },

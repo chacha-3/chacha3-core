@@ -11,6 +11,7 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
+const Peer = require('./peer');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -428,6 +429,11 @@ class Chain {
       Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
 
       await Chain.save(pulledChain);
+
+      peer.setChainLength(pulledChain.getLength());
+      peer.setTotalWork(pulledChain.getTotalWork());
+
+      await Peer.save(peer);
     } else {
       debug('Invalid chain');
     }

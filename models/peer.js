@@ -3,8 +3,6 @@ const bent = require('bent');
 
 const debug = require('debug')('peer:model');
 
-const Chain = require('./chain');
-
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
@@ -102,9 +100,9 @@ class Peer {
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
-  isSignificantlyAhead() {
-    return this.getChainLength() > Chain.mainChain + 10;
-  }
+  // isSignificantlyAhead() {
+  //   return this.getChainLength() > Chain.mainChain + 10;
+  // }
 
   getId() {
     return Peer.generateKey(this.getAddress(), this.getPort());
