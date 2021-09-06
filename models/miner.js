@@ -32,8 +32,7 @@ class Miner {
       const chain = Chain.mainChain;
 
       if (Chain.isSynching()) {
-        console.log('chain synching stop mining');
-        continue;
+        await Chain.completeSync();
       }
 
       if (Transaction.pendingList.length > 0) {

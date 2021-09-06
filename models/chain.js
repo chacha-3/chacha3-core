@@ -353,6 +353,12 @@ class Chain {
     Chain.synching = synching;
   }
 
+  static async completeSync() {
+    while (Chain.synching) {
+
+    }
+  }
+
   static async clearRejectedBlocks(chain, startIndex) {
     const clearBlocks = [];
     for (let x = startIndex; x < chain.getLength(); x += 1) {
