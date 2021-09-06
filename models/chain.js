@@ -400,6 +400,7 @@ class Chain {
   }
 
   static async syncWithPeer(peer) {
+    // Avoid synching with more than one at a time
     if (this.isSynching()) {
       return true;
     }

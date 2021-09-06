@@ -102,6 +102,10 @@ class Peer {
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
+  isSignificantlyAhead() {
+    return this.getChainLength() > Chain.mainChain + 10;
+  }
+
   getId() {
     return Peer.generateKey(this.getAddress(), this.getPort());
   }
@@ -245,8 +249,8 @@ class Peer {
   static requestHeaders() {
     return {
       'bong-port': process.env.PORT || 3000,
-      'bong-chain-length': Chain.getChainLength(),
-      'bong-chain-work': Chain.getTotalWork(),
+      'bong-chain-length': Chain.mainChain.getLength(),
+      'bong-chain-work': Chain.mainChain.getTotalWork(),
     };
   }
 

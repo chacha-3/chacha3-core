@@ -11,6 +11,7 @@ const Peer = require('./models/peer');
 const { runAction, checkPermission, actionList } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
+const Chain = require('./models/chain');
 
 const errorHandler = (error, request, reply) => {
   console.log(error);
@@ -62,6 +63,9 @@ function build(opts = {}) {
         newPeer.reachOut();
       } else if (peer && peer.status !== Peer.Status.Active) {
         peer.reachOut();
+      } else if (peer.isSignificantlyAhead()) {
+        debug('Sync with chain significantly ahead');
+        Chain.mainChain.syncWithPeer(peer);
       }
     },
     handler: async (request, reply) => {
