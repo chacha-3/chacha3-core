@@ -9,6 +9,17 @@ const Peer = require('./peer');
 
 // const addressPrefix = '420_';
 
+const waitUntil = (condition) => new Promise((resolve) => {
+  const interval = setInterval(() => {
+    if (!condition()) {
+      return;
+    }
+
+    clearInterval(interval);
+    resolve();
+  }, 100);
+});
+
 class Miner {
   constructor() {
     this.receiverAddress = null;
@@ -32,7 +43,7 @@ class Miner {
       const chain = Chain.mainChain;
 
       if (Chain.isSynching()) {
-        await Chain.completeSync();
+        await waitUntil(() => !Chain.isSynching());
       }
 
       if (Transaction.pendingList.length > 0) {
