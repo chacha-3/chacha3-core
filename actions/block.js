@@ -35,6 +35,7 @@ actions.pushBlock = {
 
     await Block.save(block);
     Chain.mainChain.addBlockHeader(block.getHeader()); // TODO: Check add success
+    console.log(`Block length: ${Chain.mainChain.getLength()}`);
 
     return okResponse(block.toObject(), 'Block pushed');
   },
