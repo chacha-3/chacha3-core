@@ -42,7 +42,10 @@ function build(opts = {}) {
       }
 
       const port = request.headers['bong-port'];
+      const chainLength = request.headers['bong-chain-work'];
+      const chainWork = request.headers['bong-chain-length'];
 
+      // TODO: Validate input
       if (!port) {
         return done();
       }
@@ -51,6 +54,8 @@ function build(opts = {}) {
       const key = Peer.generateKey(ip, port);
 
       const peer = await Peer.load(key);
+      peer.setChainLength(chainLength);
+      peer.setTotalWork(chainWork);
 
       if (!peer) {
         const newPeer = new Peer(ip, port);

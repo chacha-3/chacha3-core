@@ -53,3 +53,34 @@ test('push new block', async (t) => {
   t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
   t.end();
 });
+
+test('cannot push invalid block', async (t) => {
+  const initialBlockCount = 5;
+  Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 3);
+  const chain = Chain.mainChain;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(chain.lastBlockHeader().getHash());
+
+  await block.mine();
+
+  // Tamper hash. Invalid
+  console.log(block.header.hash)
+  block.header.hash[3] = 5;
+  block.header.hash[10] = 5;
+  block.header.hash[12] = 5;
+  console.log(block.header.hash)
+
+  const options = { action: 'pushBlock', ...block.toObject() };
+
+  const { data, code } = await runAction(options);
+  t.equal(code, SuccessCode);
+
+  t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
+  t.end();
+});

@@ -3,6 +3,8 @@ const bent = require('bent');
 
 const debug = require('debug')('peer:model');
 
+const Chain = require('./chain');
+
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
@@ -240,8 +242,16 @@ class Peer {
     return true;
   }
 
+  static requestHeaders() {
+    return {
+      'bong-port': process.env.PORT || 3000,
+      'bong-chain-length': Chain.getChainLength(),
+      'bong-chain-work': Chain.getTotalWork(),
+    };
+  }
+
   async sendRequest(options) {
-    const post = bent(`https://${this.formattedAddress()}`, 'POST', 'json', 200, { 'bong-port': process.env.PORT || 3000 });
+    const post = bent(`https://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
     try {
       const response = await post('', options);

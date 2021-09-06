@@ -109,7 +109,6 @@ class Block {
     assert(this.getTransactionCount() > 0);
 
     const hex = 16;
-
     const hashNum = new BN(this.header.getHash(), hex);
     const targetNum = new BN(this.header.getTarget(), hex);
 

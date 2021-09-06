@@ -39,7 +39,7 @@ test('should mine a block', async (t) => {
   block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
-
+  console.log(block.header.getHash().toString('hex'));
   t.equal(await block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
 
@@ -190,11 +190,29 @@ test('block is invalid if adding transaction after mining', async (t) => {
 
   addTransaction.sign(sender.getPrivateKeyObject());
 
-  block.addTransaction(addTransaction);
+  // Tamper block. Add transaction without changes to checksum
+  block.transactions.push(addTransaction);
 
-  // FIXME:
-  // t.equal(block.verifyHash(), false, 'tampered transaction has invalid hash');
-  // t.equal(block.verify(), false, 'tampered transaction is unverified');
+  t.equal(block.verifyChecksum(), false, 'tampered transaction has invalid hash');
+  t.equal(block.verify(), false, 'tampered transaction is unverified');
+
+  t.end();
+});
+
+test('block is invalid if hash does not meet mining difficulty', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+
+  // Set hash manually instead of mining block
+  block.header.setHash(Buffer.from('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00', 'hex'));
+
+  t.equal(block.verifyHash(), false, 'invalid hash');
+  t.equal(block.verify(), false, 'invalid transaction is unverified');
 
   t.end();
 });
