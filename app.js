@@ -43,8 +43,8 @@ function build(opts = {}) {
       }
 
       const port = request.headers['bong-port'];
-      const chainLength = request.headers['bong-chain-work'];
-      const chainWork = request.headers['bong-chain-length'];
+      const chainWork = request.headers['bong-chain-work'];
+      const chainLength = request.headers['bong-chain-length'];
 
       // TODO: Validate input
       if (!port) {
@@ -67,9 +67,12 @@ function build(opts = {}) {
         return done();
       }
 
-      const syncActions = ['nodeInfo', 'pushBlock', 'pingNode'];
-      const significantlyAhead = chainLength > Chain.mainChain.getLength() + 5;
+      const syncActions = ['nodeInfo', 'pushBlock'];
 
+      const significantlyAhead = Number.parseInt(chainLength, 10) > Chain.mainChain.getLength() + 5;
+      console.log(chainLength, Chain.mainChain.getLength(), Chain.mainChain.getLength() + 5, significantlyAhead);
+
+      console.log(request.body.action, syncActions.includes(request.body.action));
       if (syncActions.includes(request.body.action) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
 
