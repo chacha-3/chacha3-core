@@ -67,7 +67,7 @@ function build(opts = {}) {
         return done();
       }
 
-      const syncActions = ['nodeInfo', 'pushBlock'];
+      const syncActions = ['nodeInfo', 'pushBlock', 'pingNode'];
       const significantlyAhead = chainLength > Chain.mainChain.getLength() + 5;
 
       if (syncActions.includes(request.body.action) && significantlyAhead) {

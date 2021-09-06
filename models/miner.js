@@ -31,7 +31,7 @@ class Miner {
     while (this.mining) {
       const chain = Chain.mainChain;
 
-      if (Chain.mainChain.isSynching()) {
+      if (Chain.isSynching()) {
         console.log('chain synching stop mining');
         continue;
       }
