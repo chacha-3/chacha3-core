@@ -3,9 +3,10 @@ const bent = require('bent');
 
 const debug = require('debug')('peer:model');
 
-const Chain = require("./chain");
-
 const ipaddr = require('ipaddr.js');
+const Chain = require('./chain');
+const Block = require('./block');
+
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 
@@ -282,6 +283,80 @@ class Peer {
 
     const params = Object.assign(options || {}, { action: actionName });
     return this.sendRequest(params);
+  }
+
+  async syncChain() {
+    // Avoid synching with more than one at a time
+    if (Chain.isSynching()) {
+      return true;
+    }
+
+    const response = await this.callAction('pullChain');
+
+    if (!response) {
+      return false;
+    }
+
+    const { data } = response;
+
+    const pulledChain = Chain.fromObject(data);
+    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+
+    if (divergeIndex < 1) {
+      debug(`Did not sync. Diverge index: ${divergeIndex}`);
+      return false;
+    }
+
+    Chain.setSynching(true);
+
+    const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
+
+    if (valid) {
+      Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
+
+      await Chain.save(pulledChain);
+
+      this.setChainLength(pulledChain.getLength());
+      this.setTotalWork(pulledChain.getTotalWork());
+
+      await Peer.save(this);
+    } else {
+      debug('Invalid chain');
+    }
+
+    Chain.setSynching(false);
+
+    return valid;
+  }
+
+  async verifyForwardBlocks(pulledChain, startIndex) {
+    let valid = true;
+
+    debug(`Diverge index: ${startIndex}. Pulled chain length: ${pulledChain.getLength()}`);
+    for (let j = startIndex; j < pulledChain.getLength() && valid; j += 1) {
+      const header = pulledChain.getBlockHeader(j);
+
+      debug(`Request block data: ${header.getHash().toString('hex')}`);
+      debug(`Peer info: ${this.getAddress()}:${this.getPort()}`);
+      const { data } = await this.callAction('blockInfo', { hash: header.getHash().toString('hex') });
+      debug(`Receive new block data: ${header.getHash().toString('hex')}`);
+
+      if (data) {
+        debug('Receive data for block');
+        const block = Block.fromObject(data);
+        valid = await Block.verifyAndSave(block);
+        debug(`Block index ${j} is valid: ${valid}`);
+      } else {
+        debug('No data');
+      }
+    }
+
+    if (!valid) {
+      debug('Forward blocks not valid');
+      // TODO: Clear blocks
+    }
+
+    return valid;
   }
 
   toObject() {

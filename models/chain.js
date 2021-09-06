@@ -11,7 +11,6 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
-const Peer = require('./peer');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -369,79 +368,9 @@ class Chain {
     });
   }
 
-  static async verifyForwardBlocks(peer, pulledChain, startIndex) {
-    let valid = true;
-
-    debug(`Diverge index: ${startIndex}. Pulled chain length: ${pulledChain.getLength()}`);
-    for (let j = startIndex; j < pulledChain.getLength() && valid; j += 1) {
-      const header = pulledChain.getBlockHeader(j);
-
-      debug(`Request block data: ${header.getHash().toString('hex')}`);
-      debug(`Peer info: ${peer.getAddress()}:${peer.getPort()}`);
-      const { data } = await peer.callAction('blockInfo', { hash: header.getHash().toString('hex') });
-      debug(`Receive new block data: ${header.getHash().toString('hex')}`);
-
-      if (data) {
-        debug('Receive data for block');
-        const block = Block.fromObject(data);
-        valid = await Block.verifyAndSave(block);
-        debug(`Block index ${j} is valid: ${valid}`);
-      } else {
-        debug('No data');
-      }
-    }
-
-    if (!valid) {
-      debug('Forward blocks not valid');
-      // TODO: Clear blocks
-    }
-
-    return valid;
-  }
-
-  static async syncWithPeer(peer) {
-    // Avoid synching with more than one at a time
-    if (Chain.isSynching()) {
-      return true;
-    }
-
-    const response = await peer.callAction('pullChain');
-
-    if (!response) {
-      return false;
-    }
-
-    const { data } = response;
-
-    const pulledChain = Chain.fromObject(data);
-    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
-
-    if (divergeIndex < 1) {
-      debug(`Did not sync. Diverge index: ${divergeIndex}`);
-      return false;
-    }
-
-    Chain.setSynching(true);
-
-    const valid = await Chain.verifyForwardBlocks(peer, pulledChain, divergeIndex);
-
-    if (valid) {
-      Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
-
-      await Chain.save(pulledChain);
-
-      peer.setChainLength(pulledChain.getLength());
-      peer.setTotalWork(pulledChain.getTotalWork());
-
-      await Peer.save(peer);
-    } else {
-      debug('Invalid chain');
-    }
-
-    Chain.setSynching(false);
-
-    return valid;
-  }
+  // static async syncWithPeer(peer) {
+    
+  // }
 
   static async initializeGenesisBlock() {
     const chain = await Chain.load();

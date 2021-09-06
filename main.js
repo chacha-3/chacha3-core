@@ -51,7 +51,8 @@ server.listen(port, async (err) => {
     const connectPeer = peerPriority[i];
     debug(`Connecting to peer: ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
 
-    const success = await Chain.syncWithPeer(connectPeer);
+    // const success = await Chain.syncWithPeer(connectPeer);
+    const success = await connectPeer.syncChain();
 
     if (success) {
       debug(`Chain is valid: ${success}. Synced with peer ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
