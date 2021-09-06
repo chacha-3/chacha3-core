@@ -78,6 +78,7 @@ function build(opts = {}) {
         peer.setTotalWork(chainWork);
 
         peer.syncChain();
+        // TODO: If sync fail. Find next best
       }
     },
     handler: async (request, reply) => {

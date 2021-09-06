@@ -190,6 +190,7 @@ class Chain {
     const lastHeader = this.lastBlockHeader();
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
+      // TODO: Handle error on synching
       throw Error('Invalid new block');
     }
 

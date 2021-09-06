@@ -293,6 +293,8 @@ class Peer {
 
     const response = await this.callAction('pullChain');
 
+    // TODO: Check chain is higher than current claimed length
+
     if (!response) {
       return false;
     }

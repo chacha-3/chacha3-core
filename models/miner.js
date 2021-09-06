@@ -43,7 +43,7 @@ class Miner {
       const chain = Chain.mainChain;
 
       if (Chain.isSynching()) {
-        console.log('Mining paused. Chain out of sync');
+        debug('Mining paused. Chain out of sync');
         await waitUntil(() => !Chain.isSynching());
       }
 
@@ -66,8 +66,8 @@ class Miner {
 
         chain.addBlockHeader(block.getHeader());
         await Chain.save(chain);
-        console.log(`Mined block #${Chain.mainChain.getLength()}`);
-        console.log(`Block length: ${Chain.mainChain.getLength()}`);
+        debug(`Mined block #${Chain.mainChain.getLength()}`);
+        debug(`Block length: ${Chain.mainChain.getLength()}`);
 
         Peer.broadcastAction('pushBlock', block.toObject());
 
