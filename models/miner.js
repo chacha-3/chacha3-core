@@ -30,6 +30,12 @@ class Miner {
 
     while (this.mining) {
       const chain = Chain.mainChain;
+
+      if (Chain.mainChain.isSynching()) {
+        console.log('chain synching stop mining');
+        continue;
+      }
+
       if (Transaction.pendingList.length > 0) {
         // Add transaction to block
         block.addTransaction(Transaction.pendingList.pop());

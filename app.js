@@ -45,7 +45,7 @@ function build(opts = {}) {
       const port = request.headers['bong-port'];
       const chainLength = request.headers['bong-chain-work'];
       const chainWork = request.headers['bong-chain-length'];
-      console.log(port, chainLength, chainWork);
+
       // TODO: Validate input
       if (!port) {
         return done();
@@ -67,7 +67,10 @@ function build(opts = {}) {
         return done();
       }
 
-      if (request.body.action === 'nodeInfo' && chainLength > Chain.mainChain.getLength() + 5) {
+      const syncActions = ['nodeInfo', 'pushBlock'];
+      const significantlyAhead = chainLength > Chain.mainChain.getLength() + 5;
+
+      if (syncActions.includes(request.body.action) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
 
         peer.setChainLength(chainLength);
