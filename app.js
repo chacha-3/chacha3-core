@@ -67,14 +67,14 @@ function build(opts = {}) {
         return done();
       }
 
-      if (chainLength > Chain.mainChain.getLength() + 5) {
-        debug('Sync with chain significantly ahead');
+      // if (chainLength > Chain.mainChain.getLength() + 5) {
+      //   debug('Sync with chain significantly ahead');
 
-        peer.setChainLength(chainLength);
-        peer.setTotalWork(chainWork);
+      //   peer.setChainLength(chainLength);
+      //   peer.setTotalWork(chainWork);
 
-        Chain.mainChain.syncWithPeer(peer);
-      }
+      //   Chain.mainChain.syncWithPeer(peer);
+      // }
     },
     handler: async (request, reply) => {
       reply.type('application/json');

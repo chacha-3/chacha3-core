@@ -4,7 +4,9 @@ const Chain = require('../models/chain');
 const Miner = require('../models/miner');
 const Peer = require('../models/peer');
 
-const { errorResponse, ErrorCode, SuccessCode, okResponse } = require('../util/rpc');
+const {
+  errorResponse, ErrorCode, SuccessCode, okResponse,
+} = require('../util/rpc');
 
 const actions = {};
 

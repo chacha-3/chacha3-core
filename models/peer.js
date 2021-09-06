@@ -3,6 +3,8 @@ const bent = require('bent');
 
 const debug = require('debug')('peer:model');
 
+const Chain = require("./chain");
+
 const ipaddr = require('ipaddr.js');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
