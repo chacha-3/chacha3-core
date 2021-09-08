@@ -241,7 +241,7 @@ class Block {
     try {
       data = await BlockDB.get(hash, { valueEncoding: 'json' });
     } catch (e) {
-      return false;
+      return null;
     }
 
     const block = new Block();
