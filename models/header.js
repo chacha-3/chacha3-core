@@ -86,11 +86,6 @@ class Header {
     await HeaderDB.del(hash);
   }
 
-  // TODO: Remove. Causing issue by deleting genesis block header
-  static async clearAll() {
-    await HeaderDB.clear();
-  }
-
   hashData() {
     assert(this.checksum !== null && this.time != null);
     assert(this.previous !== null && this.previous.length === 32);
@@ -196,33 +191,6 @@ class Header {
 
   incrementNonce() {
     this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
-  }
-
-  static toPushData(header) {
-    const data = {
-      version: header.getVersion(),
-      previous: header.getPrevious(),
-      time: header.getTime(),
-      difficulty: header.getDifficulty(),
-      nonce: header.getNonce(),
-      checksum: header.getChecksum(),
-    };
-
-    return serializeBuffers(data, ['previous', 'checksum']);
-  }
-
-  static fromPushData(obj) {
-    const data = deserializeBuffers(obj, ['previous', 'checksum']);
-    const header = new Header();
-
-    header.setVersion(data.version);
-    header.setPrevious(deserializeBuffer(data.previous));
-    header.setTime(data.time);
-    header.setDifficulty(data.difficulty);
-    header.setNonce(data.nonce);
-    header.setChecksum(deserializeBuffer(data.checksum));
-
-    return header;
   }
 
   static fromObject(obj) {
