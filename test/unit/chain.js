@@ -257,8 +257,54 @@ test('have zero balance for account without transaction', async (t) => {
   randomWallet.generate();
 
   t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0);
+  const transactions = chain.getAccountTransactions(randomWallet.getAddressEncoded());
+
+  t.ok(Array.isArray(transactions));
+  t.equal(transactions.length, 0);
 
   t.end();
+});
+
+test('list correct account transactions from chain', async (t) => {
+  const chain = new Chain();
+
+  const numOfBlocks = 2;
+  const transactionsPerBlock = 2;
+
+  // Coinbase wallet to send to
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const blocks = await mock.blockList(numOfBlocks, transactionsPerBlock, wallet);
+
+  const receiverAddresses = new Array(numOfBlocks);
+
+  for (let i = 0; i < numOfBlocks; i += 1) {
+    chain.updateBlockBalances(blocks[i]);
+
+    // Post coinbase transaction
+    const transaction = blocks[i].getTransaction(1);
+
+    // const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+    receiverAddresses[i] = transaction.getReceiverAddress();
+
+    // const senderBalance = chain.getAccountBalance(senderAddress);
+    // const receiverBalance = chain.getAccountBalance(receiverAddresses[i]);
+
+    // const updatedBlocks = i + 1;
+
+    // t.ok(senderBalance < 10000 * updatedBlocks);
+    // t.ok(receiverBalance > 0);
+  }
+
+  for (let j = 0; j < numOfBlocks; j += 1) {
+    t.equal(chain.getAccountTransactions(receiverAddresses[j]).length, 1);
+  }
+
+  const senderTransactions = chain.getAccountTransactions(wallet.getAddressEncoded());
+
+  t.equal(senderTransactions.length, 4);
+  t.equal(typeof (senderTransactions[0]), 'string');
 });
 
 test('to and from object', async (t) => {
