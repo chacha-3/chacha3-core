@@ -64,10 +64,6 @@ class Peer {
   }
 
   static async broadcastAction(actionName, options) {
-    if (process.env.NODE_ENV === 'test') {
-      return;
-    }
-
     const peers = await Peer.all();
     const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
 
@@ -77,6 +73,8 @@ class Peer {
       debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(merged)}`);
       peer.sendRequest(merged);
     });
+
+    return activePeers.length;
   }
 
   static async reachOutAll() {
@@ -256,6 +254,10 @@ class Peer {
   }
 
   async sendRequest(options) {
+    if (process.env.NODE_ENV === 'test') {
+      return null;
+    }
+
     const post = bent(`https://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
     try {

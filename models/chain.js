@@ -205,6 +205,7 @@ class Chain {
     return this.getBlockHeader(0).equals(Block.Genesis.getHeader());
   }
 
+  // TODO:
   verify() {
     if (!this.verifyGenesisBlock()) {
       return false;
