@@ -254,6 +254,24 @@ test('save and load block', async (t) => {
   t.end();
 });
 
+test('verify block before saving and return verification status', async (t) => {
+  const block = await mock.blockWithTransactions(3);
+
+  let verified;
+
+  verified = await Block.verifyAndSave(block);
+  t.equal(verified, true);
+
+  // Invalid header hash, would not pass verification and does not save
+  block.header.setHash(Buffer.from('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00', 'hex'));
+
+  verified = await Block.verifyAndSave(block);
+  t.equal(verified, false);
+
+  await Block.clearAll();
+  t.end();
+});
+
 test('get genesis block', async (t) => {
   const block = Block.Genesis;
 

@@ -143,18 +143,6 @@ class Block {
     return this.getHeader().getChecksum().equals(lastChecksum);
   }
 
-  toPushData() {
-    const data = {
-      header: this.getHeader().toPushData(),
-    };
-
-    for (let i = 0; i < this.transactions.length; i += 1) {
-      data.transactions.push(this.transactions[i].toPushData());
-    }
-
-    return data;
-  }
-
   // verifySize() {
   //   // TODO:
   // }
@@ -221,9 +209,7 @@ class Block {
   }
 
   static async save(block) {
-    if (!block.verify()) {
-      throw Error('Cannot save unverified block');
-    }
+    assert(block.verify());
 
     const key = block.getHeader().getHash();
 

@@ -8,7 +8,6 @@ const Peer = require('./models/peer');
 const Chain = require('./models/chain');
 const Block = require('./models/block');
 const { mainChain } = require('./models/chain');
-// const { verifyAndSave } = require('./models/block');
 
 /**
  * Normalize a port into a number, string, or false.
