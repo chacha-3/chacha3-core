@@ -23,7 +23,7 @@ test('display chain info', async (t) => {
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
   t.equal(data.totalWork, chain.getTotalWork());
 
-  Chain.clear();
+  await Chain.clear();
   t.end();
 });
 

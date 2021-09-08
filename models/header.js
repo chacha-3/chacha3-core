@@ -82,6 +82,11 @@ class Header {
     return Header.fromSaveData(data, hash);
   }
 
+  static async clear(hash) {
+    await HeaderDB.del(hash);
+  }
+
+  // TODO: Remove. Causing issue by deleting genesis block header
   static async clearAll() {
     await HeaderDB.clear();
   }

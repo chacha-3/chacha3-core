@@ -70,11 +70,9 @@ test('cannot push invalid block', async (t) => {
   await block.mine();
 
   // Tamper hash. Invalid
-  console.log(block.header.hash)
   block.header.hash[3] = 5;
   block.header.hash[10] = 5;
   block.header.hash[12] = 5;
-  console.log(block.header.hash)
 
   const options = { action: 'pushBlock', ...block.toObject() };
 

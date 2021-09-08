@@ -186,7 +186,7 @@ test('save and load transaction', async (t) => {
   t.ok(transaction.getSenderKey().equals(loadedTransaction.getSenderKey()));
   t.ok(transaction.getSignature().equals(loadedTransaction.getSignature()));
 
-  Transaction.clearAll();
+  await Transaction.clearAll();
 
   t.end();
 });

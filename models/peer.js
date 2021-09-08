@@ -272,7 +272,6 @@ class Peer {
     if (e.code === 'ECONNREFUSED') {
       debug(`Connection ${this.formattedAddress()} refused, set peer status to inactive`);
       this.setStatus(Peer.Status.Inactive);
-      console.log(this);
       await Peer.save(this);
     }
     debug(`Peer call action error: ${e}`);

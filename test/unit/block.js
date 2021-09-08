@@ -39,7 +39,7 @@ test('should mine a block', async (t) => {
   block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
 
   await block.mine();
-  console.log(block.header.getHash().toString('hex'));
+
   t.equal(await block.verifyHash(), true, 'mined block has verified hash');
   t.equal(block.verify(), true, 'mined block is verified');
 
@@ -249,7 +249,7 @@ test('save and load block', async (t) => {
 
   t.equal(block.getTransaction(0).getTime(), loaded.getTransaction(0).getTime());
 
-  Block.clearAll();
+  await Block.clearAll();
 
   t.end();
 });

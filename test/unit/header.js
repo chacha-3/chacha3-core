@@ -79,7 +79,9 @@ test('save and load header', async (t) => {
   t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
   t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
 
-  Header.clearAll();
+  // await Header.clearAll();
+  await Header.clear(key);
+
   t.end();
 });
 

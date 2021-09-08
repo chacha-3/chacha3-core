@@ -69,6 +69,7 @@ function build(opts = {}) {
 
       const syncActions = ['nodeInfo', 'pushBlock'];
 
+      // FIXME: Verify using work
       const significantlyAhead = Number.parseInt(chainLength, 10) > Chain.mainChain.getLength() + 5;
 
       if (syncActions.includes(request.body.action) && significantlyAhead) {
@@ -77,7 +78,7 @@ function build(opts = {}) {
         peer.setChainLength(chainLength);
         peer.setTotalWork(chainWork);
 
-        peer.syncChain();
+        peer.syncChain(); // TODO: Add claimed work to verify is correct
         // TODO: If sync fail. Find next best
       }
     },

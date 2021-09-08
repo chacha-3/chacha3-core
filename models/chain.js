@@ -6,7 +6,7 @@ const BN = require('bn.js');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
-const { DB, BlockDB, runningManualTest } = require('../util/db');
+const { DB, BlockDB, HeaderDB, runningManualTest } = require('../util/db');
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
@@ -291,6 +291,7 @@ class Chain {
   latestBlockHeader() {
     assert(this.blockHeaders.length > 0);
     assert(this.blockHeaders[this.blockHeaders.length - 1] != null);
+
     return this.blockHeaders[this.blockHeaders.length - 1];
   }
 
@@ -339,6 +340,7 @@ class Chain {
   }
 
   static async clear() {
+    await HeaderDB.clear(); // TODO: Add test
     await BlockDB.clear();
     await DB.del('chain');
 
