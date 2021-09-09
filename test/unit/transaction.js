@@ -207,8 +207,7 @@ test('unable to load unsaved transaction', async (t) => {
   t.end();
 });
 
-test('save valid pending transactions', async (t) => {
-  // const block = mock.blockWithTransactions(3);
+test('save pending transactions', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -227,6 +226,9 @@ test('save valid pending transactions', async (t) => {
   t.equal(loadedTransactions.length, 3);
 
   await Transaction.clearAllPending();
+
+  const deleted = await Transaction.loadPending();
+  t.equal(deleted.length, 0);
 
   t.end();
 });
