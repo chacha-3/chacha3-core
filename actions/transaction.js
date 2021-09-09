@@ -88,7 +88,7 @@ actions.pushTransaction = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Transaction failed verification');
     }
 
-    Transaction.addPending(transaction);
+    await Transaction.save(transaction, true);
     debug('Add to pending transaction');
 
     return okResponse(transaction.toObject(), 'Transaction pushed');
@@ -98,7 +98,8 @@ actions.pushTransaction = {
 actions.pendingTransactions = {
   permission: 'public',
   handler: async () => {
-    const transactions = Transaction.pendingList;
+    const transactions = await Transaction.loadPending();
+    console.log(transactions);
     const data = transactions.map((transaction) => transaction.toObject());
 
     return okResponse(data, 'Pending transactions');

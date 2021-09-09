@@ -50,7 +50,9 @@ test('push transaction', async (t) => {
   });
 
   t.equal(code, SuccessCode);
-  t.equal(Transaction.pendingList.length, 1);
+
+  const pendingTransactions = await Transaction.loadPending();
+  t.equal(pendingTransactions.length, 1);
 
   await Transaction.clearAll();
 

@@ -24,8 +24,6 @@ class Miner {
   constructor() {
     this.receiverAddress = null;
     this.mining = false;
-
-    // this.pendingTransactions = Transaction.pendingList;
   }
 
   async start() {
@@ -47,9 +45,10 @@ class Miner {
         await waitUntil(() => !Chain.isSynching());
       }
 
-      if (Transaction.pendingList.length > 0) {
-        // Add transaction to block
-        block.addTransaction(Transaction.pendingList.pop());
+      const pendingList = await Transaction.loadPending();
+
+      for (let i = 0; i < pendingList.length; i += 1) {
+        block.addTransaction(pendingList[i]);
       }
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
@@ -70,6 +69,10 @@ class Miner {
         debug(`Block length: ${Chain.mainChain.getLength()}`);
 
         Peer.broadcastAction('pushBlock', block.toObject());
+
+
+        // FIXME: Check added to block before removing
+        await Transaction.clearAllPending();
 
         // Init new block for mining
         block = new Block();

@@ -24,8 +24,6 @@ class Transaction {
     this.time = Date.now();
   }
 
-  // static pendingList = [];
-
   hashData() {
     const data = {
       version: this.version,
@@ -254,7 +252,8 @@ class Transaction {
   }
 
   static async clearAll() {
-    Transaction.pendingList = [];
+    // TODO: Move pending as sub?
+    await PendingTransactionDB.clear();
     await TransactionDB.clear();
   }
 
@@ -262,15 +261,5 @@ class Transaction {
     await PendingTransactionDB.clear();
   }
 }
-
-Transaction.pendingList = [];
-
-Transaction.addPending = (transaction) => {
-  const index = Transaction.pendingList.findIndex((t) => t.getId().equals(transaction.getId()));
-
-  if (index === -1) {
-    Transaction.pendingList.push(transaction);
-  }
-};
 
 module.exports = Transaction;
