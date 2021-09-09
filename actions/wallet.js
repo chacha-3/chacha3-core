@@ -208,7 +208,7 @@ actions.selectedWallet = {
 //       selected: null,
 //     };
 
-//     return { data, code: 'ok', message: 'Unselect wallet' };
+//     return { data, code: 'ok', message: 'Wallet info' };
 //   },
 // };
 

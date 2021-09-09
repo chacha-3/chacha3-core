@@ -6,7 +6,7 @@ const debug = require('debug')('transaction:model');
 const Wallet = require('./wallet');
 
 const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
-const { TransactionDB } = require('../util/db');
+const { TransactionDB, PendingTransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
 class Transaction {
@@ -136,7 +136,6 @@ class Transaction {
     transaction.setVersion(data.version);
     transaction.setTime(data.time);
     transaction.setSignature(data.signature);
-
     return transaction;
   }
 
@@ -168,7 +167,7 @@ class Transaction {
     };
   }
 
-  static async save(transaction) {
+  static async save(transaction, pending = false) {
     assert(transaction.getId() != null);
     const key = transaction.getId();
 
@@ -185,7 +184,9 @@ class Transaction {
     };
 
     const serialized = serializeBuffers(data, ['id', 'senderKey', 'signature']);
-    await TransactionDB.put(key, serialized, { valueEncoding: 'json' });
+
+    const DB = (!pending) ? TransactionDB : PendingTransactionDB;
+    await DB.put(key, serialized, { valueEncoding: 'json' });
 
     return { key, data };
   }
@@ -214,9 +215,51 @@ class Transaction {
     return transaction;
   }
 
+  static async loadPending() {
+    const readValues = () => new Promise((resolve) => {
+      const values = [];
+
+      PendingTransactionDB
+        .createValueStream({ valueEncoding: 'json' })
+        .on('data', async (data) => {
+          values.push(data);
+        })
+        .on('end', () => resolve(values));
+    });
+
+    const values = await readValues();
+
+    const loadTransaction = (data) => new Promise((resolve) => {
+      // const wallet = new Wallet();
+      // wallet.fromSaveData(data);
+
+      // TODO: Use from object
+      const transaction = new Transaction(
+        data.senderKey,
+        data.receiverAddress,
+        data.amount,
+      );
+
+      transaction.setVersion(data.version);
+      transaction.setSignature(data.signature);
+      transaction.setTime(data.time);
+
+      resolve(transaction);
+    });
+
+    const promises = [];
+
+    values.forEach((value) => promises.push(loadTransaction(value)));
+    return Promise.all(promises);
+  }
+
   static async clearAll() {
     Transaction.pendingList = [];
     await TransactionDB.clear();
+  }
+
+  static async clearAllPending() {
+    await PendingTransactionDB.clear();
   }
 }
 

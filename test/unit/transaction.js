@@ -207,6 +207,30 @@ test('unable to load unsaved transaction', async (t) => {
   t.end();
 });
 
+test('save valid pending transactions', async (t) => {
+  // const block = mock.blockWithTransactions(3);
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const numOfTransactions = 3;
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 33);
+    transaction.sign(sender.getPrivateKeyObject());
+
+    await Transaction.save(transaction, true);
+  }
+
+  const loadedTransactions = await Transaction.loadPending();
+  t.equal(loadedTransactions.length, 3);
+
+  await Transaction.clearAllPending();
+
+  t.end();
+});
+
 test('correct push data', async (t) => {
   const sender = new Wallet();
   sender.generate();

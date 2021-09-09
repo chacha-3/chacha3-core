@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const BN = require('bn.js');
 
 const Header = require('./header');
-const Transaction = require('./transaction');
 
 const { DB, BlockDB, HeaderDB, runningManualTest } = require('../util/db');
 const { median, clamp } = require('../util/math');
@@ -211,6 +210,11 @@ class Chain {
       return false;
     }
 
+    if (!this.verifyBalances()) {
+      console.log('Failed balance verification');
+      return false;
+    }
+
     return true;
   }
 
@@ -338,6 +342,18 @@ class Chain {
     chain.setBlockHeaders(headers);
 
     return chain;
+  }
+
+  async verifyBalances() {
+    for (let i = 0; i < this.getLength(); i += 1) {
+      // const headers = Chain.mainChain.getHea
+      const block = await Block.load(this.getBlockHeader(i).getHash());
+
+      // FIXME: Has return null
+      if (block) {
+        this.updateBlockBalances(block);
+      }
+    }
   }
 
   static async clear() {

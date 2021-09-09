@@ -37,9 +37,22 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
+  debug('Start initialization');
   await Chain.initializeGenesisBlock();
 
+  debug('Loading chain');
   Chain.mainChain = await Chain.load();
+
+  debug('Verifying blocks and loading balances');
+  const loaded = await Chain.mainChain.verify();
+
+  if (!loaded) {
+    debug('Could not load blocks. Invalid');
+    return;
+  }
+
+  debug('Done loading blocks');
+
   await Peer.reachOutAll();
 
   // Sync with longest chain

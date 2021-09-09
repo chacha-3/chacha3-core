@@ -258,7 +258,7 @@ class Peer {
       return null;
     }
 
-    const post = bent(`https://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
+    const post = bent(`http://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
     try {
       const response = await post('', options);
