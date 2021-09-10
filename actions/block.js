@@ -33,8 +33,21 @@ actions.pushBlock = {
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
     }
 
+    debug(`Receive new block: ${block.getHeader().getHash().toString('hex')}`);
+
     await Block.save(block);
-    Chain.mainChain.addBlockHeader(block.getHeader()); // TODO: Check add success
+    const added = Chain.mainChain.addBlockHeader(block.getHeader());
+
+    if (!added) {
+      debug('Failed to add new block');
+      return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
+    }
+
+    for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      // Remove pending transactions
+      debug(`Remove pending transaction: ${block.getTransaction(i).getId().toString('hex')}`);
+      Transaction.clear(block.getTransaction(i).getId(), true);
+    }
 
     return okResponse(block.toObject(), 'Block pushed');
   },

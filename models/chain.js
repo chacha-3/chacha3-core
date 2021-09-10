@@ -190,10 +190,12 @@ class Chain {
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
       // TODO: Handle error on synching
-      throw Error('Invalid new block');
+      return false;
     }
 
     this.blockHeaders.push(header);
+
+    return true;
   }
 
   setBlockHeaders(headers) {

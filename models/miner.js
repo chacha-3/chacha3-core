@@ -24,6 +24,8 @@ class Miner {
   constructor() {
     this.receiverAddress = null;
     this.mining = false;
+
+    this.transactionInterval = null;
   }
 
   async start() {
@@ -31,6 +33,8 @@ class Miner {
     if (this.mining) {
       return false;
     }
+
+    this.startTransactionPoll();
 
     this.mining = true;
 
@@ -70,7 +74,6 @@ class Miner {
 
         Peer.broadcastAction('pushBlock', block.toObject());
 
-
         // FIXME: Check added to block before removing
         await Transaction.clearAllPending();
 
@@ -83,11 +86,37 @@ class Miner {
     return true;
   }
 
+  startTransactionPoll() {
+    debug('Call start poll');
+
+    this.transactionInterval = setInterval(async () => {
+      // TODO: Method to get active peers
+      const peers = await Peer.all();
+      const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+
+      debug('Run poll function');
+      for (let i = 0; i < activePeers.length; i += 1) {
+        const peer = activePeers[i];
+        debug('Get pending transactions from peer');
+        peer.callAction('pendingTransactions', {}).then((response) => {
+          const { data } = response;
+
+          debug(JSON.stringify(data));
+        });
+      }
+    }, 1000);
+  }
+
+  stopTransactionPoll() {
+    clearInterval(this.transactionInterval);
+  }
+
   isMining() {
     return this.mining;
   }
 
   stop() {
+    this.stopTransactionPoll();
     this.mining = false;
   }
 

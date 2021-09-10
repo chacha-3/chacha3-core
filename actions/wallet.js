@@ -178,10 +178,12 @@ actions.selectedWallet = {
   //   required: ['address'],
   // },
   handler: async () => {
-    const selected = await Wallet.getSelected();
+    const key = await Wallet.getSelected();
+    const wallet = await Wallet.load(key);
 
     const data = {
-      selected,
+      label: wallet.getLabel(),
+      address: key,
     };
 
     return okResponse(data, 'Wallet');

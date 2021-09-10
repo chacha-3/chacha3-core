@@ -231,16 +231,18 @@ class Transaction {
       // const wallet = new Wallet();
       // wallet.fromSaveData(data);
 
+      const loaded = deserializeBuffers(data, ['id', 'senderKey', 'signature']);
+
       // TODO: Use from object
       const transaction = new Transaction(
-        data.senderKey,
-        data.receiverAddress,
-        data.amount,
+        loaded.senderKey,
+        loaded.receiverAddress,
+        loaded.amount,
       );
 
-      transaction.setVersion(data.version);
-      transaction.setSignature(data.signature);
-      transaction.setTime(data.time);
+      transaction.setVersion(loaded.version);
+      transaction.setSignature(loaded.signature);
+      transaction.setTime(loaded.time);
 
       resolve(transaction);
     });
@@ -249,6 +251,11 @@ class Transaction {
 
     values.forEach((value) => promises.push(loadTransaction(value)));
     return Promise.all(promises);
+  }
+
+  static async clear(hash, pending = false) {
+    const DB = (!pending) ? TransactionDB : PendingTransactionDB;
+    await DB.del(hash);
   }
 
   static async clearAll() {

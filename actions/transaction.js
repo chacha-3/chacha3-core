@@ -46,7 +46,7 @@ actions.createTransaction = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
     }
 
-    Transaction.addPending(transaction);
+    await Transaction.save(transaction, true);
     Peer.broadcastAction('pushTransaction', transaction.toPushData());
 
     return okResponse(transaction.toObject(), 'Transaction created');
@@ -99,7 +99,7 @@ actions.pendingTransactions = {
   permission: 'public',
   handler: async () => {
     const transactions = await Transaction.loadPending();
-    console.log(transactions);
+    // console.log(transactions);
     const data = transactions.map((transaction) => transaction.toObject());
 
     return okResponse(data, 'Pending transactions');
