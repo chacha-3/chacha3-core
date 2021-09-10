@@ -32,7 +32,8 @@ class Transaction {
       time: this.time,
     };
 
-    if (this.senderKey) {
+    assert(this.senderKey !== undefined);
+    if (this.senderKey !== null) {
       data.senderKey = this.senderKey.toString('hex');
     }
 

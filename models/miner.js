@@ -106,11 +106,12 @@ class Miner {
 
           for (let j = 0; j < data.length; j += 1) {
             // TODO: Use from object
-            const loaded = deserializeBuffers(data[j], ['id', 'senderKey', 'signature']);
-
+            const loaded = deserializeBuffers(data[j], ['id', 'sender', 'signature']);
+            console.log(loaded);
             const transaction = new Transaction(
-              loaded.senderKey,
-              loaded.receiverAddress,
+              // Not matching toObject key 'sender' instead of senderKey. To fix name?
+              loaded.sender,
+              loaded.receiver,
               loaded.amount,
             );
 
@@ -118,6 +119,7 @@ class Miner {
             transaction.setSignature(loaded.signature);
             transaction.setTime(loaded.time);
 
+            console.log(transaction.getId());
             const saved = await Transaction.save(transaction, true);
             if (saved) {
               debug(`Save pending transaction: ${transaction.getId().toString('hex')}`);

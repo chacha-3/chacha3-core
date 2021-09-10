@@ -35,7 +35,8 @@ actions.pushBlock = {
 
     debug(`Receive new block: ${block.getHeader().getHash().toString('hex')}`);
 
-    await Block.save(block);
+    // TODO: Verify
+
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
     if (!added) {
@@ -43,10 +44,14 @@ actions.pushBlock = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
     }
 
+    await Block.save(block);
+
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
-      // Remove pending transactions
-      debug(`Remove pending transaction: ${block.getTransaction(i).getId().toString('hex')}`);
-      Transaction.clear(block.getTransaction(i).getId(), true);
+      // Remove pending transactions, except coinbase
+      if (block.getTransaction(i).getSenderKey()) {
+        debug(`Clear pending transaction: ${block.getTransaction(i).getId().toString('hex')}`);
+        Transaction.clear(block.getTransaction(i).getId(), true);
+      }
     }
 
     return okResponse(block.toObject(), 'Block pushed');

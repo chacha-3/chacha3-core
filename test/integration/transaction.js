@@ -58,3 +58,27 @@ test('push transaction', async (t) => {
 
   t.end();
 });
+
+test('pending transactions', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const numOfTransactions = 4;
+
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 97);
+    transaction.sign(sender.getPrivateKeyObject());
+
+    await Transaction.save(transaction, true);
+  }
+
+  const pendingTransactions = await Transaction.loadPending();
+  t.equal(pendingTransactions.length, numOfTransactions);
+
+  await Transaction.clearAll();
+
+  t.end();
+});
