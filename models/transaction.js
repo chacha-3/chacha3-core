@@ -173,9 +173,11 @@ class Transaction {
     if (pending) {
       try {
         await TransactionDB.get(key);
-      } catch (e) {
+
         debug('Pending transaction is prior transaction. Ignored');
         return null;
+      } catch (e) {
+        debug('Pending transaction is not prior transaction. Continue save');
       }
     }
 
@@ -196,7 +198,10 @@ class Transaction {
     const DB = (!pending) ? TransactionDB : PendingTransactionDB;
     await DB.put(key, serialized, { valueEncoding: 'json' });
 
-    debug(`Saved pending transaction: ${transaction.getId().toString('hex')}`);
+    if (pending) {
+      debug(`Saved pending transaction: ${transaction.getId().toString('hex')}`);
+    }
+
     return { key, data };
   }
 

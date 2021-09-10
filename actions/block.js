@@ -45,7 +45,7 @@ actions.pushBlock = {
     }
 
     await Block.save(block);
-    console.log(block.getTransactionCount());
+    // console.log(block.getTransactionCount());
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase
       if (block.getTransaction(i).getSenderKey()) {

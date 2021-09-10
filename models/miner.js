@@ -119,7 +119,7 @@ class Miner {
             transaction.setSignature(loaded.signature);
             transaction.setTime(loaded.time);
 
-            console.log(transaction.getId());
+            // console.log(transaction.getId());
             const saved = await Transaction.save(transaction, true);
             if (saved == null) {
               debug(`Did not save pending transaction: ${transaction.getId().toString('hex')}`);
