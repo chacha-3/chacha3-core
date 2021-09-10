@@ -66,7 +66,8 @@ class Miner {
 
       await block.header.computeHash();
 
-      if (block.verifyHash()) {
+      const verifiedTransaction = await block.verifyTransactions();
+      if (block.verifyHash() && verifiedTransaction) {
         debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
         await Block.save(block);
 

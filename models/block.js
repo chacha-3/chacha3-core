@@ -127,15 +127,24 @@ class Block {
     return true;
   }
 
-  verifyTransactions() {
+  async verifyTransactions() {
     // Check transactions valid
     // Also check no dulicate IDS
+    for (let i = 0; i < this.getTransactionCount(); i += 1) {
+      const transaction = await Transaction.load(this.getTransaction(i).getId());
 
+      if (transaction) {
+        console.log('Failed block transaction verification. Existing transaction');
+        return false;
+      }
+    }
     return true;
   }
 
   verify() {
-    return this.verifyHash() && this.verifyChecksum() && this.verifyBalances() && this.verifyTransactions();
+    // const verifiedTransaction = await this.verifyTransactions();
+
+    return this.verifyHash() && this.verifyChecksum() && this.verifyBalances();
   }
 
   updateChecksum(newTransactionId) {
