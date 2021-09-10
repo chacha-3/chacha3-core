@@ -75,10 +75,10 @@ class Miner {
         debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
         // debug(`Block length: ${Chain.mainChain.getLength()}`);
 
+        await Transaction.clearAllPending();
         Peer.broadcastAction('pushBlock', block.toObject());
 
         // FIXME: Check added to block before removing
-        await Transaction.clearAllPending();
 
         // Init new block for mining
         block = new Block();
@@ -107,7 +107,7 @@ class Miner {
           for (let j = 0; j < data.length; j += 1) {
             // TODO: Use from object
             const loaded = deserializeBuffers(data[j], ['id', 'sender', 'signature']);
-            console.log(loaded);
+
             const transaction = new Transaction(
               // Not matching toObject key 'sender' instead of senderKey. To fix name?
               loaded.sender,
@@ -121,10 +121,10 @@ class Miner {
 
             console.log(transaction.getId());
             const saved = await Transaction.save(transaction, true);
-            if (saved) {
-              debug(`Save pending transaction: ${transaction.getId().toString('hex')}`);
-            } else {
+            if (saved == null) {
               debug(`Did not save pending transaction: ${transaction.getId().toString('hex')}`);
+            } else {
+              debug(`Save pending transaction: ${transaction.getId().toString('hex')}`);
             }
           }
         });

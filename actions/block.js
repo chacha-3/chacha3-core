@@ -40,12 +40,12 @@ actions.pushBlock = {
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
     if (!added) {
-      debug('Failed to add new block');
+      debug('Unable to add new block. Chain is behind.');
       return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
     }
 
     await Block.save(block);
-
+    console.log(block.getTransactionCount());
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase
       if (block.getTransaction(i).getSenderKey()) {
