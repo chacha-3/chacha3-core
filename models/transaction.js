@@ -169,6 +169,16 @@ class Transaction {
     assert(transaction.getId() != null);
     const key = transaction.getId();
 
+    if (pending) {
+      try {
+        await TransactionDB.get(key);
+        debug('Pending transaction is prior transaction. Ignored');
+        return null;
+      } catch (e) {
+
+      }
+    }
+
     // FIXME: Use to object.
     // Unit test for set time not checking correct, prob time set is same before and after load
     const data = {

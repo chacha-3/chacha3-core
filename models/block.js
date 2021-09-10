@@ -57,8 +57,16 @@ class Block {
       assert.strictEqual(this.getTransactionCount(), 0);
     }
 
+    const index = this.transactions.findIndex((t) => t.getId().equals(transaction.getId()));
+
+    if (index >= 0) {
+      return false;
+    }
+
     this.transactions.push(transaction);
     this.updateChecksum(transaction.getId());
+
+    return true;
   }
 
   getTransactions() {
@@ -115,8 +123,19 @@ class Block {
     return hashNum.lt(targetNum);
   }
 
+  verifyBalances() {
+    return true;
+  }
+
+  verifyTransactions() {
+    // Check transactions valid
+    // Also check no dulicate IDS
+
+    return true;
+  }
+
   verify() {
-    return this.verifyHash() && this.verifyChecksum();
+    return this.verifyHash() && this.verifyChecksum() && this.verifyBalances() && this.verifyTransactions();
   }
 
   updateChecksum(newTransactionId) {
@@ -229,6 +248,11 @@ class Block {
   static async verifyAndSave(block) {
     if (!block.verify()) {
       return false;
+    }
+
+    // Clear incoming transactions from pending transactions
+    for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      Transaction.clear(block.getTransaction(i).getId(), true);
     }
 
     await Block.save(block);

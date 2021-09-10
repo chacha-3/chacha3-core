@@ -46,6 +46,38 @@ test('should mine a block', async (t) => {
   t.end();
 });
 
+test('does not add same transaction twice', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(receiver.getAddressEncoded());
+
+  const transaction = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddressEncoded(),
+    200,
+  );
+
+  transaction.sign(sender.getPrivateKeyObject());
+
+  const resultFirst = block.addTransaction(transaction);
+  const resultSecond = block.addTransaction(transaction);
+
+  t.equal(resultFirst, true);
+  t.equal(resultSecond, false);
+
+  block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+
+  await block.mine();
+
+  t.end();
+});
+
+
 test('get object representation of a block', async (t) => {
   const sender = new Wallet();
   sender.generate();

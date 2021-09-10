@@ -7,6 +7,8 @@ const Chain = require('./chain');
 const Transaction = require('./transaction');
 const Peer = require('./peer');
 
+const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
+
 // const addressPrefix = '420_';
 
 const waitUntil = (condition) => new Promise((resolve) => {
@@ -26,6 +28,7 @@ class Miner {
     this.mining = false;
 
     this.transactionInterval = null;
+    this.pendingTransactions = [];
   }
 
   async start() {
@@ -49,10 +52,10 @@ class Miner {
         await waitUntil(() => !Chain.isSynching());
       }
 
-      const pendingList = await Transaction.loadPending();
+      // const pendingList = await Transaction.loadPending();
 
-      for (let i = 0; i < pendingList.length; i += 1) {
-        block.addTransaction(pendingList[i]);
+      for (let i = 0; i < this.pendingTransactions.length; i += 1) {
+        block.addTransaction(this.pendingTransactions[i]);
       }
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
@@ -69,8 +72,8 @@ class Miner {
 
         chain.addBlockHeader(block.getHeader());
         await Chain.save(chain);
-        debug(`Mined block #${Chain.mainChain.getLength()}`);
-        debug(`Block length: ${Chain.mainChain.getLength()}`);
+        debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
+        // debug(`Block length: ${Chain.mainChain.getLength()}`);
 
         Peer.broadcastAction('pushBlock', block.toObject());
 
@@ -98,12 +101,34 @@ class Miner {
       for (let i = 0; i < activePeers.length; i += 1) {
         const peer = activePeers[i];
         debug('Get pending transactions from peer');
-        peer.callAction('pendingTransactions', {}).then((response) => {
+        peer.callAction('pendingTransactions', {}).then(async (response) => {
           const { data } = response;
 
-          debug(JSON.stringify(data));
+          for (let j = 0; j < data.length; j += 1) {
+            // TODO: Use from object
+            const loaded = deserializeBuffers(data[j], ['id', 'senderKey', 'signature']);
+
+            const transaction = new Transaction(
+              loaded.senderKey,
+              loaded.receiverAddress,
+              loaded.amount,
+            );
+
+            transaction.setVersion(loaded.version);
+            transaction.setSignature(loaded.signature);
+            transaction.setTime(loaded.time);
+
+            const saved = await Transaction.save(transaction, true);
+            if (saved) {
+              debug(`Save pending transaction: ${transaction.getId().toString('hex')}`);
+            } else {
+              debug(`Did not save pending transaction: ${transaction.getId().toString('hex')}`);
+            }
+          }
         });
       }
+
+      this.pendingTransactions = await Transaction.loadPending();
     }, 1000);
   }
 

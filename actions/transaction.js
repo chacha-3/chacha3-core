@@ -106,4 +106,16 @@ actions.pendingTransactions = {
   },
 };
 
+actions.clearPendingTransactions = {
+  permission: 'public',
+  handler: async () => {
+    // const transactions = await Transaction.loadPending();
+    // console.log(transactions);
+    // const data = transactions.map((transaction) => transaction.toObject());
+
+    await Transaction.clearAllPending();
+    return okResponse(null, 'Cleared pending transactions');
+  },
+};
+
 module.exports = actions;
