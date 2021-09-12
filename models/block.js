@@ -134,7 +134,11 @@ class Block {
       const transaction = await Transaction.load(this.getTransaction(i).getId());
 
       if (transaction) {
-        console.log('Failed block transaction verification. Existing transaction');
+        // console.log('Failed block transaction verification. Existing transaction');
+        // TODO: Run this only when mining own block
+        await Transaction.clear(this.getTransaction(i).getId(), true);
+
+        // await Transaction.clear(this.getTransaction(i).getId(), true);
         return false;
       }
     }

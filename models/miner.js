@@ -55,8 +55,14 @@ class Miner {
       // const pendingList = await Transaction.loadPending();
 
       for (let i = 0; i < this.pendingTransactions.length; i += 1) {
-        block.addTransaction(this.pendingTransactions[i]);
+        if (block.addTransaction(this.pendingTransactions[i])) {
+          debug(`Pending transaction added to block: ${this.pendingTransactions[i].getId().toString('hex')}`);
+          debug(`Transaction count: (${block.getTransactionCount()} transactions)`);
+        } else {
+          // debug(`Did not add pending transaction to block: ${this.pendingTransactions[i].getId().toString('hex')}`);
+        }
       }
+
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
       block.header.incrementNonce();
@@ -67,23 +73,38 @@ class Miner {
       await block.header.computeHash();
 
       const verifiedTransaction = await block.verifyTransactions();
-      if (block.verifyHash() && verifiedTransaction) {
-        debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
-        await Block.save(block);
+      if (block.verifyHash()) {
+        if (verifiedTransaction) {
+          debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
+          await Block.save(block);
 
-        chain.addBlockHeader(block.getHeader());
-        await Chain.save(chain);
-        debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
-        // debug(`Block length: ${Chain.mainChain.getLength()}`);
+          for (let j = 0; j < block.getTransactionCount(); j += 1) {
+            // Remove pending transactions, except coinbase
+            if (block.getTransaction(j).getSenderKey()) {
+              debug(`Clear pending transaction: ${block.getTransaction(j).getId().toString('hex')}`);
+              await Transaction.clear(block.getTransaction(j).getId(), true);
+            }
+          }
 
-        await Transaction.clearAllPending();
-        Peer.broadcastAction('pushBlock', block.toObject());
+          chain.addBlockHeader(block.getHeader());
+          await Chain.save(chain);
+          debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
+          // debug(`Block length: ${Chain.mainChain.getLength()}`);
 
-        // FIXME: Check added to block before removing
+          await Transaction.clearAllPending();
+          Peer.broadcastAction('pushBlock', block.toObject());
 
-        // Init new block for mining
-        block = new Block();
-        block.addCoinbase(this.receiverAddress);
+          // FIXME: Check added to block before removing
+
+          // Init new block for mining
+          block = new Block();
+          block.addCoinbase(this.receiverAddress);
+        } else {
+          debug(`Reject block ${block.header.getHash().toString('hex')}: ${verifiedTransaction}`);
+          for (let x = 0; x < block.getTransactionCount(); x += 1) {
+            debug(`Rejected block transaction ${x + 1}: ${block.getTransaction(x).getId().toString('hex')}`);
+          }
+        }
       }
     }
 
@@ -123,16 +144,17 @@ class Miner {
             // console.log(transaction.getId());
             const saved = await Transaction.save(transaction, true);
             if (saved == null) {
-              debug(`Did not save pending transaction: ${transaction.getId().toString('hex')}`);
+              debug(`Rejected pending pending transaction from poll: ${transaction.getId().toString('hex')}`);
             } else {
-              debug(`Save pending transaction: ${transaction.getId().toString('hex')}`);
+              debug(`Save pending transaction from poll: ${transaction.getId().toString('hex')}`);
             }
           }
         });
       }
 
       this.pendingTransactions = await Transaction.loadPending();
-    }, 1000);
+      debug(`Update pending transactions: ${this.pendingTransactions.length}`);
+    }, 2000);
   }
 
   stopTransactionPoll() {

@@ -4,8 +4,10 @@ const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
+const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
+const Block = require('../../models/block');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -167,7 +169,9 @@ test('save and load transaction', async (t) => {
   transaction.sign(sender.getPrivateKeyObject());
 
   await Transaction.save(coinbase);
-  await Transaction.save(transaction);
+  const result = await Transaction.save(transaction);
+
+  t.not(result, null);
 
   const loadedCoinbase = await Transaction.load(coinbase.getId());
 
@@ -229,6 +233,23 @@ test('save pending transactions', async (t) => {
 
   const deleted = await Transaction.loadPending();
   t.equal(deleted.length, 0);
+
+  t.end();
+});
+
+test('does not accept confirmed transaction as pending transaction', async (t) => {
+  const numOfBlocks = 5;
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+  const chain = Chain.mainChain;
+
+  const blockHash = chain.getBlockHeader(3).getHash();
+  const block = await Block.load(blockHash);
+
+  const result = await Transaction.save(block.getTransaction(2), true);
+  t.equal(result, null);
+
+  Chain.clear(chain);
 
   t.end();
 });

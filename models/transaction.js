@@ -172,7 +172,7 @@ class Transaction {
 
     if (pending) {
       try {
-        await TransactionDB.get(key);
+        const exist = await TransactionDB.get(key);
 
         debug('Pending transaction is prior transaction. Ignored');
         return null;
