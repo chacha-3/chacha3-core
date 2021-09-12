@@ -161,6 +161,17 @@ mock.transaction = () => {
   return transaction;
 };
 
+mock.pendingTransactions = (numOfTransactions) => {
+  assert(numOfTransactions > 0);
+
+  const transactions = [];
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    transactions.push(mock.transaction());
+  }
+
+  return transactions;
+};
+
 mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
   const blocks = [];
   let previousHash = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');

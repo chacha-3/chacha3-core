@@ -57,6 +57,10 @@ class Block {
       assert.strictEqual(this.getTransactionCount(), 0);
     }
 
+    // if (!transaction.verify()) {
+    //   return false;
+    // }
+
     const index = this.transactions.findIndex((t) => t.getId().equals(transaction.getId()));
 
     if (index >= 0) {
@@ -67,6 +71,20 @@ class Block {
     this.updateChecksum(transaction.getId());
 
     return true;
+  }
+
+  addPendingTransactions(pendingList) {
+    const rejected = [];
+
+    for (let i = 0; i < pendingList.length; i += 1) {
+      const success = this.addTransaction(pendingList[i]);
+
+      if (!success) {
+        rejected.push(pendingList[i]);
+      }
+    }
+
+    return rejected;
   }
 
   getTransactions() {

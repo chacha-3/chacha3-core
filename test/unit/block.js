@@ -5,6 +5,7 @@ const Block = require('../../models/block');
 const Transaction = require('../../models/transaction');
 
 const mock = require('../../util/mock');
+const Chain = require('../../models/chain');
 
 test('create a block with coinbase', (t) => {
   const wallet = new Wallet();
@@ -248,24 +249,77 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
   t.end();
 });
 
-// test('block is invalid when has previously confirmed transaction', async (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
+test('block is valid when has previously saved transaction', async (t) => {
+  await mock.chainWithBlocks(3, 5);
 
-//   const block = new Block();
+  const wallet = new Wallet();
+  wallet.generate();
 
-//   block.addCoinbase(wallet.getAddressEncoded());
-//   block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+  const block = new Block();
+  block.addCoinbase(wallet.getAddressEncoded());
 
-//   await block.mine();
+  const result = await block.verifyTransactions();
+  t.equal(result, true);
 
-//   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+  await Chain.clear();
+  t.end();
+});
 
-//   t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
-//   t.equal(block.verify(), false, 'tampered block fails verification');
+test('block is invalid when has previously saved transaction', async (t) => {
+  const chain = await mock.chainWithBlocks(3, 5);
 
-//   t.end();
-// });
+  const hash = chain.getBlockHeader(2).getHash();
+  const savedBlock = await Block.load(hash);
+
+  const randomSavedTransaction = savedBlock.getTransaction(4);
+
+  const block = new Block();
+  block.addTransaction(randomSavedTransaction);
+
+  const result = await block.verifyTransactions();
+  t.equal(result, false);
+
+  await Chain.clear();
+  t.end();
+});
+
+test('add pending transaction to block', async (t) => {
+  const transactions = mock.pendingTransactions(4);
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddressEncoded());
+
+  const rejected = block.addPendingTransactions(transactions);
+
+  t.equal(block.getTransactionCount(), 5);
+  t.equal(rejected.length, 0);
+
+  t.end();
+});
+
+test('reject pending transaction if already saved', async (t) => {
+  const transactions = mock.pendingTransactions(4);
+
+  const addedTransaction = transactions[2];
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddressEncoded());
+  block.addTransaction(addedTransaction);
+
+  const rejected = block.addPendingTransactions(transactions);
+
+  t.equal(rejected.length, 1);
+  t.ok(rejected[0].getId().equals(addedTransaction.getId()));
+
+  t.equal(block.getTransactionCount(), 5);
+  t.end();
+});
 
 test('correct block object format', async (t) => {
   const block = await mock.blockWithTransactions(3);

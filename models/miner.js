@@ -54,15 +54,7 @@ class Miner {
 
       // const pendingList = await Transaction.loadPending();
 
-      for (let i = 0; i < this.pendingTransactions.length; i += 1) {
-        if (block.addTransaction(this.pendingTransactions[i])) {
-          debug(`Pending transaction added to block: ${this.pendingTransactions[i].getId().toString('hex')}`);
-          debug(`Transaction count: (${block.getTransactionCount()} transactions)`);
-        } else {
-          // debug(`Did not add pending transaction to block: ${this.pendingTransactions[i].getId().toString('hex')}`);
-        }
-      }
-
+      block.addPendingTransactions(this.pendingTransactions);
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
       block.header.incrementNonce();
@@ -77,23 +69,6 @@ class Miner {
         debug(`Transaction verified: ${verifiedTransaction}, count: ${block.getTransactionCount()}`);
         if (verifiedTransaction) {
           debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
-
-          // await Block.save(block);
-
-          // for (let j = 0; j < block.getTransactionCount(); j += 1) {
-          //   // Remove pending transactions, except coinbase
-          //   if (block.getTransaction(j).getSenderKey()) {
-          //     debug(`Clear pending transaction: ${block.getTransaction(j).getId().toString('hex')}`);
-          //     await Transaction.clear(block.getTransaction(j).getId(), true);
-          //   }
-          // }
-
-          // chain.addBlockHeader(block.getHeader());
-          // await Chain.save(chain);
-          // debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
-          // debug(`Block length: ${Chain.mainChain.getLength()}`);
-
-          // await Transaction.clearAllPending();
 
           const result = await Chain.mainChain.confirmNewBlock(block);
 
