@@ -198,6 +198,18 @@ class Chain {
     return true;
   }
 
+  confirmNewBlock(block) {
+    const isFirst = this.getLength() === 0;
+
+    if (!isFirst && !block.getHeader().getPrevious().equals(this.lastBlockHeader().getHash())) {
+      return false;
+    }
+
+    for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      
+    }
+  }
+
   setBlockHeaders(headers) {
     this.blockHeaders = headers;
   }

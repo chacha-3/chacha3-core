@@ -77,7 +77,6 @@ test('does not add same transaction twice', async (t) => {
   t.end();
 });
 
-
 test('get object representation of a block', async (t) => {
   const sender = new Wallet();
   sender.generate();
@@ -248,6 +247,25 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
 
   t.end();
 });
+
+// test('block is invalid when has previously confirmed transaction', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
+
+//   const block = new Block();
+
+//   block.addCoinbase(wallet.getAddressEncoded());
+//   block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+
+//   await block.mine();
+
+//   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+
+//   t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
+//   t.equal(block.verify(), false, 'tampered block fails verification');
+
+//   t.end();
+// });
 
 test('correct block object format', async (t) => {
   const block = await mock.blockWithTransactions(3);

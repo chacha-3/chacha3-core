@@ -22,6 +22,8 @@ class Transaction {
 
     this.signature = null;
     this.time = Date.now();
+
+    this.confirmed = false;
   }
 
   hashData() {
@@ -46,6 +48,14 @@ class Transaction {
 
   getIdHex() {
     return this.getId().toString('hex');
+  }
+
+  isConfirmed() {
+    return this.confirmed;
+  }
+
+  confirm() {
+    this.confirmed = true;
   }
 
   getVersion() {
@@ -203,6 +213,18 @@ class Transaction {
     }
 
     return { key, data };
+  }
+
+  async isSaved() {
+    try {
+      console.log(this.getId().toString('hex'));
+      await TransactionDB.get(this.getId());
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+
+    return true;
   }
 
   static async load(id) {

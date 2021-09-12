@@ -237,6 +237,28 @@ test('save pending transactions', async (t) => {
   t.end();
 });
 
+test('check confirmed transaction is saved', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 665);
+  transaction.sign(sender.getPrivateKeyObject());
+
+  let isSaved = await transaction.isSaved();
+  t.equal(isSaved, false);
+
+  await Transaction.save(transaction);
+  isSaved = await transaction.isSaved();
+  t.equal(isSaved, true);
+
+  await Transaction.clearAll();
+
+  t.end();
+});
+
 test('does not accept confirmed transaction as pending transaction', async (t) => {
   const numOfBlocks = 5;
   Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
@@ -246,11 +268,16 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
   const blockHash = chain.getBlockHeader(3).getHash();
   const block = await Block.load(blockHash);
 
-  const result = await Transaction.save(block.getTransaction(2), true);
+  const chosenTransaction = block.getTransaction(2);
+
+  let isSaved = await chosenTransaction.isSaved();
+
+  const result = await Transaction.save(chosenTransaction, true);
+  // isSaved = await chosenTransaction.isSaved();
+
   t.equal(result, null);
 
-  Chain.clear(chain);
-
+  await Chain.clear(chain);
   t.end();
 });
 
