@@ -74,27 +74,42 @@ class Miner {
 
       const verifiedTransaction = await block.verifyTransactions();
       if (block.verifyHash()) {
+        debug(`Transaction verified: ${verifiedTransaction}, count: ${block.getTransactionCount()}`);
         if (verifiedTransaction) {
           debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
-          await Block.save(block);
 
-          for (let j = 0; j < block.getTransactionCount(); j += 1) {
-            // Remove pending transactions, except coinbase
-            if (block.getTransaction(j).getSenderKey()) {
-              debug(`Clear pending transaction: ${block.getTransaction(j).getId().toString('hex')}`);
-              await Transaction.clear(block.getTransaction(j).getId(), true);
-            }
-          }
+          // await Block.save(block);
 
-          chain.addBlockHeader(block.getHeader());
-          await Chain.save(chain);
-          debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
+          // for (let j = 0; j < block.getTransactionCount(); j += 1) {
+          //   // Remove pending transactions, except coinbase
+          //   if (block.getTransaction(j).getSenderKey()) {
+          //     debug(`Clear pending transaction: ${block.getTransaction(j).getId().toString('hex')}`);
+          //     await Transaction.clear(block.getTransaction(j).getId(), true);
+          //   }
+          // }
+
+          // chain.addBlockHeader(block.getHeader());
+          // await Chain.save(chain);
+          // debug(`Mined block #${Chain.mainChain.getLength()} (${block.getTransactionCount()} transactions)`);
           // debug(`Block length: ${Chain.mainChain.getLength()}`);
 
-          await Transaction.clearAllPending();
+          // await Transaction.clearAllPending();
+
+          const result = await Chain.mainChain.confirmNewBlock(block);
+
+          if (result) {
+            debug(`Confirmed new block: ${block.getHeader().getHash().toString('hex')}`);
+          } else {
+            debug(`Reject confirmed new block: ${block.getHeader().getHash().toString('hex')}`);
+          }
           Peer.broadcastAction('pushBlock', block.toObject());
 
+          // await Transaction.clearAllPending();
+
           // FIXME: Check added to block before removing
+
+          // Clear pending transactions
+          this.pendingTransactions = [];
 
           // Init new block for mining
           block = new Block();
@@ -102,7 +117,9 @@ class Miner {
         } else {
           debug(`Reject block ${block.header.getHash().toString('hex')}: ${verifiedTransaction}`);
           for (let x = 0; x < block.getTransactionCount(); x += 1) {
-            debug(`Rejected block transaction ${x + 1}: ${block.getTransaction(x).getId().toString('hex')}`);
+            // debug(`Rejected block transaction ${x + 1}: ${block.getTransaction(x).getId().toString('hex')}`);
+            const transaction = block.getTransaction(x);
+            debug(`Transaction ${transaction.getId()} is previously saved: ${await transaction.isSaved()}`);
           }
         }
       }
@@ -125,30 +142,7 @@ class Miner {
         debug('Get pending transactions from peer');
         peer.callAction('pendingTransactions', {}).then(async (response) => {
           const { data } = response;
-
-          for (let j = 0; j < data.length; j += 1) {
-            // TODO: Use from object
-            const loaded = deserializeBuffers(data[j], ['id', 'sender', 'signature']);
-
-            const transaction = new Transaction(
-              // Not matching toObject key 'sender' instead of senderKey. To fix name?
-              loaded.sender,
-              loaded.receiver,
-              loaded.amount,
-            );
-
-            transaction.setVersion(loaded.version);
-            transaction.setSignature(loaded.signature);
-            transaction.setTime(loaded.time);
-
-            // console.log(transaction.getId());
-            const saved = await Transaction.save(transaction, true);
-            if (saved == null) {
-              debug(`Rejected pending pending transaction from poll: ${transaction.getId().toString('hex')}`);
-            } else {
-              debug(`Save pending transaction from poll: ${transaction.getId().toString('hex')}`);
-            }
-          }
+          await Transaction.savePendingTransactions(data);
         });
       }
 

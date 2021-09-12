@@ -54,7 +54,17 @@ class Transaction {
     return this.confirmed;
   }
 
-  confirm() {
+  async confirm() {
+    if (this.confirmed) {
+      throw Error('Already confirmed transaction');
+    }
+
+    const isSaved = await this.isSaved();
+
+    if (isSaved) {
+      throw Error('Transaction already saved');
+    }
+
     this.confirmed = true;
   }
 
@@ -215,12 +225,36 @@ class Transaction {
     return { key, data };
   }
 
+  static async savePendingTransactions(dataArray) {
+    for (let j = 0; j < dataArray.length; j += 1) {
+      // TODO: Use from object
+      const loaded = deserializeBuffers(dataArray[j], ['id', 'sender', 'signature']);
+
+      const transaction = new Transaction(
+        // Not matching toObject key 'sender' instead of senderKey. To fix name?
+        loaded.sender,
+        loaded.receiver,
+        loaded.amount,
+      );
+
+      transaction.setVersion(loaded.version);
+      transaction.setSignature(loaded.signature);
+      transaction.setTime(loaded.time);
+
+      // console.log(transaction.getId());
+      const saved = await Transaction.save(transaction, true);
+      if (saved == null) {
+        debug(`Rejected pending pending transaction from poll: ${transaction.getId().toString('hex')}`);
+      } else {
+        debug(`Save pending transaction from poll: ${transaction.getId().toString('hex')}`);
+      }
+    }
+  }
+
   async isSaved() {
     try {
-      console.log(this.getId().toString('hex'));
       await TransactionDB.get(this.getId());
     } catch (e) {
-      console.log(e);
       return false;
     }
 

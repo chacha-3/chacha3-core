@@ -10,6 +10,7 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
+const Transaction = require('./transaction');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -198,7 +199,7 @@ class Chain {
     return true;
   }
 
-  confirmNewBlock(block) {
+  async confirmNewBlock(block) {
     const isFirst = this.getLength() === 0;
 
     if (!isFirst && !block.getHeader().getPrevious().equals(this.lastBlockHeader().getHash())) {
@@ -206,8 +207,30 @@ class Chain {
     }
 
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
-      
+      const transaction = block.getTransaction(i);
+
+      const isSaved = await transaction.isSaved();
+
+      if (isSaved) {
+        return false;
+      }
+
+      await Transaction.save(transaction);
+
+      // Remove pending transactions, except coinbase
+      if (transaction.getSenderKey()) {
+        await Transaction.clear(transaction.getId(), true);
+      }
     }
+
+    await Block.save(block);
+
+    this.addBlockHeader(block.getHeader());
+    await Chain.save(this);
+
+    this.updateBlockBalances(block);
+
+    return true;
   }
 
   setBlockHeaders(headers) {
