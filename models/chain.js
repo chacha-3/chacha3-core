@@ -30,6 +30,16 @@ class Chain {
     return adjustInterval[process.env.NODE_ENV || 'development'];
   }
 
+  static getHalvingInterval() {
+    const halvingInterval = {
+      production: 1000000,
+      development: 500000,
+      test: 1000,
+    };
+
+    return halvingInterval[process.env.NODE_ENV || 'development'];
+  }
+
   static getExpectedTimePerBlock() {
     const expectedTime = {
       production: 200000,
@@ -259,7 +269,7 @@ class Chain {
 
   static blockRewardAtIndex(index) {
     const initialReward = 1048576;
-    const halves = Math.floor(index / Chain.getAdjustInterval());
+    const halves = Math.floor(index / Chain.getHalvingInterval());
 
     return initialReward / (2 ** halves);
   }

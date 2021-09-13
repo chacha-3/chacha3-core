@@ -1,4 +1,3 @@
-const BN = require('bn.js');
 const assert = require('assert');
 const { argon2d } = require('argon2-ffi');
 
