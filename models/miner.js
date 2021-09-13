@@ -54,7 +54,7 @@ class Miner {
 
       // const pendingList = await Transaction.loadPending();
 
-      block.addPendingTransactions(this.pendingTransactions);
+      const rejected = block.addPendingTransactions(this.pendingTransactions);
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
       block.header.incrementNonce();

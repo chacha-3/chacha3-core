@@ -110,12 +110,15 @@ class Transaction {
   }
 
   validate() {
-    const senderAddress = Wallet.generateAddressEncoded(this.senderKey);
-
     const errors = [];
 
-    if (this.receiverAddress === senderAddress) {
-      errors.push('Same sender and receiver');
+    // TODO: Test
+    if (this.senderKey) {
+      const senderAddress = Wallet.generateAddressEncoded(this.senderKey);
+
+      if (this.receiverAddress === senderAddress) {
+        errors.push('Same sender and receiver');
+      }
     }
 
     if (!Wallet.verifyAddress(this.receiverAddress)) {
@@ -131,6 +134,10 @@ class Transaction {
 
   verify() {
     const errors = this.validate();
+
+    if (!this.senderKey) {
+      return true;
+    }
 
     if (errors.length > 0) {
       debug(`Failed transaction verification: ${JSON.stringify(errors.length)}`);

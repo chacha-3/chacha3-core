@@ -149,14 +149,18 @@ class Block {
     // Check transactions valid
     // Also check no dulicate IDS
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      const transaction = await Transaction.load(this.getTransaction(i).getId());
+      // const transaction = await Transaction.load(this.getTransaction(i).getId());
 
-      if (transaction) {
-        // console.log('Failed block transaction verification. Existing transaction');
+      const transaction = this.getTransaction(i);
+      const isSaved = await transaction.isSaved();
+
+      if (isSaved) {
         // TODO: Run this only when mining own block
-        await Transaction.clear(this.getTransaction(i).getId(), true);
+        await Transaction.clear(transaction.getId(), true);
+        return false;
+      }
 
-        // await Transaction.clear(this.getTransaction(i).getId(), true);
+      if (!transaction.verify()) {
         return false;
       }
     }

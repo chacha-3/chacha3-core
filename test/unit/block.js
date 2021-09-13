@@ -249,7 +249,7 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
   t.end();
 });
 
-test('block is valid when has previously saved transaction', async (t) => {
+test('block is valid when does not have previously saved transaction', async (t) => {
   await mock.chainWithBlocks(3, 5);
 
   const wallet = new Wallet();
@@ -275,6 +275,19 @@ test('block is invalid when has previously saved transaction', async (t) => {
 
   const block = new Block();
   block.addTransaction(randomSavedTransaction);
+
+  const result = await block.verifyTransactions();
+  t.equal(result, false);
+
+  await Chain.clear();
+  t.end();
+});
+
+test('block is invalid when has invalid transaction', async (t) => {
+  const block = await mock.blockWithTransactions(4);
+
+  // Tamper a transaction signature
+  block.transactions[3].signature[3] += 5;
 
   const result = await block.verifyTransactions();
   t.equal(result, false);

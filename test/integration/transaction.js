@@ -80,7 +80,7 @@ test('get pending transactions', async (t) => {
   });
 
   t.equal(code, SuccessCode);
-  console.log(data);
+
   t.equal(data.length, 3);
 
   await Transaction.clearAll();
