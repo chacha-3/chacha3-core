@@ -1,7 +1,5 @@
 const debug = require('debug')('chain:model');
 const assert = require('assert');
-const crypto = require('crypto');
-const BN = require('bn.js');
 
 const Header = require('./header');
 

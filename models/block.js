@@ -1,6 +1,5 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const BN = require('bn.js');
 
 const { performance } = require('perf_hooks');
 
@@ -134,11 +133,8 @@ class Block {
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
-    const hex = 16;
-    const hashNum = new BN(this.header.getHash(), hex);
-    const targetNum = new BN(this.header.getTarget(), hex);
-
-    return hashNum.lt(targetNum);
+    const hashNum = BigInt(`0x${this.header.getHash().toString('hex')}`);
+    return hashNum < this.header.getTarget();
   }
 
   verifyBalances() {

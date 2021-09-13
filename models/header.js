@@ -170,13 +170,16 @@ class Header {
   }
 
   getTarget() {
-    const target = new BN(Header.MinTarget, 16);
+    const target = BigInt(`0x${Header.MinTarget.toString('hex')}`);
 
-    const buf = Buffer.allocUnsafe(4);
-    buf.writeInt32BE(this.difficulty, 0);
+    // const buf = Buffer.allocUnsafe(4);
+    // buf.writeInt32BE(this.difficulty, 0);
 
-    const difficulty = new BN(buf.toString('hex'), 16);
-    return target.div(difficulty).toString(16, 32);
+    const difficulty = BigInt(this.difficulty);
+
+    const hex = 16;
+    // return (target / difficulty).toString(hex);
+    return target / difficulty;
   }
 
   getNonce() {
