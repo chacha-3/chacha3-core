@@ -259,14 +259,11 @@ class Chain {
     return this.blockHeaders.length;
   }
 
-  blockRewardAtIndex(index) {
-    // TODO: Add later
-    // Not a real formula
-    if (this.getLength() >= 0) {
-      return 10000;
-    }
+  static blockRewardAtIndex(index) {
+    const initialReward = 1048576;
+    const halves = Math.floor(index / Chain.getAdjustInterval());
 
-    return 0;
+    return initialReward / (2 ** halves);
   }
 
   getTotalWork() {

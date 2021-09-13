@@ -361,3 +361,15 @@ test('invalid genesis block', async (t) => {
   t.equal(verify, false);
   t.end();
 });
+
+test('block reward at index', async (t) => {
+  t.equal(Chain.blockRewardAtIndex(0), 1048576);
+  t.equal(Chain.blockRewardAtIndex(7), 1048576);
+  t.equal(Chain.blockRewardAtIndex(8), 524288);
+  t.equal(Chain.blockRewardAtIndex(16), 262144);
+  t.equal(Chain.blockRewardAtIndex(24), 131072);
+  t.equal(Chain.blockRewardAtIndex(31), 131072);
+  t.equal(Chain.blockRewardAtIndex(32), 65536);
+
+  t.end();
+});
