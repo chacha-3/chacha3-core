@@ -14,7 +14,7 @@ if (runningManualTest(process.argv)) {
 const minTarget = {
   production: '0000ff0000000000000000000000000000000000000000000000000000000000',
   development: '00ff000000000000000000000000000000000000000000000000000000000000',
-  test: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000',
+  test: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
 };
 
 class Header {

@@ -410,30 +410,20 @@ class Chain {
     Chain.synching = synching;
   }
 
-  // static async completeSync() {
-  //   while (Chain.synching) {
-
-  //   }
-  // }
-
+  // Clear rejected block data in diverging chain
   static async clearRejectedBlocks(chain, startIndex) {
     const clearBlocks = [];
     for (let x = startIndex; x < chain.getLength(); x += 1) {
       clearBlocks.push(chain.getBlockHeader(x).getHash());
     }
 
-    debug('Chain up to latest');
-    await Chain.save(chain);
-
-    clearBlocks.forEach((hash) => {
+    clearBlocks.forEach(async (hash) => {
       debug(`Clear rejected block: ${hash.toString('hex')}`);
-      Block.clear(hash);
+      await Block.clear(hash);
     });
-  }
 
-  // static async syncWithPeer(peer) {
-    
-  // }
+    return clearBlocks;
+  }
 
   static async initializeGenesisBlock() {
     const chain = await Chain.load();

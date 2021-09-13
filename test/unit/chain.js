@@ -54,6 +54,16 @@ test('get total work in chain', async (t) => {
   t.end();
 });
 
+test('set chain synching status', (t) => {
+  t.equal(Chain.isSynching(), false);
+
+  Chain.setSynching(true);
+  t.equal(Chain.isSynching(), true);
+
+  t.end();
+});
+
+
 test('calculate average block time difference in chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithHeaders(numOfBlocks, 5);
@@ -244,6 +254,18 @@ test('reverts a specific valid transaction', async (t) => {
   const revertedState = { ...chain.accounts };
   t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
 
+  t.end();
+});
+
+test('clear rejected blocks in chain', async (t) => {
+  const numOfBlocks = 10;
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+  t.equal(chain.getLength(), 10);
+
+  const clearedBlocks = await Chain.clearRejectedBlocks(chain, 6);
+  t.equal(clearedBlocks.length, 4);
+
+  await Chain.clear();
   t.end();
 });
 
