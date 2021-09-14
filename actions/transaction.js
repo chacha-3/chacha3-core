@@ -4,7 +4,6 @@ const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
-const { deserializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -31,7 +30,7 @@ actions.createTransaction = {
     }
   },
   handler: async (options) => {
-    const senderWallet = Wallet.recover(deserializeBuffer(options.key));
+    const senderWallet = Wallet.recover(options.key);
 
     const transaction = new Transaction(
       senderWallet.getPublicKey(),
@@ -60,7 +59,7 @@ actions.pushTransaction = {
     properties: {
       key: { type: 'string' },
       address: { type: 'string' },
-      amount: { type: 'string' },
+      amount: { type: 'integer' },
       signature: { type: 'string' },
       time: { type: 'integer' },
       version: { type: 'integer' },
@@ -69,13 +68,13 @@ actions.pushTransaction = {
   },
   handler: async (options) => {
     const transaction = new Transaction(
-      deserializeBuffer(options.key),
-      deserializeBuffer(options.address),
-      Number.parseInt(options.amount, 10),
+      options.key,
+      options.address,
+      options.amount,
     );
 
     transaction.setTime(options.time);
-    transaction.setSignature(deserializeBuffer(options.signature));
+    transaction.setSignature(options.signature);
     transaction.setVersion(options.version);
 
     const errors = transaction.validate();
@@ -128,7 +127,7 @@ actions.transactionInfo = {
     required: ['id'],
   },
   handler: async (options) => {
-    const transaction = await Transaction.load(deserializeBuffer(options.id));
+    const transaction = await Transaction.load(options.id);
 
     if (!transaction) {
       return errorResponse(ErrorCode.NotFound, 'Transaction ID not found');

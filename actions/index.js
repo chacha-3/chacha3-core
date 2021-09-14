@@ -10,6 +10,7 @@ const peer = require('./peer');
 const block = require('./block');
 
 const { SuccessCode, ErrorCode, errorResponse } = require('../util/rpc');
+const { serializeObject, deserializeObject } = require('../util/serialize');
 
 const actions = {
   ...wallet,
@@ -84,12 +85,12 @@ const runAction = async (options, permission) => {
   let result;
 
   try {
-    result = await execute(options, handler);
+    result = await execute(serializeObject(options), handler);
   } catch (e) {
     result = { message: e.message, code: 'internal' };
   }
 
-  return result;
+  return deserializeObject(result);
 };
 
 module.exports = {

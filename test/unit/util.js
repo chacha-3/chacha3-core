@@ -41,6 +41,13 @@ test('serialize and deserialize object', (t) => {
     c: Buffer.from([0x00, 0x02]),
     d: null,
     e: BigInt(100000000000000000),
+    nested: {
+      a: 1,
+      b: 'value',
+      c: Buffer.from([0x00, 0x02]),
+      d: null,
+      e: BigInt(100000000000000000),
+    },
   };
 
   const serialized = serializeObject(source);
@@ -50,12 +57,25 @@ test('serialize and deserialize object', (t) => {
   t.equal(serialized.d, null);
   t.equal(serialized.e, '100000000000000000n');
 
+  t.equal(serialized.nested.a, 1);
+  t.equal(serialized.nested.b, 'value');
+  t.equal(serialized.nested.c, '0x0002');
+  t.equal(serialized.nested.d, null);
+  t.equal(serialized.nested.e, '100000000000000000n');
+
   const deserialized = deserializeObject(serialized);
+  console.log(deserialized)
   t.equal(deserialized.a, source.a);
   t.equal(deserialized.b, source.b);
   t.ok(deserialized.c.equals(source.c));
   t.equal(deserialized.d, source.d);
   t.equal(deserialized.e, source.e);
+
+  t.equal(deserialized.nested.a, source.a);
+  t.equal(deserialized.nested.b, source.b);
+  t.ok(deserialized.nested.c.equals(source.c));
+  t.equal(deserialized.nested.d, source.d);
+  t.equal(deserialized.nested.e, source.e);
 
   t.end();
 });

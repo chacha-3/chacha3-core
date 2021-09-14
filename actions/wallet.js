@@ -1,6 +1,6 @@
 const Wallet = require('../models/wallet');
 const { okResponse, ErrorCode, errorResponse } = require('../util/rpc');
-const { deserializeBuffer, serializeBuffer } = require('../util/serialize');
+const { serializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -32,7 +32,7 @@ actions.createWallet = {
 
     const data = {
       label: wallet.getLabel(),
-      address: wallet.getAddressEncoded(),
+      address: wallet.getAddress(),
       privateKey: wallet.getPrivateKeyHex(),
       publicKey: wallet.getPublicKeyHex(),
     };
@@ -49,7 +49,7 @@ actions.generateWallet = {
     // wallet.save();
 
     const data = {
-      address: wallet.getAddressEncoded(),
+      address: wallet.getAddress(),
       privateKey: wallet.getPrivateKeyHex(),
       publicKey: wallet.getPublicKeyHex(),
     };
@@ -72,7 +72,7 @@ actions.recoverWallet = {
     let wallet;
 
     try {
-      wallet = Wallet.recover(deserializeBuffer(options.privateKey));
+      wallet = Wallet.recover(options.privateKey);
       wallet.setLabel(options.label);
 
       await Wallet.save(wallet);
@@ -83,7 +83,7 @@ actions.recoverWallet = {
 
     const data = {
       label: wallet.getLabel(),
-      address: wallet.getAddressEncoded(),
+      address: wallet.getAddress(),
       privateKey: wallet.getPrivateKeyHex(),
       publicKey: wallet.getPublicKeyHex(),
     };
@@ -101,21 +101,20 @@ actions.deleteWallet = {
     required: ['address'],
   },
   handler: async (options) => {
-    const wallet = await Wallet.load(deserializeBuffer(options.address));
+    const wallet = await Wallet.load(options.address);
 
     if (!wallet) {
       return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
     try {
-      console.log(wallet.getAddress())
       await Wallet.delete(wallet.getAddress());
     } catch (e) {
       console.log(e);
     }
 
     const data = {
-      address: wallet.getAddressEncoded(),
+      address: wallet.getAddress(),
     };
 
     return okResponse(data, 'Delete wallet');
@@ -140,7 +139,7 @@ actions.selectWallet = {
     required: ['address'],
   },
   handler: async (options) => {
-    const result = await Wallet.setSelected(deserializeBuffer(options.address));
+    const result = await Wallet.setSelected(options.address);
 
     if (!result) {
       return errorResponse(ErrorCode.NotFound, 'Wallet not found');

@@ -8,7 +8,7 @@ const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -27,6 +27,7 @@ actions.pushBlock = {
   //   required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
   // },
   handler: async (options) => {
+    console.log(options);
     const block = Block.fromObject(options);
 
     if (!block.verify()) {
@@ -84,7 +85,7 @@ actions.blockInfo = {
     required: ['hash'],
   },
   handler: async (options) => {
-    const block = await Block.load(deserializeBuffer(options.hash));
+    const block = await Block.load(options.hash);
     assert(block.verify());
 
     if (!block) {
@@ -104,7 +105,7 @@ actions.blockTransactions = {
     required: ['hash'],
   },
   handler: async (options) => {
-    const block = await Block.load(deserializeBuffer(options.hash));
+    const block = await Block.load(options.hash);
 
     if (!block) {
       return errorResponse(ErrorCode.NotFound, 'Block not found');
