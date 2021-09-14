@@ -234,7 +234,7 @@ class Chain {
       }
     }
 
-    await Block.save(block);
+    await block.save();
 
     this.addBlockHeader(block.getHeader());
     await Chain.save(this);
@@ -444,7 +444,7 @@ class Chain {
     }
 
     const block = Block.Genesis;
-    await Block.save(block);
+    await block.save();
 
     chain.addBlockHeader(block.getHeader());
     await Chain.save(chain);

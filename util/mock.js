@@ -127,14 +127,16 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   // );
 
   const chain = new Chain();
-  await Block.save(Block.Genesis);
+  await Block.Genesis.save();
+
   chain.addBlockHeader(Block.Genesis.getHeader());
 
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
     const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock);
-    await Block.save(block);
+    await block.save();
+
     chain.addBlockHeader(block.getHeader());
 
     previousBlock = block;

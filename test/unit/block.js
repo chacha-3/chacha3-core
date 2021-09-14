@@ -356,8 +356,9 @@ test('save and load block', async (t) => {
   const block = await mock.blockWithTransactions(3);
   t.equal(block.verify(), true);
 
-  const { key } = await Block.save(block);
+  await block.save();
 
+  const key = block.getHeader().getHash();
   const loaded = await Block.load(key);
   t.equal(loaded.verify(), true);
 
@@ -386,8 +387,9 @@ test('does not load unsaved block', async (t) => {
 
 test('delete saved block', async (t) => {
   const block = await mock.blockWithTransactions(3);
-  const { key } = await Block.save(block);
+  await block.save();
 
+  const key = block.getHeader().getHash();
   await Block.clear(key);
 
   const loaded = await Block.load(key);

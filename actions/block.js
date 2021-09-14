@@ -44,7 +44,7 @@ actions.pushBlock = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
     }
 
-    await Block.save(block);
+    await block.save();
 
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase

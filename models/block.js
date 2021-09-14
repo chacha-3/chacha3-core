@@ -259,22 +259,20 @@ class Block {
     return Promise.all(promises);
   }
 
-  static async save(block) {
-    assert(block.verify());
+  async save() {
+    assert(this.verify());
 
-    const key = block.getHeader().getHash();
+    const key = this.getHeader().getHash();
 
-    const header = block.getHeader();
+    const header = this.getHeader();
     await Header.save(header);
 
-    const transactions = await Block.saveTransactions(block);
+    const transactions = await Block.saveTransactions(this);
     const data = {
       transactionIndexes: transactions.map((transaction) => serializeBuffer(transaction.key)),
     };
 
     await BlockDB.put(key, data, { valueEncoding: 'json' });
-
-    return { key, data };
   }
 
   static async verifyAndSave(block) {
@@ -287,7 +285,7 @@ class Block {
       Transaction.clear(block.getTransaction(i).getId(), true);
     }
 
-    await Block.save(block);
+    await block.save();
     return true;
   }
 

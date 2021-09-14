@@ -15,7 +15,7 @@ const app = require('../../app')();
 
 test('get block info', async (t) => {
   const block = await mock.blockWithTransactions(5);
-  await Block.save(block);
+  await block.save();
 
   const { data } = await runAction({
     action: 'blockInfo',
