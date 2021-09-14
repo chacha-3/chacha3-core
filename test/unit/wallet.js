@@ -142,24 +142,24 @@ test('does not load unsaved wallet', async (t) => {
   t.end();
 });
 
-// test('delete wallet', async (t) => {
-//   const wallet = new Wallet();
-//   wallet.setLabel('myLabel');
-//   wallet.generate();
-//   await Wallet.save(wallet);
+test('delete wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.setLabel('myLabel');
+  wallet.generate();
+  await Wallet.save(wallet);
 
-//   const before = await Wallet.all();
-//   t.equal(before.length, 1);
+  const before = await Wallet.all();
+  t.equal(before.length, 1);
 
-//   await Wallet.delete(wallet.getAddressEncoded());
+  await Wallet.delete(wallet.getAddress());
 
-//   const after = await Wallet.all();
-//   t.equal(after.length, 0);
+  const after = await Wallet.all();
+  t.equal(after.length, 0);
 
-//   Wallet.clearAll();
+  Wallet.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
