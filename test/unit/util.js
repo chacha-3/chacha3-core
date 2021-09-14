@@ -85,30 +85,6 @@ test('serialize and deserialize object', (t) => {
   t.end();
 });
 
-// test('serialize and deserialize JSON with custom replace and reviver', (t) => {
-//   const source = {
-//     a: 1,
-//     b: 'value',
-//     c: Buffer.from([0x00, 0x02]),
-//     d: null,
-//     e: BigInt(100000),
-//   };
-
-//   const serialized = jsonSerialize(source);
-//   console.log(serialized);
-//   t.equal(serialized.a, 1);
-//   t.equal(serialized.b, 'value');
-//   t.equal(serialized.c, '0002');
-//   t.equal(serialized.d, null);
-//   t.equal(serialized.e, '100000n');
-
-//   // const deserialized = deserializeBuffers(serialized, ['c', 'd']);
-//   // t.ok(deserialized.c.equals(source.c));
-//   // t.equal(deserialized.d, source.d);
-
-//   t.end();
-// });
-
 test('ok response has correct format', (t) => {
   const data = { a: 'value' };
 

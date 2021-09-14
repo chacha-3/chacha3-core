@@ -27,7 +27,6 @@ actions.pushBlock = {
   //   required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
   // },
   handler: async (options) => {
-    console.log(options);
     const block = Block.fromObject(options);
 
     if (!block.verify()) {
@@ -46,7 +45,7 @@ actions.pushBlock = {
     }
 
     await Block.save(block);
-    // console.log(block.getTransactionCount());
+
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase
       if (block.getTransaction(i).getSenderKey()) {

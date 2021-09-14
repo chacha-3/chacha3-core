@@ -43,7 +43,7 @@ const serializeObject = (obj) => {
 
 const deserializeObject = (obj) => {
   const deserialized = { ...obj };
-  // console.log(obj);
+
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
 

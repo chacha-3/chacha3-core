@@ -22,5 +22,3 @@ block.setPreviousHash(previousHash);
 block.mine().then(() => {
   console.log(block.toObject());
 });
-
-// console.log(block);

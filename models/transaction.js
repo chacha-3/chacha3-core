@@ -248,7 +248,6 @@ class Transaction {
       transaction.setSignature(loaded.signature);
       transaction.setTime(loaded.time);
 
-      // console.log(transaction.getId());
       const saved = await Transaction.save(transaction, true);
       if (saved == null) {
         debug(`Rejected pending pending transaction from poll: ${serializeBuffer(transaction.getId())}`);

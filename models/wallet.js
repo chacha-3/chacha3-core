@@ -60,9 +60,6 @@ class Wallet {
   }
 
   static verifyAddress(address) {
-    // const buffer = bs58.decode(address);
-    // const buffer = deserializeBuffer(address);
-    // console.log(buffer.slice(1, 21));
     const fingerprint = address.slice(1, 21);
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 

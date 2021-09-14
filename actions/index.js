@@ -83,14 +83,13 @@ const runAction = async (options, permission) => {
   }
 
   let result;
-
   try {
-    result = await execute(serializeObject(options), handler);
+    result = await execute(deserializeObject(options), handler);
   } catch (e) {
     result = { message: e.message, code: 'internal' };
   }
 
-  return deserializeObject(result);
+  return serializeObject(result);
 };
 
 module.exports = {
