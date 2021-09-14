@@ -118,4 +118,23 @@ actions.clearPendingTransactions = {
   },
 };
 
+actions.transactionInfo = {
+  permission: 'public',
+  schema: {
+    properties: {
+      id: { type: 'string' },
+    },
+    required: ['id'],
+  },
+  handler: async (options) => {
+    const transaction = await Transaction.load(Buffer.from(options.id, 'hex'));
+
+    if (!transaction) {
+      return errorResponse(ErrorCode.NotFound, 'Transaction ID not found');
+    }
+
+    return okResponse(transaction.toObject(), 'Transaction Info');
+  },
+};
+
 module.exports = actions;
