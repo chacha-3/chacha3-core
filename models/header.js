@@ -36,23 +36,21 @@ class Header {
     return minTarget[env];
   }
 
-  static async save(header) {
-    assert(header.checksum != null);
-    assert(header.hash != null);
+  async save() {
+    assert(this.checksum != null);
+    assert(this.hash != null);
 
     const data = {
-      version: header.getVersion(),
-      previous: header.getPrevious(),
-      time: header.getTime(),
-      difficulty: header.getDifficulty(),
-      nonce: header.getNonce(),
-      checksum: header.getChecksum(),
+      version: this.getVersion(),
+      previous: this.getPrevious(),
+      time: this.getTime(),
+      difficulty: this.getDifficulty(),
+      nonce: this.getNonce(),
+      checksum: this.getChecksum(),
     };
 
-    const key = header.getHash();
-    await HeaderDB.put(`${header.getHash()}`, serializeObject(data), { valueEncoding: 'json' });
-
-    return { key, data };
+    const key = this.getHash();
+    await HeaderDB.put(`${this.getHash()}`, serializeObject(data), { valueEncoding: 'json' });
   }
 
   static fromSaveData(data, hash) {

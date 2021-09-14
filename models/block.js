@@ -265,14 +265,12 @@ class Block {
     const key = this.getHeader().getHash();
 
     const header = this.getHeader();
-    await Header.save(header);
+    await header.save();
 
     const transactionIds = await Block.saveTransactions(this);
     const data = {
       transactionIndexes: transactionIds.map((id) => serializeBuffer(id)),
     };
-
-    console.log(data);
 
     await BlockDB.put(key, data, { valueEncoding: 'json' });
   }

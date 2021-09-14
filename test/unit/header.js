@@ -64,8 +64,9 @@ test('save and load header', async (t) => {
   const block = await mock.blockWithTransactions(1);
   const header = block.getHeader();
 
-  const { key } = await Header.save(header);
+  await header.save();
 
+  const key = header.getHash();
   t.ok(key.equals(header.getHash()), 'key is correct');
   t.equal(key.length, 32, 'key length is 32');
 
