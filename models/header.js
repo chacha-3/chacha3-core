@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { argon2d } = require('argon2-ffi');
+const crypto = require('crypto');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
 const { serializeBuffers, deserializeBuffers, deserializeBuffer} = require('../util/serialize');
@@ -141,17 +141,18 @@ class Header {
     this.checksum = checksum;
   }
 
-  async computeHash() {
-    const options = {
-      timeCost: 1,
-      memoryCost: 1024,
-      parallelism: 2,
-      hashLength: 32,
-    };
+  computeHash() {
+    // const options = {
+    //   timeCost: 1,
+    //   memoryCost: 1024,
+    //   parallelism: 2,
+    //   hashLength: 32,
+    // };
 
-    const salt = Buffer.from(new Array(32).fill(0x00));
+    // const salt = Buffer.from(new Array(32).fill(0x00));
 
-    const hashResult = await argon2d.hashRaw(this.hashData(), salt, options);
+    // const hashResult = await argon2d.hashRaw(this.hashData(), salt, options);
+    const hashResult = crypto.createHash('sha3-256').update(this.hashData(), 'utf-8').digest();
     this.hash = hashResult;
   }
 
@@ -170,9 +171,13 @@ class Header {
 
   getTarget() {
     const target = BigInt(`0x${Header.MinTarget.toString('hex')}`);
+
+    // const buf = Buffer.allocUnsafe(4);
+    // buf.writeInt32BE(this.difficulty, 0);
+
     const difficulty = BigInt(Math.round(this.difficulty));
 
-    // const hex = 16;
+    const hex = 16;
     // return (target / difficulty).toString(hex);
     return target / difficulty;
   }

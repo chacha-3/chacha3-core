@@ -120,7 +120,7 @@ class Block {
       this.header.incrementNonce();
 
       // eslint-disable-next-line no-await-in-loop
-      await this.header.computeHash();
+      this.header.computeHash();
 
       found = this.verifyHash();
     }

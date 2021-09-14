@@ -62,7 +62,7 @@ class Miner {
       const latestBlock = chain.latestBlockHeader();
       block.setPreviousHash(latestBlock.getHash());
 
-      await block.header.computeHash();
+      block.header.computeHash();
 
       const verifiedTransaction = await block.verifyTransactions();
       if (block.verifyHash()) {

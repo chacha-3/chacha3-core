@@ -316,6 +316,7 @@ class Chain {
     // let totalDiff = 0;
     const timeDifferences = [];
 
+    // TODO: Static difficulty of 1 on first interval
     for (let i = 1; i < headers.length; i += 1) {
       timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
 
