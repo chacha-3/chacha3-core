@@ -415,6 +415,7 @@ test('get genesis block', async (t) => {
   const block = Block.Genesis;
 
   // TODO: Check
+  t.equal(block.verify(), true);
 
   t.end();
 });
