@@ -18,22 +18,22 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x00003bf2e3ee6ea764d6a5c270423e9b1fa1e22437c5c2db8bcfc08de3b9d810',
+        hash: '0x000014a6f52cb5380e2ee3d66e51a429685ddc523e00d70f1fcc5e50753ff87b',
         previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1631588874413,
+        time: 1631620146939,
         difficulty: 1,
-        nonce: 2579589239282141,
-        checksum: '0x081990a04546f11fee0ea7b94ced128c75b0bfc84ce894cf274c04dd84e85dae',
+        nonce: 1261188323356094,
+        checksum: '0xb40ca22cd51fdeb5c603f9412e47f8332ab11620ee24c0f244b09026ee6497c1',
         version: 1,
       },
       transactions: [
         {
-          id: '0xeb8f85f8c0dadbf3ef76aa3d19cd2429b7eefcab4a36bd168b936706f85d130a',
+          id: '0xb3df811bbfe0ec3a302240c502556c535a9061b8f44a07b1e3a3164fb2f35459',
           sender: null,
-          receiver: '12xzwcmGkgJc8XdkqYt4E6dhE6LVuARH1b',
+          receiver: '0x00a707ef001604c1883eff434726fa92d69116a242dd6e64f6',
           amount: 10000,
           version: 1,
-          time: 1631588874414,
+          time: 1631620146940,
           signature: null,
         },
       ],
@@ -237,8 +237,8 @@ class Block {
 
   static async saveTransactions(block) {
     const saveTransaction = (transaction) => new Promise((resolve) => {
-      const result = Transaction.save(transaction);
-      resolve(result);
+      const result = transaction.save();
+      resolve(transaction.getId());
     });
 
     const promises = [];
@@ -267,10 +267,12 @@ class Block {
     const header = this.getHeader();
     await Header.save(header);
 
-    const transactions = await Block.saveTransactions(this);
+    const transactionIds = await Block.saveTransactions(this);
     const data = {
-      transactionIndexes: transactions.map((transaction) => serializeBuffer(transaction.key)),
+      transactionIndexes: transactionIds.map((id) => serializeBuffer(id)),
     };
+
+    console.log(data);
 
     await BlockDB.put(key, data, { valueEncoding: 'json' });
   }

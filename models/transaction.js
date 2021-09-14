@@ -193,16 +193,16 @@ class Transaction {
     });
   }
 
-  static async save(transaction, pending = false) {
-    assert(transaction.getId() != null);
-    const key = transaction.getId();
+  async save(pending = false) {
+    assert(this.getId() != null);
+    const key = this.getId();
 
     if (pending) {
       try {
         const exist = await TransactionDB.get(key);
 
         debug('Pending transaction is prior transaction. Ignored');
-        return null;
+        return false;
       } catch (e) {
         debug('Pending transaction is not prior transaction. Continue save');
       }
@@ -211,13 +211,13 @@ class Transaction {
     // FIXME: Use to object.
     // Unit test for set time not checking correct, prob time set is same before and after load
     const data = {
-      id: transaction.getId(),
-      version: transaction.getVersion(),
-      senderKey: transaction.getSenderKey(),
-      receiverAddress: transaction.getReceiverAddress(),
-      amount: transaction.getAmount(),
-      signature: transaction.getSignature(),
-      time: transaction.getTime(),
+      id: this.getId(),
+      version: this.getVersion(),
+      senderKey: this.getSenderKey(),
+      receiverAddress: this.getReceiverAddress(),
+      amount: this.getAmount(),
+      signature: this.getSignature(),
+      time: this.getTime(),
     };
 
     const serialized = serializeObject(data);
@@ -226,10 +226,10 @@ class Transaction {
     await DB.put(key, serialized, { valueEncoding: 'json' });
 
     if (pending) {
-      debug(`Saved pending transaction: ${serializeBuffer(transaction.getId())}`);
+      debug(`Saved pending transaction: ${serializeBuffer(this.getId())}`);
     }
 
-    return { key, data };
+    return true;
   }
 
   static async savePendingTransactions(dataArray) {
@@ -248,7 +248,7 @@ class Transaction {
       transaction.setSignature(loaded.signature);
       transaction.setTime(loaded.time);
 
-      const saved = await Transaction.save(transaction, true);
+      const saved = await transaction.save(true);
       if (saved == null) {
         debug(`Rejected pending pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
       } else {

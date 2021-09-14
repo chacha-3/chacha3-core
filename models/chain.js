@@ -226,7 +226,7 @@ class Chain {
         return false;
       }
 
-      await Transaction.save(transaction);
+      await transaction.save();
 
       // Remove pending transactions, except coinbase
       if (transaction.getSenderKey()) {

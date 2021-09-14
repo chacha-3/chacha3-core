@@ -73,7 +73,7 @@ test('get pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await Transaction.save(transaction, true);
+    await transaction.save(true);
   }
 
   const { data, code } = await runAction({

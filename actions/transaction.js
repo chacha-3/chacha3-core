@@ -46,7 +46,7 @@ actions.createTransaction = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
     }
 
-    await Transaction.save(transaction, true);
+    await transaction.save(true);
     Peer.broadcastAction('pushTransaction', transaction.toPushData());
 
     return okResponse(transaction.toObject(), 'Transaction created');
@@ -88,7 +88,7 @@ actions.pushTransaction = {
       return errorResponse(ErrorCode.FailedPrecondition, 'Transaction failed verification');
     }
 
-    await Transaction.save(transaction, true);
+    await transaction.save(true);
     debug('Add to pending transaction');
 
     return okResponse(transaction.toObject(), 'Transaction pushed');

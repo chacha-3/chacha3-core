@@ -171,8 +171,8 @@ test('save and load transaction', async (t) => {
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
   transaction.sign(sender.getPrivateKeyObject());
 
-  await Transaction.save(coinbase);
-  const result = await Transaction.save(transaction);
+  await coinbase.save();
+  const result = await transaction.save();
 
   t.not(result, null);
 
@@ -225,7 +225,7 @@ test('save pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await Transaction.save(transaction, true);
+    await transaction.save(true);
   }
 
   const loadedTransactions = await Transaction.loadPending();
@@ -252,7 +252,7 @@ test('check confirmed transaction is saved', async (t) => {
   let isSaved = await transaction.isSaved();
   t.equal(isSaved, false);
 
-  await Transaction.save(transaction);
+  await transaction.save();
   isSaved = await transaction.isSaved();
   t.equal(isSaved, true);
 
@@ -274,10 +274,10 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
 
   let isSaved = await chosenTransaction.isSaved();
 
-  const result = await Transaction.save(chosenTransaction, true);
+  const result = await chosenTransaction.save(true);
   // isSaved = await chosenTransaction.isSaved();
 
-  t.equal(result, null);
+  t.equal(result, false);
 
   await Chain.clear(chain);
   t.end();
@@ -336,7 +336,7 @@ test('load pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await Transaction.save(transaction, true);
+    await transaction.save(true);
   }
 
   const pendingTransactions = await Transaction.loadPending();
