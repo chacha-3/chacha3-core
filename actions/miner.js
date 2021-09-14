@@ -2,6 +2,7 @@ const Wallet = require('../models/wallet');
 const Miner = require('../models/miner');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+const { serializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -20,7 +21,7 @@ actions.startMiner = {
 
     if (!options.address && (selectedWallet = await Wallet.getSelected())) {
       // eslint-disable-next-line no-param-reassign
-      options.address = selectedWallet;
+      options.address = serializeBuffer(selectedWallet);
     }
   },
   handler: (options) => {

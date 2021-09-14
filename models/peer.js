@@ -214,7 +214,7 @@ class Peer {
 
       this.setStatus(status);
 
-      Peer.save(this);
+      this.save();
       return false;
     }
 
