@@ -8,6 +8,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
+const { serializeBuffer } = require('../../util/serialize');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -112,9 +113,9 @@ test('have correct hash data for transaction', (t) => {
   const hashData = JSON.parse(transaction.hashData());
 
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex')); // FIXME: Why hex?
+  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddressEncoded())); // FIXME: Why hex?
   t.equal(hashData.amount, 20);
-  t.equal(hashData.senderKey, sender.getPublicKey().toString('hex'));
+  t.equal(hashData.senderKey, serializeBuffer(sender.getPublicKey()));
 
   t.ok(hashData.time > 0);
 
@@ -148,7 +149,7 @@ test('have correct hash data for coinbase transaction', (t) => {
   const hashData = JSON.parse(transaction.hashData());
 
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, receiver.getAddressEncoded().toString('hex'));
+  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddressEncoded()));
   t.equal(hashData.amount, 50);
   t.equal(hashData.senderKey, undefined);
 

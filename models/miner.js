@@ -7,7 +7,7 @@ const Chain = require('./chain');
 const Transaction = require('./transaction');
 const Peer = require('./peer');
 
-const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
+const { serializeObject, deserializeObject, serializeBuffer } = require('../util/serialize');
 
 // const addressPrefix = '420_';
 
@@ -68,14 +68,14 @@ class Miner {
       if (block.verifyHash()) {
         debug(`Transaction verified: ${verifiedTransaction}, count: ${block.getTransactionCount()}`);
         if (verifiedTransaction) {
-          debug(`Found new block. ${block.header.getPrevious().toString('hex')} <- ${block.header.getHash().toString('hex')}`);
+          debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
 
           const result = await Chain.mainChain.confirmNewBlock(block);
 
           if (result) {
-            debug(`Confirmed new block: ${block.getHeader().getHash().toString('hex')}`);
+            debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
           } else {
-            debug(`Reject confirmed new block: ${block.getHeader().getHash().toString('hex')}`);
+            debug(`Reject confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
           }
           Peer.broadcastAction('pushBlock', block.toObject());
 
@@ -90,9 +90,8 @@ class Miner {
           block = new Block();
           block.addCoinbase(this.receiverAddress);
         } else {
-          debug(`Reject block ${block.header.getHash().toString('hex')}: ${verifiedTransaction}`);
+          debug(`Reject block ${serializeBuffer(block.header.getHash())}: ${verifiedTransaction}`);
           for (let x = 0; x < block.getTransactionCount(); x += 1) {
-            // debug(`Rejected block transaction ${x + 1}: ${block.getTransaction(x).getId().toString('hex')}`);
             const transaction = block.getTransaction(x);
             debug(`Transaction ${transaction.getId()} is previously saved: ${await transaction.isSaved()}`);
           }

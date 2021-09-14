@@ -4,7 +4,7 @@ const assert = require('assert');
 
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
-const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
+const { serializeObject, deserializeObject, serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 // const addressPrefix = '420_';
 
@@ -146,13 +146,13 @@ class Wallet {
   getPublicKeyHex() {
     assert(this.privateKey !== null);
 
-    return this.publicKey.toString('hex');
+    return serializeBuffer(this.publicKey);
   }
 
   getPrivateKeyHex() {
     assert(this.privateKey !== null);
 
-    return this.privateKey.toString('hex');
+    return serializeBuffer(this.privateKey);
   }
 
   getPublicKeyObject() {
@@ -185,8 +185,8 @@ class Wallet {
   fromSaveData(data) {
     this.setLabel(data.label);
 
-    this.privateKey = Buffer.from(data.privateKey, 'hex');
-    this.publicKey = Buffer.from(data.publicKey, 'hex');
+    this.privateKey = deserializeBuffer(data.privateKey);
+    this.publicKey = deserializeBuffer(data.publicKey);
   }
 
   static async save(wallet) {
@@ -246,12 +246,6 @@ class Wallet {
 
     return data;
   }
-
-  // fromObject(data) {
-  //   this.setLabel(data.label);
-  //   this.privateKey = Buffer.from(data.privateKey, 'hex');
-  //   this.publicKey = Buffer.from(data.publicKey, 'hex');
-  // }
 
   toString() {
     return this.getAddressEncoded();

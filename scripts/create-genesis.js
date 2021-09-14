@@ -1,6 +1,7 @@
 const Block = require('../models/block');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
+const { deserializeBuffer } = require('../util/serialize');
 
 const numOfBlocks = 10;
 const transactionsPerBlock = 50;
@@ -9,7 +10,7 @@ const transactionsPerBlock = 50;
 // const sender = new Wallet();
 // sender.generate();
 
-let previousHash = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
+let previousHash = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
 
 const receiver = new Wallet();
 receiver.generate();

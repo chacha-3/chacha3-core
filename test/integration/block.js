@@ -10,6 +10,7 @@ const { SuccessCode } = require('../../util/rpc');
 
 const Chain = require('../../models/chain');
 const Block = require('../../models/block');
+const { serializeBuffer } = require('../../util/serialize');
 const app = require('../../app')();
 
 test('get block info', async (t) => {
@@ -18,7 +19,7 @@ test('get block info', async (t) => {
 
   const { data } = await runAction({
     action: 'blockInfo',
-    hash: block.getHeader().getHash().toString('hex'),
+    hash: serializeBuffer(block.getHeader().getHash()),
   });
 
   const loaded = Block.fromObject(data);

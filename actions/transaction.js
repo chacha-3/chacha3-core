@@ -4,6 +4,7 @@ const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+const { deserializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -30,7 +31,7 @@ actions.createTransaction = {
     }
   },
   handler: async (options) => {
-    const senderWallet = Wallet.recover(Buffer.from(options.key, 'hex'));
+    const senderWallet = Wallet.recover(deserializeBuffer(options.key));
 
     const transaction = new Transaction(
       senderWallet.getPublicKey(),
@@ -68,13 +69,13 @@ actions.pushTransaction = {
   },
   handler: async (options) => {
     const transaction = new Transaction(
-      Buffer.from(options.key, 'hex'),
+      deserializeBuffer(options.key),
       options.address,
       Number.parseInt(options.amount, 10),
     );
 
     transaction.setTime(options.time);
-    transaction.setSignature(Buffer.from(options.signature, 'hex'));
+    transaction.setSignature(deserializeBuffer(options.signature));
     transaction.setVersion(options.version);
 
     const errors = transaction.validate();
@@ -127,7 +128,7 @@ actions.transactionInfo = {
     required: ['id'],
   },
   handler: async (options) => {
-    const transaction = await Transaction.load(Buffer.from(options.id, 'hex'));
+    const transaction = await Transaction.load(deserializeBuffer(options.id));
 
     if (!transaction) {
       return errorResponse(ErrorCode.NotFound, 'Transaction ID not found');

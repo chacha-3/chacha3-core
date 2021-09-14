@@ -7,6 +7,7 @@ const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const Peer = require('../models/peer');
 const { randomNumberBetween } = require('./math');
+const { deserializeBuffer } = require('./serialize');
 
 const mock = {};
 
@@ -72,7 +73,7 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock) => {
   if (previousBlock) {
     block.setPreviousHash(previousBlock.getHeader().getHash());
   } else {
-    block.setPreviousHash(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'));
+    block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   }
 
   for (let i = 0; i < minusCoinbase; i += 1) {
@@ -174,7 +175,7 @@ mock.pendingTransactions = (numOfTransactions) => {
 
 mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
   const blocks = [];
-  let previousHash = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
+  let previousHash = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
 
   let wallet = minerWallet;
 

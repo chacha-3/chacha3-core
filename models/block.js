@@ -7,6 +7,7 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB } = require('../util/db');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 class Block {
   constructor() {
@@ -17,17 +18,17 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '00003bf2e3ee6ea764d6a5c270423e9b1fa1e22437c5c2db8bcfc08de3b9d810',
-        previous: '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0x00003bf2e3ee6ea764d6a5c270423e9b1fa1e22437c5c2db8bcfc08de3b9d810',
+        previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
         time: 1631588874413,
         difficulty: 1,
         nonce: 2579589239282141,
-        checksum: '081990a04546f11fee0ea7b94ced128c75b0bfc84ce894cf274c04dd84e85dae',
+        checksum: '0x081990a04546f11fee0ea7b94ced128c75b0bfc84ce894cf274c04dd84e85dae',
         version: 1,
       },
       transactions: [
         {
-          id: 'eb8f85f8c0dadbf3ef76aa3d19cd2429b7eefcab4a36bd168b936706f85d130a',
+          id: '0xeb8f85f8c0dadbf3ef76aa3d19cd2429b7eefcab4a36bd168b936706f85d130a',
           sender: null,
           receiver: '12xzwcmGkgJc8XdkqYt4E6dhE6LVuARH1b',
           amount: 10000,
@@ -133,7 +134,7 @@ class Block {
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
-    const hashNum = BigInt(`0x${this.header.getHash().toString('hex')}`);
+    const hashNum = BigInt(serializeBuffer(this.header.getHash()));
     return hashNum < this.header.getTarget();
   }
 
@@ -268,7 +269,7 @@ class Block {
 
     const transactions = await Block.saveTransactions(block);
     const data = {
-      transactionIndexes: transactions.map((transaction) => transaction.key.toString('hex')),
+      transactionIndexes: transactions.map((transaction) => serializeBuffer(transaction.key)),
     };
 
     await BlockDB.put(key, data, { valueEncoding: 'json' });
@@ -304,7 +305,7 @@ class Block {
     const header = await Header.load(hash);
     block.setHeader(header);
 
-    const indexes = data.transactionIndexes.map((hexKey) => Buffer.from(hexKey, 'hex'));
+    const indexes = data.transactionIndexes.map((hexKey) => deserializeBuffer(hexKey));
     const transactions = await Block.loadTransactions(indexes);
 
     block.setTransactions(transactions);

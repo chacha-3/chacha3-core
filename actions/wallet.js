@@ -1,5 +1,6 @@
 const Wallet = require('../models/wallet');
 const { okResponse, ErrorCode, errorResponse } = require('../util/rpc');
+const { deserializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -71,7 +72,7 @@ actions.recoverWallet = {
     let wallet;
 
     try {
-      wallet = Wallet.recover(Buffer.from(options.privateKey, 'hex'));
+      wallet = Wallet.recover(deserializeBuffer(options.privateKey));
       wallet.setLabel(options.label);
 
       await Wallet.save(wallet);

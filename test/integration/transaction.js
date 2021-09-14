@@ -9,6 +9,7 @@ const { SuccessCode } = require('../../util/rpc');
 
 const { runAction } = require('../../actions');
 const { options } = require('yargs');
+const { serializeBuffer } = require('../../util/serialize');
 
 test('create a transaction', async (t) => {
   const sender = new Wallet();
@@ -41,10 +42,10 @@ test('push transaction', async (t) => {
 
   const { code } = await runAction({
     action: 'pushTransaction',
-    key: transaction.getSenderKey().toString('hex'),
+    key: serializeBuffer(transaction.getSenderKey()),
     address: transaction.getReceiverAddress(),
     amount: transaction.getAmount(),
-    signature: transaction.getSignature().toString('hex'),
+    signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),
     version: transaction.getVersion(),
   });

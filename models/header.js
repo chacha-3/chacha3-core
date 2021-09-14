@@ -2,7 +2,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
-const { serializeBuffers, deserializeBuffers, deserializeBuffer} = require('../util/serialize');
+const { serializeObject, deserializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
 
 // TODO: Cleaner way for this. Add generic environment check
 
@@ -11,9 +11,9 @@ if (runningManualTest(process.argv)) {
 }
 
 const minTarget = {
-  production: '0000ff0000000000000000000000000000000000000000000000000000000000',
-  development: '0000ff0000000000000000000000000000000000000000000000000000000000',
-  test: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
+  production: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
+  development: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
+  test: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
 };
 
 class Header {
@@ -42,15 +42,15 @@ class Header {
 
     const data = {
       version: header.getVersion(),
-      previous: (header.getPrevious() != null) ? header.getPrevious().toString('hex') : null,
+      previous: header.getPrevious(),
       time: header.getTime(),
       difficulty: header.getDifficulty(),
       nonce: header.getNonce(),
-      checksum: header.getChecksum().toString('hex'),
+      checksum: header.getChecksum(),
     };
 
     const key = header.getHash();
-    await HeaderDB.put(`${header.getHash()}`, data, { valueEncoding: 'json' });
+    await HeaderDB.put(`${header.getHash()}`, serializeObject(data), { valueEncoding: 'json' });
 
     return { key, data };
   }
@@ -59,11 +59,11 @@ class Header {
     const header = new Header();
 
     header.setVersion(data.version);
-    header.setPrevious((data.previous) ? Buffer.from(data.previous, 'hex') : null);
+    header.setPrevious(deserializeBuffer(data.previous));
     header.setTime(data.time);
     header.setDifficulty(data.difficulty);
     header.setNonce(data.nonce);
-    header.setChecksum(Buffer.from(data.checksum, 'hex'));
+    header.setChecksum(deserializeBuffer(data.checksum));
     header.setHash(hash);
 
     return header;
@@ -91,12 +91,13 @@ class Header {
 
     const data = {
       version: this.version,
-      previous: this.previous.toString('hex'),
+      previous: this.previous,
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
-      checksum: this.checksum.toString('hex'),
+      checksum: this.getChecksum,
     };
+
 
     return JSON.stringify(data);
   }
@@ -142,16 +143,6 @@ class Header {
   }
 
   computeHash() {
-    // const options = {
-    //   timeCost: 1,
-    //   memoryCost: 1024,
-    //   parallelism: 2,
-    //   hashLength: 32,
-    // };
-
-    // const salt = Buffer.from(new Array(32).fill(0x00));
-
-    // const hashResult = await argon2d.hashRaw(this.hashData(), salt, options);
     const hashResult = crypto.createHash('sha3-256').update(this.hashData(), 'utf-8').digest();
     this.hash = hashResult;
   }
@@ -170,15 +161,9 @@ class Header {
   }
 
   getTarget() {
-    const target = BigInt(`0x${Header.MinTarget.toString('hex')}`);
-
-    // const buf = Buffer.allocUnsafe(4);
-    // buf.writeInt32BE(this.difficulty, 0);
-
+    const target = BigInt(serializeBuffer(Header.MinTarget));
     const difficulty = BigInt(Math.round(this.difficulty));
 
-    const hex = 16;
-    // return (target / difficulty).toString(hex);
     return target / difficulty;
   }
 
@@ -197,7 +182,7 @@ class Header {
   }
 
   static fromObject(obj) {
-    const data = deserializeBuffers(obj, ['hash', 'previous', 'checksum']);
+    const data = deserializeObject(obj);
 
     const header = new Header();
 
@@ -223,7 +208,7 @@ class Header {
       version: this.getVersion(),
     };
 
-    return serializeBuffers(data, ['hash', 'previous', 'checksum']);
+    return serializeObject(data);
   }
 
   equals(header) {

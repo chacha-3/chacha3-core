@@ -9,6 +9,7 @@ const Block = require('./block');
 
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
+const { serializeBuffer } = require('../util/serialize');
 
 class Peer {
   constructor(address, port) {
@@ -339,10 +340,10 @@ class Peer {
     for (let j = startIndex; j < pulledChain.getLength() && valid; j += 1) {
       const header = pulledChain.getBlockHeader(j);
 
-      debug(`Request block data: ${header.getHash().toString('hex')}`);
+      debug(`Request block data: ${serializeBuffer(header.getHash())}`);
       debug(`Peer info: ${this.getAddress()}:${this.getPort()}`);
-      const { data } = await this.callAction('blockInfo', { hash: header.getHash().toString('hex') });
-      debug(`Receive new block data: ${header.getHash().toString('hex')}`);
+      const { data } = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
+      debug(`Receive new block data: ${serializeBuffer(header.getHash())}`);
 
       if (data) {
         debug('Receive data for block');

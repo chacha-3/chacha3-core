@@ -4,6 +4,8 @@ const assert = require('assert');
 const Header = require('./header');
 
 const { DB, BlockDB, HeaderDB, runningManualTest } = require('../util/db');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
@@ -349,7 +351,7 @@ class Chain {
   static async save(chain) {
     const key = 'chain';
     const data = {
-      blockHashes: chain.getBlockHeaders().map((header) => header.getHash().toString('hex')),
+      blockHashes: chain.getBlockHeaders().map((header) => serializeBuffer(header.getHash())),
     };
 
     await DB.put(key, data, { valueEncoding: 'json' });
@@ -379,7 +381,7 @@ class Chain {
 
     try {
       data = await DB.get('chain', { valueEncoding: 'json' });
-      blockHashes = data.blockHashes.map((hexKey) => Buffer.from(hexKey, 'hex'));
+      blockHashes = data.blockHashes.map((hexKey) => deserializeBuffer(hexKey));
     } catch (e) {
       // Do nothing. Leave array empty
     }
@@ -427,7 +429,7 @@ class Chain {
     }
 
     clearBlocks.forEach(async (hash) => {
-      debug(`Clear rejected block: ${hash.toString('hex')}`);
+      debug(`Clear rejected block: ${serializeBuffer(hash)}`);
       await Block.clear(hash);
     });
 

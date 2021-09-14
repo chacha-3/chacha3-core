@@ -4,6 +4,7 @@ const { test } = require('tap');
 const Wallet = require('../../models/wallet');
 
 const mock = require('../../util/mock');
+const { serializeBuffer } = require('../../util/serialize');
 
 // const { expect } = chai;
 
@@ -107,8 +108,8 @@ test('get keys in hex format', (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
-  t.equal(wallet.getPublicKeyHex(), wallet.getPublicKey().toString('hex'));
-  t.equal(wallet.getPrivateKeyHex(), wallet.getPrivateKey().toString('hex'));
+  t.equal(wallet.getPublicKeyHex(), serializeBuffer(wallet.getPublicKey()));
+  t.equal(wallet.getPrivateKeyHex(), serializeBuffer(wallet.getPrivateKey()));
 
   t.end();
 });

@@ -8,7 +8,7 @@ const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
-// const { serializeBuffers } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 const actions = {};
 
@@ -33,7 +33,7 @@ actions.pushBlock = {
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
     }
 
-    debug(`Receive new block: ${block.getHeader().getHash().toString('hex')}`);
+    debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
     // TODO: Verify
 
@@ -49,7 +49,7 @@ actions.pushBlock = {
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase
       if (block.getTransaction(i).getSenderKey()) {
-        debug(`Clear pending transaction: ${block.getTransaction(i).getId().toString('hex')}`);
+        debug(`Clear pending transaction: ${serializeBuffer(block.getTransaction(i).getId())}`);
         Transaction.clear(block.getTransaction(i).getId(), true);
       }
     }
@@ -84,7 +84,7 @@ actions.blockInfo = {
     required: ['hash'],
   },
   handler: async (options) => {
-    const block = await Block.load(Buffer.from(options.hash, 'hex'));
+    const block = await Block.load(deserializeBuffer(options.hash));
     assert(block.verify());
 
     if (!block) {
@@ -104,7 +104,7 @@ actions.blockTransactions = {
     required: ['hash'],
   },
   handler: async (options) => {
-    const block = await Block.load(Buffer.from(options.hash, 'hex'));
+    const block = await Block.load(deserializeBuffer(options.hash));
 
     if (!block) {
       return errorResponse(ErrorCode.NotFound, 'Block not found');

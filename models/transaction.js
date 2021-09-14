@@ -5,7 +5,7 @@ const debug = require('debug')('transaction:model');
 
 const Wallet = require('./wallet');
 
-const { serializeBuffers, deserializeBuffers } = require('../util/serialize');
+const { serializeObject, deserializeObject, serializeBuffer } = require('../util/serialize');
 const { TransactionDB, PendingTransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
@@ -36,7 +36,7 @@ class Transaction {
 
     assert(this.senderKey !== undefined);
     if (this.senderKey !== null) {
-      data.senderKey = this.senderKey.toString('hex');
+      data.senderKey = serializeBuffer(this.senderKey);
     }
 
     return JSON.stringify(data);
@@ -47,7 +47,7 @@ class Transaction {
   }
 
   getIdHex() {
-    return this.getId().toString('hex');
+    return serializeBuffer(this.getId());
   }
 
   isConfirmed() {
@@ -156,7 +156,7 @@ class Transaction {
   }
 
   static fromObject(obj) {
-    const data = deserializeBuffers(obj, ['id', 'sender', 'signature']);
+    const data = deserializeObject(obj);
 
     const transaction = new Transaction(data.sender, data.receiver, data.amount);
     transaction.setVersion(data.version);
@@ -177,20 +177,20 @@ class Transaction {
       signature: this.getSignature(),
     };
 
-    return serializeBuffers(data, ['id', 'sender', 'signature']);
+    return serializeObject(data);
   }
 
   toPushData() {
     assert(this.getSignature() !== null);
 
-    return {
-      key: this.getSenderKey().toString('hex'),
+    return serializeObject({
+      key: this.getSenderKey(),
       address: this.getReceiverAddress(),
       amount: this.getAmount(),
       version: this.getVersion(),
       time: this.getTime(),
-      signature: this.getSignature().toString('hex'),
-    };
+      signature: this.getSignature(),
+    });
   }
 
   static async save(transaction, pending = false) {
@@ -220,13 +220,13 @@ class Transaction {
       time: transaction.getTime(),
     };
 
-    const serialized = serializeBuffers(data, ['id', 'senderKey', 'signature']);
+    const serialized = serializeObject(data);
 
     const DB = (!pending) ? TransactionDB : PendingTransactionDB;
     await DB.put(key, serialized, { valueEncoding: 'json' });
 
     if (pending) {
-      debug(`Saved pending transaction: ${transaction.getId().toString('hex')}`);
+      debug(`Saved pending transaction: ${serializeBuffer(transaction.getId())}`);
     }
 
     return { key, data };
@@ -235,7 +235,7 @@ class Transaction {
   static async savePendingTransactions(dataArray) {
     for (let j = 0; j < dataArray.length; j += 1) {
       // TODO: Use from object
-      const loaded = deserializeBuffers(dataArray[j], ['id', 'sender', 'signature']);
+      const loaded = deserializeObject(dataArray[j]);
 
       const transaction = new Transaction(
         // Not matching toObject key 'sender' instead of senderKey. To fix name?
@@ -251,9 +251,9 @@ class Transaction {
       // console.log(transaction.getId());
       const saved = await Transaction.save(transaction, true);
       if (saved == null) {
-        debug(`Rejected pending pending transaction from poll: ${transaction.getId().toString('hex')}`);
+        debug(`Rejected pending pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
       } else {
-        debug(`Save pending transaction from poll: ${transaction.getId().toString('hex')}`);
+        debug(`Save pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
       }
     }
   }
@@ -277,7 +277,7 @@ class Transaction {
       return null;
     }
 
-    const data = deserializeBuffers(loaded, ['id', 'senderKey', 'signature']);
+    const data = deserializeObject(loaded);
 
     const transaction = new Transaction(
       data.senderKey,
@@ -310,7 +310,7 @@ class Transaction {
       // const wallet = new Wallet();
       // wallet.fromSaveData(data);
 
-      const loaded = deserializeBuffers(data, ['id', 'senderKey', 'signature']);
+      const loaded = deserializeObject(data);
 
       // TODO: Use from object
       const transaction = new Transaction(
