@@ -75,7 +75,7 @@ test('should select a default wallet', async (t) => {
 test('should delete a saved wallet', async (t) => {
   const wallets = await mock.createWallets(1);
 
-  const { data } = await runAction({
+  const { code, data, message } = await runAction({
     action: 'deleteWallet',
     address: wallets[0].getAddressEncoded(),
   });

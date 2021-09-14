@@ -16,7 +16,7 @@ const receiver = new Wallet();
 receiver.generate();
 
 const block = new Block();
-block.addCoinbase(receiver.getAddressEncoded());
+block.addCoinbase(receiver.getAddress());
 block.setPreviousHash(previousHash);
 
 block.mine().then(() => {

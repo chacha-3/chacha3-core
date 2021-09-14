@@ -5,6 +5,7 @@ const Chain = require('../../models/chain');
 const Header = require('../../models/header');
 const Miner = require('../../models/miner');
 const mock = require('../../util/mock');
+const { deserializeBuffer } = require('../../util/serialize');
 
 // const { expect } = chai;
 
@@ -13,7 +14,7 @@ test('start and stop miner', async (t) => {
   Chain.mainChain = await Chain.load();
 
   const miner = new Miner();
-  miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');
+  miner.setReceiverAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcF'));
 
   t.equal(miner.isMining(), false);
 
@@ -33,7 +34,7 @@ test('does not start miner when already running', async (t) => {
   Chain.mainChain = await Chain.load();
 
   const miner = new Miner();
-  miner.setReceiverAddress('1F5jyjzkuNjZP6beKz81bsibdgCosRRCoy');
+  miner.setReceiverAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcF'));
 
   const initialStart = miner.start();
 

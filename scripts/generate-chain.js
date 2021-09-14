@@ -55,7 +55,7 @@ const generateBlocks = async () => {
     for (let j = 0; j < minusCoinbase; j += 1) {
       const transaction = new Transaction(
         sender.getPublicKey(),
-        receiver.getAddressEncoded(),
+        receiver.getAddress(),
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 

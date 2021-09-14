@@ -8,7 +8,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
-const { serializeBuffer } = require('../../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -20,7 +20,7 @@ test('should create a verified transaction', (t) => {
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getPublicKey(), receiver.getAddressEncoded(), 10,
+    sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
   // const { privateKey } = sender.getKeys();
@@ -40,7 +40,7 @@ test('should have ID for transaction', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
   t.equal(transaction.getId().length, 32);
 
   t.end();
@@ -54,7 +54,7 @@ test('should fail verification with none or invalid transaction signature', (t) 
   receiver.generate();
 
   const transaction = new Transaction(
-    sender.getPublicKey(), receiver.getAddressEncoded(), 10,
+    sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
   // const { privateKey } = sender.getKeys();
@@ -78,8 +78,9 @@ test('should not be valid when signed with incorrect private key', (t) => {
   const otherWallet = new Wallet();
   otherWallet.generate();
 
+  const invalidAddress = deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafc');
   const transaction = new Transaction(
-    wallet.getPublicKey(), '114mRHezWdQx7MMTJ8QFokoqUraoB4ivKF', 55,
+    wallet.getPublicKey(), invalidAddress, 55,
   );
 
   transaction.sign(otherWallet.getPrivateKeyObject());
@@ -92,8 +93,10 @@ test('should fail verification with invalid wallet address', (t) => {
   const sender = new Wallet();
   sender.generate();
 
+  const invalidAddress = deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf0');
+
   const transaction = new Transaction(
-    sender.getPublicKey(), '114mRHezWdQx7MMTJ8QFokoqUraoB4ivK9', 10,
+    sender.getPublicKey(), invalidAddress, 10,
   );
   transaction.sign(sender.getPrivateKeyObject());
 
@@ -108,12 +111,11 @@ test('have correct hash data for transaction', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
 
   const hashData = JSON.parse(transaction.hashData());
-
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddressEncoded())); // FIXME: Why hex?
+  t.equal(hashData.receiverAddress, receiver.getAddressEncoded());
   t.equal(hashData.amount, 20);
   t.equal(hashData.senderKey, serializeBuffer(sender.getPublicKey()));
 
@@ -129,7 +131,7 @@ test('have correct hash data for transaction with no sender', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(null, receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(null, receiver.getAddress(), 20);
 
   const hashData = JSON.parse(transaction.hashData());
   t.equal(hashData.senderKey, undefined);
@@ -144,12 +146,12 @@ test('have correct hash data for coinbase transaction', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(null, receiver.getAddressEncoded(), 50);
+  const transaction = new Transaction(null, receiver.getAddress(), 50);
 
   const hashData = JSON.parse(transaction.hashData());
 
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddressEncoded()));
+  t.equal(hashData.receiverAddress, receiver.getAddressEncoded());
   t.equal(hashData.amount, 50);
   t.equal(hashData.senderKey, undefined);
 
@@ -164,9 +166,9 @@ test('save and load transaction', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const coinbase = new Transaction(null, receiver.getAddressEncoded(), 10);
+  const coinbase = new Transaction(null, receiver.getAddress(), 10);
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
   transaction.sign(sender.getPrivateKeyObject());
 
   await Transaction.save(coinbase);
@@ -175,17 +177,16 @@ test('save and load transaction', async (t) => {
   t.not(result, null);
 
   const loadedCoinbase = await Transaction.load(coinbase.getId());
-
+  t.ok(coinbase.getReceiverAddress().equals(loadedCoinbase.getReceiverAddress()));
   t.equal(coinbase.getVersion(), loadedCoinbase.getVersion());
-  t.equal(coinbase.getReceiverAddress(), loadedCoinbase.getReceiverAddress());
   t.equal(coinbase.getAmount(), loadedCoinbase.getAmount());
   t.equal(loadedCoinbase.getSenderKey(), null);
   t.equal(loadedCoinbase.getSignature(), null);
 
   const loadedTransaction = await Transaction.load(transaction.getId());
 
+  t.ok(coinbase.getReceiverAddress().equals(loadedCoinbase.getReceiverAddress()));
   t.equal(coinbase.getVersion(), loadedCoinbase.getVersion());
-  t.equal(coinbase.getReceiverAddress(), loadedCoinbase.getReceiverAddress());
   t.equal(coinbase.getAmount(), loadedCoinbase.getAmount());
 
   t.ok(transaction.getSenderKey().equals(loadedTransaction.getSenderKey()));
@@ -204,7 +205,7 @@ test('unable to load unsaved transaction', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
 
   const loaded = await Transaction.load(transaction.getId());
   t.equal(loaded, null);
@@ -221,7 +222,7 @@ test('save pending transactions', async (t) => {
 
   const numOfTransactions = 3;
   for (let i = 0; i < numOfTransactions; i += 1) {
-    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 33);
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
     transaction.sign(sender.getPrivateKeyObject());
 
     await Transaction.save(transaction, true);
@@ -245,7 +246,7 @@ test('check confirmed transaction is saved', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 665);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 665);
   transaction.sign(sender.getPrivateKeyObject());
 
   let isSaved = await transaction.isSaved();
@@ -289,7 +290,7 @@ test('correct push data', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 20);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
   transaction.sign(sender.getPrivateKeyObject());
 
   const pushData = transaction.toPushData();
@@ -312,8 +313,8 @@ test('to and from transaction object', async (t) => {
   t.ok(loaded.getId().equals(transaction.getId()));
   t.ok(loaded.getSenderKey().equals(transaction.getSenderKey()));
   t.ok(loaded.getSignature().equals(transaction.getSignature()));
+  t.ok(loaded.getReceiverAddress().equals(transaction.getReceiverAddress()));
 
-  t.equal(loaded.getReceiverAddress(), transaction.getReceiverAddress());
   t.equal(loaded.getVersion(), transaction.getVersion());
   t.equal(loaded.getTime(), transaction.getTime());
   t.equal(loaded.getAmount(), transaction.getAmount());
@@ -332,7 +333,7 @@ test('load pending transactions', async (t) => {
   const numOfTransactions = 4;
 
   for (let i = 0; i < numOfTransactions; i += 1) {
-    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 97);
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
     await Transaction.save(transaction, true);

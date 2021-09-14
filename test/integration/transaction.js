@@ -37,13 +37,13 @@ test('push transaction', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 38);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 38);
   transaction.sign(sender.getPrivateKeyObject());
 
   const { code } = await runAction({
     action: 'pushTransaction',
     key: serializeBuffer(transaction.getSenderKey()),
-    address: transaction.getReceiverAddress(),
+    address: serializeBuffer(transaction.getReceiverAddress()),
     amount: transaction.getAmount(),
     signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),
@@ -70,7 +70,7 @@ test('get pending transactions', async (t) => {
   const numOfTransactions = 3;
 
   for (let i = 0; i < numOfTransactions; i += 1) {
-    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddressEncoded(), 97);
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
     await Transaction.save(transaction, true);

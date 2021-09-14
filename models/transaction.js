@@ -29,7 +29,7 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      receiverAddress: this.receiverAddress, // Base54
+      receiverAddress: serializeBuffer(this.receiverAddress),
       amount: this.amount,
       time: this.time,
     };

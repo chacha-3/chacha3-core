@@ -13,7 +13,7 @@ test('create a block with coinbase', (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
 
   t.equal(block.getTransactionCount(), 1, 'block only has coinbase transaction');
 
@@ -38,7 +38,7 @@ test('should mine a block', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
@@ -57,11 +57,11 @@ test('does not add same transaction twice', async (t) => {
   receiver.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddressEncoded());
+  block.addCoinbase(receiver.getAddress());
 
   const transaction = new Transaction(
     sender.getPublicKey(),
-    receiver.getAddressEncoded(),
+    receiver.getAddress(),
     200,
   );
 
@@ -88,11 +88,11 @@ test('get object representation of a block', async (t) => {
   receiver.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddressEncoded());
+  block.addCoinbase(receiver.getAddress());
 
   const transaction1 = new Transaction(
     sender.getPublicKey(),
-    receiver.getAddressEncoded(),
+    receiver.getAddress(),
     200,
   );
 
@@ -114,11 +114,11 @@ test('verify block with checksum', async (t) => {
   receiver.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddressEncoded());
+  block.addCoinbase(receiver.getAddress());
 
   const transaction1 = new Transaction(
     sender.getPublicKey(),
-    receiver.getAddressEncoded(),
+    receiver.getAddress(),
     410,
   );
 
@@ -149,14 +149,14 @@ test('checksum is updated when adding transaction', async (t) => {
   receiver.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddressEncoded());
+  block.addCoinbase(receiver.getAddress());
 
   let previousChecksum = null;
 
   for (let i = 0; i < 3; i += 1) {
     const transaction = new Transaction(
       sender.getPublicKey(),
-      receiver.getAddressEncoded(),
+      receiver.getAddress(),
       200,
     );
 
@@ -183,7 +183,7 @@ test('block is invalid when checksum is incorrect', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
@@ -202,7 +202,7 @@ test('block is invalid if adding transaction after mining', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
@@ -218,7 +218,7 @@ test('block is invalid if adding transaction after mining', async (t) => {
 
   const addTransaction = new Transaction(
     sender.getPublicKey(),
-    receiver.getAddressEncoded(),
+    receiver.getAddress(),
     200,
   );
 
@@ -239,7 +239,7 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   // Set hash manually instead of mining block
@@ -258,7 +258,7 @@ test('block is valid when does not have previously saved transaction', async (t)
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
 
   const result = await block.verifyTransactions();
   t.equal(result, true);
@@ -305,7 +305,7 @@ test('add pending transaction to block', async (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
 
   const rejected = block.addPendingTransactions(transactions);
 
@@ -324,7 +324,7 @@ test('reject pending transaction if already saved', async (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.addTransaction(addedTransaction);
 
   const rejected = block.addPendingTransactions(transactions);

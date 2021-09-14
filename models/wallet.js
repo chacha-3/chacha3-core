@@ -45,22 +45,28 @@ class Wallet {
     await WalletDB.clear();
   }
 
-  static generateAddressEncoded(publicKey) {
+  static generateAddress(publicKey) {
     const version = Buffer.from([0x00]);
 
     const fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest().slice(-20);
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
-    return `${Wallet.AddressPrefix}${bs58.encode(Buffer.concat([version, fingerprint, checksum]))}`;
+    return Buffer.concat([version, fingerprint, checksum]);
+  }
+
+  static generateAddressEncoded(publicKey) {
+    // return `${Wallet.AddressPrefix}${bs58.encode(Wallet.generateAddress(publicKey))}`;
+    return serializeBuffer(Wallet.generateAddress(publicKey));
   }
 
   static verifyAddress(address) {
-    const bytes = bs58.decode(address);
-
-    const fingerprint = bytes.slice(1, 21);
+    // const buffer = bs58.decode(address);
+    // const buffer = deserializeBuffer(address);
+    // console.log(buffer.slice(1, 21));
+    const fingerprint = address.slice(1, 21);
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
-    return bytes.slice(21, 25).equals(checksum);
+    return address.slice(21, 25).equals(checksum);
   }
 
   static async setSelected(address) {
@@ -88,7 +94,7 @@ class Wallet {
       return null;
     }
 
-    return selected;
+    return deserializeBuffer(selected);
   }
 
   constructor() {
@@ -169,6 +175,11 @@ class Wallet {
     });
   }
 
+  getAddress() {
+    assert(this.publicKey != null);
+    return Wallet.generateAddress(this.publicKey);
+  }
+
   getAddressEncoded() {
     assert(this.publicKey != null);
     return Wallet.generateAddressEncoded(this.publicKey);
@@ -190,7 +201,7 @@ class Wallet {
   }
 
   static async save(wallet) {
-    await WalletDB.put(wallet.getAddressEncoded(), wallet.toSaveData(), { valueEncoding: 'json' });
+    await WalletDB.put(wallet.getAddress(), wallet.toSaveData(), { valueEncoding: 'json' });
   }
 
   static async load(address) {
@@ -209,9 +220,11 @@ class Wallet {
   }
 
   static async delete(address) {
+    assert(address !== null);
+
     const selected = await Wallet.getSelected();
 
-    if (address === selected) {
+    if (selected && address.equals(selected)) {
       await Wallet.setSelected(null);
     }
 

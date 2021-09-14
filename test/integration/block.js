@@ -41,7 +41,7 @@ test('push new block', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(chain.lastBlockHeader().getHash());
 
   await block.mine();
@@ -65,7 +65,7 @@ test('cannot push invalid block', async (t) => {
 
   const block = new Block();
 
-  block.addCoinbase(wallet.getAddressEncoded());
+  block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(chain.lastBlockHeader().getHash());
 
   await block.mine();

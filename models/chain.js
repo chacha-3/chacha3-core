@@ -64,7 +64,7 @@ class Chain {
 
   getAccountBalance(address) {
     debug(`Get account balance for ${address}`);
-    const account = this.accounts[address];
+    const account = this.accounts[serializeBuffer(address)];
 
     debug(`Found account balance: ${JSON.stringify(account)}`);
     if (!account) {
@@ -75,7 +75,7 @@ class Chain {
   }
 
   getAccountTransactions(address) {
-    const account = this.accounts[address];
+    const account = this.accounts[serializeBuffer(address)];
 
     if (!account) {
       return [];
@@ -104,7 +104,7 @@ class Chain {
       this.accounts[senderAddress].balance -= transaction.getAmount();
     }
 
-    const receiverAddress = transaction.getReceiverAddress();
+    const receiverAddress = serializeBuffer(transaction.getReceiverAddress());
 
     if (!this.accounts[receiverAddress]) {
       this.accounts[receiverAddress] = {
@@ -127,7 +127,8 @@ class Chain {
       this.accounts[senderAddress].balance += transaction.getAmount();
     }
 
-    const receiverAddress = transaction.getReceiverAddress();
+    const receiverAddress = serializeBuffer(transaction.getReceiverAddress());
+
     this.accounts[receiverAddress].transactions.pop();
     this.accounts[receiverAddress].balance -= transaction.getAmount();
 

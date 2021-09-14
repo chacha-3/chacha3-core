@@ -8,7 +8,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const blockData = require('../data/blocks.json');
-const { generateAddressEncoded } = require('../../models/wallet');
+const { generateAddressEncoded, generateAddress } = require('../../models/wallet');
 
 test('create an empty chain', (t) => {
   const chain = new Chain();
@@ -166,7 +166,7 @@ test('update and reverts block balances', async (t) => {
     // Post coinbase transaction
     const transaction = blocks[i].getTransaction(1);
 
-    const senderAddress = generateAddressEncoded(transaction.getSenderKey());
+    const senderAddress = generateAddress(transaction.getSenderKey());
     receiverAddresses[i] = transaction.getReceiverAddress();
 
     const senderBalance = chain.getAccountBalance(senderAddress);
@@ -279,7 +279,7 @@ test('have zero balance for account without transaction', async (t) => {
   randomWallet.generate();
 
   t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0);
-  const transactions = chain.getAccountTransactions(randomWallet.getAddressEncoded());
+  const transactions = chain.getAccountTransactions(randomWallet.getAddress());
 
   t.ok(Array.isArray(transactions));
   t.equal(transactions.length, 0);
@@ -323,7 +323,7 @@ test('list correct account transactions from chain', async (t) => {
     t.equal(chain.getAccountTransactions(receiverAddresses[j]).length, 1);
   }
 
-  const senderTransactions = chain.getAccountTransactions(wallet.getAddressEncoded());
+  const senderTransactions = chain.getAccountTransactions(wallet.getAddress());
 
   t.equal(senderTransactions.length, 4);
   t.equal(typeof (senderTransactions[0]), 'string');

@@ -70,7 +70,7 @@ actions.pushTransaction = {
   handler: async (options) => {
     const transaction = new Transaction(
       deserializeBuffer(options.key),
-      options.address,
+      deserializeBuffer(options.address),
       Number.parseInt(options.amount, 10),
     );
 

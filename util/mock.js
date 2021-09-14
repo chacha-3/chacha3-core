@@ -68,7 +68,7 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock) => {
   receiver.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddressEncoded());
+  block.addCoinbase(receiver.getAddress());
 
   if (previousBlock) {
     block.setPreviousHash(previousBlock.getHeader().getHash());
@@ -82,7 +82,7 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock) => {
 
     const transaction = new Transaction(
       sender.getPublicKey(),
-      receiver.getAddressEncoded(),
+      receiver.getAddress(),
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
@@ -153,7 +153,7 @@ mock.transaction = () => {
 
   const transaction = new Transaction(
     sender.getPublicKey(),
-    receiver.getAddressEncoded(),
+    receiver.getAddress(),
     Math.floor(Math.random() * (100 - 1) + 1),
   );
 
@@ -189,14 +189,14 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
     receiver.generate();
 
     const block = new Block();
-    block.addCoinbase(wallet.getAddressEncoded());
+    block.addCoinbase(wallet.getAddress());
     block.setPreviousHash(previousHash);
 
     const minusCoinbase = transactionsPerBlock - 1;
     for (let j = 0; j < minusCoinbase; j += 1) {
       const transaction = new Transaction(
         wallet.getPublicKey(),
-        receiver.getAddressEncoded(),
+        receiver.getAddress(),
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
