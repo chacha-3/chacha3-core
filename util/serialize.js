@@ -21,17 +21,20 @@ const serializeObject = (obj) => {
 
   Object.keys(obj).forEach((key) => {
     // assert(Buffer.isBuffer(obj[key]));
+    const value = obj[key];
 
-    if (!obj[key]) {
+    if (!value) {
       return;
     }
 
-    if (Buffer.isBuffer(obj[key])) { // FIXME: Double check
-      serialized[key] = serializeBuffer(obj[key]);
-    } else if (typeof (obj[key]) === 'bigint') {
-      serialized[key] = `${obj[key].toString()}n`;
-    } else if (obj[key].toString() === '[object Object]') { // Is a sub-object
-      serialized[key] = serializeObject(obj[key]);
+    if (Buffer.isBuffer(value)) { // FIXME: Double check
+      serialized[key] = serializeBuffer(value);
+    } else if (typeof (value) === 'bigint') {
+      serialized[key] = `${value.toString()}n`;
+    } else if (Array.isArray(value)) {
+      value.forEach((v) => serializeObject(v));
+    } else if (value.toString() === '[object Object]') { // Is a sub-object
+      serialized[key] = serializeObject(value);
     }
   });
 
@@ -40,7 +43,7 @@ const serializeObject = (obj) => {
 
 const deserializeObject = (obj) => {
   const deserialized = { ...obj };
-
+  // console.log(obj);
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
 
@@ -48,7 +51,9 @@ const deserializeObject = (obj) => {
       return;
     }
 
-    if (value.toString() === '[object Object]') {
+    if (Array.isArray(value)) {
+      value.forEach((v) => deserializeObject(v));
+    } else if (value.toString() === '[object Object]') {
       deserialized[key] = deserializeObject(obj[key]);
       return;
     }

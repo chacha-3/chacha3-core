@@ -1,7 +1,9 @@
 const { test } = require('tap');
 
 const { runningManualTest } = require('../../util/db');
-const { serializeObject, deserializeObject, deserializeBuffer, serializeBuffer } = require('../../util/serialize');
+const {
+  serializeObject, deserializeObject, deserializeBuffer, serializeBuffer,
+} = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 
 test('detect running unit test', (t) => {
@@ -48,6 +50,7 @@ test('serialize and deserialize object', (t) => {
       d: null,
       e: BigInt(100000000000000000),
     },
+    array: [{ a: 5 }],
   };
 
   const serialized = serializeObject(source);
@@ -62,9 +65,10 @@ test('serialize and deserialize object', (t) => {
   t.equal(serialized.nested.c, '0x0002');
   t.equal(serialized.nested.d, null);
   t.equal(serialized.nested.e, '100000000000000000n');
+  t.equal(serialized.array.length, 1);
 
   const deserialized = deserializeObject(serialized);
-  console.log(deserialized)
+
   t.equal(deserialized.a, source.a);
   t.equal(deserialized.b, source.b);
   t.ok(deserialized.c.equals(source.c));
@@ -76,6 +80,7 @@ test('serialize and deserialize object', (t) => {
   t.ok(deserialized.nested.c.equals(source.c));
   t.equal(deserialized.nested.d, source.d);
   t.equal(deserialized.nested.e, source.e);
+  t.equal(deserialized.array.length, 1);
 
   t.end();
 });
