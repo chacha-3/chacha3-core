@@ -65,20 +65,19 @@ test('peer check compatibility', (t) => {
 
 test('save and load peer', async (t) => {
   const peer = mock.nodePeer();
+  await peer.save();
 
-  const { key, data } = await Peer.save(peer);
+  // t.ok(key.equals(peer.getId()));
 
-  t.ok(key.equals(peer.getId()));
+  const loaded = await Peer.load(peer.getId());
 
-  const loaded = await Peer.load(key);
+  t.equal(peer.getVersion(), loaded.getVersion());
+  t.equal(peer.getChainLength(), loaded.getChainLength());
+  t.equal(peer.getAddress(), loaded.getAddress());
+  t.equal(peer.getPort(), loaded.getPort());
+  t.equal(peer.getStatus(), loaded.getStatus());
 
-  t.equal(data.version, loaded.getVersion());
-  t.equal(data.chainLength, loaded.getChainLength());
-  t.equal(data.address, loaded.getAddress());
-  t.equal(data.port, loaded.getPort());
-  t.equal(data.status, loaded.getStatus());
-
-  await Peer.clear(key);
+  await Peer.clear(peer.getId());
   t.end();
 });
 
@@ -114,7 +113,7 @@ test('get peer with most total work', async (t) => {
     const peer = mock.nodePeer();
     peer.setTotalWork(work[i]);
     peer.setStatus(Peer.Status.Active);
-    await Peer.save(peer);
+    await peer.save();
   }
 
   const peerPriority = await Peer.withLongestActiveChains();

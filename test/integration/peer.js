@@ -32,7 +32,7 @@ test('list all peers', async (t) => {
 
 test('remove a saved peer', async (t) => {
   const peer = mock.nodePeer();
-  await Peer.save(peer);
+  await peer.save();
 
   const { data } = await runAction({
     action: 'removePeer',

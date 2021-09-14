@@ -242,7 +242,7 @@ class Peer {
 
     debug(`Accept peer ${this.formattedAddress()}`);
 
-    await Peer.save(this);
+    await this.save();
     return true;
   }
 
@@ -323,7 +323,7 @@ class Peer {
       this.setChainLength(pulledChain.getLength());
       this.setTotalWork(pulledChain.getTotalWork());
 
-      await Peer.save(this);
+      await this.save();
     } else {
       debug('Invalid chain');
     }
@@ -425,14 +425,13 @@ class Peer {
     return true;
   }
 
-  static async save(peer) {
-    const key = peer.getId();
-    const data = Peer.toSaveData(peer);
+  async save() {
+    const key = this.getId();
+    const data = Peer.toSaveData(this);
 
     debug(`Peer save data: ${JSON.stringify(data)}`);
 
     await PeerDB.put(key, data, { valueEncoding: 'json' });
-    return { key, data };
   }
 }
 
