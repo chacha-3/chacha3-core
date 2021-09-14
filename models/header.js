@@ -170,13 +170,9 @@ class Header {
 
   getTarget() {
     const target = BigInt(`0x${Header.MinTarget.toString('hex')}`);
+    const difficulty = BigInt(Math.round(this.difficulty));
 
-    // const buf = Buffer.allocUnsafe(4);
-    // buf.writeInt32BE(this.difficulty, 0);
-
-    const difficulty = BigInt(this.difficulty);
-
-    const hex = 16;
+    // const hex = 16;
     // return (target / difficulty).toString(hex);
     return target / difficulty;
   }

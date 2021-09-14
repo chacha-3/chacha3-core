@@ -317,19 +317,22 @@ class Chain {
     const timeDifferences = [];
 
     for (let i = 1; i < headers.length; i += 1) {
+      timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
+
       const timeToAdjust = i % adjustInterval === 0;
 
       if (timeToAdjust) {
+        assert(timeDifferences.length === Chain.getAdjustInterval());
+
         const medianTimePerBlock = median(timeDifferences);
         const adjustFactor = Chain.calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock);
 
         difficulty *= adjustFactor;
 
         // Clear differences array for next adjustInterval n block
+        // timeDifferences = timeDifferences.splice(-1);
         timeDifferences.length = 0;
       }
-
-      timeDifferences.push(headers[i].getTime() - headers[i - 1].getTime());
     }
 
     return difficulty;
