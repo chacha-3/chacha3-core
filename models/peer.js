@@ -120,7 +120,6 @@ class Peer {
     const promises = [];
 
     for (let i = 0; i < peers.length; i += 1) {
-      debug('Pushing reach out promise');
       promises.push(reachOutPeer(peers[i]));
     }
 
@@ -292,11 +291,36 @@ class Peer {
     };
   }
 
+  static areSame(peer1, peer2) {
+    if (peer1.getAddress() !== peer2.getAddress()) {
+      return false;
+    }
+
+    if (peer1.getPort() !== peer2.getPort()) {
+      return false;
+    }
+
+    return true;
+  }
+
   async syncPeerList() {
+    debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
     const { data } = await this.callAction('listPeers');
 
-    for (let i = 0; i < data.length; i += 1) {
+    if (!data) {
+      return;
+    }
 
+    const currentPeers = await Peer.all();
+
+    for (let i = 0; i < data.length; i += 1) {
+      const receivedPeer = Peer.fromObject(data[i]);
+      debug(`Received peer: ${JSON.stringify(data[i])}`);
+
+      if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
+        debug(`New peer from sync. Saved ${receivedPeer.getAddress()}, {receivedPeer.getPort()}`);
+        receivedPeer.save();
+      }
     }
   }
 
@@ -484,8 +508,6 @@ class Peer {
   async save() {
     const key = this.getId();
     const data = Peer.toSaveData(this);
-
-    debug(`Peer save data: ${JSON.stringify(data)}`);
 
     await PeerDB.put(key, data, { valueEncoding: 'json' });
   }
