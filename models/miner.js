@@ -115,7 +115,17 @@ class Miner {
         const peer = activePeers[i];
         debug('Get pending transactions from peer');
         peer.callAction('pendingTransactions', {}).then(async (response) => {
+          if (!response) {
+            // TODO: Check why has null response
+            return;
+          }
+
           const { data } = response;
+
+          if (!data) {
+            return;
+          }
+
           await Transaction.savePendingTransactions(data);
         });
       }

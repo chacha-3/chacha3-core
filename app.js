@@ -72,8 +72,10 @@ function build(opts = {}) {
 
       const syncActions = ['nodeInfo', 'pushBlock'];
 
-      // FIXME: Verify using work
-      const significantlyAhead = Number.parseInt(chainLength, 10) > Chain.mainChain.getLength() + 5;
+      const threshold = Chain.mainChain.getCurrentDifficulty() * 5;
+      const upperThreshold = Chain.mainChain.getTotalWork() + threshold;
+
+      const significantlyAhead = Number.parseInt(chainWork, 10) > upperThreshold;
 
       if (syncActions.includes(actionList) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
