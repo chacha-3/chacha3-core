@@ -364,6 +364,8 @@ class Peer {
       return true;
     }
 
+    Chain.setSynching(true);
+
     const response = await this.callAction('pullChain');
 
     // TODO: Check chain is higher than current claimed length
@@ -381,8 +383,6 @@ class Peer {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);
       return false;
     }
-
-    Chain.setSynching(true);
 
     const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
 

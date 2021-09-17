@@ -77,6 +77,9 @@ function build(opts = {}) {
 
       const significantlyAhead = Number.parseInt(chainWork, 10) > upperThreshold;
 
+      console.log(Number.parseInt(chainWork, 10), threshold, upperThreshold);
+      console.log(significantlyAhead)
+
       if (syncActions.includes(actionList) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
 
