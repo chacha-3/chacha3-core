@@ -371,6 +371,7 @@ class Peer {
     // TODO: Check chain is higher than current claimed length
 
     if (!response) {
+      Chain.setSynching(false);
       return false;
     }
 
@@ -381,6 +382,7 @@ class Peer {
 
     if (divergeIndex < 1) {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);
+      Chain.setSynching(false);
       return false;
     }
 
@@ -400,7 +402,6 @@ class Peer {
     }
 
     Chain.setSynching(false);
-
     return valid;
   }
 
