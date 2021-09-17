@@ -186,6 +186,10 @@ actions.selectedWallet = {
     const key = await Wallet.getSelected();
     const wallet = await Wallet.load(key);
 
+    if (!wallet) {
+      return errorResponse(ErrorCode.NotFound, 'No selected wallet');
+    }
+
     const data = {
       label: wallet.getLabel(),
       address: serializeBuffer(key),

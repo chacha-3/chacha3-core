@@ -36,6 +36,7 @@ actions.pushBlock = {
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
     // TODO: Verify
+    const result = Chain.mainChain.updateBlockBalances(block);
 
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
