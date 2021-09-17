@@ -162,6 +162,10 @@ class Header {
     const target = BigInt(serializeBuffer(Header.MinTarget));
     const difficulty = BigInt(Math.round(this.difficulty));
 
+    if (difficulty === 0n) {
+      return target;
+    }
+
     return target / difficulty;
   }
 

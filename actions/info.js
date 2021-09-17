@@ -49,6 +49,11 @@ actions.pingNode = {
 
 actions.nodeInfo = {
   permission: 'public',
+  schema: {
+    properties: {
+      nonce: { type: 'integer' },
+    },
+  },
   handler: async () => {
     const chain = await Chain.load();
 

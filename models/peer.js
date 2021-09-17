@@ -26,6 +26,14 @@ class Peer {
     this.failedConnect = 0;
   }
 
+  static get SeedList() {
+    const seedPeers = [
+      { address: '127.0.0.1', port: 3000 },
+    ];
+
+    return seedPeers;
+  }
+
   static randomizeLocalNonce() {
     Peer.localNonce = randomNumberBetween(1, Number.MAX_SAFE_INTEGER);
   }
@@ -78,8 +86,30 @@ class Peer {
     return activePeers.length;
   }
 
+  static async addSeed() {
+    const seeds = Peer.SeedList;
+
+    const promises = [];
+
+    for (let i = 0; i < seeds.length; i += 1) {
+      const newPeer = new Peer(seeds[i].address, seeds[i].port);
+      debug(`Add seed: ${seeds[i].address}:${seeds[i].port}`);
+      newPeer.setStatus(Peer.Status.Inactive);
+
+      promises.push(newPeer.save());
+    }
+  }
+
   static async reachOutAll() {
-    const peers = await Peer.all();
+    debug('Reach out all');
+    let peers = await Peer.all();
+
+    if (peers.length < 10) {
+      await Peer.addSeed();
+      peers = await Peer.all();
+    }
+
+    debug('Reaching out all');
 
     const reachOutPeer = (peer) => new Promise((resolve) => {
       resolve(peer.reachOut());
@@ -88,6 +118,7 @@ class Peer {
     const promises = [];
 
     for (let i = 0; i < peers.length; i += 1) {
+      debug('Pushing reach out promise');
       promises.push(reachOutPeer(peers[i]));
     }
 
@@ -200,12 +231,12 @@ class Peer {
     return `${this.getAddress()}:${this.getPort()}`;
   }
 
-  async reachOut(allowSelf) {
+  async reachOut(allowSelf = false) {
     let data;
     debug(`Reach out to peer ${this.formattedAddress()}`);
 
     try {
-      const response = await this.callAction('nodeInfo');
+      const response = await this.callAction('nodeInfo', { nonce: Peer.localNonce });
       data = response.data;
     } catch (e) {
       const status = (this.getStatus() === Peer.Status.Active)
@@ -224,8 +255,9 @@ class Peer {
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
     const isSelf = Peer.localNonce === data.nonce;
+    debug(`Peer is self: ${isSelf}`);
 
-    if (isSelf && !(allowSelf || false)) {
+    if (isSelf && !(allowSelf)) {
       debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
 
       await Peer.clear(this.getId());

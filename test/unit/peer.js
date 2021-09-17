@@ -127,3 +127,14 @@ test('get peer with most total work', async (t) => {
   await Peer.clearAll();
   t.end();
 });
+
+test('list of seed peers', async (t) => {
+  const list = Peer.SeedList;
+
+  t.ok(list.length > 0);
+
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
+
+  t.end();
+});

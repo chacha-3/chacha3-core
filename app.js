@@ -62,7 +62,10 @@ function build(opts = {}) {
         return done();
       }
 
-      if (peer.status !== Peer.Status.Active) {
+      const { action, nonce } = request.body;
+
+      const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
+      if (peer.status !== Peer.Status.Active && !reachOutSelf) {
         peer.reachOut();
         return done();
       }
@@ -72,7 +75,7 @@ function build(opts = {}) {
       // FIXME: Verify using work
       const significantlyAhead = Number.parseInt(chainLength, 10) > Chain.mainChain.getLength() + 5;
 
-      if (syncActions.includes(request.body.action) && significantlyAhead) {
+      if (syncActions.includes(actionList) && significantlyAhead) {
         debug('Sync with chain significantly ahead');
 
         peer.setChainLength(chainLength);
