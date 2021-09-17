@@ -45,7 +45,7 @@ class Chain {
   static getExpectedTimePerBlock() {
     const expectedTime = {
       production: 200000,
-      development: 10,
+      development: 1000,
       test: 1000,
     };
 
