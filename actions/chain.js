@@ -26,6 +26,7 @@ actions.chainInfo = {
       length: chain.getLength(),
       currentDifficulty: chain.getCurrentDifficulty(),
       totalWork: chain.getTotalWork(),
+      synching: Chain.isSynching(),
     };
 
     return okResponse(data, 'Chain Info');
