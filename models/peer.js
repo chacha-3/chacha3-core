@@ -256,7 +256,7 @@ class Peer {
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
     const isSelf = Peer.localNonce === data.nonce;
-    debug(`Peer is self: ${isSelf}`);
+    debug(`Peer is self: ${isSelf}, ${this.getAddress()}, ${this.getPort()}`);
 
     if (isSelf) {
       debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
@@ -318,7 +318,8 @@ class Peer {
       debug(`Received peer: ${JSON.stringify(data[i])}`);
 
       if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
-        debug(`New peer from sync. Saved ${receivedPeer.getAddress()}, {receivedPeer.getPort()}`);
+        debug(`New peer from sync. Saved ${receivedPeer.getAddress()}, ${receivedPeer.getPort()}`);
+        receivedPeer.setStatus(Peer.Status.Idle);
         receivedPeer.save();
       }
     }
