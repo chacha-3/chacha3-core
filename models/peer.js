@@ -98,6 +98,8 @@ class Peer {
 
       promises.push(newPeer.save());
     }
+
+    return Promise.all(promises);
   }
 
   static async reachOutAll() {
@@ -109,7 +111,7 @@ class Peer {
       peers = await Peer.all();
     }
 
-    debug('Reaching out all');
+    debug(`Reaching out all: ${peers.length}`);
 
     const reachOutPeer = (peer) => new Promise((resolve) => {
       resolve(peer.reachOut());
