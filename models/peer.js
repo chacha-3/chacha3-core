@@ -233,7 +233,7 @@ class Peer {
     return `${this.getAddress()}:${this.getPort()}`;
   }
 
-  async reachOut(allowSelf = false) {
+  async reachOut() {
     let data;
     debug(`Reach out to peer ${this.formattedAddress()}`);
 
@@ -259,7 +259,7 @@ class Peer {
     const isSelf = Peer.localNonce === data.nonce;
     debug(`Peer is self: ${isSelf}`);
 
-    if (isSelf && !(allowSelf)) {
+    if (isSelf) {
       debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
 
       await Peer.clear(this.getId());
@@ -277,6 +277,10 @@ class Peer {
     debug(`Accept peer ${this.formattedAddress()}`);
 
     await this.save();
+
+    // Follow up and retrieve peer
+    this.syncPeerList();
+
     return true;
   }
 
@@ -286,6 +290,14 @@ class Peer {
       'bong-chain-length': Chain.mainChain.getLength(),
       'bong-chain-work': Chain.mainChain.getTotalWork(),
     };
+  }
+
+  async syncPeerList() {
+    const { data } = await this.callAction('listPeers');
+
+    for (let i = 0; i < data.length; i += 1) {
+
+    }
   }
 
   async sendRequest(options) {
@@ -406,6 +418,16 @@ class Peer {
       chainWork: this.getTotalWork(),
       status: this.getStatus(),
     };
+  }
+
+  static fromObject(data) {
+    const peer = new Peer(data.address, data.port);
+    peer.setVersion(data.version);
+    peer.setChainLength(data.chainLength);
+    peer.setTotalWork(data.chainWork);
+    peer.setStatus(data.status);
+
+    return peer;
   }
 
   static async clear(key) {

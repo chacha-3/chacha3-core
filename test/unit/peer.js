@@ -138,3 +138,19 @@ test('list of seed peers', async (t) => {
 
   t.end();
 });
+
+test('to and from object', async (t) => {
+  const peer = mock.nodePeer();
+
+  const obj = peer.toObject();
+
+  const loaded = Peer.fromObject(obj);
+
+  t.equal(peer.getVersion(), loaded.getVersion());
+  t.equal(peer.getChainLength(), loaded.getChainLength());
+  t.equal(peer.getAddress(), loaded.getAddress());
+  t.equal(peer.getPort(), loaded.getPort());
+  t.equal(peer.getStatus(), loaded.getStatus());
+
+  t.end();
+});
