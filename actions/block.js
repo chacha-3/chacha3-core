@@ -37,7 +37,9 @@ actions.pushBlock = {
 
     // TODO: Verify
     const result = Chain.mainChain.confirmNewBlock(block);
-    assert(result === true);
+    if (!result) {
+      return errorResponse(ErrorCode.FailedPrecondition, 'Unable to push invalid block');
+    }
 
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
