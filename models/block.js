@@ -166,7 +166,6 @@ class Block {
 
   verify() {
     // const verifiedTransaction = await this.verifyTransactions();
-
     return this.verifyHash() && this.verifyChecksum() && this.verifyBalances();
   }
 
@@ -174,6 +173,9 @@ class Block {
     assert(newTransactionId != null);
 
     const lastChecksum = this.header.getChecksum() || Buffer.from([]);
+    // const lastChecksum = this.header.getChecksum() || Buffer.from(
+    //   '0000000000000000000000000000000000000000000000000000000000000000', 'hex'
+    // );
 
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
     const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();

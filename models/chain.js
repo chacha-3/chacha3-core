@@ -211,6 +211,10 @@ class Chain {
   }
 
   async confirmNewBlock(block) {
+    if (!block.verify()) {
+      return false;
+    }
+
     const isFirst = this.getLength() === 0;
 
     if (!isFirst && !block.getHeader().getPrevious().equals(this.lastBlockHeader().getHash())) {

@@ -71,6 +71,7 @@ test('cannot push invalid block', async (t) => {
   await block.mine();
 
   // Tamper hash. Invalid
+  block.header.checksum[0] = 255;
   block.header.hash[3] = 5;
   block.header.hash[10] = 5;
   block.header.hash[12] = 5;
@@ -78,8 +79,9 @@ test('cannot push invalid block', async (t) => {
   const options = { action: 'pushBlock', ...block.toObject() };
 
   const { data, code } = await runAction(options);
-  t.equal(code, SuccessCode);
+  // t.equal(code, SuccessCode);
+  console.log(code, data);
 
-  t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
+  t.equal(Chain.mainChain.getLength(), initialBlockCount);
   t.end();
 });

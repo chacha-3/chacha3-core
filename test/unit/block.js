@@ -106,6 +106,25 @@ test('get object representation of a block', async (t) => {
   t.end();
 });
 
+test('verify block with only coinbase has checksum', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+  block.addCoinbase(receiver.getAddress());
+
+  await block.mine();
+
+  t.equal(block.verifyChecksum(), true);
+  t.equal(block.verify(), true);
+
+  t.end();
+});
+
 test('verify block with checksum', async (t) => {
   const sender = new Wallet();
   sender.generate();

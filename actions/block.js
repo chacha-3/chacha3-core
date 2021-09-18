@@ -29,16 +29,17 @@ actions.pushBlock = {
   handler: async (options) => {
     const block = Block.fromObject(options);
 
-    if (!block.verify()) {
-      return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
-    }
+    // if (!block.verify()) {
+    //   return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
+    // }
 
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
-    // TODO: Verify
-    const result = Chain.mainChain.confirmNewBlock(block);
+    // TODO: Verify balances
+    const result = await Chain.mainChain.confirmNewBlock(block);
+
     if (!result) {
-      return errorResponse(ErrorCode.FailedPrecondition, 'Unable to push invalid block');
+      return errorResponse(ErrorCode.InvalidArgument, 'Unable to push invalid block');
     }
 
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
