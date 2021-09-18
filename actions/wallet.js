@@ -62,7 +62,7 @@ actions.recoverWallet = {
   permission: 'authOnly',
   schema: {
     properties: {
-      privateKey: { type: 'string' },
+      privateKey: { type: 'string', buffer: 'hex' },
       label: { type: 'string' },
       password: { type: 'string' },
     },
@@ -96,7 +96,7 @@ actions.deleteWallet = {
   permission: 'authOnly',
   schema: {
     properties: {
-      address: { type: 'string' },
+      address: { type: 'string', buffer: 'hex' },
     },
     required: ['address'],
   },
@@ -134,7 +134,7 @@ actions.selectWallet = {
   permission: 'public',
   schema: {
     properties: {
-      address: { type: 'string' },
+      address: { type: 'string', buffer: 'hex' },
     },
     required: ['address'],
   },

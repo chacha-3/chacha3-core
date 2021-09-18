@@ -1,4 +1,6 @@
 const Ajv = require('ajv');
+const addFormats = require('ajv-formats');
+
 const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
 
 const wallet = require('./wallet');
@@ -10,7 +12,22 @@ const peer = require('./peer');
 const block = require('./block');
 
 const { SuccessCode, ErrorCode, errorResponse } = require('../util/rpc');
-const { serializeObject, deserializeObject } = require('../util/serialize');
+const { serializeObject, deserializeBuffer } = require('../util/serialize');
+
+ajv.addKeyword('buffer', {
+  compile(schema) {
+    return (value, obj) => {
+      if (schema === 'hex') {
+        // eslint-disable-next-line no-param-reassign
+        obj.parentData[obj.parentDataProperty] = deserializeBuffer(value);
+      } else if (schema === 'base58') {
+        // TODO:
+      }
+
+      return true;
+    };
+  },
+});
 
 const actions = {
   ...wallet,
@@ -84,7 +101,9 @@ const runAction = async (options, permission) => {
 
   let result;
   try {
-    result = await execute(deserializeObject(options), handler);
+    // console.log(`options: ${JSON.stringify(options)}`);
+    // result = await execute(deserializeObject(options), handler);
+    result = await execute(options, handler);
   } catch (e) {
     result = { message: e.message, code: 'internal' };
   }

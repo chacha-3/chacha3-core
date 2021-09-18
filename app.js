@@ -2,10 +2,6 @@ const debug = require('debug')('app');
 const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
 
-const Ajv = require('ajv');
-
-const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
-
 const Peer = require('./models/peer');
 
 const { runAction, checkPermission, actionList } = require('./actions');

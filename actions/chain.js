@@ -56,7 +56,7 @@ actions.accountBalance = {
   permission: 'public',
   schema: {
     properties: {
-      address: { type: 'string' },
+      address: { type: 'string', buffer: 'hex' },
     },
     required: ['address'],
   },

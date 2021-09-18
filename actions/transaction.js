@@ -11,8 +11,8 @@ actions.createTransaction = {
   permission: 'authOnly',
   schema: {
     properties: {
-      key: { type: 'string' },
-      address: { type: 'string' },
+      key: { type: 'string', buffer: 'hex' },
+      address: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       password: { type: 'string' },
     },
@@ -57,10 +57,10 @@ actions.pushTransaction = {
   permission: 'public',
   schema: {
     properties: {
-      key: { type: 'string' },
-      address: { type: 'string' },
+      key: { type: 'string', buffer: 'hex' },
+      address: { type: 'string', buffer: 'hex' },
       amount: { type: 'integer' },
-      signature: { type: 'string' },
+      signature: { type: 'string', buffer: 'hex' },
       time: { type: 'integer' },
       version: { type: 'integer' },
     },

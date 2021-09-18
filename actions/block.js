@@ -37,6 +37,7 @@ actions.pushBlock = {
 
     // TODO: Verify
     const result = Chain.mainChain.updateBlockBalances(block);
+    assert(result === true);
 
     const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
@@ -80,7 +81,7 @@ actions.blockInfo = {
   permission: 'public',
   schema: {
     properties: {
-      hash: { type: 'string' },
+      hash: { type: 'string', buffer: 'hex' },
     },
     required: ['hash'],
   },
@@ -100,7 +101,7 @@ actions.blockTransactions = {
   permission: 'public',
   schema: {
     properties: {
-      hash: { type: 'string' },
+      hash: { type: 'string', buffer: 'hex' },
     },
     required: ['hash'],
   },

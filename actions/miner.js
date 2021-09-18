@@ -12,7 +12,7 @@ actions.startMiner = {
   permission: 'authOnly', // TODO: Change to private
   schema: {
     properties: {
-      address: { type: 'string' },
+      address: { type: 'string', buffer: 'hex' },
     },
     required: ['address'],
   },
@@ -42,11 +42,6 @@ actions.startMiner = {
 
 actions.stopMiner = {
   permission: 'authOnly', // TODO: Change to private
-  // schema: {
-  //   properties: {
-  //     address: { type: 'string' },
-  //   },
-  // },
   handler: async (options) => {
     miner.stop();
 
@@ -60,11 +55,6 @@ actions.stopMiner = {
 
 actions.minerStatus = {
   permission: 'public', // TODO: Change to private
-  // schema: {
-  //   properties: {
-  //     address: { type: 'string' },
-  //   },
-  // },
   handler: async (options) => {
     const data = {
       isMining: miner.isMining(),
