@@ -71,6 +71,7 @@ class Miner {
           debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
 
           const result = await Chain.mainChain.confirmNewBlock(block);
+          assert(result === true);
 
           if (result) {
             debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
