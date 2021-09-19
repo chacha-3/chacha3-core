@@ -28,26 +28,17 @@ actions.pushBlock = {
   // },
   handler: async (options) => {
     const block = Block.fromObject(options);
-    console.log(options);
-
-    // if (!block.verify()) {
-    //   return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
-    // }
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
     // TODO: Verify balances
     const result = await Chain.mainChain.confirmNewBlock(block);
 
     if (!result) {
-      return errorResponse(ErrorCode.InvalidArgument, 'Unable to push invalid block');
+      return errorResponse(
+        ErrorCode.InvalidArgument,
+        'Could not accept new block. Either invalid of does not match latest block',
+      );
     }
-
-    // const added = Chain.mainChain.addBlockHeader(block.getHeader());
-
-    // if (!added) {
-    //   debug('Unable to add new block. Chain is behind.');
-    //   return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
-    // }
 
     await block.save();
 

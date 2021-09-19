@@ -41,7 +41,7 @@ test('push new block', async (t) => {
   wallet.generate();
 
   const block = new Block();
-  console.log(Chain.mainChain.lastBlockHeader().getHash())
+
   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
   block.addCoinbase(wallet.getAddress());
 
