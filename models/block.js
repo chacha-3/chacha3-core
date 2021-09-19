@@ -8,6 +8,7 @@ const Transaction = require('./transaction');
 
 const { BlockDB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const Wallet = require('./wallet');
 
 class Block {
   constructor() {
@@ -15,25 +16,29 @@ class Block {
     this.transactions = [];
   }
 
+  static get InitialReward() {
+    return 5000000;
+  }
+
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x002a39c6d4943639f4a0d6909b19e0e1342a32f8d88ce06c16a3c8138a206428',
+        hash: '0x00d30fdd44a6cddf216a31618c39a4c89a610fc2c677ec192a8956d8acf1aef9',
         previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1632012517606,
+        time: 1632014579067,
         difficulty: 1,
-        nonce: 6612786905278660,
-        checksum: '0xee6d2208545074cb8aacbe3b57f2178143dfcfd5312391b61f3b9ee47dc6064b',
+        nonce: 423754425561474,
+        checksum: '0x194a0e7580bac2d37445fca78945f737b69e70022479be96391be9019847d83f',
         version: 1,
       },
       transactions: [
         {
-          id: '0xd19d252e5cf2f94aec66c04c11b614b84a71baad4cc388062bb013b379aca3ac',
+          id: '0x3fee32e6c706a3f0408088674d87a3a5a4f56c22b629d2a31e2416918e36dcd4',
           sender: null,
-          receiver: '0x000b504a3c870d27a509f6592a9e261097f175481a9b98f350',
-          amount: 10000,
+          receiver: '0x002feba4a1a4e3a9f55352a6629a012f12078faa9cb0b8c442',
+          amount: 5000000,
           version: 1,
-          time: 1632012517606,
+          time: 1632014579068,
           signature: null,
         },
       ],
@@ -46,8 +51,8 @@ class Block {
     this.header.setPrevious(hash);
   }
 
-  addCoinbase(receiverAddress) {
-    const transaction = new Transaction(null, receiverAddress, 10000);
+  addCoinbase(receiverAddress, currentReward = Block.InitialReward) {
+    const transaction = new Transaction(null, receiverAddress, currentReward);
     this.addTransaction(transaction);
   }
 
@@ -164,9 +169,29 @@ class Block {
     return true;
   }
 
-  verify() {
-    // const verifiedTransaction = await this.verifyTransactions();
-    return this.verifyHash() && this.verifyChecksum() && this.verifyBalances();
+  verifyCoinbase(reward = Block.InitialReward) {
+    const coinbase = this.getTransaction(0);
+
+    if (coinbase.getSenderKey() !== null || coinbase.getSignature() !== null) {
+      return false;
+    }
+
+    if (!Wallet.verifyAddress(coinbase.getReceiverAddress())) {
+      return false;
+    }
+
+    if (coinbase.amount !== reward) {
+      return false;
+    }
+
+    return true;
+  }
+
+  verify(reward = Block.InitialReward) {
+    return this.verifyCoinbase(reward)
+      && this.verifyHash()
+      && this.verifyChecksum()
+      && this.verifyBalances();
   }
 
   updateChecksum(newTransactionId) {

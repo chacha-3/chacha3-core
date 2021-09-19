@@ -8,31 +8,48 @@ const mock = require('../../util/mock');
 const Chain = require('../../models/chain');
 const { deserializeBuffer } = require('../../util/serialize');
 
-test('create a block with coinbase', (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+// test('create a block with coinbase', (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
+//   const block = new Block();
+//   block.addCoinbase(wallet.getAddress());
 
-  t.equal(block.getTransactionCount(), 1, 'block only has coinbase transaction');
+//   t.equal(block.getTransactionCount(), 1, 'block only has coinbase transaction');
 
-  const coinbase = block.getTransaction(0);
+//   const coinbase = block.getTransaction(0);
 
-  t.equal(coinbase.getSignature(), null, 'coinbase has no signature');
-  t.equal(coinbase.getSenderKey(), null, 'coinbase has no sender');
+//   t.equal(coinbase.getSignature(), null, 'coinbase has no signature');
+//   t.equal(coinbase.getSenderKey(), null, 'coinbase has no sender');
 
-  // FIXME:
-  // t.equal(
-  //   coinbase.getReceiverAddress().toString('hex'),
-  //   wallet.getAddressEncoded().toString('hex'),
-  //   'coinbase address matches wallet address',
-  // );
+//   // FIXME:
+//   // t.equal(
+//   //   coinbase.getReceiverAddress().toString('hex'),
+//   //   wallet.getAddressEncoded().toString('hex'),
+//   //   'coinbase address matches wallet address',
+//   // );
 
-  t.end();
-});
+//   t.end();
+// });
 
-test('should mine a block', async (t) => {
+// test('should mine a block', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
+
+//   const block = new Block();
+
+//   block.addCoinbase(wallet.getAddress());
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+//   await block.mine();
+
+//   t.equal(await block.verifyHash(), true, 'mined block has verified hash');
+//   t.equal(block.verify(), true, 'mined block is verified');
+
+//   t.end();
+// });
+
+test('should have verified coinbase', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
@@ -43,402 +60,422 @@ test('should mine a block', async (t) => {
 
   await block.mine();
 
-  t.equal(await block.verifyHash(), true, 'mined block has verified hash');
+  t.equal(block.verifyCoinbase(), true, 'mined block has verified coinbase');
   t.equal(block.verify(), true, 'mined block is verified');
 
   t.end();
 });
 
-test('does not add same transaction twice', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+// test('should have unverified coinbase when invalid address', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const receiver = new Wallet();
-  receiver.generate();
+//   const block = new Block();
 
-  const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+//   const address = wallet.getAddress();
+//   address[5] += 20; // Tamper, should fail checksum
 
-  const transaction = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    200,
-  );
+//   block.addCoinbase(address);
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  transaction.sign(sender.getPrivateKeyObject());
+//   await block.mine();
 
-  const resultFirst = block.addTransaction(transaction);
-  const resultSecond = block.addTransaction(transaction);
+//   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
+//   t.equal(block.verify(), false, 'mined block has invalid coinbase');
 
-  t.equal(resultFirst, true);
-  t.equal(resultSecond, false);
+//   t.end();
+// });
 
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+// test('does not add same transaction twice', async (t) => {
+//   const sender = new Wallet();
+//   sender.generate();
 
-  await block.mine();
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  t.end();
-});
+//   const block = new Block();
+//   block.addCoinbase(receiver.getAddress());
 
-test('get object representation of a block', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+//   const transaction = new Transaction(
+//     sender.getPublicKey(),
+//     receiver.getAddress(),
+//     200,
+//   );
 
-  const receiver = new Wallet();
-  receiver.generate();
+//   transaction.sign(sender.getPrivateKeyObject());
 
-  const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+//   const resultFirst = block.addTransaction(transaction);
+//   const resultSecond = block.addTransaction(transaction);
 
-  const transaction1 = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    200,
-  );
+//   t.equal(resultFirst, true);
+//   t.equal(resultSecond, false);
 
-  transaction1.sign(sender.getPrivateKeyObject());
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  block.addTransaction(transaction1);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   await block.mine();
 
-  await block.mine();
+//   t.end();
+// });
 
-  t.end();
-});
+// test('get object representation of a block', async (t) => {
+//   const sender = new Wallet();
+//   sender.generate();
 
-test('verify block with only coinbase has checksum', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  const receiver = new Wallet();
-  receiver.generate();
+//   const block = new Block();
+//   block.addCoinbase(receiver.getAddress());
 
-  const block = new Block();
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-  block.addCoinbase(receiver.getAddress());
+//   const transaction1 = new Transaction(
+//     sender.getPublicKey(),
+//     receiver.getAddress(),
+//     200,
+//   );
 
-  await block.mine();
+//   transaction1.sign(sender.getPrivateKeyObject());
 
-  t.equal(block.verifyChecksum(), true);
-  t.equal(block.verify(), true);
+//   block.addTransaction(transaction1);
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  t.end();
-});
+//   await block.mine();
 
-test('verify block with checksum', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+//   t.end();
+// });
 
-  const receiver = new Wallet();
-  receiver.generate();
+// test('verify block with only coinbase has checksum', async (t) => {
+//   const sender = new Wallet();
+//   sender.generate();
 
-  const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  const transaction1 = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    410,
-  );
+//   const block = new Block();
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   block.addCoinbase(receiver.getAddress());
 
-  transaction1.sign(sender.getPrivateKeyObject());
+//   await block.mine();
 
-  block.addTransaction(transaction1);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   t.equal(block.verifyChecksum(), true);
+//   t.equal(block.verify(), true);
 
-  await block.mine();
+//   t.end();
+// });
 
-  t.equal(block.verifyChecksum(), true);
-  t.equal(block.verify(), true);
+// test('verify block with checksum', async (t) => {
+//   const sender = new Wallet();
+//   sender.generate();
 
-  // Tamper checksum byte
-  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  t.equal(block.verifyChecksum(), false);
-  t.equal(block.verify(), false);
+//   const block = new Block();
+//   block.addCoinbase(receiver.getAddress());
 
-  t.end();
-});
+//   const transaction1 = new Transaction(
+//     sender.getPublicKey(),
+//     receiver.getAddress(),
+//     410,
+//   );
 
-test('checksum is updated when adding transaction', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+//   transaction1.sign(sender.getPrivateKeyObject());
 
-  const receiver = new Wallet();
-  receiver.generate();
+//   block.addTransaction(transaction1);
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+//   await block.mine();
 
-  let previousChecksum = null;
+//   t.equal(block.verifyChecksum(), true);
+//   t.equal(block.verify(), true);
 
-  for (let i = 0; i < 3; i += 1) {
-    const transaction = new Transaction(
-      sender.getPublicKey(),
-      receiver.getAddress(),
-      200,
-    );
+//   // Tamper checksum byte
+//   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
-    transaction.sign(sender.getPrivateKeyObject());
+//   t.equal(block.verifyChecksum(), false);
+//   t.equal(block.verify(), false);
 
-    block.addTransaction(transaction);
-    block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   t.end();
+// });
 
-    await block.mine();
+// test('checksum is updated when adding transaction', async (t) => {
+//   const sender = new Wallet();
+//   sender.generate();
 
-    if (previousChecksum) {
-      t.not(block.getHeader().getChecksum(), previousChecksum, 'Checksum is not the same');
-    } else {
-      previousChecksum = block.getHeader().getChecksum();
-    }
-  }
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  t.end();
-});
+//   const block = new Block();
+//   block.addCoinbase(receiver.getAddress());
 
-test('block is invalid when checksum is incorrect', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+//   let previousChecksum = null;
 
-  const block = new Block();
+//   for (let i = 0; i < 3; i += 1) {
+//     const transaction = new Transaction(
+//       sender.getPublicKey(),
+//       receiver.getAddress(),
+//       200,
+//     );
 
-  block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//     transaction.sign(sender.getPrivateKeyObject());
 
-  await block.mine();
+//     block.addTransaction(transaction);
+//     block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
+//     await block.mine();
 
-  t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
-  t.equal(block.verify(), false, 'tampered block fails verification');
+//     if (previousChecksum) {
+//       t.not(block.getHeader().getChecksum(), previousChecksum, 'Checksum is not the same');
+//     } else {
+//       previousChecksum = block.getHeader().getChecksum();
+//     }
+//   }
 
-  t.end();
-});
+//   t.end();
+// });
 
-test('block is invalid if adding transaction after mining', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+// test('block is invalid when checksum is incorrect', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const block = new Block();
+//   const block = new Block();
 
-  block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   block.addCoinbase(wallet.getAddress());
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  await block.mine();
+//   await block.mine();
 
-  t.equal(block.verifyHash(), true, 'mined block has verified hash');
-  t.equal(block.verify(), true, 'mined block is verified');
+//   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
-  const sender = new Wallet();
-  sender.generate();
+//   t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
+//   t.equal(block.verify(), false, 'tampered block fails verification');
 
-  const receiver = new Wallet();
-  receiver.generate();
+//   t.end();
+// });
 
-  const addTransaction = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    200,
-  );
+// test('block is invalid if adding transaction after mining', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  addTransaction.sign(sender.getPrivateKeyObject());
+//   const block = new Block();
 
-  // Tamper block. Add transaction without changes to checksum
-  block.transactions.push(addTransaction);
+//   block.addCoinbase(wallet.getAddress());
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  t.equal(block.verifyChecksum(), false, 'tampered transaction has invalid hash');
-  t.equal(block.verify(), false, 'tampered transaction is unverified');
+//   await block.mine();
 
-  t.end();
-});
+//   t.equal(block.verifyHash(), true, 'mined block has verified hash');
+//   t.equal(block.verify(), true, 'mined block is verified');
 
-test('block is invalid if hash does not meet mining difficulty', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+//   const sender = new Wallet();
+//   sender.generate();
 
-  const block = new Block();
+//   const receiver = new Wallet();
+//   receiver.generate();
 
-  block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+//   const addTransaction = new Transaction(
+//     sender.getPublicKey(),
+//     receiver.getAddress(),
+//     200,
+//   );
 
-  // Set hash manually instead of mining block
-  block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
+//   addTransaction.sign(sender.getPrivateKeyObject());
 
-  t.equal(block.verifyHash(), false, 'invalid hash');
-  t.equal(block.verify(), false, 'invalid transaction is unverified');
+//   // Tamper block. Add transaction without changes to checksum
+//   block.transactions.push(addTransaction);
 
-  t.end();
-});
+//   t.equal(block.verifyChecksum(), false, 'tampered transaction has invalid hash');
+//   t.equal(block.verify(), false, 'tampered transaction is unverified');
 
-test('block is valid when does not have previously saved transaction', async (t) => {
-  await mock.chainWithBlocks(3, 5);
+//   t.end();
+// });
 
-  const wallet = new Wallet();
-  wallet.generate();
+// test('block is invalid if hash does not meet mining difficulty', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
+//   const block = new Block();
 
-  const result = await block.verifyTransactions();
-  t.equal(result, true);
+//   block.addCoinbase(wallet.getAddress());
+//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
-  await Chain.clear();
-  t.end();
-});
+//   // Set hash manually instead of mining block
+//   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
 
-test('block is invalid when has previously saved transaction', async (t) => {
-  const chain = await mock.chainWithBlocks(3, 5);
+//   t.equal(block.verifyHash(), false, 'invalid hash');
+//   t.equal(block.verify(), false, 'invalid transaction is unverified');
 
-  const hash = chain.getBlockHeader(2).getHash();
-  const savedBlock = await Block.load(hash);
+//   t.end();
+// });
 
-  const randomSavedTransaction = savedBlock.getTransaction(4);
+// test('block is valid when does not have previously saved transaction', async (t) => {
+//   await mock.chainWithBlocks(3, 5);
 
-  const block = new Block();
-  block.addTransaction(randomSavedTransaction);
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const result = await block.verifyTransactions();
-  t.equal(result, false);
+//   const block = new Block();
+//   block.addCoinbase(wallet.getAddress());
 
-  await Chain.clear();
-  t.end();
-});
+//   const result = await block.verifyTransactions();
+//   t.equal(result, true);
 
-test('block is invalid when has invalid transaction', async (t) => {
-  const block = await mock.blockWithTransactions(4);
+//   await Chain.clear();
+//   t.end();
+// });
 
-  // Tamper a transaction signature
-  block.transactions[3].signature[3] += 5;
+// test('block is invalid when has previously saved transaction', async (t) => {
+//   const chain = await mock.chainWithBlocks(3, 5);
 
-  const result = await block.verifyTransactions();
-  t.equal(result, false);
+//   const hash = chain.getBlockHeader(2).getHash();
+//   const savedBlock = await Block.load(hash);
 
-  await Chain.clear();
-  t.end();
-});
+//   const randomSavedTransaction = savedBlock.getTransaction(4);
 
-test('add pending transaction to block', async (t) => {
-  const transactions = mock.pendingTransactions(4);
+//   const block = new Block();
+//   block.addTransaction(randomSavedTransaction);
 
-  const wallet = new Wallet();
-  wallet.generate();
+//   const result = await block.verifyTransactions();
+//   t.equal(result, false);
 
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
+//   await Chain.clear();
+//   t.end();
+// });
 
-  const rejected = block.addPendingTransactions(transactions);
+// test('block is invalid when has invalid transaction', async (t) => {
+//   const block = await mock.blockWithTransactions(4);
 
-  t.equal(block.getTransactionCount(), 5);
-  t.equal(rejected.length, 0);
+//   // Tamper a transaction signature
+//   block.transactions[3].signature[3] += 5;
 
-  t.end();
-});
+//   const result = await block.verifyTransactions();
+//   t.equal(result, false);
 
-test('reject pending transaction if already saved', async (t) => {
-  const transactions = mock.pendingTransactions(4);
+//   await Chain.clear();
+//   t.end();
+// });
 
-  const addedTransaction = transactions[2];
+// test('add pending transaction to block', async (t) => {
+//   const transactions = mock.pendingTransactions(4);
 
-  const wallet = new Wallet();
-  wallet.generate();
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
-  block.addTransaction(addedTransaction);
+//   const block = new Block();
+//   block.addCoinbase(wallet.getAddress());
 
-  const rejected = block.addPendingTransactions(transactions);
+//   const rejected = block.addPendingTransactions(transactions);
 
-  t.equal(rejected.length, 1);
-  t.ok(rejected[0].getId().equals(addedTransaction.getId()));
+//   t.equal(block.getTransactionCount(), 5);
+//   t.equal(rejected.length, 0);
 
-  t.equal(block.getTransactionCount(), 5);
-  t.end();
-});
+//   t.end();
+// });
 
-test('correct block object format', async (t) => {
-  const block = await mock.blockWithTransactions(3);
-  const obj = block.toObject();
+// test('reject pending transaction if already saved', async (t) => {
+//   const transactions = mock.pendingTransactions(4);
 
-  t.ok(Object.prototype.hasOwnProperty.call(obj, 'header'));
-  t.ok(typeof (obj.header), 'object');
+//   const addedTransaction = transactions[2];
 
-  t.ok(Object.prototype.hasOwnProperty.call(obj, 'transactions'));
-  t.equal(obj.transactions.length, 3);
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const loaded = Block.fromObject(obj);
-  t.equal(loaded.verify(), true);
+//   const block = new Block();
+//   block.addCoinbase(wallet.getAddress());
+//   block.addTransaction(addedTransaction);
 
-  t.end();
-});
+//   const rejected = block.addPendingTransactions(transactions);
 
-test('save and load block', async (t) => {
-  const block = await mock.blockWithTransactions(3);
-  t.equal(block.verify(), true);
+//   t.equal(rejected.length, 1);
+//   t.ok(rejected[0].getId().equals(addedTransaction.getId()));
 
-  await block.save();
+//   t.equal(block.getTransactionCount(), 5);
+//   t.end();
+// });
 
-  const key = block.getHeader().getHash();
-  const loaded = await Block.load(key);
-  t.equal(loaded.verify(), true);
+// test('correct block object format', async (t) => {
+//   const block = await mock.blockWithTransactions(3);
+//   const obj = block.toObject();
 
-  // Simple equality check
-  // TODO: Add more checks
-  t.ok(block.getHeader().getHash().equals(loaded.getHeader().getHash()));
-  t.equal(block.getTransactionCount(), loaded.getTransactionCount());
+//   t.ok(Object.prototype.hasOwnProperty.call(obj, 'header'));
+//   t.ok(typeof (obj.header), 'object');
 
-  t.equal(block.getTransaction(0).getTime(), loaded.getTransaction(0).getTime());
+//   t.ok(Object.prototype.hasOwnProperty.call(obj, 'transactions'));
+//   t.equal(obj.transactions.length, 3);
 
-  await Block.clearAll();
+//   const loaded = Block.fromObject(obj);
+//   t.equal(loaded.verify(), true);
 
-  t.end();
-});
+//   t.end();
+// });
 
-test('does not load unsaved block', async (t) => {
-  const block = await mock.blockWithTransactions(3);
+// test('save and load block', async (t) => {
+//   const block = await mock.blockWithTransactions(3);
+//   t.equal(block.verify(), true);
 
-  const loaded = await Block.load(block.getHeader().getHash());
-  t.equal(loaded, null);
+//   await block.save();
 
-  await Block.clearAll();
+//   const key = block.getHeader().getHash();
+//   const loaded = await Block.load(key);
+//   t.equal(loaded.verify(), true);
 
-  t.end();
-});
+//   // Simple equality check
+//   // TODO: Add more checks
+//   t.ok(block.getHeader().getHash().equals(loaded.getHeader().getHash()));
+//   t.equal(block.getTransactionCount(), loaded.getTransactionCount());
 
-test('delete saved block', async (t) => {
-  const block = await mock.blockWithTransactions(3);
-  await block.save();
+//   t.equal(block.getTransaction(0).getTime(), loaded.getTransaction(0).getTime());
 
-  const key = block.getHeader().getHash();
-  await Block.clear(key);
+//   await Block.clearAll();
 
-  const loaded = await Block.load(key);
-  t.equal(loaded, null);
-  t.end();
-});
+//   t.end();
+// });
 
-test('verify block before saving and return verification status', async (t) => {
-  const block = await mock.blockWithTransactions(3);
+// test('does not load unsaved block', async (t) => {
+//   const block = await mock.blockWithTransactions(3);
 
-  let verified;
+//   const loaded = await Block.load(block.getHeader().getHash());
+//   t.equal(loaded, null);
 
-  verified = await Block.verifyAndSave(block);
-  t.equal(verified, true);
+//   await Block.clearAll();
 
-  // Invalid header hash, would not pass verification and does not save
-  block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
+//   t.end();
+// });
 
-  verified = await Block.verifyAndSave(block);
-  t.equal(verified, false);
+// test('delete saved block', async (t) => {
+//   const block = await mock.blockWithTransactions(3);
+//   await block.save();
 
-  await Block.clearAll();
-  t.end();
-});
+//   const key = block.getHeader().getHash();
+//   await Block.clear(key);
 
-test('get genesis block', async (t) => {
-  const block = Block.Genesis;
+//   const loaded = await Block.load(key);
+//   t.equal(loaded, null);
+//   t.end();
+// });
 
-  // TODO: Check
-  t.equal(block.verify(), true);
+// test('verify block before saving and return verification status', async (t) => {
+//   const block = await mock.blockWithTransactions(3);
 
-  t.end();
-});
+//   let verified;
+
+//   verified = await Block.verifyAndSave(block);
+//   t.equal(verified, true);
+
+//   // Invalid header hash, would not pass verification and does not save
+//   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
+
+//   verified = await Block.verifyAndSave(block);
+//   t.equal(verified, false);
+
+//   await Block.clearAll();
+//   t.end();
+// });
+
+// test('get genesis block', async (t) => {
+//   const block = Block.Genesis;
+
+//   // TODO: Check
+//   t.equal(block.verify(), true);
+
+//   t.end();
+// });

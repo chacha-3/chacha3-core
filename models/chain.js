@@ -275,7 +275,7 @@ class Chain {
   }
 
   static blockRewardAtIndex(index) {
-    const initialReward = 1048576;
+    const initialReward = Block.InitialReward;
     const halves = Math.floor(index / Chain.getHalvingInterval());
 
     return initialReward / (2 ** halves);

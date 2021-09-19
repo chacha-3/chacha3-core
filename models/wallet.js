@@ -60,6 +60,10 @@ class Wallet {
   }
 
   static verifyAddress(address) {
+    if (address.length !== 25) {
+      return false;
+    }
+
     const fingerprint = address.slice(1, 21);
     const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
 
