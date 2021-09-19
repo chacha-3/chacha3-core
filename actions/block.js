@@ -15,17 +15,37 @@ const actions = {};
 actions.pushBlock = {
   permission: 'public',
   // TODO: Schema
-  // schema: {
-  //   properties: {
-  //     key: { type: 'string' },
-  //     address: { type: 'string' },
-  //     amount: { type: 'string' },
-  //     signature: { type: 'string' },
-  //     time: { type: 'integer' },
-  //     version: { type: 'integer' },
-  //   },
-  //   required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
-  // },
+  schema: {
+    properties: {
+      header: {
+        type: 'object',
+        properties: {
+          hash: { type: 'string', buffer: 'hex' },
+          previous: { type: 'string', buffer: 'hex' },
+          time: { type: 'integer' },
+          difficulty: { type: 'integer' },
+          nonce: { type: 'integer' },
+          checksum: { type: 'string', buffer: 'hex' },
+          version: { type: 'integer' },
+        },
+      },
+      transactions: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', buffer: 'hex' },
+            sender: { type: 'string', buffer: 'hex', nullable: true },
+            receiver: { type: 'string', buffer: 'hex' },
+            amount: { type: 'integer' },
+            version: { type: 'integer' },
+            time: { type: 'integer' },
+            signature: { type: 'string', buffer: 'hex', nullable: true },
+          },
+        },
+      },
+    },
+  },
   handler: async (options) => {
     const block = Block.fromObject(options);
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);

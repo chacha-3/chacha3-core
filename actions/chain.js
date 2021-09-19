@@ -13,12 +13,6 @@ const miner = new Miner();
 
 actions.chainInfo = {
   permission: 'public',
-  // schema: {
-  //   properties: {
-  //     address: { type: 'string' },
-  //   },
-  //   required: ['address'],
-  // },
   handler: async () => {
     const chain = Chain.mainChain;
 

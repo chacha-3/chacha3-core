@@ -9,6 +9,12 @@ const serializeBuffer = (value) => {
 };
 
 const deserializeBuffer = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  assert(value.length >= 2);
+
   if (value.substr(0, 2) !== '0x') {
     return value;
   }
