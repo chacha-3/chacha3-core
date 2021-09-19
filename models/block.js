@@ -18,22 +18,22 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x000014a6f52cb5380e2ee3d66e51a429685ddc523e00d70f1fcc5e50753ff87b',
+        hash: '0x002a39c6d4943639f4a0d6909b19e0e1342a32f8d88ce06c16a3c8138a206428',
         previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1631620146939,
+        time: 1632012517606,
         difficulty: 1,
-        nonce: 1261188323356094,
-        checksum: '0xb40ca22cd51fdeb5c603f9412e47f8332ab11620ee24c0f244b09026ee6497c1',
+        nonce: 6612786905278660,
+        checksum: '0xee6d2208545074cb8aacbe3b57f2178143dfcfd5312391b61f3b9ee47dc6064b',
         version: 1,
       },
       transactions: [
         {
-          id: '0xb3df811bbfe0ec3a302240c502556c535a9061b8f44a07b1e3a3164fb2f35459',
+          id: '0xd19d252e5cf2f94aec66c04c11b614b84a71baad4cc388062bb013b379aca3ac',
           sender: null,
-          receiver: '0x00a707ef001604c1883eff434726fa92d69116a242dd6e64f6',
+          receiver: '0x000b504a3c870d27a509f6592a9e261097f175481a9b98f350',
           amount: 10000,
           version: 1,
-          time: 1631620146940,
+          time: 1632012517606,
           signature: null,
         },
       ],
@@ -172,10 +172,10 @@ class Block {
   updateChecksum(newTransactionId) {
     assert(newTransactionId != null);
 
-    const lastChecksum = this.header.getChecksum() || Buffer.from([]);
-    // const lastChecksum = this.header.getChecksum() || Buffer.from(
-    //   '0000000000000000000000000000000000000000000000000000000000000000', 'hex'
-    // );
+    const lastChecksum = this.header.getChecksum() || Buffer.from(
+      '0000000000000000000000000000000000000000000000000000000000000000',
+      'hex',
+    );
 
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
     const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
@@ -184,7 +184,10 @@ class Block {
   }
 
   verifyChecksum() {
-    let lastChecksum = Buffer.from([]);
+    let lastChecksum = Buffer.from(
+      '0000000000000000000000000000000000000000000000000000000000000000',
+      'hex',
+    );
 
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
       const transaction = this.transactions[i];
