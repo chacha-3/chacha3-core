@@ -174,7 +174,7 @@ test('update and reverts block balances', async (t) => {
 
     const updatedBlocks = i + 1;
 
-    t.ok(senderBalance < 10000 * updatedBlocks);
+    t.ok(senderBalance < Block.InitialReward * updatedBlocks);
     t.ok(receiverBalance > 0);
   }
 
@@ -185,21 +185,23 @@ test('update and reverts block balances', async (t) => {
     0,
   );
 
-  const totalSupply = 10000 * numOfBlocks;
+  const totalSupply = Block.InitialReward * numOfBlocks;
   t.equal(senderBalance + totalReceiverBalance, totalSupply);
   t.end();
 });
 
 test('reverts transaction for invalid blocks block balances', async (t) => {
   const chain = new Chain();
+  const numOfBlocks = 2;
 
-  const [block1, block2] = await mock.blockList(2, 5);
+  const [block1, block2] = await mock.blockList(numOfBlocks, 5);
   const result1 = chain.updateBlockBalances(block1);
 
   const initialState = { ...chain.accounts };
 
   // Tamper block, set value exceeding account balance
-  block2.transactions[2].amount = 1000000;
+  block2.transactions[2].amount = (Block.InitialReward * numOfBlocks) + 10000;
+
   const result2 = chain.updateBlockBalances(block2);
 
   t.equal(result1, true, 'Successfully updated block balances');
@@ -213,14 +215,15 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
 
 test('reverts transaction for invalid blocks block balances', async (t) => {
   const chain = new Chain();
+  const numOfBlocks = 2;
 
-  const [block1, block2] = await mock.blockList(2, 5);
+  const [block1, block2] = await mock.blockList(numOfBlocks, 5);
   const result1 = chain.updateBlockBalances(block1);
 
   const initialState = { ...chain.accounts };
 
   // Tamper block, set value exceeding account balance
-  block2.transactions[2].amount = 1000000;
+  block2.transactions[2].amount = (Block.InitialReward * numOfBlocks) + 100000;
 
   const result2 = chain.updateBlockBalances(block2);
 
@@ -363,13 +366,13 @@ test('invalid genesis block', async (t) => {
 });
 
 test('block reward at index', async (t) => {
-  t.equal(Chain.blockRewardAtIndex(0), 1048576);
-  t.equal(Chain.blockRewardAtIndex(999), 1048576);
-  t.equal(Chain.blockRewardAtIndex(1000), 524288);
-  t.equal(Chain.blockRewardAtIndex(2000), 262144);
-  t.equal(Chain.blockRewardAtIndex(3000), 131072);
-  t.equal(Chain.blockRewardAtIndex(3999), 131072);
-  t.equal(Chain.blockRewardAtIndex(4000), 65536);
+  t.equal(Chain.blockRewardAtIndex(0), Block.InitialReward);
+  t.equal(Chain.blockRewardAtIndex(999), Block.InitialReward);
+  t.equal(Chain.blockRewardAtIndex(1000), Block.InitialReward / 2);
+  t.equal(Chain.blockRewardAtIndex(2000), Block.InitialReward / 4);
+  t.equal(Chain.blockRewardAtIndex(3000), Block.InitialReward / 8);
+  t.equal(Chain.blockRewardAtIndex(3999), Block.InitialReward / 8);
+  t.equal(Chain.blockRewardAtIndex(4000), Block.InitialReward / 16);
 
   t.end();
 });

@@ -201,6 +201,7 @@ class Chain {
     const lastHeader = this.lastBlockHeader();
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
+      // console.log(isFirst, lastHeader.getHas(), header.getPrevious());
       // TODO: Handle error on synching
       return false;
     }

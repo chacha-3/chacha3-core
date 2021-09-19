@@ -1,5 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
+const debug = require('debug')('block:model');
 
 const { performance } = require('perf_hooks');
 
@@ -188,10 +189,27 @@ class Block {
   }
 
   verify(reward = Block.InitialReward) {
-    return this.verifyCoinbase(reward)
-      && this.verifyHash()
-      && this.verifyChecksum()
-      && this.verifyBalances();
+    if (!this.verifyCoinbase(reward)) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
+      return false;
+    }
+
+    if (!this.verifyHash()) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed hash verification`);
+      return false;
+    }
+
+    if (!this.verifyChecksum()) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
+      return false;
+    }
+
+    if (!this.verifyBalances()) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed balances verification`);
+      return false;
+    }
+
+    return true;
   }
 
   updateChecksum(newTransactionId) {
@@ -204,11 +222,12 @@ class Block {
 
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
     const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
-
     this.header.setChecksum(newChecksum);
   }
 
   verifyChecksum() {
+    assert(this.getHeader().getChecksum() !== null);
+
     let lastChecksum = Buffer.from(
       '0000000000000000000000000000000000000000000000000000000000000000',
       'hex',

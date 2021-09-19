@@ -32,7 +32,6 @@ actions.pushBlock = {
     // if (!block.verify()) {
     //   return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
     // }
-
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
     // TODO: Verify balances
