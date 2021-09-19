@@ -36,7 +36,7 @@ class Chain {
     const halvingInterval = {
       production: 1000000,
       development: 500000,
-      test: 1000,
+      test: 10,
     };
 
     return halvingInterval[process.env.NODE_ENV || 'development'];
