@@ -28,6 +28,7 @@ actions.pushBlock = {
   // },
   handler: async (options) => {
     const block = Block.fromObject(options);
+    console.log(options);
 
     // if (!block.verify()) {
     //   return errorResponse(ErrorCode.InvalidArgument, 'Invalid block');
@@ -41,12 +42,12 @@ actions.pushBlock = {
       return errorResponse(ErrorCode.InvalidArgument, 'Unable to push invalid block');
     }
 
-    const added = Chain.mainChain.addBlockHeader(block.getHeader());
+    // const added = Chain.mainChain.addBlockHeader(block.getHeader());
 
-    if (!added) {
-      debug('Unable to add new block. Chain is behind.');
-      return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
-    }
+    // if (!added) {
+    //   debug('Unable to add new block. Chain is behind.');
+    //   return errorResponse(ErrorCode.FailedPrecondition, 'Does not match latest block');
+    // }
 
     await block.save();
 

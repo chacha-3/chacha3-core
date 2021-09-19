@@ -199,6 +199,11 @@ class Chain {
   addBlockHeader(header) {
     const isFirst = this.getLength() === 0;
     const lastHeader = this.lastBlockHeader();
+    console.log(this.blockHeaders.length)
+    if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
+      console.log(this);
+      console.log(header.getPrevious(), lastHeader.getHash());
+    }
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
       // console.log(isFirst, lastHeader.getHas(), header.getPrevious());

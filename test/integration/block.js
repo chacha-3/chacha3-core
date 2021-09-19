@@ -28,20 +28,21 @@ const app = require('../../app')();
 
 //   t.ok(loaded.getTransaction(0).getId().equals(block.getTransaction(0).getId()));
 
+//   await Block.clearAll();
 //   t.end();
 // });
 
 test('push new block', async (t) => {
   const initialBlockCount = 2;
   Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 3);
-  const chain = Chain.mainChain;
+  // const chain = Chain.mainChain;
 
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
-
-  block.setPreviousHash(chain.lastBlockHeader().getHash());
+  console.log(Chain.mainChain.lastBlockHeader().getHash())
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
   block.addCoinbase(wallet.getAddress());
 
   await block.mine();
