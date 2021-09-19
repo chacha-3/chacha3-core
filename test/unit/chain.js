@@ -367,12 +367,12 @@ test('invalid genesis block', async (t) => {
 
 test('block reward at index', async (t) => {
   t.equal(Chain.blockRewardAtIndex(0), Block.InitialReward);
-  t.equal(Chain.blockRewardAtIndex(999), Block.InitialReward);
-  t.equal(Chain.blockRewardAtIndex(1000), Block.InitialReward / 2);
-  t.equal(Chain.blockRewardAtIndex(2000), Block.InitialReward / 4);
-  t.equal(Chain.blockRewardAtIndex(3000), Block.InitialReward / 8);
-  t.equal(Chain.blockRewardAtIndex(3999), Block.InitialReward / 8);
-  t.equal(Chain.blockRewardAtIndex(4000), Block.InitialReward / 16);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() - 1), Block.InitialReward);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval()), Block.InitialReward / 2);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 2), Block.InitialReward / 4);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 3), Block.InitialReward / 8);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4 - 1), Block.InitialReward / 8);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4), Block.InitialReward / 16);
 
   t.end();
 });

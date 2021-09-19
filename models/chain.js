@@ -212,7 +212,7 @@ class Chain {
   }
 
   async confirmNewBlock(block) {
-    if (!block.verify()) {
+    if (!block.verify(Chain.currentBlockReward())) {
       return false;
     }
 
@@ -273,6 +273,10 @@ class Chain {
 
   getLength() {
     return this.blockHeaders.length;
+  }
+
+  static currentBlockReward() {
+    return this.blockRewardAtIndex(Chain.mainChain.getLength());
   }
 
   static blockRewardAtIndex(index) {
