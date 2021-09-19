@@ -214,6 +214,7 @@ class Header {
   }
 
   equals(header) {
+    // TODO: Check selected keys only
     return JSON.stringify(this.toObject()) === JSON.stringify(header.toObject());
   }
 }
