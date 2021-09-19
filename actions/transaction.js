@@ -3,6 +3,8 @@ const debug = require('debug')('transaction:model');
 const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
+const Chain = require('../models/chain');
+
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
 
 const actions = {};
@@ -32,10 +34,15 @@ actions.createTransaction = {
   handler: async (options) => {
     const senderWallet = Wallet.recover(options.key);
 
+    const senderBalance = Chain.mainChain.getAccountBalance(senderWallet.getAddress());
+    if (options.amount > senderBalance) {
+      return errorResponse(ErrorCode.FailedPrecondition, 'Insufficient sender balance');
+    }
+
     const transaction = new Transaction(
       senderWallet.getPublicKey(),
       options.address,
-      Number.parseInt(options.amount, 10),
+      options.amount,
     );
 
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));

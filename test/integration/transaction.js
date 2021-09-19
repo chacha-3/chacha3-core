@@ -4,26 +4,54 @@ const mock = require('../../util/mock');
 
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
+const Chain = require('../../models/chain');
 
-const { SuccessCode } = require('../../util/rpc');
+const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const { runAction } = require('../../actions');
 const { options } = require('yargs');
 const { serializeBuffer } = require('../../util/serialize');
 
-test('create a transaction', async (t) => {
+test('create a transaction with sufficient balance', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
   const receiver = new Wallet();
   receiver.generate();
 
-  const { data, message } = await runAction({
+  Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
+
+  const { code, data, message } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),
     amount: 20,
   });
+
+  t.equal(code, SuccessCode);
+
+  await Transaction.clearAll();
+
+  t.end();
+});
+
+test('unable to create a transaction with insufficient balance', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+
+  const { code, data, message } = await runAction({
+    action: 'createTransaction',
+    key: sender.getPrivateKeyHex(),
+    address: receiver.getAddressEncoded(),
+    amount: 20,
+  });
+
+  t.equal(code, ErrorCode.FailedPrecondition);
 
   await Transaction.clearAll();
 

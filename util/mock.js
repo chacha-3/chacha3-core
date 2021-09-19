@@ -69,12 +69,12 @@ mock.createPeers = async (count) => {
   return Promise.all(promises);
 };
 
-mock.blockWithTransactions = async (numOfTransactions, previousBlock) => {
+mock.blockWithTransactions = async (numOfTransactions, previousBlock, receiverWallet) => {
   assert(numOfTransactions > 0);
 
   const minusCoinbase = numOfTransactions - 1;
 
-  const receiver = new Wallet();
+  const receiver = receiverWallet || new Wallet();
   receiver.generate();
 
   const block = new Block();
@@ -126,7 +126,7 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   return chain;
 };
 
-mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
+mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
 
@@ -144,15 +144,19 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock) => {
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
-    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock);
-    await block.save();
+    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock, receiverWallet);
+    // await block.save();
 
-    chain.addBlockHeader(block.getHeader());
+    // chain.addBlockHeader(block.getHeader());
+    await chain.confirmNewBlock(block);
+
+    // FIXME: Not valid. Not updating
+    const valid = chain.updateBlockBalances(block);
 
     previousBlock = block;
   }
 
-  await Chain.save(chain);
+  // await Chain.save(chain);
   return chain;
 };
 
