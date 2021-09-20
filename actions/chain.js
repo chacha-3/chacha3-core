@@ -1,16 +1,9 @@
 // const bs58 = require('bs58');
-// const { option } = require('yargs');
-
-const Wallet = require('../models/wallet');
 const Chain = require('../models/chain');
-const Miner = require('../models/miner');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
-const { serializeBuffer } = require('../util/serialize');
 
 const actions = {};
-
-const miner = new Miner();
 
 actions.chainInfo = {
   permission: 'public',
@@ -32,8 +25,6 @@ actions.pullChain = {
   permission: 'public',
   handler: async () => {
     const chain = Chain.mainChain;
-
-    // const chain = chain.getBlockHeaders();
     return okResponse(chain.toObject(), 'Chain data');
   },
 };

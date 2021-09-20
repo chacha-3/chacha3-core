@@ -3,22 +3,23 @@ const { test } = require('tap');
 const mock = require('../../util/mock');
 
 const Wallet = require('../../models/wallet');
+const Chain = require('../../models/chain');
 
 const { runAction } = require('../../actions');
 const { WalletDB } = require('../../util/db');
 const { SuccessCode } = require('../../util/rpc');
 
-const Chain = require('../../models/chain');
 const app = require('../../app')();
 
 test('display chain info', async (t) => {
   Chain.mainChain = await mock.chainWithBlocks(5, 3);
 
   const chain = Chain.mainChain;
-  const { data } = await runAction({
+  const { code, data } = await runAction({
     action: 'chainInfo',
   });
 
+  t.equal(code, SuccessCode);
   t.equal(data.length, chain.getLength());
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
   t.equal(data.totalWork, chain.getTotalWork());
@@ -27,16 +28,33 @@ test('display chain info', async (t) => {
   t.end();
 });
 
+test('full chain header list', async (t) => {
+  const numOfBlocks = 5;
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+  const { code, data } = await runAction({
+    action: 'pullChain',
+  });
+
+  const { blockHeaders } = data;
+
+  t.equal(code, SuccessCode);
+  t.equal(blockHeaders.length, numOfBlocks);
+
+  await Chain.clear();
+  t.end();
+});
+
 test('delete chain', async (t) => {
-  // const chain = await mock.chainWithBlocks(5, 3);
+  Chain.mainChain = await mock.chainWithBlocks(5, 3);
 
-  // const { code } = await runAction({
-  //   action: 'destroyChain',
-  // });
+  const { code } = await runAction({
+    action: 'destroyChain',
+  });
 
-  // t.equal(code, SuccessCode);
+  t.equal(code, SuccessCode);
+  t.equal(Chain.mainChain.getLength(), 1);
 
-  // FIXME: Chain is caching
-  // t.equal(chain.getLength(), 0);
+  await Chain.clear();
   t.end();
 });
