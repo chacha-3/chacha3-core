@@ -1,7 +1,6 @@
 const { version } = require('../package.json');
 
 const Chain = require('../models/chain');
-const Miner = require('../models/miner');
 const Peer = require('../models/peer');
 
 const {
@@ -9,8 +8,6 @@ const {
 } = require('../util/rpc');
 
 const actions = {};
-
-const miner = new Miner();
 
 // function networkIPs() {
 //   return Object.values(os.networkInterfaces()).reduce((r, list) => r.concat(list.reduce((rr, i) => rr.concat((i.family === 'IPv4' && !i.internal && i.address) || []), [])), []);

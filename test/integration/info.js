@@ -4,6 +4,7 @@ const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
+const { SuccessCode } = require('../../util/rpc');
 
 test('should get node info', async (t) => {
   await mock.createWallets(3);
@@ -23,3 +24,26 @@ test('should get node info', async (t) => {
 
   t.end();
 });
+
+test('should ping own node', async (t) => {
+  const { code, message } = await runAction({
+    action: 'ping',
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(message, 'Pong');
+
+  t.end();
+});
+
+// Require testing server
+// test('should ping a node address', async (t) => {
+//   const { code, message } = await runAction({
+//     action: 'pingNode',
+//   });
+
+//   t.equal(code, SuccessCode);
+//   t.equal(message, 'Pong');
+
+//   t.end();
+// });
