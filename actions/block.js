@@ -83,6 +83,7 @@ actions.listBlocks = {
   },
 };
 
+// TODO: Change permission to API only, non-ipc
 actions.blockInfo = {
   permission: 'public',
   schema: {
@@ -93,7 +94,6 @@ actions.blockInfo = {
   },
   handler: async (options) => {
     const block = await Block.load(options.hash);
-    assert(block.verify());
 
     if (!block) {
       return errorResponse(ErrorCode.NotFound, 'Block not found');

@@ -12,6 +12,7 @@ const Chain = require('../../models/chain');
 const Block = require('../../models/block');
 const { serializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
+const { randomNumberBetween } = require('../../util/math');
 const app = require('../../app')();
 
 test('push new block', async (t) => {
@@ -108,6 +109,29 @@ test('unable to push invalid block', async (t) => {
 
   const { code, data } = await runAction(options);
   t.equal(code, ErrorCode.InvalidArgument);
+
+  await Block.clearAll();
+
+  t.end();
+});
+
+test('block info', async (t) => {
+  const blockCount = 3;
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
+
+  const options = { action: 'blockInfo', hash: serializeBuffer(randomBlock.getHash()) };
+
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+
+  const fields = ['header', 'transactions'];
+
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data, field));
+  });
 
   await Block.clearAll();
 
