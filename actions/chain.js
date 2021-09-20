@@ -46,32 +46,4 @@ actions.destroyChain = {
   },
 };
 
-// TODO: Move to relevant model
-actions.accountBalance = {
-  permission: 'public',
-  schema: {
-    properties: {
-      address: { type: 'string', buffer: 'hex' },
-    },
-    required: ['address'],
-  },
-  preValidation: async (options) => {
-    let selectedWallet;
-
-    if (!options.address && (selectedWallet = await Wallet.getSelected())) {
-      // eslint-disable-next-line no-param-reassign
-      options.address = serializeBuffer(selectedWallet);
-    }
-  },
-  handler: async (options) => {
-    const chain = Chain.mainChain;
-
-    const data = {
-      balance: chain.getAccountBalance(options.address),
-    };
-
-    return okResponse(data, 'Account balance');
-  },
-};
-
 module.exports = actions;
