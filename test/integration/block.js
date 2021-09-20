@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { test } = require('tap');
 
 const mock = require('../../util/mock');
@@ -115,7 +116,7 @@ test('unable to push invalid block', async (t) => {
   t.end();
 });
 
-test('block info', async (t) => {
+test('block info for existing block', async (t) => {
   const blockCount = 3;
 
   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
@@ -135,5 +136,13 @@ test('block info', async (t) => {
 
   await Block.clearAll();
 
+  t.end();
+});
+
+test('block info for non-existing block', async (t) => {
+  const options = { action: 'blockInfo', hash: serializeBuffer(crypto.randomBytes(32)) };
+
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.NotFound);
   t.end();
 });
