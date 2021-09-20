@@ -146,3 +146,34 @@ test('block info for non-existing block', async (t) => {
   t.equal(code, ErrorCode.NotFound);
   t.end();
 });
+
+test('block transactions list for existing block', async (t) => {
+  const blockCount = 3;
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
+
+  const options = { action: 'blockTransactions', hash: serializeBuffer(randomBlock.getHash()) };
+
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+
+  const fields = ['id', 'sender', 'receiver', 'amount', 'version', 'time', 'signature'];
+
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
+  });
+
+  await Block.clearAll();
+
+  t.end();
+});
+
+test('block info for non-existing block', async (t) => {
+  const options = { action: 'blockTransactions', hash: serializeBuffer(crypto.randomBytes(32)) };
+
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.NotFound);
+  t.end();
+});
