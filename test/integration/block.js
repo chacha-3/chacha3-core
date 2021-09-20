@@ -25,14 +25,18 @@ test('push new block', async (t) => {
 
   Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 1, sender);
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
-  transaction.sign(sender.getPrivateKeyObject());
+  const transactionInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
+  transactionInBlock.sign(sender.getPrivateKeyObject());
+
+  const transactionNotInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
+  transactionNotInBlock.sign(sender.getPrivateKeyObject());
 
   // Save to pending transaction list
-  await transaction.save(true);
+  await transactionInBlock.save(true);
+  await transactionNotInBlock.save(true);
 
   const pendingBefore = await Transaction.loadPending();
-  t.equal(pendingBefore.length, 1);
+  t.equal(pendingBefore.length, 2);
 
   const wallet = new Wallet();
   wallet.generate();
@@ -41,18 +45,21 @@ test('push new block', async (t) => {
 
   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
   block.addCoinbase(wallet.getAddress());
-  block.addTransaction(transaction);
+  block.addTransaction(transactionInBlock);
 
   await block.mine();
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
-  const { data, code } = await runAction(options);
+  const { code } = await runAction(options);
   t.equal(code, SuccessCode);
   t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
 
   const pendingAfter = await Transaction.loadPending();
-  t.equal(pendingAfter.length, 0);
+  t.equal(pendingAfter.length, 1);
+
+  await Transaction.clearAll();
+  await Block.clearAll();
 
   t.end();
 });

@@ -366,6 +366,7 @@ class Block {
   }
 
   static async clearAll() {
+    // TODO: Clear transactions in block as well
     BlockDB.clear();
   }
 }
