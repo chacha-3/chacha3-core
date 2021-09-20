@@ -75,14 +75,7 @@ actions.pushBlock = {
 
 actions.listBlocks = {
   permission: 'public',
-  schema: {
-    // TODO: Filter
-    properties: {
-      startIndex: { type: 'integer' },
-      endIndex: { type: 'integer' },
-    },
-  },
-  handler: async (options) => {
+  handler: async () => {
     const chain = Chain.mainChain;
     const data = chain.blockHeaders.map((header) => header.toObject());
 

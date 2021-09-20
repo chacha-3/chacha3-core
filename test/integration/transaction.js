@@ -11,6 +11,7 @@ const { SuccessCode, ErrorCode } = require('../../util/rpc');
 const { runAction } = require('../../actions');
 const { options } = require('yargs');
 const { serializeBuffer } = require('../../util/serialize');
+const Block = require('../../models/block');
 
 test('create a transaction with sufficient balance', async (t) => {
   const sender = new Wallet();
@@ -31,6 +32,7 @@ test('create a transaction with sufficient balance', async (t) => {
   t.equal(code, SuccessCode);
 
   await Transaction.clearAll();
+  await Block.clearAll();
 
   t.end();
 });

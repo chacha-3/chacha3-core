@@ -7,7 +7,7 @@ const { performance } = require('perf_hooks');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
-const { BlockDB } = require('../util/db');
+const { BlockDB, TransactionDB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 const Wallet = require('./wallet');
 
@@ -362,11 +362,22 @@ class Block {
   }
 
   static async clear(hash) {
+    const block = await Block.load(hash);
+
+    if (!block) {
+      return;
+    }
+
+    for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      Transaction.clear(block.getTransaction(i).getId());
+    }
+
     BlockDB.del(hash);
   }
 
   static async clearAll() {
-    // TODO: Clear transactions in block as well
+    // TODO: Clear only transactions in block
+    TransactionDB.clear();
     BlockDB.clear();
   }
 }

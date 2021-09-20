@@ -6,7 +6,7 @@ const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
 const { WalletDB } = require('../../util/db');
-const { SuccessCode } = require('../../util/rpc');
+const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const Chain = require('../../models/chain');
 const Block = require('../../models/block');
@@ -64,33 +64,52 @@ test('push new block', async (t) => {
   t.end();
 });
 
-// test('cannot push invalid block', async (t) => {
-//   const initialBlockCount = 5;
-//   Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 3);
-//   const chain = Chain.mainChain;
+test('list blocks in chain', async (t) => {
+  const blockCount = 3;
 
-//   const wallet = new Wallet();
-//   wallet.generate();
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
-//   const block = new Block();
+  const options = { action: 'listBlocks' };
 
-//   block.addCoinbase(wallet.getAddress());
-//   block.setPreviousHash(chain.lastBlockHeader().getHash());
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+  t.equal(data.length, blockCount);
 
-//   await block.mine();
+  const fields = ['hash', 'previous', 'time', 'difficulty', 'nonce', 'checksum', 'version'];
 
-//   // Tamper hash. Invalid
-//   block.header.checksum[0] = 255;
-//   block.header.hash[3] = 5;
-//   block.header.hash[10] = 5;
-//   block.header.hash[12] = 5;
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
+  });
 
-//   const options = { action: 'pushBlock', ...block.toObject() };
+  await Block.clearAll();
 
-//   const { data, code } = await runAction(options);
-//   // t.equal(code, SuccessCode);
-//   console.log(code, data);
+  t.end();
+});
 
-//   t.equal(Chain.mainChain.getLength(), initialBlockCount);
-//   t.end();
-// });
+test('unable to push invalid block', async (t) => {
+  const blockCount = 3;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const block = new Block();
+
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
+  block.addCoinbase(wallet.getAddress());
+
+  // Tamper checksum
+  block.header.checksum[3] += 100;
+
+  await block.mine();
+
+  const options = { action: 'pushBlock', ...block.toObject() };
+
+  const { code, data } = await runAction(options);
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  await Block.clearAll();
+
+  t.end();
+});
