@@ -67,6 +67,7 @@ class Chain {
     const account = this.accounts[serializeBuffer(address)];
 
     debug(`Found account balance: ${JSON.stringify(account)}`);
+
     if (!account) {
       return 0;
     }
@@ -114,6 +115,8 @@ class Chain {
     }
 
     this.accounts[receiverAddress].transactions.push(transaction.getIdHex());
+
+    // TODO: Check getting amount in string. Should not need to parseInt
     this.accounts[receiverAddress].balance += transaction.getAmount();
 
     return true;

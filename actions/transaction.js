@@ -15,7 +15,7 @@ actions.createTransaction = {
     properties: {
       key: { type: 'string', buffer: 'hex' },
       address: { type: 'string', buffer: 'hex' },
-      amount: { type: 'string' },
+      amount: { type: 'integer' },
       password: { type: 'string' },
     },
     required: ['key', 'address', 'amount'],
@@ -77,7 +77,7 @@ actions.pushTransaction = {
     const transaction = new Transaction(
       options.key,
       options.address,
-      options.amount,
+      Number.parseInt(options.amount, 10),
     );
 
     transaction.setTime(options.time);
