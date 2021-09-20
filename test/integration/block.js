@@ -11,31 +11,28 @@ const { SuccessCode } = require('../../util/rpc');
 const Chain = require('../../models/chain');
 const Block = require('../../models/block');
 const { serializeBuffer } = require('../../util/serialize');
+const Transaction = require('../../models/transaction');
 const app = require('../../app')();
-
-// test('get block info', async (t) => {
-//   const block = await mock.blockWithTransactions(5);
-//   await block.save();
-
-//   const { data } = await runAction({
-//     action: 'blockInfo',
-//     hash: serializeBuffer(block.getHeader().getHash()),
-//   });
-
-//   const loaded = Block.fromObject(data);
-//   t.equal(loaded.verify(), true, 'Loaded block is verified');
-//   t.equal(loaded.getTransactionCount(), block.getTransactionCount());
-
-//   t.ok(loaded.getTransaction(0).getId().equals(block.getTransaction(0).getId()));
-
-//   await Block.clearAll();
-//   t.end();
-// });
 
 test('push new block', async (t) => {
   const initialBlockCount = 2;
-  Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 3);
-  // const chain = Chain.mainChain;
+
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 1, sender);
+
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
+  transaction.sign(sender.getPrivateKeyObject());
+
+  // Save to pending transaction list
+  await transaction.save(true);
+
+  const pendingBefore = await Transaction.loadPending();
+  t.equal(pendingBefore.length, 1);
 
   const wallet = new Wallet();
   wallet.generate();
@@ -44,6 +41,7 @@ test('push new block', async (t) => {
 
   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
   block.addCoinbase(wallet.getAddress());
+  block.addTransaction(transaction);
 
   await block.mine();
 
@@ -51,8 +49,11 @@ test('push new block', async (t) => {
 
   const { data, code } = await runAction(options);
   t.equal(code, SuccessCode);
-
   t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
+
+  const pendingAfter = await Transaction.loadPending();
+  t.equal(pendingAfter.length, 0);
+
   t.end();
 });
 

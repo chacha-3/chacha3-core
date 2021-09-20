@@ -14,7 +14,6 @@ const actions = {};
 
 actions.pushBlock = {
   permission: 'public',
-  // TODO: Schema
   schema: {
     properties: {
       header: {
