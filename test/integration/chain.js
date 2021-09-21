@@ -2,11 +2,9 @@ const { test } = require('tap');
 
 const mock = require('../../util/mock');
 
-const Wallet = require('../../models/wallet');
 const Chain = require('../../models/chain');
 
 const { runAction } = require('../../actions');
-const { WalletDB } = require('../../util/db');
 const { SuccessCode } = require('../../util/rpc');
 
 const app = require('../../app')();

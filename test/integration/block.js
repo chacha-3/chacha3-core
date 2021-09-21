@@ -116,6 +116,39 @@ test('unable to push invalid block', async (t) => {
   t.end();
 });
 
+test('unable to push block with transaction exceeding balance', async (t) => {
+  const blockCount = 3;
+
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, sender);
+
+  const block = new Block();
+
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
+  block.addCoinbase(sender.getAddress());
+
+  const exceedAmount = Block.InitialReward * (blockCount + 4);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), exceedAmount);
+  transaction.sign(sender.getPrivateKeyObject());
+
+  block.addTransaction(transaction);
+  await block.mine();
+
+  const options = { action: 'pushBlock', ...block.toObject() };
+
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  await Block.clearAll();
+
+  t.end();
+});
+
 test('block info for existing block', async (t) => {
   const blockCount = 3;
 

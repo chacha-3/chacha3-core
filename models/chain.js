@@ -245,7 +245,9 @@ class Chain {
     this.addBlockHeader(block.getHeader());
     await Chain.save(this);
 
-    this.updateBlockBalances(block);
+    if (!this.updateBlockBalances(block)) {
+      return false;
+    }
 
     return true;
   }

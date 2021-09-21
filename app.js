@@ -84,6 +84,8 @@ function build(opts = {}) {
         peer.syncChain(); // TODO: Add claimed work to verify is correct
         // TODO: If sync fail. Find next best
       }
+
+      return done();
     },
     handler: async (request, reply) => {
       reply.type('application/json');
