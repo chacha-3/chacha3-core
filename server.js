@@ -1,7 +1,7 @@
 const debug = require('debug')('server');
 const selfsigned = require('selfsigned');
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 const attrs = [{ name: 'commonName', value: 'bong' }];
 
