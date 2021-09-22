@@ -18,7 +18,7 @@ actions.createTransaction = {
       amount: { type: 'string' },
       password: { type: 'string' },
     },
-    required: ['key', 'address', 'amount'],
+    required: ['key', 'address', 'amount', 'password'],
   },
   preValidation: async (options) => {
     let selectedWallet;
@@ -32,7 +32,11 @@ actions.createTransaction = {
     }
   },
   handler: async (options) => {
-    const senderWallet = Wallet.recover(options.key);
+    const senderWallet = Wallet.recover(options.key, options.password);
+
+    if (!senderWallet) {
+      return errorResponse(ErrorCode.InvalidArgument, 'Incorrect password');
+    }
 
     const senderBalance = Chain.mainChain.getAccountBalance(senderWallet.getAddress());
     const amount = BigInt(options.amount);

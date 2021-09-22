@@ -204,7 +204,7 @@ const ipcMessage = (data) => {
   if (prompt === 'password') {
     inputPassword = true;
 
-    rl.setPrompt('Passphrase: ');
+    rl.setPrompt('Password: ');
     rl.prompt();
 
     return;

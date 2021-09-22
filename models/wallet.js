@@ -238,9 +238,15 @@ class Wallet {
     const wallet = new Wallet();
     wallet.setPrivateKey(privateKey);
 
-    const privateKeyObject = crypto.createPrivateKey({
-      key: privateKey, format: 'der', type: 'pkcs8', passphrase,
-    });
+    let privateKeyObject;
+
+    try {
+      privateKeyObject = crypto.createPrivateKey({
+        key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+      });
+    } catch (e) {
+      return null;
+    }
 
     const publicKey = crypto.createPublicKey(privateKeyObject).export(
       { format: 'der', type: 'spki' },

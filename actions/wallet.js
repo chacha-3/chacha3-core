@@ -103,6 +103,32 @@ actions.recoverWallet = {
   },
 };
 
+actions.verifyWallet = {
+  permission: 'authOnly',
+  schema: {
+    properties: {
+      address: { type: 'string', buffer: 'hex' },
+      password: { type: 'string' },
+    },
+    required: ['password', 'address'],
+  },
+  handler: async (options) => {
+    const wallet = await Wallet.load(options.address);
+
+    if (!wallet) {
+      return errorResponse(ErrorCode.NotFound, 'Wallet not found');
+    }
+
+    const loaded = Wallet.recover(wallet.getPrivateKey(), options.password);
+
+    const data = {
+      password: loaded !== null,
+    };
+
+    return okResponse(data, 'Verify wallet');
+  },
+};
+
 actions.deleteWallet = {
   permission: 'authOnly',
   schema: {
