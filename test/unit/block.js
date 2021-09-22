@@ -8,47 +8,6 @@ const mock = require('../../util/mock');
 const Chain = require('../../models/chain');
 const { deserializeBuffer } = require('../../util/serialize');
 
-// test('create a block with coinbase', (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
-
-//   const block = new Block();
-//   block.addCoinbase(wallet.getAddress());
-
-//   t.equal(block.getTransactionCount(), 1, 'block only has coinbase transaction');
-
-//   const coinbase = block.getTransaction(0);
-
-//   t.equal(coinbase.getSignature(), null, 'coinbase has no signature');
-//   t.equal(coinbase.getSenderKey(), null, 'coinbase has no sender');
-
-//   // FIXME:
-//   // t.equal(
-//   //   coinbase.getReceiverAddress().toString('hex'),
-//   //   wallet.getAddressEncoded().toString('hex'),
-//   //   'coinbase address matches wallet address',
-//   // );
-
-//   t.end();
-// });
-
-// test('should mine a block', async (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
-
-//   const block = new Block();
-
-//   block.addCoinbase(wallet.getAddress());
-//   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
-//   await block.mine();
-
-//   t.equal(await block.verifyHash(), true, 'mined block has verified hash');
-//   t.equal(block.verify(), true, 'mined block is verified');
-
-//   t.end();
-// });
-
 test('should have verified coinbase', async (t) => {
   const wallet = new Wallet();
   wallet.generate();

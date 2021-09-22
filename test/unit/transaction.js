@@ -8,7 +8,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
-const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
+const { serializeBuffer, deserializeBuffer, deserializeObject } = require('../../util/serialize');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -113,11 +113,12 @@ test('have correct hash data for transaction', (t) => {
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
 
-  const hashData = JSON.parse(transaction.hashData());
+  const hashData = deserializeObject(JSON.parse(transaction.hashData()));
+  t.ok(hashData.receiverAddress.equals(receiver.getAddress()));
+  t.ok(hashData.senderKey.equals(sender.getPublicKey()));
+
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, receiver.getAddressEncoded());
-  t.equal(hashData.amount, 20);
-  t.equal(hashData.senderKey, serializeBuffer(sender.getPublicKey()));
+  t.equal(hashData.amount, 20n);
 
   t.ok(hashData.time > 0);
 
@@ -148,11 +149,11 @@ test('have correct hash data for coinbase transaction', (t) => {
 
   const transaction = new Transaction(null, receiver.getAddress(), 50);
 
-  const hashData = JSON.parse(transaction.hashData());
+  const hashData = deserializeObject(JSON.parse(transaction.hashData()));
+  t.ok(hashData.receiverAddress.equals(receiver.getAddress()));
 
   t.equal(hashData.version, 1);
-  t.equal(hashData.receiverAddress, receiver.getAddressEncoded());
-  t.equal(hashData.amount, 50);
+  t.equal(hashData.amount, 50n);
   t.equal(hashData.senderKey, undefined);
 
   t.end();

@@ -96,8 +96,7 @@ class Header {
       checksum: this.getChecksum,
     };
 
-
-    return JSON.stringify(data);
+    return JSON.stringify(serializeObject(data));
   }
 
   getVersion() {

@@ -36,7 +36,7 @@ actions.pushBlock = {
             id: { type: 'string', buffer: 'hex' },
             sender: { type: 'string', buffer: 'hex', nullable: true },
             receiver: { type: 'string', buffer: 'hex' },
-            amount: { type: 'integer' },
+            amount: { type: 'string' },
             version: { type: 'integer' },
             time: { type: 'integer' },
             signature: { type: 'string', buffer: 'hex', nullable: true },
@@ -49,7 +49,6 @@ actions.pushBlock = {
     const block = Block.fromObject(options);
     debug(`Receive new block: ${serializeBuffer(block.getHeader().getHash())}`);
 
-    // TODO: Verify balances
     const result = await Chain.mainChain.confirmNewBlock(block);
 
     if (!result) {

@@ -74,7 +74,7 @@ test('push transaction', async (t) => {
     action: 'pushTransaction',
     key: serializeBuffer(transaction.getSenderKey()),
     address: serializeBuffer(transaction.getReceiverAddress()),
-    amount: transaction.getAmount(),
+    amount: transaction.getAmount().toString(),
     signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),
     version: transaction.getVersion(),

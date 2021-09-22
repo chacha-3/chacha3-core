@@ -18,28 +18,28 @@ class Block {
   }
 
   static get InitialReward() {
-    return 5000000;
+    return 5000000n;
   }
 
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x00d30fdd44a6cddf216a31618c39a4c89a610fc2c677ec192a8956d8acf1aef9',
+        hash: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
         previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1632014579067,
+        time: 1632270111948,
         difficulty: 1,
-        nonce: 423754425561474,
-        checksum: '0x194a0e7580bac2d37445fca78945f737b69e70022479be96391be9019847d83f',
+        nonce: 4040180215728735,
+        checksum: '0x635297f915d116d235ccfea6d6d671826ca176231860e569c0b96448b284c689',
         version: 1,
       },
       transactions: [
         {
-          id: '0x3fee32e6c706a3f0408088674d87a3a5a4f56c22b629d2a31e2416918e36dcd4',
+          id: '0x412d59e9a4898e3ef2d593b7db27764baed004ac088e5b22d6986b200bcb427b',
           sender: null,
-          receiver: '0x002feba4a1a4e3a9f55352a6629a012f12078faa9cb0b8c442',
-          amount: 5000000,
+          receiver: '0x00cec242aee336e190cef0e18bb149db99b0069fdf6964ed57',
+          amount: '5000000n',
           version: 1,
-          time: 1632014579068,
+          time: 1632270111949,
           signature: null,
         },
       ],

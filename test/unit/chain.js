@@ -9,6 +9,7 @@ const mock = require('../../util/mock');
 
 const blockData = require('../data/blocks.json');
 const { generateAddressEncoded, generateAddress } = require('../../models/wallet');
+const { serializeObject } = require('../../util/serialize');
 
 test('create an empty chain', (t) => {
   const chain = new Chain();
@@ -174,18 +175,18 @@ test('update and reverts block balances', async (t) => {
 
     const updatedBlocks = i + 1;
 
-    t.ok(senderBalance < Block.InitialReward * updatedBlocks);
+    t.ok(senderBalance < Block.InitialReward * BigInt(updatedBlocks));
     t.ok(receiverBalance > 0);
   }
 
   const senderBalance = chain.getAccountBalance(wallet.getAddressEncoded());
 
   const totalReceiverBalance = receiverAddresses.reduce(
-    (total, value) => total + chain.getAccountBalance(value),
+    (total, value) => BigInt(total) + chain.getAccountBalance(value),
     0,
   );
 
-  const totalSupply = Block.InitialReward * numOfBlocks;
+  const totalSupply = Block.InitialReward * BigInt(numOfBlocks);
   t.equal(senderBalance + totalReceiverBalance, totalSupply);
   t.end();
 });
@@ -200,7 +201,7 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   const initialState = { ...chain.accounts };
 
   // Tamper block, set value exceeding account balance
-  block2.transactions[2].amount = (Block.InitialReward * numOfBlocks) + 10000;
+  block2.transactions[2].amount = (Block.InitialReward * BigInt(numOfBlocks)) + 10000n;
 
   const result2 = chain.updateBlockBalances(block2);
 
@@ -208,7 +209,10 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   t.equal(result2, false, 'Invalid transaction. No update to block balance');
 
   const revertedState = { ...chain.accounts };
-  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
+  t.equal(
+    JSON.stringify(serializeObject(initialState)),
+    JSON.stringify(serializeObject(revertedState)),
+  );
 
   t.end();
 });
@@ -223,7 +227,7 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   const initialState = { ...chain.accounts };
 
   // Tamper block, set value exceeding account balance
-  block2.transactions[2].amount = (Block.InitialReward * numOfBlocks) + 100000;
+  block2.transactions[2].amount = (Block.InitialReward * BigInt(numOfBlocks)) + 100000n;
 
   const result2 = chain.updateBlockBalances(block2);
 
@@ -231,7 +235,10 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   t.equal(result2, false, 'Invalid transaction. No update to block balance');
 
   const revertedState = { ...chain.accounts };
-  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
+  t.equal(
+    JSON.stringify(serializeObject(initialState)),
+    JSON.stringify(serializeObject(revertedState))
+  );
 
   t.end();
 });
@@ -250,12 +257,18 @@ test('reverts a specific valid transaction', async (t) => {
 
   const updatedState = { ...chain.accounts };
 
-  t.not(JSON.stringify(initialState), JSON.stringify(updatedState));
+  t.not(
+    JSON.stringify(serializeObject(initialState)),
+    JSON.stringify(serializeObject(updatedState)),
+  );
 
   chain.revertBlockBalances(block2);
 
   const revertedState = { ...chain.accounts };
-  t.equal(JSON.stringify(initialState), JSON.stringify(revertedState));
+  t.equal(
+    JSON.stringify(serializeObject(initialState)),
+    JSON.stringify(serializeObject(revertedState)),
+  );
 
   t.end();
 });
@@ -281,7 +294,7 @@ test('have zero balance for account without transaction', async (t) => {
   const randomWallet = new Wallet();
   randomWallet.generate();
 
-  t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0);
+  t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0n);
   const transactions = chain.getAccountTransactions(randomWallet.getAddress());
 
   t.ok(Array.isArray(transactions));
@@ -368,11 +381,11 @@ test('invalid genesis block', async (t) => {
 test('block reward at index', async (t) => {
   t.equal(Chain.blockRewardAtIndex(0), Block.InitialReward);
   t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() - 1), Block.InitialReward);
-  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval()), Block.InitialReward / 2);
-  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 2), Block.InitialReward / 4);
-  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 3), Block.InitialReward / 8);
-  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4 - 1), Block.InitialReward / 8);
-  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4), Block.InitialReward / 16);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval()), Block.InitialReward / 2n);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 2), Block.InitialReward / 4n);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 3), Block.InitialReward / 8n);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4 - 1), Block.InitialReward / 8n);
+  t.equal(Chain.blockRewardAtIndex(Chain.getHalvingInterval() * 4), Block.InitialReward / 16n);
 
   t.end();
 });

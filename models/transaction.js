@@ -16,7 +16,7 @@ class Transaction {
     this.senderKey = senderKey;
     this.receiverAddress = receiverAddress; // FIXME: Change to use buffer?
 
-    this.amount = amount;
+    this.amount = (typeof (amount) === 'bigint') ? amount : BigInt(amount);
 
     assert.strictEqual(amount > 0, true);
 
@@ -29,17 +29,17 @@ class Transaction {
   hashData() {
     const data = {
       version: this.version,
-      receiverAddress: serializeBuffer(this.receiverAddress),
+      receiverAddress: this.receiverAddress,
       amount: this.amount,
       time: this.time,
     };
 
     assert(this.senderKey !== undefined);
     if (this.senderKey !== null) {
-      data.senderKey = serializeBuffer(this.senderKey);
+      data.senderKey = this.senderKey;
     }
 
-    return JSON.stringify(data);
+    return JSON.stringify(serializeObject(data));
   }
 
   getId() {

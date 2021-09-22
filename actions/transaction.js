@@ -15,7 +15,7 @@ actions.createTransaction = {
     properties: {
       key: { type: 'string', buffer: 'hex' },
       address: { type: 'string', buffer: 'hex' },
-      amount: { type: 'integer' },
+      amount: { type: 'string' },
       password: { type: 'string' },
     },
     required: ['key', 'address', 'amount'],
@@ -35,14 +35,16 @@ actions.createTransaction = {
     const senderWallet = Wallet.recover(options.key);
 
     const senderBalance = Chain.mainChain.getAccountBalance(senderWallet.getAddress());
-    if (options.amount > senderBalance) {
+    const amount = BigInt(options.amount);
+
+    if (amount > senderBalance) {
       return errorResponse(ErrorCode.FailedPrecondition, 'Insufficient sender balance');
     }
 
     const transaction = new Transaction(
       senderWallet.getPublicKey(),
       options.address,
-      options.amount,
+      amount,
     );
 
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
@@ -66,7 +68,7 @@ actions.pushTransaction = {
     properties: {
       key: { type: 'string', buffer: 'hex' },
       address: { type: 'string', buffer: 'hex' },
-      amount: { type: 'integer' },
+      amount: { type: 'string' },
       signature: { type: 'string', buffer: 'hex' },
       time: { type: 'integer' },
       version: { type: 'integer' },

@@ -4,7 +4,7 @@ const assert = require('assert');
 const Header = require('./header');
 
 const { DB, BlockDB, HeaderDB, runningManualTest } = require('../util/db');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer, serializeObject } = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
 
@@ -66,10 +66,8 @@ class Chain {
     debug(`Get account balance for ${address}`);
     const account = this.accounts[serializeBuffer(address)];
 
-    debug(`Found account balance: ${JSON.stringify(account)}`);
-
     if (!account) {
-      return 0;
+      return 0n;
     }
 
     return account.balance;
@@ -95,7 +93,7 @@ class Chain {
         return false;
       }
 
-      const sufficientBalance = this.accounts[senderAddress].balance - transaction.getAmount() >= 0;
+      const sufficientBalance = this.accounts[senderAddress].balance - transaction.getAmount() >= 0n;
 
       if (!sufficientBalance) {
         return false;
@@ -109,7 +107,7 @@ class Chain {
 
     if (!this.accounts[receiverAddress]) {
       this.accounts[receiverAddress] = {
-        balance: 0,
+        balance: 0n,
         transactions: [],
       };
     }
@@ -214,12 +212,13 @@ class Chain {
 
   async confirmNewBlock(block) {
     if (!block.verify(Chain.currentBlockReward())) {
+      debug('Failed to confirm new block: Incorrect block reward');
       return false;
     }
 
     const isFirst = this.getLength() === 0;
-
     if (!isFirst && !block.getHeader().getPrevious().equals(this.lastBlockHeader().getHash())) {
+      debug('Failed to confirm new block: Does not match latest hash');
       return false;
     }
 
@@ -245,7 +244,10 @@ class Chain {
     this.addBlockHeader(block.getHeader());
     await Chain.save(this);
 
-    if (!this.updateBlockBalances(block)) {
+    const result = this.updateBlockBalances(block);
+
+    if (!result) {
+      debug('Failed to confirm new block: Insufficient balances');
       return false;
     }
 
@@ -286,7 +288,7 @@ class Chain {
     const initialReward = Block.InitialReward;
     const halves = Math.floor(index / Chain.getHalvingInterval());
 
-    return initialReward / (2 ** halves);
+    return initialReward / BigInt(2 ** halves);
   }
 
   getTotalWork() {
