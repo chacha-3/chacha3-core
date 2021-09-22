@@ -135,6 +135,10 @@ const onLineInput = async (line) => {
     options.password = line;
 
     inputPassword = false;
+
+    // Remove password from history
+    rl.history = rl.history.slice(-1);
+
     setDefaultPrompt();
   } else {
     if (line === '/exit' || line === '/quit') {
@@ -236,6 +240,13 @@ rl.input.on('keypress', () => {
 });
 
 rl.on('line', onLineInput);
+// rl.on('history', (history) => {
+//   // if (!inputPassword) {
+//   //   history = null;
+//   // }
+//   console.log(`Received: ${history}`);
+// });
+
 rl.on('close', onClose);
 
 ipc.connectTo(ipcId, () => {
