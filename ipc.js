@@ -17,6 +17,7 @@ ipc.serve(
         const options = JSON.parse(request);
 
         const response = await runAction(options, 'full');
+
         ipc.server.emit(
           socket,
           'message', // this can be anything you want so long as

@@ -20,6 +20,10 @@ function completer(line) {
 }
 
 let retrying;
+let lastRequest;
+let inputPassword = false;
+let prompt = null;
+
 const rl = readline.createInterface(process.stdin, process.stdout, completer);
 const ipcId = `bong${process.env.PORT || 3000}`;
 
@@ -87,6 +91,7 @@ function printResult(result) {
   const {
     data, code, message, errors,
   } = result;
+
   if (code !== SuccessCode) {
     console.log(chalk.bold.red(message));
 
@@ -107,6 +112,10 @@ function printResult(result) {
   }
 }
 
+function setDefaultPrompt() {
+  rl.setPrompt(chalk.bold.redBright('$ '));
+}
+
 function start() {
   console.clear();
   console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${version})`)}`);
@@ -117,25 +126,38 @@ function start() {
 const onLineInput = async (line) => {
   // eslint-disable-next-line no-param-reassign
   line = line.trim();
+  let options = {};
 
-  if (line === '/exit' || line === '/quit') {
-    rl.close();
-  } else if (line === '/clear') {
-    console.clear();
-    start();
-    return;
-  }
+  if (inputPassword) {
+    // After prompt password.
+    // Merge password to last request to sent again
+    options = lastRequest;
+    options.password = line;
 
-  const parseQuote = parse(line);
-  const actionName = parseQuote[0];
+    inputPassword = false;
+    setDefaultPrompt();
+  } else {
+    if (line === '/exit' || line === '/quit') {
+      rl.close();
+    } else if (line === '/clear') {
+      console.clear();
+      start();
+      return;
+    }
 
-  const options = {
-    action: actionName,
-  };
+    const parseQuote = parse(line);
+    const actionName = parseQuote[0];
 
-  for (let i = 1; i < parseQuote.length; i += 1) {
-    const [key, value] = parseQuote[i].split(':');
-    options[key] = value;
+    options = {
+      action: actionName,
+    };
+
+    for (let i = 1; i < parseQuote.length; i += 1) {
+      const [key, value] = parseQuote[i].split(':');
+      options[key] = value;
+    }
+
+    lastRequest = options;
   }
 
   ipc.of[ipcId].emit(
@@ -176,12 +198,43 @@ const ipcError = (error) => {
 };
 
 const ipcMessage = (data) => {
-  // ipc.log('got a message from world : '.debug, data);
-  printResult(JSON.parse(data));
+  const parsed = JSON.parse(data);
+  prompt = parsed.prompt;
+
+  if (prompt === 'password') {
+    inputPassword = true;
+
+    rl.setPrompt('Passphrase: ');
+    rl.prompt();
+
+    return;
+  }
+
+  // if (inputPassword) {
+
+  // }
+  printResult(parsed);
   rl.prompt();
 };
 
-rl.setPrompt(chalk.bold.redBright('$ '));
+setDefaultPrompt();
+
+rl.input.on('keypress', () => {
+  if (!inputPassword) {
+    return;
+  }
+  // get the number of characters entered so far:
+  const len = rl.line.length;
+  // move cursor back to the beginning of the input:
+  readline.moveCursor(rl.output, -len, 0);
+  // clear everything to the right of the cursor:
+  readline.clearLine(rl.output, 1);
+  // replace the original input with asterisks:
+  for (let i = 0; i < len; i += 1) {
+    rl.output.write('*');
+  }
+});
+
 rl.on('line', onLineInput);
 rl.on('close', onClose);
 

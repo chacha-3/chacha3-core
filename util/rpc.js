@@ -29,7 +29,7 @@ const okResponse = (data, message) => {
   return response;
 };
 
-const errorResponse = (code, message, errors) => {
+const errorResponse = (code, message, errors, prompt) => {
   if (errors) {
     assert(Array.isArray(errors));
   }
@@ -41,6 +41,10 @@ const errorResponse = (code, message, errors) => {
 
   if (errors) {
     response.errors = errors;
+  }
+
+  if (prompt) {
+    response.prompt = prompt;
   }
 
   return response;

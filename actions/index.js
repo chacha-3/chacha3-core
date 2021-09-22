@@ -92,6 +92,12 @@ const runAction = async (options, permission) => {
   const { schema, handler } = action;
 
   if (schema) {
+    const requiresPassword = schema.required && schema.required.includes('password');
+
+    if (requiresPassword && !options.password) {
+      return errorResponse(ErrorCode.InvalidArgument, 'Enter wallet passphrase', null, 'password');
+    }
+
     const validate = ajv.compile(schema);
 
     if (!validate(options)) {

@@ -24,11 +24,19 @@ actions.createWallet = {
   schema: {
     properties: {
       label: { type: 'string' },
+      password: { type: 'string' },
     },
+    required: ['password'],
   },
+  // preValidation: async (options) => {
+  //   if (!options.password) {
+  //     console.log('pre valid')
+  //     return errorResponse(ErrorCode.InvalidArgument, 'Require password', null, 'password');
+  //   }
+  // },
   handler: async (options) => {
     const wallet = new Wallet();
-    wallet.generate();
+    wallet.generate(options.password);
     wallet.setLabel(options.label);
 
     Wallet.save(wallet);
