@@ -249,15 +249,16 @@ actions.accountTransactions = {
     const chain = Chain.mainChain;
 
     const ids = chain.getAccountTransactions(options.address);
-    const data = [];
+    // const data = [];
 
-    for (let i = 0; i < ids.length; i += 1) {
-      const id = deserializeBuffer(ids[i]);
-      const transaction = await Transaction.load(id);
+    const loadTransaction = (id) => new Promise((resolve) => {
+      resolve(Transaction.load(id));
+    });
 
-      data.push(transaction.toObject());
-    }
+    const promises = ids.map((id) => loadTransaction(deserializeBuffer(id)));
+    const transactions = await Promise.all(promises);
 
+    const data = transactions.map((t) => t.toObject());
     return okResponse(data, 'Account transactions');
   },
 };
