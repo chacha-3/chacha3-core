@@ -2,7 +2,8 @@ const Wallet = require('../models/wallet');
 const Chain = require('../models/chain');
 
 const { okResponse, ErrorCode, errorResponse } = require('../util/rpc');
-const { serializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const Transaction = require('../models/transaction');
 
 const actions = {};
 
@@ -228,6 +229,38 @@ actions.accountBalance = {
   },
 };
 
+actions.accountTransactions = {
+  permission: 'public',
+  schema: {
+    properties: {
+      address: { type: 'string', buffer: 'hex' },
+    },
+    required: ['address'],
+  },
+  preValidation: async (options) => {
+    let selectedWallet;
+
+    if (!options.address && (selectedWallet = await Wallet.getSelected())) {
+      // eslint-disable-next-line no-param-reassign
+      options.address = serializeBuffer(selectedWallet);
+    }
+  },
+  handler: async (options) => {
+    const chain = Chain.mainChain;
+
+    const ids = chain.getAccountTransactions(options.address);
+    const data = [];
+
+    for (let i = 0; i < ids.length; i += 1) {
+      const id = deserializeBuffer(ids[i]);
+      const transaction = await Transaction.load(id);
+
+      data.push(transaction.toObject());
+    }
+
+    return okResponse(data, 'Account transactions');
+  },
+};
 
 // actions.walletInfo = {
 //   permission: 'public',
