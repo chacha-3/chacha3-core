@@ -6,7 +6,7 @@
     "start": "node ./main.js",
     "test": "cross-env NODE_ENV=test tap --jobs=1",
     "dev": "cross-env NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./main.js",
-    "shell": "node ./shell/index.js"
+    "shell": "node ./shell"
   },
   "dependencies": {
     "ajv": "^8.6.2",

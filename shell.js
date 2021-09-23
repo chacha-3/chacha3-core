@@ -9,8 +9,8 @@ const ipc = require('node-ipc');
 const { parse } = require('shell-quote');
 const debug = require('debug')('shell');
 
-const { version } = require('../package.json');
-const { SuccessCode } = require('../util/rpc');
+const { version } = require('./package.json');
+const { SuccessCode } = require('./util/rpc');
 // const { ShellDB } = require('./util/db');
 
 const ShellDB = level('data/shell');

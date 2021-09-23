@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const debug = require('debug')('main');
 const server = require('./server');
-const ipc = require('./shell/ipc');
+const ipc = require('./ipc');
 
 const Peer = require('./models/peer');
 const Chain = require('./models/chain');
