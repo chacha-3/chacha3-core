@@ -10,9 +10,10 @@ function runningManualTest(argv) {
   return argv[0].includes('node') && argv[1].includes('test');
 }
 
-const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? 'testdata' : 'data';
+const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? 'test' : 'core';
 
-const DB = level(dbName);
+const DB = level(`data/${dbName}`);
+
 const WalletDB = sub(DB, 'wallet');
 const BlockDB = sub(DB, 'block');
 const ChainDB = sub(DB, 'chain');

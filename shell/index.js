@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 /* eslint-disable no-console */
+const level = require('level');
 const readline = require('readline');
 const chalk = require('chalk');
 const ipc = require('node-ipc');
@@ -8,8 +9,11 @@ const ipc = require('node-ipc');
 const { parse } = require('shell-quote');
 const debug = require('debug')('shell');
 
-const { version } = require('./package.json');
-const { SuccessCode } = require('./util/rpc');
+const { version } = require('../package.json');
+const { SuccessCode } = require('../util/rpc');
+// const { ShellDB } = require('./util/db');
+
+const ShellDB = level('data/shell');
 
 function completer(line) {
   const completions = '/exit /quit /clear'.split(' ');
@@ -123,6 +127,22 @@ function start() {
   rl.prompt();
 }
 
+const loadHistory = async () => {
+  let history;
+
+  try {
+    history = await ShellDB.get('history', { valueEncoding: 'json' });
+  } catch (e) {
+    history = [];
+  }
+
+  return history;
+};
+
+const saveHistory = async () => {
+  await ShellDB.put('history', rl.history, { valueEncoding: 'json' });
+};
+
 const onLineInput = async (line) => {
   // eslint-disable-next-line no-param-reassign
   line = line.trim();
@@ -137,7 +157,7 @@ const onLineInput = async (line) => {
     inputPassword = false;
 
     // Remove password from history
-    rl.history = rl.history.slice(-1);
+    rl.history.shift();
 
     setDefaultPrompt();
   } else {
@@ -176,7 +196,7 @@ const onClose = () => {
   process.exit(0);
 };
 
-const ipcConnect = () => {
+const ipcConnect = async () => {
   retrying = false;
   start();
 };
@@ -214,9 +234,6 @@ const ipcMessage = (data) => {
     return;
   }
 
-  // if (inputPassword) {
-
-  // }
   printResult(parsed);
   rl.prompt();
 };
@@ -240,13 +257,6 @@ rl.input.on('keypress', () => {
 });
 
 rl.on('line', onLineInput);
-// rl.on('history', (history) => {
-//   // if (!inputPassword) {
-//   //   history = null;
-//   // }
-//   console.log(`Received: ${history}`);
-// });
-
 rl.on('close', onClose);
 
 ipc.connectTo(ipcId, () => {

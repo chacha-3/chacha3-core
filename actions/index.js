@@ -78,7 +78,7 @@ const runAction = async (options, permission) => {
   const action = routeAction(options);
 
   if (!action) {
-    return errorResponse(ErrorCode.Unimplemented, 'Action not available');
+    return errorResponse(ErrorCode.Unimplemented, `Action '${options.action}' not available`);
   }
 
   if (!checkPermission(action, permission)) {

@@ -1,6 +1,6 @@
 const debug = require('debug')('ipc');
 const ipc = require('node-ipc');
-const { runAction } = require('./actions');
+const { runAction } = require('../actions');
 
 const ipcId = `bong${process.env.PORT || 3000}`;
 ipc.config.id = `bong${process.env.PORT}`;

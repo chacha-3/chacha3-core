@@ -26,7 +26,7 @@ actions.createWallet = {
       label: { type: 'string' },
       password: { type: 'string' },
     },
-    required: ['password'],
+    required: ['label', 'password'],
   },
   // preValidation: async (options) => {
   //   if (!options.password) {
