@@ -66,147 +66,147 @@ test('push new block', async (t) => {
   t.end();
 });
 
-// test('list blocks in chain', async (t) => {
-//   const blockCount = 3;
+test('list blocks in chain', async (t) => {
+  const blockCount = 3;
 
-//   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
-//   const options = { action: 'listBlocks' };
+  const options = { action: 'listBlocks' };
 
-//   const { code, data } = await runAction(options);
-//   t.equal(code, SuccessCode);
-//   t.equal(data.length, blockCount);
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+  t.equal(data.length, blockCount);
 
-//   const fields = ['hash', 'previous', 'time', 'difficulty', 'nonce', 'checksum', 'version'];
+  const fields = ['hash', 'previous', 'time', 'difficulty', 'nonce', 'checksum', 'version'];
 
-//   fields.forEach((field) => {
-//     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
-//   });
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
+  });
 
-//   await Block.clearAll();
+  await Block.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
-// test('unable to push invalid block', async (t) => {
-//   const blockCount = 3;
+test('unable to push invalid block', async (t) => {
+  const blockCount = 3;
 
-//   const wallet = new Wallet();
-//   wallet.generate();
+  const wallet = new Wallet();
+  wallet.generate();
 
-//   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
-//   const block = new Block();
+  const block = new Block();
 
-//   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
-//   block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
+  block.addCoinbase(wallet.getAddress());
 
-//   // Tamper checksum
-//   block.header.checksum[3] += 100;
+  // Tamper checksum
+  block.header.checksum[3] += 100;
 
-//   await block.mine();
+  await block.mine();
 
-//   const options = { action: 'pushBlock', ...block.toObject() };
+  const options = { action: 'pushBlock', ...block.toObject() };
 
-//   const { code, data } = await runAction(options);
-//   t.equal(code, ErrorCode.InvalidArgument);
+  const { code, data } = await runAction(options);
+  t.equal(code, ErrorCode.InvalidArgument);
 
-//   await Block.clearAll();
+  await Block.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
-// test('unable to push block with transaction exceeding balance', async (t) => {
-//   const blockCount = 3;
+test('unable to push block with transaction exceeding balance', async (t) => {
+  const blockCount = 3;
 
-//   const sender = new Wallet();
-//   sender.generate();
+  const sender = new Wallet();
+  sender.generate();
 
-//   const receiver = new Wallet();
-//   receiver.generate();
+  const receiver = new Wallet();
+  receiver.generate();
 
-//   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, sender);
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, sender);
 
-//   const block = new Block();
+  const block = new Block();
 
-//   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
-//   block.addCoinbase(sender.getAddress());
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
+  block.addCoinbase(sender.getAddress());
 
-//   const exceedAmount = Block.InitialReward * BigInt(blockCount + 4);
-//   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), exceedAmount);
-//   transaction.sign(sender.getPrivateKeyObject());
+  const exceedAmount = Block.InitialReward * BigInt(blockCount + 4);
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), exceedAmount);
+  transaction.sign(sender.getPrivateKeyObject());
 
-//   block.addTransaction(transaction);
-//   await block.mine();
+  block.addTransaction(transaction);
+  await block.mine();
 
-//   const options = { action: 'pushBlock', ...block.toObject() };
+  const options = { action: 'pushBlock', ...block.toObject() };
 
-//   const { code } = await runAction(options);
-//   t.equal(code, ErrorCode.InvalidArgument);
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.InvalidArgument);
 
-//   await Block.clearAll();
+  await Block.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
-// test('block info for existing block', async (t) => {
-//   const blockCount = 3;
+test('block info for existing block', async (t) => {
+  const blockCount = 3;
 
-//   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
-//   const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
+  const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
 
-//   const options = { action: 'blockInfo', hash: serializeBuffer(randomBlock.getHash()) };
+  const options = { action: 'blockInfo', hash: serializeBuffer(randomBlock.getHash()) };
 
-//   const { code, data } = await runAction(options);
-//   t.equal(code, SuccessCode);
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
 
-//   const fields = ['header', 'transactions'];
+  const fields = ['header', 'transactions'];
 
-//   fields.forEach((field) => {
-//     t.ok(Object.prototype.hasOwnProperty.call(data, field));
-//   });
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data, field));
+  });
 
-//   await Block.clearAll();
+  await Block.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
-// test('block info for non-existing block', async (t) => {
-//   const options = { action: 'blockInfo', hash: serializeBuffer(crypto.randomBytes(32)) };
+test('block info for non-existing block', async (t) => {
+  const options = { action: 'blockInfo', hash: serializeBuffer(crypto.randomBytes(32)) };
 
-//   const { code } = await runAction(options);
-//   t.equal(code, ErrorCode.NotFound);
-//   t.end();
-// });
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.NotFound);
+  t.end();
+});
 
-// test('block transactions list for existing block', async (t) => {
-//   const blockCount = 3;
+test('block transactions list for existing block', async (t) => {
+  const blockCount = 3;
 
-//   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
-//   const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
+  const randomBlock = Chain.mainChain.getBlockHeader(randomNumberBetween(0, blockCount - 1));
 
-//   const options = { action: 'blockTransactions', hash: serializeBuffer(randomBlock.getHash()) };
+  const options = { action: 'blockTransactions', hash: serializeBuffer(randomBlock.getHash()) };
 
-//   const { code, data } = await runAction(options);
-//   t.equal(code, SuccessCode);
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
 
-//   const fields = ['id', 'sender', 'receiver', 'amount', 'version', 'time', 'signature'];
+  const fields = ['id', 'sender', 'receiver', 'amount', 'version', 'time', 'signature'];
 
-//   fields.forEach((field) => {
-//     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
-//   });
+  fields.forEach((field) => {
+    t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
+  });
 
-//   await Block.clearAll();
+  await Block.clearAll();
 
-//   t.end();
-// });
+  t.end();
+});
 
-// test('block info for non-existing block', async (t) => {
-//   const options = { action: 'blockTransactions', hash: serializeBuffer(crypto.randomBytes(32)) };
+test('block info for non-existing block', async (t) => {
+  const options = { action: 'blockTransactions', hash: serializeBuffer(crypto.randomBytes(32)) };
 
-//   const { code } = await runAction(options);
-//   t.equal(code, ErrorCode.NotFound);
-//   t.end();
-// });
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.NotFound);
+  t.end();
+});

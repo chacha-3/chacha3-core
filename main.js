@@ -6,8 +6,6 @@ const ipc = require('./ipc');
 
 const Peer = require('./models/peer');
 const Chain = require('./models/chain');
-const Block = require('./models/block');
-const { mainChain } = require('./models/chain');
 
 /**
  * Normalize a port into a number, string, or false.

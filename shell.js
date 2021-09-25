@@ -136,11 +136,16 @@ const loadHistory = async () => {
     history = [];
   }
 
-  return history;
+  rl.history = history;
 };
 
 const saveHistory = async () => {
   await ShellDB.put('history', rl.history, { valueEncoding: 'json' });
+};
+
+const deleteHistory = async () => {
+  rl.history = [];
+  await ShellDB.put('history', [], { valueEncoding: 'json' });
 };
 
 const onLineInput = async (line) => {
@@ -158,12 +163,18 @@ const onLineInput = async (line) => {
 
     // Remove password from history
     rl.history.shift();
+    await saveHistory();
 
     setDefaultPrompt();
   } else {
     if (line === '/exit' || line === '/quit') {
       rl.close();
     } else if (line === '/clear') {
+      console.clear();
+      start();
+      return;
+    } else if (line === '/clean') {
+      await deleteHistory();
       console.clear();
       start();
       return;
@@ -182,6 +193,7 @@ const onLineInput = async (line) => {
     }
 
     lastRequest = options;
+    await saveHistory();
   }
 
   ipc.of[ipcId].emit(
@@ -198,6 +210,7 @@ const onClose = () => {
 
 const ipcConnect = async () => {
   retrying = false;
+  await loadHistory();
   start();
 };
 
@@ -244,13 +257,12 @@ rl.input.on('keypress', () => {
   if (!inputPassword) {
     return;
   }
-  // get the number of characters entered so far:
+
+  // Mask characters for password
   const len = rl.line.length;
-  // move cursor back to the beginning of the input:
   readline.moveCursor(rl.output, -len, 0);
-  // clear everything to the right of the cursor:
   readline.clearLine(rl.output, 1);
-  // replace the original input with asterisks:
+
   for (let i = 0; i < len; i += 1) {
     rl.output.write('*');
   }
