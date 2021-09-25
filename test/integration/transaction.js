@@ -14,8 +14,10 @@ const { serializeBuffer } = require('../../util/serialize');
 const Block = require('../../models/block');
 
 test('create a transaction with sufficient balance', async (t) => {
+  const password = 'qf2G3ZGW5afX';
+
   const sender = new Wallet();
-  sender.generate();
+  sender.generate(password);
 
   const receiver = new Wallet();
   receiver.generate();
@@ -27,6 +29,7 @@ test('create a transaction with sufficient balance', async (t) => {
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),
     amount: 20,
+    password,
   });
 
   t.equal(code, SuccessCode);
@@ -38,8 +41,10 @@ test('create a transaction with sufficient balance', async (t) => {
 });
 
 test('unable to create a transaction with insufficient balance', async (t) => {
+  const password = '6YGgZt4zFU9m';
+
   const sender = new Wallet();
-  sender.generate();
+  sender.generate(password);
 
   const receiver = new Wallet();
   receiver.generate();
@@ -51,6 +56,7 @@ test('unable to create a transaction with insufficient balance', async (t) => {
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),
     amount: 20,
+    password,
   });
 
   t.equal(code, ErrorCode.FailedPrecondition);

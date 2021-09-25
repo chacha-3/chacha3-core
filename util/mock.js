@@ -74,8 +74,12 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, receiverWa
 
   const minusCoinbase = numOfTransactions - 1;
 
-  const receiver = receiverWallet || new Wallet();
-  receiver.generate();
+  let receiver = receiverWallet;
+
+  if (!receiver) {
+    receiver = new Wallet();
+    receiver.generate();
+  }
 
   const block = new Block();
   block.addCoinbase(receiver.getAddress());

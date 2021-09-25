@@ -78,15 +78,28 @@ test('should get encoded wallet address', (t) => {
   t.end();
 });
 
-// FIXME: Need password
-test('should recover a wallet', (t) => {
-  const oldWallet = new Wallet();
-  oldWallet.generate();
+test('should recover a wallet with correct password', (t) => {
+  const password = 'fXYpgaV5rFp6';
 
-  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), ''); // FIXME: Add pass
+  const oldWallet = new Wallet();
+  oldWallet.generate(password);
+
+  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), password);
 
   t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
   t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
+  t.end();
+});
+
+test('should not recover a wallet with incorrect password', (t) => {
+  const password = '2AUJZjwDPe88';
+
+  const oldWallet = new Wallet();
+  oldWallet.generate(password);
+
+  const result = Wallet.recover(oldWallet.getPrivateKey(), 'spP9PjjwwL8X');
+  t.equal(result, null);
+
   t.end();
 });
 
