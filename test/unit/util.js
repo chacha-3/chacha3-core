@@ -5,6 +5,7 @@ const {
   serializeObject, deserializeObject, deserializeBuffer, serializeBuffer,
 } = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
+const { median } = require('../../util/math');
 
 test('detect running unit test', (t) => {
   const argvTest = [
@@ -81,6 +82,16 @@ test('serialize and deserialize object', (t) => {
   t.equal(deserialized.nested.d, source.d);
   t.equal(deserialized.nested.e, source.e);
   t.equal(deserialized.array.length, 1);
+
+  t.end();
+});
+
+test('get median value', (t) => {
+  const evenLength = [2, 3, 5, 7];
+  const oddLength = [2, 3, 5, 7, 9];
+
+  t.equal(median(evenLength), 4);
+  t.equal(median(oddLength), 5);
 
   t.end();
 });

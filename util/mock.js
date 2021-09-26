@@ -43,15 +43,15 @@ mock.nodePeer = () => {
   return peer;
 };
 
-mock.peerList = (numOfPeers) => {
-  const list = [];
+// mock.peerList = (numOfPeers) => {
+//   const list = [];
 
-  for (let i = 0; i < numOfPeers; i += 1) {
-    list.push(this.nodePeer());
-  }
+//   for (let i = 0; i < numOfPeers; i += 1) {
+//     list.push(this.nodePeer());
+//   }
 
-  return list;
-};
+//   return list;
+// };
 
 mock.createPeers = async (count) => {
   const createPeer = () => new Promise((resolve) => {
