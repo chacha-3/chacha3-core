@@ -6,6 +6,8 @@ const Wallet = require('../../models/wallet');
 const { runAction } = require('../../actions');
 const { SuccessCode } = require('../../util/rpc');
 
+const build = require('../../app');
+
 test('should get node info', async (t) => {
   await mock.createWallets(3);
 
@@ -37,13 +39,36 @@ test('should ping own node', async (t) => {
 });
 
 // Require testing server
-// test('should ping a node address', async (t) => {
-//   const { code, message } = await runAction({
-//     action: 'pingNode',
-//   });
+test('should ping a node address', (t) => {
+  t.plan(2);
 
-//   t.equal(code, SuccessCode);
-//   t.equal(message, 'Pong');
+  const app = build();
 
-//   t.end();
-// });
+  t.teardown(() => app.close());
+
+  app.listen(0, async (err) => {
+    t.error(err);
+
+    // request({
+    //   method: 'GET',
+    //   url: 'http://localhost:' + fastify.server.address().port
+    // }, (err, response, body) => {
+    //   t.error(err)
+    //   t.equal(response.statusCode, 200)
+    //   t.equal(response.headers['content-type'], 'application/json; charset=utf-8')
+    //   t.same(JSON.parse(body), { hello: 'world' })
+    // })
+    const { code, message } = await runAction({
+      action: 'pingNode',
+      address: '127.0.0.1',
+      port: app.server.address().port,
+    });
+    t.equal(code, SuccessCode);
+  });
+
+  // console.log(code, message);
+  // t.equal(code, SuccessCode);
+  // t.equal(message, 'Pong');
+
+  // t.end();
+});

@@ -10,6 +10,7 @@ const Block = require('./block');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
+const { stringify } = require('querystring');
 
 class Peer {
   constructor(address, port) {
@@ -191,9 +192,10 @@ class Peer {
   }
 
   setAddress(address) {
-    if (!ipaddr.isValid(address)) {
-      throw Error('Invalid IP address');
-    }
+    // FIXME: Disabled. Temp
+    // if (!ipaddr.isValid(address)) {
+    //   throw Error('Invalid IP address');
+    // }
 
     this.address = address;
   }
@@ -326,9 +328,10 @@ class Peer {
   }
 
   async sendRequest(options) {
-    if (process.env.NODE_ENV === 'test') {
-      return null;
-    }
+    // FIXME: Toggle those disabled for test and not
+    // if (process.env.NODE_ENV === 'test') {
+    //   return null;
+    // }
 
     const post = bent(`http://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
@@ -352,9 +355,9 @@ class Peer {
   }
 
   async callAction(actionName, options) {
-    debug(`Call peer action: ${actionName}`);
-
     const params = Object.assign(options || {}, { action: actionName });
+    debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
+
     return this.sendRequest(params);
   }
 
