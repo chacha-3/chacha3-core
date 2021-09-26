@@ -10,7 +10,7 @@ const { errorResponse, ErrorCode } = require('./util/rpc');
 const Chain = require('./models/chain');
 
 const errorHandler = (error, request, reply) => {
-  console.log(error);
+  console.log('asdadadadad');
   reply.send(errorResponse(ErrorCode.Internal, error.message));
 };
 
@@ -92,6 +92,7 @@ function build(opts = {}) {
 
       debug(`Request receive: ${JSON.stringify(request.body)}}`);
       const response = await runAction(request.body, 'none');
+
       reply.send(response);
     },
   });

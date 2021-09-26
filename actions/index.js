@@ -104,15 +104,7 @@ const runAction = async (options, permission) => {
     }
   }
 
-  let result;
-  try {
-    // console.log(`options: ${JSON.stringify(options)}`);
-    // result = await execute(deserializeObject(options), handler);
-    result = await execute(options, handler);
-  } catch (e) {
-    result = { message: e.message, code: 'internal' };
-  }
-
+  const result = await execute(options, handler);
   return serializeObject(result);
 };
 
