@@ -94,13 +94,13 @@ actions.pushTransaction = {
     const errors = transaction.validate();
 
     if (errors.length > 0) {
-      return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
+      return errorResponse(ErrorCode.InvalidArgument, 'Invalid transaction', errors);
     }
 
     if (!transaction.verify()) {
       debug(`Transaction failed verification: ${JSON.stringify(options)}`);
       // TODO: Check if this error code appropriate
-      return errorResponse(ErrorCode.FailedPrecondition, 'Transaction failed verification');
+      return errorResponse(ErrorCode.InvalidArgument, 'Transaction failed verification');
     }
 
     await transaction.save(true);

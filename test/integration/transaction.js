@@ -182,6 +182,34 @@ test('should fail to push invalid transaction', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
+  const transaction = new Transaction(sender.getPublicKey(), sender.getAddress(), 10000);
+  transaction.sign(sender.getPrivateKeyObject());
+
+  /// Same sender and receiver
+  const { code } = await runAction({
+    action: 'pushTransaction',
+    key: serializeBuffer(transaction.getSenderKey()),
+    address: serializeBuffer(transaction.getReceiverAddress()),
+    amount: transaction.getAmount().toString(),
+    signature: serializeBuffer(transaction.getSignature()),
+    time: transaction.getTime(),
+    version: transaction.getVersion(),
+  });
+
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  const pendingTransactions = await Transaction.loadPending();
+  t.equal(pendingTransactions.length, 0);
+
+  await Transaction.clearAll();
+
+  t.end();
+});
+
+test('should fail to push unverified transaction', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
   const receiver = new Wallet();
   receiver.generate();
 
@@ -198,8 +226,7 @@ test('should fail to push invalid transaction', async (t) => {
     version: transaction.getVersion(),
   });
 
-  // TODO: Appropriate error code?
-  t.equal(code, ErrorCode.FailedPrecondition);
+  t.equal(code, ErrorCode.InvalidArgument);
 
   const pendingTransactions = await Transaction.loadPending();
   t.equal(pendingTransactions.length, 0);
@@ -208,6 +235,7 @@ test('should fail to push invalid transaction', async (t) => {
 
   t.end();
 });
+
 
 test('get pending transactions', async (t) => {
   const sender = new Wallet();
