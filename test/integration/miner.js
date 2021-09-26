@@ -63,6 +63,7 @@ test('start and stop miner with address of selected wallet', async (t) => {
   t.equal(stopResponse.code, SuccessCode);
   t.equal(stopResponse.data.address, wallet.getAddressEncoded());
 
+  await Wallet.clearAll();
   await Chain.clear();
 
   t.end();
@@ -92,7 +93,10 @@ test('should not start a miner that is already running', async (t) => {
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
   // Start
-  await runAction({ action: 'startMiner' });
+  await runAction({
+    action: 'startMiner',
+    address: receiver.getAddressEncoded(),
+  });
 
   // Duplicate start
   const { code } = await runAction({
