@@ -107,7 +107,7 @@ class Transaction {
     }
 
     if (this.amount <= 0n) {
-      errors.push('Amount has to be greater than 0');
+      errors.push('Amount has to be more than 0');
     }
 
     return errors;

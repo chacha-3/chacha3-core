@@ -25,6 +25,15 @@ test('get difficulty target', (t) => {
 
   header.setDifficulty(2);
   t.equal(header.getTarget(), BigInt(Header.MinTarget) / 2n);
+
+  // Rounded
+  header.setDifficulty(12.33);
+  t.equal(header.getTarget(), BigInt(Header.MinTarget) / 12n);
+
+  // Difficulty is rounded up but cannot be less than 1
+  header.setDifficulty(0.25);
+  t.equal(header.getTarget(), BigInt(Header.MinTarget));
+
   t.end();
 });
 

@@ -45,6 +45,57 @@ test('should have unverified coinbase when invalid address', async (t) => {
   t.end();
 });
 
+test('should have unverified coinbase when invalid amount', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  const address = wallet.getAddress();
+
+  block.addCoinbase(address);
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  block.transactions[0].amount = 99999;
+
+  await block.mine();
+
+  t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
+  t.equal(block.verify(), false, 'mined block has invalid coinbase');
+
+  t.end();
+});
+
+test('coinbase should not have signature and sender', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+
+  const transaction = new Transaction(
+    sender.getPrivateKey(),
+    receiver.getAddress(),
+    Block.InitialReward,
+  );
+
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+  block.addCoinbase(receiver.getAddress());
+  block.addTransaction(transaction);
+
+  // Remove coinbase as first
+  block.transactions.shift();
+
+  await block.mine();
+
+  t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
+  t.equal(block.verify(), false, 'mined block has invalid coinbase');
+
+  t.end();
+});
+
 test('does not add same transaction twice', async (t) => {
   const sender = new Wallet();
   sender.generate();
