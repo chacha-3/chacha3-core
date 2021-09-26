@@ -98,6 +98,23 @@ test('should select a default wallet', async (t) => {
   t.end();
 });
 
+test('should have the correct selected wallet', async (t) => {
+  const [wallet] = await mock.createWallets(1);
+  await Wallet.setSelected(wallet.getAddress());
+
+  const { code, data } = await runAction({
+    action: 'selectedWallet',
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.label, wallet.getLabel());
+  t.equal(data.address, wallet.getAddressEncoded());
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 test('should delete a saved wallet', async (t) => {
   const wallets = await mock.createWallets(1);
 

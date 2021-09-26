@@ -213,12 +213,6 @@ actions.unselectWallet = {
 
 actions.selectedWallet = {
   permission: 'public',
-  // schema: {
-  //   properties: {
-  //     address: { type: 'string' },
-  //   },
-  //   required: ['address'],
-  // },
   handler: async () => {
     const key = await Wallet.getSelected();
     const wallet = await Wallet.load(key);
