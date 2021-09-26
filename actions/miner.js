@@ -42,7 +42,11 @@ actions.startMiner = {
 
 actions.stopMiner = {
   permission: 'authOnly', // TODO: Change to private
-  handler: async (options) => {
+  handler: async () => {
+    if (!miner.isMining()) {
+      return errorResponse(ErrorCode.FailedPrecondition, 'Miner is not running');
+    }
+
     miner.stop();
 
     const data = {

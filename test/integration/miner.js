@@ -84,3 +84,47 @@ test('correct miner status when miner not running', async (t) => {
   await Chain.clear();
   t.end();
 });
+
+test('should not start a miner that is already running', async (t) => {
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+
+  // Start
+  await runAction({ action: 'startMiner' });
+
+  // Duplicate start
+  const { code } = await runAction({
+    action: 'startMiner',
+    address: receiver.getAddressEncoded(),
+  });
+
+  t.equal(code, ErrorCode.FailedPrecondition);
+
+  // Stop
+  await runAction({ action: 'stopMiner' });
+
+  await Chain.clear();
+
+  t.end();
+});
+
+test('should not stop a miner when it is not running', async (t) => {
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+
+  // Duplicate start
+  const { code } = await runAction({
+    action: 'stopMiner',
+    address: receiver.getAddressEncoded(),
+  });
+
+  t.equal(code, ErrorCode.FailedPrecondition);
+
+  await Chain.clear();
+
+  t.end();
+});
