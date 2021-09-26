@@ -115,6 +115,33 @@ test('should have the correct selected wallet', async (t) => {
   t.end();
 });
 
+test('should have no selected wallet', async (t) => {
+  const { code } = await runAction({
+    action: 'selectedWallet',
+  });
+
+  t.equal(code, ErrorCode.NotFound);
+  t.end();
+});
+
+test('should unselect a wallet', async (t) => {
+  const [wallet] = await mock.createWallets(1);
+  await Wallet.setSelected(wallet.getAddress());
+
+  t.not(await Wallet.getSelected(), null);
+
+  const { code } = await runAction({
+    action: 'unselectWallet',
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(await Wallet.getSelected(), null);
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 test('should delete a saved wallet', async (t) => {
   const wallets = await mock.createWallets(1);
 
