@@ -154,9 +154,6 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
     // chain.addBlockHeader(block.getHeader());
     await chain.confirmNewBlock(block);
 
-    // FIXME: Not valid. Not updating
-    const valid = chain.updateBlockBalances(block);
-
     previousBlock = block;
   }
 

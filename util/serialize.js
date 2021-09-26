@@ -22,6 +22,9 @@ const deserializeBuffer = (value) => {
   return Buffer.from(value.substr(2), 'hex');
 };
 
+const serializeBigInt = (value) => `${value.toString()}n`;
+const deserializeBigInt = (value) => BigInt(value.substr(0, value.length - 1));
+
 const serializeObject = (obj) => {
   const serialized = { ...obj };
 
@@ -36,7 +39,7 @@ const serializeObject = (obj) => {
     if (Buffer.isBuffer(value)) { // FIXME: Double check
       serialized[key] = serializeBuffer(value);
     } else if (typeof (value) === 'bigint') {
-      serialized[key] = `${value.toString()}n`;
+      serialized[key] = serializeBigInt(value);
     } else if (Array.isArray(value)) {
       value.forEach((v) => serializeObject(v));
     } else if (value.toString() === '[object Object]') { // Is a sub-object
@@ -72,7 +75,7 @@ const deserializeObject = (obj) => {
     const isBigIntString = /^\d+n$/.test(value);
 
     if (isBigIntString) {
-      deserialized[key] = BigInt(value.substr(0, value.length - 1));
+      deserialized[key] = deserializeBigInt(value);
     } else if (value.substr(0, 2) === '0x') { // FIXME: Double check
       deserialized[key] = deserializeBuffer(value);
     }
@@ -82,8 +85,10 @@ const deserializeObject = (obj) => {
 };
 
 module.exports = {
-  serializeObject,
-  deserializeObject,
   serializeBuffer,
   deserializeBuffer,
+  serializeBigInt,
+  deserializeBigInt,
+  serializeObject,
+  deserializeObject,
 };

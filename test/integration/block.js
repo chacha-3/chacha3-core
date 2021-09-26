@@ -60,8 +60,7 @@ test('push new block', async (t) => {
   const pendingAfter = await Transaction.loadPending();
   t.equal(pendingAfter.length, 1);
 
-  await Transaction.clearAll();
-  await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });
@@ -83,7 +82,7 @@ test('list blocks in chain', async (t) => {
     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
   });
 
-  await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });
@@ -111,7 +110,7 @@ test('unable to push invalid block', async (t) => {
   const { code, data } = await runAction(options);
   t.equal(code, ErrorCode.InvalidArgument);
 
-  await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });
@@ -144,7 +143,7 @@ test('unable to push block with transaction exceeding balance', async (t) => {
   const { code } = await runAction(options);
   t.equal(code, ErrorCode.InvalidArgument);
 
-  await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });
@@ -167,7 +166,7 @@ test('block info for existing block', async (t) => {
     t.ok(Object.prototype.hasOwnProperty.call(data, field));
   });
 
-  await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });
@@ -198,7 +197,8 @@ test('block transactions list for existing block', async (t) => {
     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));
   });
 
-  await Block.clearAll();
+  // await Block.clearAll();
+  await Chain.clear();
 
   t.end();
 });

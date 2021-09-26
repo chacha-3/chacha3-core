@@ -2,10 +2,13 @@ const { test } = require('tap');
 
 const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
+const Chain = require('../../models/chain');
 
 const { runAction } = require('../../actions');
 
 const { SuccessCode, ErrorCode } = require('../../util/rpc');
+const Block = require('../../models/block');
+const { deserializeBigInt } = require('../../util/serialize');
 
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
@@ -82,6 +85,22 @@ test('verify wallet password access with correct password', async (t) => {
   t.end();
 });
 
+test('unable to verify unsaved wallet', async (t) => {
+  const password = 'FGhbYwe4U952';
+
+  const unsavedWallet = new Wallet();
+  unsavedWallet.generate(password);
+
+  const { code } = await runAction({
+    action: 'verifyWallet',
+    address: unsavedWallet.getAddressEncoded(),
+    password,
+  });
+
+  t.equal(code, ErrorCode.NotFound);
+  t.end();
+});
+
 test('cannot create wallet without label', async (t) => {
   const { code } = await runAction({
     action: 'createWallet',
@@ -131,6 +150,19 @@ test('should select a default wallet', async (t) => {
 
   await Wallet.clearAll();
 
+  t.end();
+});
+
+test('should not be able to select an unsaved wallet', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const { code } = await runAction({
+    action: 'selectWallet',
+    address: wallet.getAddressEncoded(),
+  });
+
+  t.equal(code, ErrorCode.NotFound);
   t.end();
 });
 
@@ -254,5 +286,32 @@ test('should not recover a wallet without correct private key', async (t) => {
   });
 
   t.equal(code, ErrorCode.InvalidArgument);
+  t.end();
+});
+
+// TODO: Move to account model?
+test('should have correct wallet account balance', async (t) => {
+  const blockCount = 3;
+  const minusGenesis = blockCount - 1;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
+
+  const { code, data } = await runAction({
+    action: 'accountBalance',
+    address: wallet.getAddressEncoded(),
+  });
+
+  t.equal(code, SuccessCode);
+
+  const expectedBalance = Block.InitialReward * BigInt(minusGenesis);
+
+  const { balance } = data;
+  t.equal(deserializeBigInt(balance), expectedBalance);
+
+  await Chain.clear();
+
   t.end();
 });

@@ -420,6 +420,8 @@ class Chain {
   }
 
   static async clear() {
+    await Transaction.clearAll();
+    // FIXME: Clear using model method
     await HeaderDB.clear(); // TODO: Add test
     await BlockDB.clear();
     await DB.del('chain');
