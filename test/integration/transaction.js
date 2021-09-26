@@ -84,7 +84,7 @@ test('show info for transaction', async (t) => {
 
   Chain.mainChain = await mock.chainWithBlocks(3, 3);
 
-  const selectedHeader = Chain.mainChain.getBlockHeader(1);
+  const selectedHeader = Chain.mainChain.getBlockHeader(2);
   const loadedBlock = await Block.load(selectedHeader.getHash());
 
   const selectedTransaction = loadedBlock.getTransaction(2);
