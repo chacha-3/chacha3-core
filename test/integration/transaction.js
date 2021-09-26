@@ -24,7 +24,7 @@ test('create a transaction with sufficient balance', async (t) => {
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
 
-  const { code, data, message } = await runAction({
+  const { code, data } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),
@@ -34,8 +34,65 @@ test('create a transaction with sufficient balance', async (t) => {
 
   t.equal(code, SuccessCode);
 
-  await Transaction.clearAll();
-  await Block.clearAll();
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'id'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'signature'));
+  // TODO: More check
+
+  await Chain.clear();
+
+  t.end();
+});
+
+test('create a transaction with selected wallet', async (t) => {
+  const password = 'TkeA2sqWbPdY';
+
+  const [sender] = await mock.createWallets(1, password);
+  await Wallet.setSelected(sender.getAddress());
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
+
+  const { code, data } = await runAction({
+    action: 'createTransaction',
+    address: receiver.getAddressEncoded(),
+    amount: 20,
+    password,
+  });
+
+  t.equal(code, SuccessCode);
+
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'id'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'signature'));
+  // TODO: More check
+
+  await Wallet.clearAll();
+  await Chain.clear();
+
+  t.end();
+});
+
+test('create show error for invalid transaction', async (t) => {
+  const password = '7ve375VznUSa';
+
+  const sender = new Wallet();
+  sender.generate(password);
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
+
+  // Invalid transaction Same sender and receiver
+  const { code } = await runAction({
+    action: 'createTransaction',
+    key: sender.getPrivateKeyHex(),
+    address: sender.getAddressEncoded(),
+    amount: 20,
+    password,
+  });
+
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  await Chain.clear();
 
   t.end();
 });
@@ -61,12 +118,37 @@ test('unable to create a transaction with insufficient balance', async (t) => {
 
   t.equal(code, ErrorCode.FailedPrecondition);
 
-  await Transaction.clearAll();
+  await Chain.clear();
 
   t.end();
 });
 
-test('push transaction', async (t) => {
+test('unable to create a transaction with incorrect password', async (t) => {
+  const password = 'n7TnTBYB4J7G';
+
+  const sender = new Wallet();
+  sender.generate(password);
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+
+  const { code} = await runAction({
+    action: 'createTransaction',
+    key: sender.getPrivateKeyHex(),
+    address: receiver.getAddressEncoded(),
+    amount: 20,
+    password: 'kYrJ6P6ruWQa',
+  });
+
+  t.equal(code, ErrorCode.PermissionDenied);
+  await Chain.clear();
+
+  t.end();
+});
+
+test('should push valid transaction', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -90,6 +172,37 @@ test('push transaction', async (t) => {
 
   const pendingTransactions = await Transaction.loadPending();
   t.equal(pendingTransactions.length, 1);
+
+  await Transaction.clearAll();
+
+  t.end();
+});
+
+test('should fail to push invalid transaction', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  // Not signed
+  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10000);
+
+  const { code } = await runAction({
+    action: 'pushTransaction',
+    key: serializeBuffer(transaction.getSenderKey()),
+    address: serializeBuffer(transaction.getReceiverAddress()),
+    amount: transaction.getAmount().toString(),
+    signature: serializeBuffer(transaction.getSignature()),
+    time: transaction.getTime(),
+    version: transaction.getVersion(),
+  });
+
+  // TODO: Appropriate error code?
+  t.equal(code, ErrorCode.FailedPrecondition);
+
+  const pendingTransactions = await Transaction.loadPending();
+  t.equal(pendingTransactions.length, 0);
 
   await Transaction.clearAll();
 

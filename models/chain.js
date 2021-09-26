@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const Header = require('./header');
 
-const { DB, BlockDB, HeaderDB, runningManualTest } = require('../util/db');
+const { DB, BlockDB, HeaderDB, runningManualTest, PendingTransactionDB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer, serializeObject } = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
@@ -420,6 +420,7 @@ class Chain {
   }
 
   static async clear() {
+    await PendingTransactionDB.clear();
     await Transaction.clearAll();
     // FIXME: Clear using model method
     await HeaderDB.clear(); // TODO: Add test

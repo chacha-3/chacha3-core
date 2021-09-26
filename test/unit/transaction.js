@@ -33,6 +33,23 @@ test('should create a verified transaction', (t) => {
   t.end();
 });
 
+test('transaction with same sender and receiver is invalid', (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), sender.getAddress(), 10,
+  );
+
+  transaction.sign(sender.getPrivateKeyObject());
+
+  const errors = transaction.validate();
+  t.ok(errors.length > 0);
+  t.not(transaction.verify());
+
+  t.end();
+});
+
 test('should have ID for transaction', (t) => {
   const sender = new Wallet();
   sender.generate();

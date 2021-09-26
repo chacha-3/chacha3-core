@@ -112,11 +112,10 @@ class Transaction {
   validate() {
     const errors = [];
 
-    // TODO: Test
     if (this.senderKey) {
-      const senderAddress = Wallet.generateAddressEncoded(this.senderKey);
+      const senderAddress = Wallet.generateAddress(this.senderKey);
 
-      if (this.receiverAddress === senderAddress) {
+      if (this.receiverAddress.equals(senderAddress)) {
         errors.push('Same sender and receiver');
       }
     }

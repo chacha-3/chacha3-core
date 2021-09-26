@@ -35,7 +35,7 @@ actions.createTransaction = {
     const senderWallet = Wallet.recover(options.key, options.password);
 
     if (!senderWallet) {
-      return errorResponse(ErrorCode.InvalidArgument, 'Incorrect password');
+      return errorResponse(ErrorCode.PermissionDenied, 'Incorrect password');
     }
 
     const senderBalance = Chain.mainChain.getAccountBalance(senderWallet.getAddress());
@@ -53,10 +53,11 @@ actions.createTransaction = {
 
     transaction.sign(senderWallet.getPrivateKeyObject(options.password));
 
+    // TODO: Validate before verify
     const errors = transaction.validate();
 
     if (errors.length > 0) {
-      return errorResponse(ErrorCode.FailedPrecondition, 'Invalid transaction', errors);
+      return errorResponse(ErrorCode.InvalidArgument, 'Invalid transaction', errors);
     }
 
     await transaction.save(true);
@@ -98,6 +99,7 @@ actions.pushTransaction = {
 
     if (!transaction.verify()) {
       debug(`Transaction failed verification: ${JSON.stringify(options)}`);
+      // TODO: Check if this error code appropriate
       return errorResponse(ErrorCode.FailedPrecondition, 'Transaction failed verification');
     }
 
