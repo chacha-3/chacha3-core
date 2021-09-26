@@ -50,29 +50,29 @@ test('transaction with same sender and receiver is invalid', (t) => {
   t.end();
 });
 
-// test('transaction with amount 0 or smaller is invalid', (t) => {
-//   const sender = new Wallet();
-//   sender.generate();
+test('transaction with amount 0 or smaller is invalid', (t) => {
+  const sender = new Wallet();
+  sender.generate();
 
-//   const receiver = new Wallet();
-//   receiver.generate();
+  const receiver = new Wallet();
+  receiver.generate();
 
-//   const transactionZero = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-//   transactionZero.sign(sender.getPrivateKeyObject());
+  const transactionZero = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
+  transactionZero.sign(sender.getPrivateKeyObject());
 
-//   const zeroErrors = transactionZero.validate();
-//   t.ok(zeroErrors.length > 0, 'error when transaction amount is zero');
-//   t.not(transactionZero.verify());
+  const zeroErrors = transactionZero.validate();
+  t.ok(zeroErrors.length > 0, 'error when transaction amount is zero');
+  t.not(transactionZero.verify());
 
-//   const transactionNegative = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-//   transactionNegative.sign(sender.getPrivateKeyObject());
+  const transactionNegative = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
+  transactionNegative.sign(sender.getPrivateKeyObject());
 
-//   const negativeErrors = transactionNegative.validate();
-//   t.ok(negativeErrors.length > 0, 'error when transaction amount less than zero');
-//   t.not(transactionNegative.verify());
+  const negativeErrors = transactionNegative.validate();
+  t.ok(negativeErrors.length > 0, 'error when transaction amount less than zero');
+  t.not(transactionNegative.verify());
 
-//   t.end();
-// });
+  t.end();
+});
 
 test('should have ID for transaction', (t) => {
   const sender = new Wallet();

@@ -21,10 +21,10 @@ test('get difficulty target', (t) => {
   const header = new Header();
 
   // Difficulty 1 by default
-  // t.equal(header.getTarget(), 'ffffffffffffffffffff00000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), BigInt(Header.MinTarget));
 
   header.setDifficulty(2);
-  // t.equal(header.getTarget(), '7fffffffffffffffffff80000000000000000000000000000000000000000000');
+  t.equal(header.getTarget(), BigInt(Header.MinTarget) / 2n);
   t.end();
 });
 

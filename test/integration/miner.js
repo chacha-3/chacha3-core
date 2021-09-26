@@ -90,13 +90,14 @@ test('should not start a miner that is already running', async (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);;
 
   // Start
   await runAction({
     action: 'startMiner',
     address: receiver.getAddressEncoded(),
   });
+
 
   // Duplicate start
   const { code } = await runAction({
