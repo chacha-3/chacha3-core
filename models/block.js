@@ -309,7 +309,8 @@ class Block {
   }
 
   async save() {
-    assert(this.verify());
+    // Disabled as require current block reward to verify correctly
+    // assert(this.verify());
 
     const key = this.getHeader().getHash();
 

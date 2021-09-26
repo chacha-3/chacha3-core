@@ -212,7 +212,7 @@ class Chain {
 
   async confirmNewBlock(block) {
     if (!block.verify(Chain.currentBlockReward())) {
-      debug('Failed to confirm new block: Incorrect block reward');
+      debug(`Failed to confirm new block: Incorrect block reward (${Chain.currentBlockReward()},${Chain.mainChain.getLength()})`);
       return false;
     }
 
@@ -280,8 +280,13 @@ class Chain {
     return this.blockHeaders.length;
   }
 
+  // TODO: Rename to next block reward
   static currentBlockReward() {
     return this.blockRewardAtIndex(Chain.mainChain.getLength());
+  }
+
+  static nextBlockReward() {
+    return this.blockRewardAtIndex(Chain.mainChain.getLength() + 1);
   }
 
   static blockRewardAtIndex(index) {

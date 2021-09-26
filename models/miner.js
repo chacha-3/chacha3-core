@@ -42,7 +42,7 @@ class Miner {
     this.mining = true;
 
     let block = new Block();
-    block.addCoinbase(this.receiverAddress);
+    block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength() + 1));
 
     while (this.mining) {
       const chain = Chain.mainChain;
@@ -89,7 +89,7 @@ class Miner {
 
           // Init new block for mining
           block = new Block();
-          block.addCoinbase(this.receiverAddress);
+          block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength() + 1));
         } else {
           debug(`Reject block ${serializeBuffer(block.header.getHash())}: ${verifiedTransaction}`);
           for (let x = 0; x < block.getTransactionCount(); x += 1) {

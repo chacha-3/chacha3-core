@@ -26,9 +26,7 @@ actions.addPeer = {
     const peer = new Peer(options.address, options.port);
     await peer.save();
 
-    if (process.env.NODE_ENV !== 'test') {
-      peer.reachOut();
-    }
+    peer.reachOut();
 
     return okResponse(peer.toObject(), 'Add peer');
   },

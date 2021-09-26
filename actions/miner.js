@@ -46,7 +46,7 @@ actions.stopMiner = {
     miner.stop();
 
     const data = {
-      // address: options.address,
+      address: miner.getReceiverAddress(),
     };
 
     return okResponse(data, 'Stopped miner');

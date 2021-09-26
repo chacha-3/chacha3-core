@@ -6,9 +6,7 @@ const Wallet = require('../../models/wallet');
 const mock = require('../../util/mock');
 
 const { runAction } = require('../../actions');
-
-// const build = require('../../app');
-const server = require('../../server');
+const { SuccessCode } = require('../../util/rpc');
 
 test('list all peers', async (t) => {
   await mock.createPeers(2);
@@ -24,6 +22,25 @@ test('list all peers', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'version'));
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'chainLength'));
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'status'));
+
+  await Peer.clearAll();
+
+  t.end();
+});
+
+test('add a peer', async (t) => {
+  await mock.createPeers(2);
+
+  const { code, data } = await runAction({
+    action: 'addPeer',
+    address: '127.0.0.1',
+    port: 3000,
+  });
+
+  t.equal(code, SuccessCode);
+
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'port'));
 
   await Peer.clearAll();
 

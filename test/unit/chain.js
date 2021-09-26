@@ -274,12 +274,15 @@ test('reverts a specific valid transaction', async (t) => {
 });
 
 test('clear rejected blocks in chain', async (t) => {
-  const numOfBlocks = 10;
+  const numOfBlocks = 12;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
-  t.equal(chain.getLength(), 10);
 
-  const clearedBlocks = await Chain.clearRejectedBlocks(chain, 6);
-  t.equal(clearedBlocks.length, 4);
+  t.equal(chain.getLength(), numOfBlocks);
+
+  const forkIndex = 8;
+
+  const clearedBlocks = await Chain.clearRejectedBlocks(chain, forkIndex);
+  t.equal(clearedBlocks.length, numOfBlocks - forkIndex);
 
   await Chain.clear();
   t.end();

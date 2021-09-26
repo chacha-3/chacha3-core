@@ -235,6 +235,7 @@ class Peer {
   }
 
   async reachOut() {
+    // TODO: Disable for test
     let data;
     debug(`Reach out to peer ${this.formattedAddress()}`);
 

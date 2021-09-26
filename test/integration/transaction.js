@@ -102,6 +102,26 @@ test('show info for transaction', async (t) => {
   t.end();
 });
 
+test('should not have info for unsaved transaction', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(sender.getPrivateKey(), receiver.getAddress(), 10000);
+
+  const { code, data } = await runAction({
+    action: 'transactionInfo',
+    id: serializeBuffer(transaction.getId()),
+  });
+
+  t.equal(code, ErrorCode.NotFound);
+
+  await Chain.clear();
+  t.end();
+});
+
 test('create show error for invalid transaction', async (t) => {
   const password = '7ve375VznUSa';
 

@@ -69,20 +69,23 @@ mock.createPeers = async (count) => {
   return Promise.all(promises);
 };
 
-mock.blockWithTransactions = async (numOfTransactions, previousBlock, receiverWallet) => {
+mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardReceiverWallet, reward) => {
   assert(numOfTransactions > 0);
 
   const minusCoinbase = numOfTransactions - 1;
 
-  let receiver = receiverWallet;
+  let receiver = rewardReceiverWallet;
 
   if (!receiver) {
     receiver = new Wallet();
     receiver.generate();
   }
 
+  const randomWallet = new Wallet();
+  randomWallet.generate();
+
   const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+  block.addCoinbase(receiver.getAddress(), reward);
 
   if (previousBlock) {
     block.setPreviousHash(previousBlock.getHeader().getHash());
@@ -95,8 +98,8 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, receiverWa
     sender.generate();
 
     const transaction = new Transaction(
-      sender.getPublicKey(),
-      receiver.getAddress(),
+      receiver.getPublicKey(),
+      randomWallet.getAddress(),
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
@@ -146,16 +149,20 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
   const chain = new Chain();
   await Block.Genesis.save();
 
+  await chain.confirmNewBlock(Block.Genesis);
   chain.addBlockHeader(Block.Genesis.getHeader());
 
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
-    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock, receiverWallet);
+    // No extra transactions for first block as sender has no balance to send yet
+    const numberOfTransactions = (i > 0) ? transactionsPerBlock : 1;
+
+    const block = await mock.blockWithTransactions(numberOfTransactions, previousBlock, receiverWallet, Chain.blockRewardAtIndex(i + 1));
     // await block.save();
 
     // chain.addBlockHeader(block.getHeader());
-    await chain.confirmNewBlock(block);
+    const result = await chain.confirmNewBlock(block);
 
     previousBlock = block;
   }
