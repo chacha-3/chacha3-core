@@ -16,6 +16,7 @@ class Transaction {
     this.senderKey = senderKey;
     this.receiverAddress = receiverAddress; // FIXME: Change to use buffer?
 
+    assert.strictEqual(amount > 0, true);
     this.amount = (typeof (amount) === 'bigint') ? amount : BigInt(amount);
 
     this.signature = null;
@@ -36,8 +37,6 @@ class Transaction {
     if (this.senderKey !== null) {
       data.senderKey = this.senderKey;
     }
-
-    console.log(serializeObject(data));
 
     return JSON.stringify(serializeObject(data));
   }

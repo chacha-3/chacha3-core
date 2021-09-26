@@ -32,7 +32,7 @@ const serializeObject = (obj) => {
     // assert(Buffer.isBuffer(obj[key]));
     const value = obj[key];
 
-    if (value === null) {
+    if (value === undefined || value === null) {
       return;
     }
 
@@ -56,7 +56,7 @@ const deserializeObject = (obj) => {
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
 
-    if (!value) {
+    if (value === undefined || value === null) {
       return;
     }
 

@@ -18,11 +18,11 @@ test('should be able to call public actions', async (t) => {
     payload: {
       action: 'nodeInfo',
     },
-    headers: {
-      'bong-port': 4002,
-      'bong-chain-work': 5,
-      'bong-chain-length': 5,
-    },
+    // headers: {
+    //   'bong-port': 4002,
+    //   'bong-chain-work': 5,
+    //   'bong-chain-length': 5,
+    // },
   });
 
   const { data, code } = response.json();
