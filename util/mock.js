@@ -11,11 +11,11 @@ const { deserializeBuffer } = require('./serialize');
 
 const mock = {};
 
-mock.createWallets = async (count) => {
+mock.createWallets = async (count, password) => {
   const createWallet = (i) => new Promise((resolve) => {
     const wallet = new Wallet();
     wallet.setLabel(`addWallet${i}`);
-    wallet.generate();
+    wallet.generate(password);
 
     Wallet.save(wallet);
     resolve(wallet);

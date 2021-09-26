@@ -144,11 +144,7 @@ actions.deleteWallet = {
       return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
-    try {
-      await Wallet.delete(wallet.getAddress());
-    } catch (e) {
-      console.log(e);
-    }
+    await Wallet.delete(wallet.getAddress());
 
     const data = {
       address: wallet.getAddress(),

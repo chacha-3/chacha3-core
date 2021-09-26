@@ -46,6 +46,42 @@ test('create wallet', async (t) => {
   t.end();
 });
 
+test('verify wallet password access with correct password', async (t) => {
+  const password = '8huY2j9yhSS6';
+  const [wallet] = await mock.createWallets(1, password);
+
+  const { code, data } = await runAction({
+    action: 'verifyWallet',
+    address: wallet.getAddressEncoded(),
+    password,
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.password, true);
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
+test('verify wallet password access with correct password', async (t) => {
+  const password = '8huY2j9yhSS6';
+  const [wallet] = await mock.createWallets(1, password);
+
+  const { code, data } = await runAction({
+    action: 'verifyWallet',
+    address: wallet.getAddressEncoded(),
+    password: 'C6sBg9p9R8vN',
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.password, false);
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 test('cannot create wallet without label', async (t) => {
   const { code } = await runAction({
     action: 'createWallet',
