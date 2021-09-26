@@ -291,7 +291,7 @@ test('should not recover a wallet without correct private key', async (t) => {
 
 // TODO: Move to account model?
 test('should have correct wallet account balance', async (t) => {
-  const blockCount = 3;
+  const blockCount = 4;
   const minusGenesis = blockCount - 1;
 
   const wallet = new Wallet();
@@ -311,6 +311,80 @@ test('should have correct wallet account balance', async (t) => {
   const { balance } = data;
   t.equal(deserializeBigInt(balance), expectedBalance);
 
+  await Chain.clear();
+
+  t.end();
+});
+
+test('should return account balance of selected wallet if address not provided', async (t) => {
+  const blockCount = 3;
+  const minusGenesis = blockCount - 1;
+
+  const [wallet] = await mock.createWallets(1);
+  await Wallet.setSelected(wallet.getAddress());
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
+
+  const { code, data } = await runAction({
+    action: 'accountBalance',
+  });
+
+  t.equal(code, SuccessCode);
+
+  const expectedBalance = Block.InitialReward * BigInt(minusGenesis);
+
+  const { balance } = data;
+  t.equal(deserializeBigInt(balance), expectedBalance);
+
+  await Wallet.clearAll();
+  await Chain.clear();
+
+  t.end();
+});
+
+test('should list account transactions', async (t) => {
+  const blockCount = 4;
+  const minusGenesis = blockCount - 1;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
+
+  const { code, data } = await runAction({
+    action: 'accountTransactions',
+    address: wallet.getAddressEncoded(),
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.length, minusGenesis);
+
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'id'));
+
+  await Chain.clear();
+
+  t.end();
+});
+
+test('should list account transactions of selected wallet', async (t) => {
+  const blockCount = 4;
+  const minusGenesis = blockCount - 1;
+
+  const [wallet] = await mock.createWallets(1);
+  await Wallet.setSelected(wallet.getAddress());
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
+
+  const { code, data } = await runAction({
+    action: 'accountTransactions',
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.length, minusGenesis);
+
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'id'));
+
+  await Wallet.clearAll();
   await Chain.clear();
 
   t.end();

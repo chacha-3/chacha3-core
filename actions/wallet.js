@@ -253,6 +253,7 @@ actions.accountBalance = {
   },
 };
 
+// TODO: Move to account action?
 actions.accountTransactions = {
   permission: 'public',
   schema: {
