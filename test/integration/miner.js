@@ -33,11 +33,35 @@ test('start and stop miner with address with status check', async (t) => {
 
   const stopResponse = await runAction({
     action: 'stopMiner',
-    address: receiver.getAddressEncoded(),
   });
 
   t.equal(stopResponse.code, SuccessCode);
   t.equal(stopResponse.data.address, receiver.getAddressEncoded());
+
+  await Chain.clear();
+
+  t.end();
+});
+
+test('start and stop miner with address of selected wallet', async (t) => {
+  const [wallet] = await mock.createWallets(1);
+  await Wallet.setSelected(wallet.getAddress());
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1);
+
+  const startResponse = await runAction({
+    action: 'startMiner',
+  });
+
+  t.equal(startResponse.code, SuccessCode);
+  t.equal(startResponse.data.address, wallet.getAddressEncoded());
+
+  const stopResponse = await runAction({
+    action: 'stopMiner',
+  });
+
+  t.equal(stopResponse.code, SuccessCode);
+  t.equal(stopResponse.data.address, wallet.getAddressEncoded());
 
   await Chain.clear();
 
