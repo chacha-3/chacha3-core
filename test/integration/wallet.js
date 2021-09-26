@@ -46,6 +46,20 @@ test('create wallet', async (t) => {
   t.end();
 });
 
+test('unable to create wallet without password and prompts password', async (t) => {
+  const { code, prompt } = await runAction({
+    action: 'createWallet',
+    label: 'No Password Supplied',
+  });
+
+  t.equal(code, ErrorCode.InvalidArgument);
+  t.equal(prompt, 'password');
+
+  await Wallet.clearAll();
+
+  t.end();
+});
+
 test('generate wallet', async (t) => {
   const { data } = await runAction({
     action: 'generateWallet',

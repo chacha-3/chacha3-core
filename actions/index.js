@@ -20,9 +20,8 @@ ajv.addKeyword('buffer', {
       if (schema === 'hex') {
         // eslint-disable-next-line no-param-reassign
         obj.parentData[obj.parentDataProperty] = deserializeBuffer(value);
-      } else if (schema === 'base58') {
-        // TODO:
       }
+      // TODO: Base58
 
       return true;
     };
