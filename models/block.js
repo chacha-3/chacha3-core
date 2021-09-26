@@ -352,6 +352,7 @@ class Block {
     const header = await Header.load(hash);
     block.setHeader(header);
 
+    debug(`Indexes: ${JSON.stringify(data.transactionIndexes)}`);
     const indexes = data.transactionIndexes.map((hexKey) => deserializeBuffer(hexKey));
     const transactions = await Block.loadTransactions(indexes);
 
