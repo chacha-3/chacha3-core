@@ -10,7 +10,6 @@ const { errorResponse, ErrorCode } = require('./util/rpc');
 const Chain = require('./models/chain');
 
 const errorHandler = (error, request, reply) => {
-  console.log('asdadadadad');
   reply.send(errorResponse(ErrorCode.Internal, error.message));
 };
 

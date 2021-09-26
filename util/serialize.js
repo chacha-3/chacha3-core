@@ -32,7 +32,7 @@ const serializeObject = (obj) => {
     // assert(Buffer.isBuffer(obj[key]));
     const value = obj[key];
 
-    if (!value) {
+    if (value === null) {
       return;
     }
 

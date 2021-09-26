@@ -18,12 +18,8 @@ class Transaction {
 
     this.amount = (typeof (amount) === 'bigint') ? amount : BigInt(amount);
 
-    assert.strictEqual(amount > 0, true);
-
     this.signature = null;
     this.time = Date.now();
-
-    this.confirmed = false;
   }
 
   hashData() {
@@ -34,10 +30,14 @@ class Transaction {
       time: this.time,
     };
 
+    assert(typeof (data.amount) === 'bigint');
     assert(this.senderKey !== undefined);
+
     if (this.senderKey !== null) {
       data.senderKey = this.senderKey;
     }
+
+    console.log(serializeObject(data));
 
     return JSON.stringify(serializeObject(data));
   }
@@ -50,24 +50,6 @@ class Transaction {
     return serializeBuffer(this.getId());
   }
 
-  isConfirmed() {
-    return this.confirmed;
-  }
-
-  async confirm() {
-    if (this.confirmed) {
-      throw Error('Already confirmed transaction');
-    }
-
-    const isSaved = await this.isSaved();
-
-    if (isSaved) {
-      throw Error('Transaction already saved');
-    }
-
-    this.confirmed = true;
-  }
-
   getVersion() {
     return this.version;
   }
@@ -78,6 +60,7 @@ class Transaction {
 
   sign(privateKey) {
     assert(this.senderKey != null);
+
     this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
   }
 
@@ -124,7 +107,7 @@ class Transaction {
       errors.push('Invalid receiver address');
     }
 
-    if (this.amount <= 0) {
+    if (this.amount <= 0n) {
       errors.push('Amount has to be greater than 0');
     }
 

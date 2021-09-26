@@ -2,7 +2,12 @@ const { test } = require('tap');
 
 const { runningManualTest } = require('../../util/db');
 const {
-  serializeObject, deserializeObject, deserializeBuffer, serializeBuffer,
+  serializeObject,
+  deserializeObject,
+  deserializeBuffer,
+  serializeBuffer,
+  serializeBigInt,
+  deserializeBigInt,
 } = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
@@ -21,6 +26,21 @@ test('detect running unit test', (t) => {
   t.equal(runningManualTest(argvTest), true);
   t.equal(runningManualTest(argvNonTest), false);
   t.equal(runningManualTest([]), false);
+
+  t.end();
+});
+
+test('serialize and deserialize BigInt', (t) => {
+  const numbers = [1n, 100000000n, 0n, -220n];
+  const results = ['1n', '100000000n', '0n', '-220n'];
+
+  for (let i = 0; i < numbers.length; i += 1) {
+    t.equal(serializeBigInt(numbers[i]), results[i]);
+  }
+
+  for (let j = 0; j < results.length; j += 1) {
+    t.equal(deserializeBigInt(results[j]), numbers[j]);
+  }
 
   t.end();
 });
@@ -52,6 +72,7 @@ test('serialize and deserialize object', (t) => {
       e: BigInt(100000000000000000),
     },
     array: [{ a: 5 }],
+    f: 0n,
   };
 
   const serialized = serializeObject(source);
@@ -60,6 +81,7 @@ test('serialize and deserialize object', (t) => {
   t.equal(serialized.c, '0x0002');
   t.equal(serialized.d, null);
   t.equal(serialized.e, '100000000000000000n');
+  t.equal(serialized.f, '0n');
 
   t.equal(serialized.nested.a, 1);
   t.equal(serialized.nested.b, 'value');
@@ -82,6 +104,7 @@ test('serialize and deserialize object', (t) => {
   t.equal(deserialized.nested.d, source.d);
   t.equal(deserialized.nested.e, source.e);
   t.equal(deserialized.array.length, 1);
+  t.equal(deserialized.f, 0n);
 
   t.end();
 });
