@@ -132,7 +132,7 @@ actions.transactionInfo = {
   permission: 'public',
   schema: {
     properties: {
-      id: { type: 'string' },
+      id: { type: 'string', buffer: 'hex' },
     },
     required: ['id'],
   },

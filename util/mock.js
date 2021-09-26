@@ -101,6 +101,9 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, receiverWa
     );
 
     transaction.sign(sender.getPrivateKeyObject());
+
+    // await transaction.save();
+
     block.addTransaction(transaction);
   }
 

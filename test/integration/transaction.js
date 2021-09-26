@@ -73,6 +73,35 @@ test('create a transaction with selected wallet', async (t) => {
   t.end();
 });
 
+test('show info for transaction', async (t) => {
+  const password = 'n7TnTBYB4J7G';
+
+  const sender = new Wallet();
+  sender.generate(password);
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 3);
+
+  const selectedHeader = Chain.mainChain.getBlockHeader(1);
+  const loadedBlock = await Block.load(selectedHeader.getHash());
+
+  const selectedTransaction = loadedBlock.getTransaction(2);
+
+  const { code, data } = await runAction({
+    action: 'transactionInfo',
+    id: serializeBuffer(selectedTransaction.getId()),
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(data.id, serializeBuffer(selectedTransaction.getId()));
+  // TODO: More field check
+
+  await Chain.clear();
+  t.end();
+});
+
 test('create show error for invalid transaction', async (t) => {
   const password = '7ve375VznUSa';
 
@@ -236,7 +265,6 @@ test('should fail to push unverified transaction', async (t) => {
   t.end();
 });
 
-
 test('get pending transactions', async (t) => {
   const sender = new Wallet();
   sender.generate();
@@ -262,6 +290,34 @@ test('get pending transactions', async (t) => {
   t.equal(data.length, 3);
 
   await Transaction.clearAll();
+
+  t.end();
+});
+
+test('clear pending transactions', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const numOfTransactions = 3;
+
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
+    transaction.sign(sender.getPrivateKeyObject());
+
+    await transaction.save(true);
+  }
+
+  const { data, code } = await runAction({
+    action: 'clearPendingTransactions',
+  });
+
+  t.equal(code, SuccessCode);
+
+  const pending = await Transaction.loadPending();
+  t.equal(pending.length, 0);
 
   t.end();
 });
