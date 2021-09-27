@@ -144,10 +144,6 @@ class Block {
     return hashNum < this.header.getTarget();
   }
 
-  verifyBalances() {
-    return true;
-  }
-
   async verifyTransactions() {
     // Check transactions valid
     // Also check no dulicate IDS
@@ -201,11 +197,6 @@ class Block {
 
     if (!this.verifyChecksum()) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
-      return false;
-    }
-
-    if (!this.verifyBalances()) {
-      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed balances verification`);
       return false;
     }
 
