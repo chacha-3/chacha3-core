@@ -59,9 +59,9 @@ class Block {
 
   addTransaction(transaction) {
     // Only the coinbase transaction can be added without signature
-    // if (transaction.getSignature() == null) {
-    //   assert.strictEqual(this.getTransactionCount(), 0);
-    // }
+    if (transaction.getSignature() == null && this.getTransactionCount() !== 0) {
+      throw Error('Unable to add unsigned transaction to block');
+    }
 
     // if (!transaction.verify()) {
     //   return false;

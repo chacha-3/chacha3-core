@@ -78,20 +78,24 @@ test('coinbase should not have signature and sender', async (t) => {
   const transaction = new Transaction(
     sender.getPrivateKey(),
     receiver.getAddress(),
-    Block.InitialReward,
+    100,
   );
+
+  transaction.sign(sender.getPrivateKeyObject());
 
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   block.addCoinbase(receiver.getAddress());
   block.addTransaction(transaction);
 
-  // Remove coinbase as first
-  block.transactions.shift();
-
   await block.mine();
 
-  t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
-  t.equal(block.verify(), false, 'mined block has invalid coinbase');
+  t.equal(block.verifyCoinbase(), true, 'Valid coinbase');
+
+  // Remove coinbase
+  block.transactions.shift();
+  await block.mine();
+
+  t.equal(block.verifyCoinbase(), false, 'Invalid coinbase, has signature');
 
   t.end();
 });
