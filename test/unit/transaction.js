@@ -388,3 +388,24 @@ test('load pending transactions', async (t) => {
 
   t.end();
 });
+
+test('check if transaction is existing saved transaction', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), receiver.getAddress(), 10,
+  );
+
+  transaction.sign(sender.getPrivateKeyObject());
+
+  t.equal(await transaction.isSaved(), false);
+
+  transaction.save();
+  t.equal(await transaction.isSaved(), true);
+
+  t.end();
+});

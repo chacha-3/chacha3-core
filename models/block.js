@@ -60,7 +60,7 @@ class Block {
   addTransaction(transaction) {
     // Only the coinbase transaction can be added without signature
     if (transaction.getSignature() == null && this.getTransactionCount() !== 0) {
-      throw Error('Unable to add unsigned transaction to block');
+      throw new Error('Unable to add unsigned transaction to block');
     }
 
     // if (!transaction.verify()) {
@@ -216,6 +216,27 @@ class Block {
     this.header.setChecksum(newChecksum);
   }
 
+  async hasNoExistingTransactions() {
+    const checkNotSaved = (transaction) => new Promise((resolve, reject) => {
+      transaction.isSaved().then((saved) => (saved ? reject() : resolve()));
+    });
+
+    const promises = [];
+
+    for (let i = 0; i < this.getTransactionCount(); i += 1) {
+      const transaction = this.getTransaction(i);
+      promises.push(checkNotSaved(transaction));
+    }
+
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
+
   verifyChecksum() {
     assert(this.getHeader().getChecksum() !== null);
 
@@ -275,7 +296,7 @@ class Block {
     return block;
   }
 
-  static async saveTransactions(block) {
+  async saveTransactions() {
     const saveTransaction = (transaction) => new Promise((resolve) => {
       const result = transaction.save();
       resolve(transaction.getId());
@@ -283,7 +304,7 @@ class Block {
 
     const promises = [];
 
-    block.getTransactions().forEach((value) => promises.push(saveTransaction(value)));
+    this.getTransactions().forEach((value) => promises.push(saveTransaction(value)));
     return Promise.all(promises);
   }
 
@@ -308,7 +329,7 @@ class Block {
     const header = this.getHeader();
     await header.save();
 
-    const transactionIds = await Block.saveTransactions(this);
+    const transactionIds = await this.saveTransactions();
     const data = {
       transactionIndexes: transactionIds.map((id) => serializeBuffer(id)),
     };

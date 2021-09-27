@@ -211,13 +211,15 @@ class Chain {
   }
 
   async confirmNewBlock(block) {
-    if (!block.verify(Chain.currentBlockReward())) {
-      debug(`Failed to confirm new block: Incorrect block reward (${Chain.currentBlockReward()},${Chain.mainChain.getLength()})`);
+    if (!block.verify(Chain.mainChain.currentBlockReward())) {
+      debug(`Failed to confirm new block: Incorrect block reward (${Chain.mainChain.currentBlockReward()},${Chain.mainChain.getLength()})`);
       return false;
     }
 
     const isFirst = this.getLength() === 0;
-    if (!isFirst && !block.getHeader().getPrevious().equals(this.lastBlockHeader().getHash())) {
+    const blockPrevious = block.getHeader().getPrevious();
+
+    if (!isFirst && !this.lastBlockHeader().getHash().equals(blockPrevious)) {
       debug('Failed to confirm new block: Does not match latest hash');
       return false;
     }
@@ -280,13 +282,12 @@ class Chain {
     return this.blockHeaders.length;
   }
 
-  // TODO: Rename to next block reward
-  static currentBlockReward() {
-    return this.blockRewardAtIndex(Chain.mainChain.getLength());
+  currentBlockReward() {
+    return Chain.blockRewardAtIndex(this.getLength());
   }
 
-  static nextBlockReward() {
-    return this.blockRewardAtIndex(Chain.mainChain.getLength() + 1);
+  nextBlockReward() {
+    return Chain.blockRewardAtIndex(this.getLength() + 1);
   }
 
   static blockRewardAtIndex(index) {

@@ -100,6 +100,29 @@ test('coinbase should not have signature and sender', async (t) => {
   t.end();
 });
 
+test('cannot add unsigned transaction to block', async (t) => {
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const block = new Block();
+
+  const transaction = new Transaction(
+    sender.getPrivateKey(),
+    receiver.getAddress(),
+    100,
+  );
+
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+  block.addCoinbase(receiver.getAddress());
+
+  t.throws(() => { block.addTransaction(transaction); });
+
+  t.end();
+});
+
 test('does not add same transaction twice', async (t) => {
   const sender = new Wallet();
   sender.generate();
@@ -464,6 +487,16 @@ test('delete saved block', async (t) => {
 
   const loaded = await Block.load(key);
   t.equal(loaded, null);
+
+  // TODO: Check block transactions deleted
+
+  t.end();
+});
+
+test('does not continue with block transaction deletion if not block found', async (t) => {
+  const unsavedBlock = await mock.blockWithTransactions(3);
+  await Block.clear(unsavedBlock.getHeader().getHash());
+
   t.end();
 });
 
@@ -491,5 +524,17 @@ test('get genesis block', async (t) => {
   // TODO: Check
   t.equal(block.verify(), true);
 
+  t.end();
+});
+
+test('block check has no existing transactions', async (t) => {
+  const block = await mock.blockWithTransactions(3);
+
+  t.equal(await block.hasNoExistingTransactions(), true);
+
+  await block.getTransaction(2).save();
+  t.equal(await block.hasNoExistingTransactions(), false);
+
+  await Block.clearAll();
   t.end();
 });
