@@ -49,6 +49,10 @@ class Transaction {
     return serializeBuffer(this.getId());
   }
 
+  isCoinbase() {
+    return this.getSenderKey() === null && this.getSignature() === null;
+  }
+
   getVersion() {
     return this.version;
   }

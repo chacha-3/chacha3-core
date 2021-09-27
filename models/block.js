@@ -298,7 +298,14 @@ class Block {
 
   async saveTransactions() {
     const saveTransaction = (transaction) => new Promise((resolve) => {
-      const result = transaction.save();
+      transaction.save();
+
+      // Clear from pending transaction
+      // Except coinbase that would not be in pending
+      if (!transaction.isCoinbase()) {
+        Transaction.clear(transaction.getId(), true);
+      }
+
       resolve(transaction.getId());
     });
 

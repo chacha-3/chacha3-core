@@ -409,3 +409,16 @@ test('check if transaction is existing saved transaction', async (t) => {
 
   t.end();
 });
+
+test('check transaction is coinbase', async (t) => {
+  const numOfTransactions = 3;
+  const block = await mock.blockWithTransactions(3);
+
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    // Only first transaction is coinbase
+    const isFirstTransaction = (i === 0);
+    t.equal(block.getTransaction(i).isCoinbase(), isFirstTransaction);
+  }
+
+  t.end();
+});

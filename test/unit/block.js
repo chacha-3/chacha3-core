@@ -467,6 +467,28 @@ test('save and load block', async (t) => {
   t.end();
 });
 
+test('save and load block', async (t) => {
+  const block = await mock.blockWithTransactions(3);
+  t.equal(block.verify(), true);
+
+  await block.save();
+
+  const key = block.getHeader().getHash();
+  const loaded = await Block.load(key);
+  t.equal(loaded.verify(), true);
+
+  // Simple equality check
+  // TODO: Add more checks
+  t.ok(block.getHeader().getHash().equals(loaded.getHeader().getHash()));
+  t.equal(block.getTransactionCount(), loaded.getTransactionCount());
+
+  t.equal(block.getTransaction(0).getTime(), loaded.getTransaction(0).getTime());
+
+  await Block.clearAll();
+
+  t.end();
+});
+
 test('does not load unsaved block', async (t) => {
   const block = await mock.blockWithTransactions(3);
 
@@ -490,6 +512,17 @@ test('delete saved block', async (t) => {
 
   // TODO: Check block transactions deleted
 
+  t.end();
+});
+
+test('save block transactions', async (t) => {
+  const numOfBlocks = 3;
+  const block = await mock.blockWithTransactions(numOfBlocks);
+
+  const ids = await block.saveTransactions();
+  t.equal(ids.length, numOfBlocks);
+
+  await Transaction.clearAll();
   t.end();
 });
 

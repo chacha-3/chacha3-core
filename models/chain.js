@@ -3,7 +3,9 @@ const assert = require('assert');
 
 const Header = require('./header');
 
-const { DB, BlockDB, HeaderDB, runningManualTest, PendingTransactionDB } = require('../util/db');
+const {
+  DB, BlockDB, HeaderDB, runningManualTest, PendingTransactionDB,
+} = require('../util/db');
 const { serializeBuffer, deserializeBuffer, serializeObject } = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
@@ -212,7 +214,7 @@ class Chain {
 
   async confirmNewBlock(block) {
     if (!block.verify(Chain.mainChain.currentBlockReward())) {
-      debug(`Failed to confirm new block: Incorrect block reward (${Chain.mainChain.currentBlockReward()},${Chain.mainChain.getLength()})`);
+      debug('New block failed verification');
       return false;
     }
 
@@ -224,21 +226,11 @@ class Chain {
       return false;
     }
 
-    for (let i = 0; i < block.getTransactionCount(); i += 1) {
-      const transaction = block.getTransaction(i);
+    // FIXME: Duplicate of block.verifyTransactions()
+    const noPriorTransactions = await block.hasNoExistingTransactions();
 
-      const isSaved = await transaction.isSaved();
-
-      if (isSaved) {
-        return false;
-      }
-
-      await transaction.save();
-
-      // Remove pending transactions, except coinbase
-      if (transaction.getSenderKey()) {
-        await Transaction.clear(transaction.getId(), true);
-      }
+    if (!noPriorTransactions) {
+      return false;
     }
 
     await block.save();
