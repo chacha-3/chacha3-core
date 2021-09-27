@@ -266,10 +266,6 @@ class Wallet {
 
     return data;
   }
-
-  toString() {
-    return this.getAddressEncoded();
-  }
 }
 
 module.exports = Wallet;

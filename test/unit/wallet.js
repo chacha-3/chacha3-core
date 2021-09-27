@@ -52,6 +52,12 @@ test('walley key objects', (t) => {
 //   t.end();
 // });
 
+test('correct wallet prefix', (t) => {
+  // TODO: Set
+  t.equal(Wallet.AddressPrefix, '');
+  t.end();
+});
+
 test('set and get wallet label', (t) => {
   const wallet = new Wallet();
   t.equal(wallet.getLabel(), '', 'wallet label is blank');
@@ -282,10 +288,9 @@ test('verify wallet address checksum', async (t) => {
   t.end();
 });
 
-// test('wallet string is address', async (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
+test('verify address by length', async (t) => {
+  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf')), false, 'Address too short');
+  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcFee')), false, 'Address too long');
 
-//   t.equal(Wallet.verifyAddress(wallet.toString()), true, 'Valid address');
-//   t.end();
-// });
+  t.end();
+});
