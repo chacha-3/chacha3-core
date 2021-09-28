@@ -32,7 +32,7 @@ actions.pullChain = {
 actions.destroyChain = {
   permission: 'authOnly',
   handler: async () => {
-    await Chain.clear();
+    await Chain.clearMain();
     return okResponse(null, 'Delete all blocks');
   },
 };

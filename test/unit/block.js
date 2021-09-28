@@ -356,7 +356,7 @@ test('block is valid when does not have previously saved transaction', async (t)
   const result = await block.verifyTransactions();
   t.equal(result, true);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -374,7 +374,7 @@ test('block is invalid when has previously saved transaction', async (t) => {
   const result = await block.verifyTransactions();
   t.equal(result, false);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -387,7 +387,7 @@ test('block is invalid when has invalid transaction', async (t) => {
   const result = await block.verifyTransactions();
   t.equal(result, false);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 

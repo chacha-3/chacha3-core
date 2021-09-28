@@ -38,7 +38,7 @@ test('create a transaction with sufficient balance', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(data, 'signature'));
   // TODO: More check
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -68,7 +68,7 @@ test('create a transaction with selected wallet', async (t) => {
   // TODO: More check
 
   await Wallet.clearAll();
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -98,7 +98,7 @@ test('show info for transaction', async (t) => {
   t.equal(data.id, serializeBuffer(selectedTransaction.getId()));
   // TODO: More field check
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -118,7 +118,7 @@ test('should not have info for unsaved transaction', async (t) => {
 
   t.equal(code, ErrorCode.NotFound);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -141,7 +141,7 @@ test('create show error for invalid transaction', async (t) => {
 
   t.equal(code, ErrorCode.InvalidArgument);
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -167,7 +167,7 @@ test('unable to create a transaction with insufficient balance', async (t) => {
 
   t.equal(code, ErrorCode.FailedPrecondition);
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -192,7 +192,7 @@ test('unable to create a transaction with incorrect password', async (t) => {
   });
 
   t.equal(code, ErrorCode.PermissionDenied);
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });

@@ -25,7 +25,7 @@ test('start and stop miner', async (t) => {
 
   t.equal(miner.isMining(), false);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -47,7 +47,7 @@ test('does not start miner when already running', async (t) => {
     // Miner stopped
     t.equal(result, true);
 
-    await Chain.clear();
+    await Chain.clearMain();
     t.end();
   });
 });

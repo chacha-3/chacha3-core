@@ -38,7 +38,7 @@ test('start and stop miner with address with status check', async (t) => {
   t.equal(stopResponse.code, SuccessCode);
   t.equal(stopResponse.data.address, receiver.getAddressEncoded());
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -64,7 +64,7 @@ test('start and stop miner with address of selected wallet', async (t) => {
   t.equal(stopResponse.data.address, wallet.getAddressEncoded());
 
   await Wallet.clearAll();
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -82,7 +82,7 @@ test('correct miner status when miner not running', async (t) => {
   t.equal(code, SuccessCode);
   t.equal(data.isMining, false);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -110,7 +110,7 @@ test('should not start a miner that is already running', async (t) => {
   // Stop
   await runAction({ action: 'stopMiner' });
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -129,7 +129,7 @@ test('should not stop a miner when it is not running', async (t) => {
 
   t.equal(code, ErrorCode.FailedPrecondition);
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });

@@ -311,7 +311,7 @@ test('should have correct wallet account balance', async (t) => {
   const { balance } = data;
   t.equal(deserializeBigInt(balance), expectedBalance);
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -337,7 +337,7 @@ test('should return account balance of selected wallet if address not provided',
   t.equal(deserializeBigInt(balance), expectedBalance);
 
   await Wallet.clearAll();
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -361,7 +361,7 @@ test('should list account transactions', async (t) => {
 
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'id'));
 
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });
@@ -385,7 +385,7 @@ test('should list account transactions of selected wallet', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'id'));
 
   await Wallet.clearAll();
-  await Chain.clear();
+  await Chain.clearMain();
 
   t.end();
 });

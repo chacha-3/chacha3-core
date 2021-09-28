@@ -321,7 +321,7 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
 
   t.equal(result, false);
 
-  await Chain.clear(chain);
+  await Chain.clearMain(chain);
   t.end();
 });
 

@@ -11,6 +11,8 @@ const {
 } = require('../../util/serialize');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
+const mock = require('../../util/mock');
+const Chain = require('../../models/chain');
 
 test('detect running unit test', (t) => {
   const argvTest = [
@@ -163,3 +165,10 @@ test('error response has correct format with errors', (t) => {
 
   t.end();
 });
+
+// test('mock chain with blocks', async (t) => {
+//   const chain = await mock.chainWithBlocks();
+
+
+//   t.end();
+// });

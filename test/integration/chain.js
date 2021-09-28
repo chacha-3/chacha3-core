@@ -22,7 +22,7 @@ test('display chain info', async (t) => {
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
   t.equal(data.totalWork, chain.getTotalWork());
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -39,7 +39,7 @@ test('full chain header list', async (t) => {
   t.equal(code, SuccessCode);
   t.equal(blockHeaders.length, numOfBlocks);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -53,6 +53,6 @@ test('delete chain', async (t) => {
   t.equal(code, SuccessCode);
   t.equal(Chain.mainChain.getLength(), 1);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });

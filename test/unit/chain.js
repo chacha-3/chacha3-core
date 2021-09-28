@@ -64,7 +64,6 @@ test('set chain synching status', (t) => {
   t.end();
 });
 
-
 test('calculate average block time difference in chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithHeaders(numOfBlocks, 5);
@@ -115,7 +114,7 @@ test('get default difficulty when one or less blocks', async (t) => {
 
   t.equal(chain.getCurrentDifficulty(), 1.0);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -138,7 +137,7 @@ test('save and load chain', async (t) => {
   t.equal(loaded.getLength(), numOfBlocks);
   t.ok(loaded.getBlockHeaders()[0].getHash().equals(chain.getBlockHeaders()[0].getHash()));
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -284,7 +283,7 @@ test('clear rejected blocks in chain', async (t) => {
   const clearedBlocks = await Chain.clearRejectedBlocks(chain, forkIndex);
   t.equal(clearedBlocks.length, numOfBlocks - forkIndex);
 
-  await Chain.clear();
+  await Chain.clearMain();
   t.end();
 });
 
@@ -360,6 +359,35 @@ test('to and from object', async (t) => {
   t.end();
 });
 
+test('verify chain', async (t) => {
+  const chain = await mock.chainWithBlocks(12, 3);
+
+  const verified = await chain.verify();
+  t.equal(verified, true);
+
+  t.end();
+});
+
+test('chain with invalid block reward fails verification', async (t) => {
+  const numOfBlocks = Chain.getHalvingInterval();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+
+  // const invalidBlock = new Block();
+  // invalidBlock.addCoinbase(wallet.getAddress(), Block.InitialReward);
+  // invalidBlock.setPreviousHash()
+  // await invalidBlock.mine();
+
+  // const verified = await chain.verify();
+  // t.equal(verified, true);
+
+  t.end();
+});
+
 test('verify genesis block', async (t) => {
   const chain = await mock.chainWithHeaders(2, 3);
   const verify = chain.verifyGenesisBlock();
@@ -392,3 +420,13 @@ test('block reward at index', async (t) => {
 
   t.end();
 });
+
+
+// test('chain current reward', async (t) => {
+//   const numOfBlocks = Chain.getHalvingInterval();
+//   const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+//   t.equal(chain.currentBlockReward(), Block.InitialReward);
+
+//   t.end();
+// });

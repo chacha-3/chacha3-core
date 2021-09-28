@@ -34,6 +34,7 @@ class Chain {
     return adjustInterval[process.env.NODE_ENV || 'development'];
   }
 
+  // TODO: Change to static get
   static getHalvingInterval() {
     const halvingInterval = {
       production: 1000000,
@@ -257,15 +258,25 @@ class Chain {
   }
 
   // TODO:
-  verify() {
+  // Verify and load balances
+  async verify() {
     if (!this.verifyGenesisBlock()) {
       return false;
     }
 
-    if (!this.verifyBalances()) {
-      console.log('Failed balance verification');
-      return false;
+    for (let i = 0; i < this.getLength(); i += 1) {
+      const block = await Block.load(this.getBlockHeader(i).getHash());
+
+      if (!block.verify(Chain.blockRewardAtIndex(i))) {
+        return false;
+      }
+
+      if (!this.updateBlockBalances(block)) {
+        return false;
+      }
     }
+
+    // TODO: Verify block rewards
 
     return true;
   }
@@ -299,6 +310,7 @@ class Chain {
     return totalWork;
   }
 
+  // TODO: Remove
   getAverageBlockTime() {
     const headers = this.getBlockHeaders();
 
@@ -405,19 +417,19 @@ class Chain {
     return chain;
   }
 
-  async verifyBalances() {
-    for (let i = 0; i < this.getLength(); i += 1) {
-      // const headers = Chain.mainChain.getHea
-      const block = await Block.load(this.getBlockHeader(i).getHash());
+  // TODO: Remove. Combine all verification in loop
+  // async verifyBalances() {
+  //   for (let i = 0; i < this.getLength(); i += 1) {
+  //     // const headers = Chain.mainChain.getHea
+  //     const block = await Block.load(this.getBlockHeader(i).getHash());
 
-      // FIXME: Has return null
-      if (block) {
-        this.updateBlockBalances(block);
-      }
-    }
-  }
+  //     if (block) {
+  //       this.updateBlockBalances(block);
+  //     }
+  //   }
+  // }
 
-  static async clear() {
+  static async clearMain() {
     await PendingTransactionDB.clear();
     await Transaction.clearAll();
     // FIXME: Clear using model method
