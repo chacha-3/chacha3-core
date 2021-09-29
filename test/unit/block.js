@@ -7,6 +7,8 @@ const Transaction = require('../../models/transaction');
 const mock = require('../../util/mock');
 const Chain = require('../../models/chain');
 const { deserializeBuffer } = require('../../util/serialize');
+const { randomNumberBetween } = require('../../util/math');
+const Header = require('../../models/header');
 
 test('should have verified coinbase', async (t) => {
   const wallet = new Wallet();
@@ -501,16 +503,24 @@ test('does not load unsaved block', async (t) => {
 });
 
 test('delete saved block', async (t) => {
-  const block = await mock.blockWithTransactions(3);
+  const numOfTransactions = 3;
+
+  const block = await mock.blockWithTransactions(numOfTransactions);
   await block.save();
+
+  const randomTransaction = block.getTransaction(randomNumberBetween(0, numOfTransactions - 1));
 
   const key = block.getHeader().getHash();
   await Block.clear(key);
 
-  const loaded = await Block.load(key);
-  t.equal(loaded, null);
+  const savedBlock = await Block.load(key);
+  t.equal(savedBlock, null);
 
-  // TODO: Check block transactions deleted
+  const savedHeader = await Header.load(key);
+  t.equal(savedHeader, null);
+
+  const savedTransaction = await Transaction.load(randomTransaction.getId());
+  t.equal(savedTransaction, null);
 
   t.end();
 });

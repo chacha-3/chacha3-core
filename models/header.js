@@ -49,8 +49,7 @@ class Header {
       checksum: this.getChecksum(),
     };
 
-    const key = this.getHash();
-    await HeaderDB.put(`${this.getHash()}`, serializeObject(data), { valueEncoding: 'json' });
+    await HeaderDB.put(this.getHash(), serializeObject(data), { valueEncoding: 'json' });
   }
 
   static fromSaveData(data, hash) {
@@ -71,7 +70,7 @@ class Header {
     let data;
 
     try {
-      data = await HeaderDB.get(`${hash}`, { valueEncoding: 'json' });
+      data = await HeaderDB.get(hash, { valueEncoding: 'json' });
     } catch (e) {
       return null;
     }
@@ -80,7 +79,7 @@ class Header {
   }
 
   static async clear(hash) {
-    await HeaderDB.del(hash);
+    return HeaderDB.del(hash);
   }
 
   hashData() {

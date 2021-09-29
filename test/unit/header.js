@@ -89,9 +89,23 @@ test('save and load header', async (t) => {
   t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
   t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
 
-  // await Header.clearAll();
   await Header.clear(key);
 
+  t.end();
+});
+
+test('clear header', async (t) => {
+  const block = await mock.blockWithTransactions(1);
+  const header = block.getHeader();
+
+  await header.save();
+
+  const hash = header.getHash();
+
+  await Header.clear(hash);
+  const loaded = await Header.load(hash);
+
+  t.equal(loaded, null);
   t.end();
 });
 
