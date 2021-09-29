@@ -397,12 +397,12 @@ class Peer {
     const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
 
     if (valid) {
-      Chain.clearRejectedBlocks(Chain.mainChain, divergeIndex);
-
       await Chain.save(pulledChain);
 
       this.setChainLength(pulledChain.getLength());
       this.setTotalWork(pulledChain.getTotalWork());
+
+      Chain.mainChain.clearBlocks(divergeIndex);
 
       await this.save();
     } else {

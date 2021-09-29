@@ -393,7 +393,8 @@ class Block {
       Transaction.clear(block.getTransaction(i).getId());
     }
 
-    BlockDB.del(hash);
+    console.log('block cleared');
+    await BlockDB.del(hash);
   }
 
   static async clearAll() {

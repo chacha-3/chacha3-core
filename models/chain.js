@@ -430,6 +430,7 @@ class Chain {
   // }
 
   static async clearMain() {
+    // FIXME: Should not have to clear pending transactions
     await PendingTransactionDB.clear();
     await Transaction.clearAll();
     // FIXME: Clear using model method
@@ -449,20 +450,35 @@ class Chain {
     Chain.synching = synching;
   }
 
-  // Clear rejected block data in diverging chain
-  static async clearRejectedBlocks(chain, startIndex) {
-    const clearBlocks = [];
-    for (let x = startIndex; x < chain.getLength(); x += 1) {
-      clearBlocks.push(chain.getBlockHeader(x).getHash());
-    }
-
-    clearBlocks.forEach(async (hash) => {
+  async clearBlocks(startIndex) {
+    const clearBlock = (hash) => new Promise((resolve) => {
       debug(`Clear rejected block: ${serializeBuffer(hash)}`);
-      await Block.clear(hash);
+      Block.clear(hash).then(() => resolve(hash));
     });
 
-    return clearBlocks;
+    const promises = [];
+
+    for (let x = startIndex; x < this.getLength(); x += 1) {
+      promises.push(clearBlock(this.getBlockHeader(x).getHash()));
+    }
+
+    return Promise.all(promises);
   }
+
+  // Clear rejected block data in diverging chain
+  // static async clearRejectedBlocks(chain, startIndex) {
+  //   const clearBlocks = [];
+  //   for (let x = startIndex; x < chain.getLength(); x += 1) {
+  //     clearBlocks.push(chain.getBlockHeader(x).getHash());
+  //   }
+
+  //   clearBlocks.forEach(async (hash) => {
+  //     debug(`Clear rejected block: ${serializeBuffer(hash)}`);
+  //     await Block.clear(hash);
+  //   });
+
+  //   return clearBlocks;
+  // }
 
   static async initializeGenesisBlock() {
     const chain = await Chain.load();

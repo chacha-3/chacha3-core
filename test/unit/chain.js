@@ -272,16 +272,25 @@ test('reverts a specific valid transaction', async (t) => {
   t.end();
 });
 
-test('clear rejected blocks in chain', async (t) => {
+test('clear blocks in chain', async (t) => {
   const numOfBlocks = 12;
-  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
 
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
   t.equal(chain.getLength(), numOfBlocks);
 
   const forkIndex = 8;
 
-  const clearedBlocks = await Chain.clearRejectedBlocks(chain, forkIndex);
+  const clearId = chain.getBlockHeader(forkIndex + 1).getHash();
+  const nonClearId = chain.getBlockHeader(forkIndex - 1).getHash();
+
+  const clearedBlocks = await chain.clearBlocks(forkIndex);
   t.equal(clearedBlocks.length, numOfBlocks - forkIndex);
+
+  const clearedBlock = await Block.load(clearId);
+  const nonClearedBlock = await Block.load(nonClearId);
+
+  t.equal(clearedBlock, null);
+  t.ok(nonClearedBlock.getHeader().getHash().equals(nonClearId));
 
   await Chain.clearMain();
   t.end();
@@ -365,26 +374,32 @@ test('verify chain', async (t) => {
   const verified = await chain.verify();
   t.equal(verified, true);
 
+  await Chain.clearMain();
   t.end();
 });
 
 test('chain with invalid block reward fails verification', async (t) => {
-  const numOfBlocks = Chain.getHalvingInterval();
-
   const wallet = new Wallet();
   wallet.generate();
 
-  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+  const chain = await mock.chainWithBlocks(Chain.getHalvingInterval() + 1, 3);
+
+  // Reward should have halved
+  const wrongReward = Block.InitialReward;
+
+  const invalidBlock = new Block();
+  invalidBlock.addCoinbase(wallet.getAddress(), wrongReward);
+  invalidBlock.setPreviousHash(chain.lastBlockHeader().getHash());
+
+  await invalidBlock.mine();
 
 
-  // const invalidBlock = new Block();
-  // invalidBlock.addCoinbase(wallet.getAddress(), Block.InitialReward);
-  // invalidBlock.setPreviousHash()
   // await invalidBlock.mine();
 
   // const verified = await chain.verify();
   // t.equal(verified, true);
 
+  await Chain.clearMain();
   t.end();
 });
 
