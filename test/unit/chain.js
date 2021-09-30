@@ -393,7 +393,6 @@ test('chain with invalid block reward fails verification', async (t) => {
 
   await invalidBlock.mine();
 
-
   // await invalidBlock.mine();
 
   // const verified = await chain.verify();
@@ -435,7 +434,6 @@ test('block reward at index', async (t) => {
 
   t.end();
 });
-
 
 // test('chain current reward', async (t) => {
 //   const numOfBlocks = Chain.getHalvingInterval();

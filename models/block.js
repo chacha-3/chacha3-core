@@ -390,6 +390,8 @@ class Block {
     }
 
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
+      // FIXME: Does not await. But test still passes
+      // TODO: Wrap in promise
       Transaction.clear(block.getTransaction(i).getId());
     }
 

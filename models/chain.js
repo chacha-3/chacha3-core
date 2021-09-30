@@ -436,6 +436,8 @@ class Chain {
     // FIXME: Clear using model method
     await HeaderDB.clear(); // TODO: Add test
     await BlockDB.clear();
+
+    await Chain.mainChain.clearBlocks()
     await DB.del('chain');
 
     await Chain.initializeGenesisBlock();
@@ -450,7 +452,7 @@ class Chain {
     Chain.synching = synching;
   }
 
-  async clearBlocks(startIndex) {
+  async clearBlocks(startIndex = 0) {
     const clearBlock = (hash) => new Promise((resolve) => {
       debug(`Clear rejected block: ${serializeBuffer(hash)}`);
       Block.clear(hash).then(() => resolve(hash));
