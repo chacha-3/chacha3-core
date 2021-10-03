@@ -15,7 +15,7 @@ const { SuccessCode } = require('./util/rpc');
 
 const { isBigIntString, deserializeBigInt } = require('./util/serialize');
 
-const ShellDB = level('data/shell');
+const ShellDB = level('.shelldb');
 
 function completer(line) {
   const completions = '/exit /quit /clear'.split(' ');

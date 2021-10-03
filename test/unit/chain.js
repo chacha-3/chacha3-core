@@ -6,8 +6,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 
-const blockData = require('../data/blocks.json');
-const { generateAddressEncoded, generateAddress } = require('../../models/wallet');
+const { generateAddress } = require('../../models/wallet');
 const { serializeObject } = require('../../util/serialize');
 
 test('create an empty chain', (t) => {

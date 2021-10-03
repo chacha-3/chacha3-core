@@ -11,14 +11,14 @@ function runningManualTest(argv) {
   return argv[0].includes('node') && argv[1].includes('test');
 }
 
-const dataDir = '../data';
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir);
-}
+// const dataDir = '../data';
+// if (!fs.existsSync(dataDir)) {
+//   fs.mkdirSync(dataDir);
+// }
 
-const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? 'test' : 'core';
+const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? '.testdb' : 'data';
 
-const DB = level(`data/${dbName}`);
+const DB = level(dbName);
 
 const WalletDB = sub(DB, 'wallet');
 const BlockDB = sub(DB, 'block');
