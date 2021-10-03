@@ -298,7 +298,7 @@ test('get pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
   }
 
   const { data, code } = await runAction({
@@ -327,7 +327,7 @@ test('clear pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
   }
 
   const { data, code } = await runAction({

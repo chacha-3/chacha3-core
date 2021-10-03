@@ -267,7 +267,7 @@ test('save pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
   }
 
   const loadedTransactions = await Transaction.loadPending();
@@ -316,7 +316,7 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
 
   let isSaved = await chosenTransaction.isSaved();
 
-  const result = await chosenTransaction.save(true);
+  const result = await chosenTransaction.saveAsPending();
   // isSaved = await chosenTransaction.isSaved();
 
   t.equal(result, false);
@@ -378,7 +378,7 @@ test('load pending transactions', async (t) => {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
     transaction.sign(sender.getPrivateKeyObject());
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
   }
 
   const pendingTransactions = await Transaction.loadPending();

@@ -34,8 +34,8 @@ test('push new block', async (t) => {
   transactionNotInBlock.sign(sender.getPrivateKeyObject());
 
   // Save to pending transaction list
-  await transactionInBlock.save(true);
-  await transactionNotInBlock.save(true);
+  await transactionInBlock.saveAsPending();
+  await transactionNotInBlock.saveAsPending();
 
   const pendingBefore = await Transaction.loadPending();
   t.equal(pendingBefore.length, 2);

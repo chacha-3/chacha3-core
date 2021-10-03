@@ -60,7 +60,7 @@ actions.createTransaction = {
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid transaction', errors);
     }
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
     Peer.broadcastAction('pushTransaction', transaction.toPushData());
 
     return okResponse(transaction.toObject(), 'Transaction created');
@@ -103,7 +103,7 @@ actions.pushTransaction = {
       return errorResponse(ErrorCode.InvalidArgument, 'Transaction failed verification');
     }
 
-    await transaction.save(true);
+    await transaction.saveAsPending();
     debug('Add to pending transaction');
 
     return okResponse(transaction.toObject(), 'Transaction pushed');
