@@ -13,6 +13,8 @@ const { version } = require('./package.json');
 const { SuccessCode } = require('./util/rpc');
 // const { ShellDB } = require('./util/db');
 
+const { isBigIntString, deserializeBigInt } = require('./util/serialize');
+
 const ShellDB = level('data/shell');
 
 function completer(line) {
@@ -60,6 +62,8 @@ function printObject(objectData, sub = 0) {
       value = 'None';
     } else if (Array.isArray(value)) {
       value = `[${value.length}]`;
+    } else if (isBigIntString(value)) {
+      value = deserializeBigInt(value).toLocaleString('EN-US');
     }
 
     if (typeof (value) === 'object') {

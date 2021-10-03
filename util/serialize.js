@@ -22,6 +22,9 @@ const deserializeBuffer = (value) => {
   return Buffer.from(value.substr(2), 'hex');
 };
 
+// Numbers proceeded by n (e.g. "10000n")
+const isBigIntString = (value) => /^\d+n$/.test(value);
+
 const serializeBigInt = (value) => `${value.toString()}n`;
 const deserializeBigInt = (value) => BigInt(value.substr(0, value.length - 1));
 
@@ -71,10 +74,7 @@ const deserializeObject = (obj) => {
       return;
     }
 
-    // Numbers proceeded by n (e.g. "10000n")
-    const isBigIntString = /^\d+n$/.test(value);
-
-    if (isBigIntString) {
+    if (isBigIntString(value)) {
       deserialized[key] = deserializeBigInt(value);
     } else if (value.substr(0, 2) === '0x') { // FIXME: Double check
       deserialized[key] = deserializeBuffer(value);
@@ -85,6 +85,7 @@ const deserializeObject = (obj) => {
 };
 
 module.exports = {
+  isBigIntString,
   serializeBuffer,
   deserializeBuffer,
   serializeBigInt,

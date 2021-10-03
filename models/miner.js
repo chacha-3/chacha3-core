@@ -12,6 +12,10 @@ const { serializeObject, deserializeObject, serializeBuffer } = require('../util
 // const addressPrefix = '420_';
 
 const waitUntil = (condition) => new Promise((resolve) => {
+  // Lower for testing to speed up
+  // TODO: Testing
+  const pollInterval = process.env.NODE_ENV === 'test' ? 5 : 100;
+
   const interval = setInterval(() => {
     if (!condition()) {
       return;
@@ -19,7 +23,7 @@ const waitUntil = (condition) => new Promise((resolve) => {
 
     clearInterval(interval);
     resolve();
-  }, 100);
+  }, pollInterval);
 });
 
 class Miner {

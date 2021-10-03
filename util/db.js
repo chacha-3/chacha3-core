@@ -1,3 +1,4 @@
+const fs = require('fs');
 const level = require('level');
 const sub = require('subleveldown');
 
@@ -8,6 +9,11 @@ function runningManualTest(argv) {
   }
 
   return argv[0].includes('node') && argv[1].includes('test');
+}
+
+const dataDir = '../data';
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir);
 }
 
 const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? 'test' : 'core';

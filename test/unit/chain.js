@@ -1,4 +1,3 @@
-const clone = require('rfdc')();
 const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
@@ -295,6 +294,7 @@ test('clear blocks in chain', async (t) => {
   await Chain.clearMain();
   t.end();
 });
+
 
 test('have zero balance for account without transaction', async (t) => {
   const chain = new Chain();

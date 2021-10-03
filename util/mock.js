@@ -1,5 +1,4 @@
 const assert = require('assert');
-const clone = require('rfdc')();
 
 const Block = require('../models/block');
 const Chain = require('../models/chain');
@@ -238,7 +237,5 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
 
   return blocks;
 };
-
-mock.clone = (instance) => clone(Object.create(Object.getPrototypeOf(instance)), instance);
 
 module.exports = mock;
