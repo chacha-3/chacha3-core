@@ -1,3 +1,4 @@
+const debug = require('debug')('info:action');
 const { version } = require('../package.json');
 
 const Chain = require('../models/chain');
@@ -46,10 +47,16 @@ actions.pingNode = {
 
 actions.nodeInfo = {
   permission: 'public',
-  handler: async () => {
+  handler: async (options) => {
     const chain = await Chain.load();
 
-    Peer.randomizeLocalNonce();
+    debug(`Receive nodeInfo request nonce: ${options.nonce}`);
+
+    const isSelf = options.nonce === Peer.localNonce;
+
+    if (!isSelf) {
+      Peer.randomizeLocalNonce();
+    }
 
     const data = {
       version,

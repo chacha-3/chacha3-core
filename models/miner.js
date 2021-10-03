@@ -20,6 +20,37 @@ class Miner {
     this.pendingTransactions = [];
   }
 
+  async foundBlock(block) {
+    debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
+
+    const result = await Chain.mainChain.confirmNewBlock(block);
+
+    if (!result) {
+      console.log(Chain.mainChain.getLength(), block);
+    }
+    assert(result === true);
+
+    if (result) {
+      debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
+      Peer.broadcastAction('pushBlock', block.toObject());
+
+      // Clear pending transactions
+      // TODO: Clear only transactions in block
+      this.pendingTransactions = [];
+    } else {
+      debug(`Reject confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
+    }
+
+    // FIXME: Check added to block before removing
+  }
+
+  initMiningBlock() {
+    const block = new Block();
+    block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
+
+    return block;
+  }
+
   async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
@@ -30,8 +61,7 @@ class Miner {
 
     this.mining = true;
 
-    let block = new Block();
-    block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
+    let block = this.initMiningBlock();
 
     while (this.mining) {
       const chain = Chain.mainChain;
@@ -53,39 +83,12 @@ class Miner {
 
       block.header.computeHash();
 
-      const verifiedTransaction = await block.verifyTransactions();
-      if (block.verifyHash()) {
-        debug(`Transaction verified: ${verifiedTransaction}, count: ${block.getTransactionCount()}`);
-        if (verifiedTransaction) {
-          debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
+      const transactionsVerified = await block.verifyTransactions();
+      if (block.verifyHash() && transactionsVerified) {
+        await this.foundBlock(block);
 
-          const result = await Chain.mainChain.confirmNewBlock(block);
-          assert(result === true);
-
-          if (result) {
-            debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
-          } else {
-            debug(`Reject confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
-          }
-          Peer.broadcastAction('pushBlock', block.toObject());
-
-          // await Transaction.clearAllPending();
-
-          // FIXME: Check added to block before removing
-
-          // Clear pending transactions
-          this.pendingTransactions = [];
-
-          // Init new block for mining
-          block = new Block();
-          block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
-        } else {
-          debug(`Reject block ${serializeBuffer(block.header.getHash())}: ${verifiedTransaction}`);
-          for (let x = 0; x < block.getTransactionCount(); x += 1) {
-            const transaction = block.getTransaction(x);
-            debug(`Transaction ${transaction.getId()} is previously saved: ${await transaction.isSaved()}`);
-          }
-        }
+        // Init new block for mining
+        block = this.initMiningBlock();
       }
     }
 

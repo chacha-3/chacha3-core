@@ -104,7 +104,10 @@ class Peer {
   }
 
   static async reachOutAll() {
-    debug('Reach out all');
+    if (Peer.localNonce === 0) {
+      Peer.randomizeLocalNonce();
+    }
+
     let peers = await Peer.all();
 
     if (peers.length < 10) {
@@ -258,7 +261,9 @@ class Peer {
     debug(`Receive response from peer ${this.formattedAddress()}`);
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
+    debug(`Response nonce: ${Peer.localNonce}, ${data.nonce}`);
     const isSelf = Peer.localNonce === data.nonce;
+
     debug(`Peer is self: ${isSelf}, ${this.getAddress()}, ${this.getPort()}`);
 
     if (isSelf) {

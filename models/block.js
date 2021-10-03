@@ -153,11 +153,11 @@ class Block {
       const transaction = this.getTransaction(i);
       const isSaved = await transaction.isSaved();
 
-      if (isSaved) {
-        // TODO: Run this only when mining own block
-        await Transaction.clear(transaction.getId(), true);
-        return false;
-      }
+      // if (isSaved) {
+      //   // TODO: Run this only when mining own block
+      //   await Transaction.clear(transaction.getId(), true);
+      //   return false;
+      // }
 
       if (!transaction.verify()) {
         return false;
@@ -372,7 +372,6 @@ class Block {
     const header = await Header.load(hash);
     block.setHeader(header);
 
-    debug(`Indexes: ${JSON.stringify(data.transactionIndexes)}`);
     const indexes = data.transactionIndexes.map((hexKey) => deserializeBuffer(hexKey));
     const transactions = await Block.loadTransactions(indexes);
 

@@ -51,18 +51,16 @@ function build(opts = {}) {
 
       const peer = await Peer.load(key);
 
-      if (!peer) {
+      const { action, nonce } = request.body;
+      const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
+
+      if (!peer && !reachOutSelf) {
         const newPeer = new Peer(ip, port);
         newPeer.reachOut();
-        return done();
-      }
-
-      const { action, nonce } = request.body;
-
-      const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
-      if (peer.status !== Peer.Status.Active && !reachOutSelf) {
+        // return done();
+      } else if (peer.status !== Peer.Status.Active && !reachOutSelf) {
         peer.reachOut();
-        return done();
+        // return done();
       }
 
       const syncActions = ['nodeInfo', 'pushBlock'];

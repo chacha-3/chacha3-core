@@ -66,7 +66,7 @@ class Chain {
   }
 
   getAccountBalance(address) {
-    debug(`Get account balance for ${address}`);
+    debug(`Get account balance for ${address.toString('hex')}`);
     const account = this.accounts[serializeBuffer(address)];
 
     if (!account) {
@@ -223,7 +223,7 @@ class Chain {
     const blockPrevious = block.getHeader().getPrevious();
 
     if (!isFirst && !this.lastBlockHeader().getHash().equals(blockPrevious)) {
-      debug('Failed to confirm new block: Does not match latest hash');
+      debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
       return false;
     }
 
@@ -234,6 +234,7 @@ class Chain {
       return false;
     }
 
+    debug(`Saved new block: ${block.getHeader().getHash().toString('hex')}`);
     await block.save();
 
     this.addBlockHeader(block.getHeader());
