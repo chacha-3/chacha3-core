@@ -54,6 +54,7 @@ function build(opts = {}) {
       const { action, nonce } = request.body;
       const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
 
+      // TODO: Move this to nodeInfo action
       if (!peer && !reachOutSelf) {
         const newPeer = new Peer(ip, port);
         newPeer.reachOut();

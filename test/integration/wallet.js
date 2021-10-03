@@ -13,11 +13,12 @@ const { deserializeBigInt } = require('../../util/serialize');
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
 
-  const { data } = await runAction({
+  const { code, data } = await runAction({
     action: 'listWallets',
     label: 'MyWalletLabel',
   });
 
+  t.equal(code, SuccessCode);
   t.equal(data.length, 3);
 
   t.equal(typeof data[0].label, 'string');
@@ -126,10 +127,12 @@ test('unable to create wallet without password and prompts password', async (t) 
 });
 
 test('generate wallet', async (t) => {
-  const { data } = await runAction({
+  const { code, data } = await runAction({
     action: 'generateWallet',
+    password: 'HHcSAGg3Yx6D',
   });
 
+  t.equal(code, SuccessCode);
   t.equal(typeof data.privateKey, 'string');
   t.equal(typeof data.publicKey, 'string');
   t.equal(typeof data.address, 'string');
@@ -141,11 +144,12 @@ test('should select a default wallet', async (t) => {
   const wallets = await mock.createWallets(1);
   const address = wallets[0].getAddressEncoded();
 
-  const { data } = await runAction({
+  const { code, data } = await runAction({
     action: 'selectWallet',
     address,
   });
 
+  t.equal(code, SuccessCode);
   t.equal(data.selected, address);
 
   await Wallet.clearAll();
@@ -213,11 +217,12 @@ test('should unselect a wallet', async (t) => {
 test('should delete a saved wallet', async (t) => {
   const wallets = await mock.createWallets(1);
 
-  const { code, data, message } = await runAction({
+  const { code, data } = await runAction({
     action: 'deleteWallet',
     address: wallets[0].getAddressEncoded(),
   });
 
+  t.equal(code, SuccessCode);
   t.equal(typeof data.address, 'string');
 
   // await Wallet.clearAll();
@@ -259,16 +264,19 @@ test('should fail to remove unsaved wallet', async (t) => {
 });
 
 test('should recover a wallet', async (t) => {
-  // const wallets = await mock.createWallets(1);
-  const wallet = new Wallet();
-  wallet.generate();
+  const password = '5UK7vbKS3uG7';
 
-  const { data } = await runAction({
+  const wallet = new Wallet();
+  wallet.generate(password);
+
+  const { code, data } = await runAction({
     action: 'recoverWallet',
     privateKey: wallet.getPrivateKeyHex(),
     label: 'Recovered wallet',
+    password,
   });
 
+  t.equal(code, SuccessCode);
   t.equal(typeof data.privateKey, 'string');
   t.equal(typeof data.publicKey, 'string');
   t.equal(typeof data.address, 'string');

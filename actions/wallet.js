@@ -54,10 +54,15 @@ actions.createWallet = {
 
 actions.generateWallet = {
   permission: 'public',
-  handler: async () => {
+  schema: {
+    properties: {
+      password: { type: 'string' },
+    },
+    required: ['password'],
+  },
+  handler: async (options) => {
     const wallet = new Wallet();
-    wallet.generate();
-    // wallet.save();
+    wallet.generate(options.password);
 
     const data = {
       address: wallet.getAddress(),
@@ -77,13 +82,13 @@ actions.recoverWallet = {
       label: { type: 'string' },
       password: { type: 'string' },
     },
-    required: ['privateKey'],
+    required: ['privateKey', 'label', 'password'],
   },
   handler: async (options) => {
     let wallet;
 
     try {
-      wallet = Wallet.recover(options.privateKey);
+      wallet = Wallet.recover(options.privateKey, options.password);
       wallet.setLabel(options.label);
 
       await Wallet.save(wallet);
