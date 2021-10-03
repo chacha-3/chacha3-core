@@ -7,24 +7,9 @@ const Chain = require('./chain');
 const Transaction = require('./transaction');
 const Peer = require('./peer');
 
-const { serializeObject, deserializeObject, serializeBuffer } = require('../util/serialize');
-
+const { serializeBuffer } = require('../util/serialize');
+const { waitUntil } = require('../util/sync');
 // const addressPrefix = '420_';
-
-const waitUntil = (condition) => new Promise((resolve) => {
-  // Lower for testing to speed up
-  // TODO: Testing
-  const pollInterval = process.env.NODE_ENV === 'test' ? 5 : 100;
-
-  const interval = setInterval(() => {
-    if (!condition()) {
-      return;
-    }
-
-    clearInterval(interval);
-    resolve();
-  }, pollInterval);
-});
 
 class Miner {
   constructor() {
