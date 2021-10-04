@@ -31,7 +31,7 @@ let inputPassword = false;
 let prompt = null;
 
 const rl = readline.createInterface(process.stdin, process.stdout, completer);
-const ipcId = `bong${process.env.PORT || 3000}`;
+const ipcId = `bong${process.env.PORT || '3000'}`;
 
 ipc.config.id = ipcId;
 ipc.config.retry = 1500;

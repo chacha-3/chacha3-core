@@ -3,7 +3,8 @@ const ipc = require('node-ipc');
 const { runAction } = require('./actions');
 
 const ipcId = `bong${process.env.PORT || 3000}`;
-ipc.config.id = `bong${process.env.PORT}`;
+ipc.config.id = ipcId;
+
 debug(`Config IPC ID: ${ipcId}`);
 
 ipc.config.retry = 1500;
