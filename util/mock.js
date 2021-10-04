@@ -102,7 +102,7 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     // await transaction.save();
 
@@ -183,7 +183,7 @@ mock.transaction = () => {
     Math.floor(Math.random() * (100 - 1) + 1),
   );
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   return transaction;
 };
@@ -226,7 +226,7 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
-      transaction.sign(wallet.getPrivateKeyObject());
+      transaction.sign(wallet.getPrivateKey());
       block.addTransaction(transaction);
     }
 

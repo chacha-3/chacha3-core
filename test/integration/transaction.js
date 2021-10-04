@@ -205,7 +205,7 @@ test('should push valid transaction', async (t) => {
   receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 38);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   const { code } = await runAction({
     action: 'pushTransaction',
@@ -232,7 +232,7 @@ test('should fail to push invalid transaction', async (t) => {
   sender.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), sender.getAddress(), 10000);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   /// Same sender and receiver
   const { code } = await runAction({
@@ -296,7 +296,7 @@ test('get pending transactions', async (t) => {
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -325,7 +325,7 @@ test('clear pending transactions', async (t) => {
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }

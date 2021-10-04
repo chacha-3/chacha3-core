@@ -24,7 +24,7 @@ test('should create a verified transaction', (t) => {
   );
 
   // const { privateKey } = sender.getKeys();
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   const { length } = transaction.getSignature();
 
@@ -41,7 +41,7 @@ test('transaction with same sender and receiver is invalid', (t) => {
     sender.getPublicKey(), sender.getAddress(), 10,
   );
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   const errors = transaction.validate();
   t.ok(errors.length > 0);
@@ -58,14 +58,14 @@ test('transaction with amount 0 or smaller is invalid', (t) => {
   receiver.generate();
 
   const transactionZero = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-  transactionZero.sign(sender.getPrivateKeyObject());
+  transactionZero.sign(sender.getPrivateKey());
 
   const zeroErrors = transactionZero.validate();
   t.ok(zeroErrors.length > 0, 'error when transaction amount is zero');
   t.not(transactionZero.verify());
 
   const transactionNegative = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-  transactionNegative.sign(sender.getPrivateKeyObject());
+  transactionNegative.sign(sender.getPrivateKey());
 
   const negativeErrors = transactionNegative.validate();
   t.ok(negativeErrors.length > 0, 'error when transaction amount less than zero');
@@ -101,7 +101,7 @@ test('should fail verification with none or invalid transaction signature', (t) 
   // const { privateKey } = sender.getKeys();
   t.equal(transaction.verify(), false, 'transaction unverified before signing');
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   t.equal(transaction.verify(), true, 'transaction verified after signing');
 
@@ -124,7 +124,7 @@ test('should not be valid when signed with incorrect private key', (t) => {
     wallet.getPublicKey(), invalidAddress, 55,
   );
 
-  transaction.sign(otherWallet.getPrivateKeyObject());
+  transaction.sign(otherWallet.getPrivateKey());
 
   t.equal(transaction.verify(), false, 'invalid sign key');
   t.end();
@@ -139,7 +139,7 @@ test('should fail verification with invalid wallet address', (t) => {
   const transaction = new Transaction(
     sender.getPublicKey(), invalidAddress, 10,
   );
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   t.equal(transaction.verify(), false, 'invalid address to send');
   t.end();
@@ -211,7 +211,7 @@ test('save and load transaction', async (t) => {
   const coinbase = new Transaction(null, receiver.getAddress(), 10);
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   await coinbase.save();
   const result = await transaction.save();
@@ -265,7 +265,7 @@ test('save pending transactions', async (t) => {
   const numOfTransactions = 3;
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -289,7 +289,7 @@ test('check confirmed transaction is saved', async (t) => {
   receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 665);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   let isSaved = await transaction.isSaved();
   t.equal(isSaved, false);
@@ -333,7 +333,7 @@ test('correct push data', async (t) => {
   receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   const pushData = transaction.toPushData();
 
@@ -376,7 +376,7 @@ test('load pending transactions', async (t) => {
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -400,7 +400,7 @@ test('check if transaction is existing saved transaction', async (t) => {
     sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   t.equal(await transaction.isSaved(), false);
 

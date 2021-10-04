@@ -31,7 +31,7 @@ const generateBlocks = async () => {
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
-      transaction.sign(sender.getPrivateKeyObject());
+      transaction.sign(sender.getPrivateKey());
       block.addTransaction(transaction);
     }
 

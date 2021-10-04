@@ -28,10 +28,10 @@ test('push new block', async (t) => {
   Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 1, sender);
 
   const transactionInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
-  transactionInBlock.sign(sender.getPrivateKeyObject());
+  transactionInBlock.sign(sender.getPrivateKey());
 
   const transactionNotInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
-  transactionNotInBlock.sign(sender.getPrivateKeyObject());
+  transactionNotInBlock.sign(sender.getPrivateKey());
 
   // Save to pending transaction list
   await transactionInBlock.saveAsPending();
@@ -133,7 +133,7 @@ test('unable to push block with transaction exceeding balance', async (t) => {
 
   const exceedAmount = Block.InitialReward * BigInt(blockCount + 4);
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), exceedAmount);
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction);
   await block.mine();

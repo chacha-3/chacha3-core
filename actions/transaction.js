@@ -51,7 +51,7 @@ actions.createTransaction = {
       amount,
     );
 
-    transaction.sign(senderWallet.getPrivateKeyObject(options.password));
+    transaction.sign(senderWallet.getPrivateKey(), options.password);
 
     // TODO: Validate before verify
     const errors = transaction.validate();

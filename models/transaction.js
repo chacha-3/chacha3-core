@@ -61,10 +61,15 @@ class Transaction {
     this.version = version;
   }
 
-  sign(privateKey) {
+  sign(privateKey, password) {
     assert(this.senderKey != null);
 
-    this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), privateKey);
+    const passphrase = password || '';
+    const keyObject = crypto.createPrivateKey({
+      key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+    });
+
+    this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), keyObject);
   }
 
   getSenderKey() {

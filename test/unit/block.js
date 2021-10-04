@@ -83,7 +83,7 @@ test('coinbase should not have signature and sender', async (t) => {
     100,
   );
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   block.addCoinbase(receiver.getAddress());
@@ -141,7 +141,7 @@ test('does not add same transaction twice', async (t) => {
     200,
   );
 
-  transaction.sign(sender.getPrivateKeyObject());
+  transaction.sign(sender.getPrivateKey());
 
   const resultFirst = block.addTransaction(transaction);
   const resultSecond = block.addTransaction(transaction);
@@ -172,7 +172,7 @@ test('get object representation of a block', async (t) => {
     200,
   );
 
-  transaction1.sign(sender.getPrivateKeyObject());
+  transaction1.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction1);
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
@@ -217,7 +217,7 @@ test('verify block with checksum', async (t) => {
     410,
   );
 
-  transaction1.sign(sender.getPrivateKeyObject());
+  transaction1.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction1);
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
@@ -255,7 +255,7 @@ test('checksum is updated when adding transaction', async (t) => {
       200,
     );
 
-    transaction.sign(sender.getPrivateKeyObject());
+    transaction.sign(sender.getPrivateKey());
 
     block.addTransaction(transaction);
     block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
@@ -317,7 +317,7 @@ test('block is invalid if adding transaction after mining', async (t) => {
     200,
   );
 
-  addTransaction.sign(sender.getPrivateKeyObject());
+  addTransaction.sign(sender.getPrivateKey());
 
   // Tamper block. Add transaction without changes to checksum
   block.transactions.push(addTransaction);
