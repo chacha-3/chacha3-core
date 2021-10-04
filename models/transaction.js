@@ -5,7 +5,10 @@ const debug = require('debug')('transaction:model');
 
 const Wallet = require('./wallet');
 
-const { serializeObject, deserializeObject, serializeBuffer } = require('../util/serialize');
+const {
+  serializeObject, deserializeObject, serializeBuffer, deserializeBuffer, deserializeBigInt,
+} = require('../util/serialize');
+
 const { TransactionDB, PendingTransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
@@ -43,6 +46,10 @@ class Transaction {
 
   getId() {
     return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
+  }
+
+  setId(id) {
+    this.id = id;
   }
 
   getIdHex() {
@@ -145,26 +152,41 @@ class Transaction {
     }
   }
 
-  static fromObject(obj) {
-    const data = deserializeObject(obj);
+  static fromObject(data) {
+    // const data = deserializeObject(obj);
 
-    const transaction = new Transaction(data.sender, data.receiver, data.amount);
+    const transaction = new Transaction(
+      deserializeBuffer(data.senderKey),
+      deserializeBuffer(data.receiverAddress),
+      deserializeBigInt(data.amount),
+    );
+    transaction.setId(deserializeBuffer(data.id));
     transaction.setVersion(data.version);
     transaction.setTime(data.time);
-    transaction.setSignature(data.signature);
+    transaction.setSignature(deserializeBuffer(data.signature));
+
     return transaction;
   }
 
   toObject() {
+    // const data = {
+    //   id: this.getId(), // Remove?
+    //   // sender: this.getSenderKey() ? generateAddressEncoded(this.getSenderKey()) : null,
+    //   sender: this.getSenderKey(),
+    //   receiver: this.getReceiverAddress(),
+    //   amount: this.getAmount(),
+    //   version: this.getVersion(),
+    //   time: this.getTime(),
+    //   signature: this.getSignatur
+
     const data = {
-      id: this.getId(), // Remove?
-      // sender: this.getSenderKey() ? generateAddressEncoded(this.getSenderKey()) : null,
-      sender: this.getSenderKey(),
-      receiver: this.getReceiverAddress(),
-      amount: this.getAmount(),
+      id: this.getId(),
       version: this.getVersion(),
-      time: this.getTime(),
+      senderKey: this.getSenderKey(),
+      receiverAddress: this.getReceiverAddress(),
+      amount: this.getAmount(),
       signature: this.getSignature(),
+      time: this.getTime(),
     };
 
     return serializeObject(data);
@@ -219,20 +241,7 @@ class Transaction {
     assert(this.getId() != null);
     const key = this.getId();
 
-    // FIXME: Use to object.
-    // Unit test for set time not checking correct, prob time set is same before and after load
-    const data = {
-      id: this.getId(),
-      version: this.getVersion(),
-      senderKey: this.getSenderKey(),
-      receiverAddress: this.getReceiverAddress(),
-      amount: this.getAmount(),
-      signature: this.getSignature(),
-      time: this.getTime(),
-    };
-
-    const serialized = serializeObject(data);
-    await TransactionDB.put(key, serialized, { valueEncoding: 'json' });
+    await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
   }
 
   static async savePendingTransactions(dataArray) {
@@ -240,10 +249,11 @@ class Transaction {
       // TODO: Use from object
       const loaded = deserializeObject(dataArray[j]);
 
+      // Use from object
       const transaction = new Transaction(
         // Not matching toObject key 'sender' instead of senderKey. To fix name?
-        loaded.sender,
-        loaded.receiver,
+        loaded.senderKey,
+        loaded.receiverAddress,
         loaded.amount,
       );
 
@@ -279,19 +289,7 @@ class Transaction {
       return null;
     }
 
-    const data = deserializeObject(loaded);
-
-    const transaction = new Transaction(
-      data.senderKey,
-      data.receiverAddress,
-      data.amount,
-    );
-
-    transaction.setVersion(data.version);
-    transaction.setSignature(data.signature);
-    transaction.setTime(data.time);
-
-    return transaction;
+    return Transaction.fromObject(loaded);
   }
 
   static async loadPending() {

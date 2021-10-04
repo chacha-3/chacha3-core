@@ -34,8 +34,8 @@ actions.pushBlock = {
           type: 'object',
           properties: {
             id: { type: 'string', buffer: 'hex' },
-            sender: { type: 'string', buffer: 'hex', nullable: true },
-            receiver: { type: 'string', buffer: 'hex' },
+            senderKey: { type: 'string', buffer: 'hex', nullable: true },
+            receiverAddress: { type: 'string', buffer: 'hex' },
             amount: { type: 'string' },
             version: { type: 'integer' },
             time: { type: 'integer' },

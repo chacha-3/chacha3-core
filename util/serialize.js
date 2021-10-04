@@ -1,5 +1,21 @@
 const assert = require('assert');
 
+const isBufferString = (value) => {
+  if (!value) {
+    return false;
+  }
+
+  if (typeof (value) !== 'string' || value.length < 2) {
+    return false;
+  }
+
+  if (value.substr(0, 2) !== '0x') {
+    return false;
+  }
+
+  return true;
+};
+
 const serializeBuffer = (value) => {
   if (!Buffer.isBuffer(value)) {
     return value;
@@ -9,15 +25,11 @@ const serializeBuffer = (value) => {
 };
 
 const deserializeBuffer = (value) => {
-  if (!value) {
-    return null;
+  if (!isBufferString(value)) {
+    return value;
   }
 
   assert(value.length >= 2);
-
-  if (value.substr(0, 2) !== '0x') {
-    return value;
-  }
 
   return Buffer.from(value.substr(2), 'hex');
 };
@@ -53,6 +65,7 @@ const serializeObject = (obj) => {
   return serialized;
 };
 
+// Deprecate: Not secure from buffer injection
 const deserializeObject = (obj) => {
   const deserialized = { ...obj };
 
@@ -76,7 +89,7 @@ const deserializeObject = (obj) => {
 
     if (isBigIntString(value)) {
       deserialized[key] = deserializeBigInt(value);
-    } else if (value.substr(0, 2) === '0x') { // FIXME: Double check
+    } else if (isBufferString(value)) { // FIXME: Double check
       deserialized[key] = deserializeBuffer(value);
     }
   });
@@ -85,6 +98,7 @@ const deserializeObject = (obj) => {
 };
 
 module.exports = {
+  isBufferString,
   isBigIntString,
   serializeBuffer,
   deserializeBuffer,

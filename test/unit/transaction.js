@@ -8,7 +8,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
-const { serializeBuffer, deserializeBuffer, deserializeObject } = require('../../util/serialize');
+const { deserializeBuffer, deserializeObject } = require('../../util/serialize');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 

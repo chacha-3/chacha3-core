@@ -35,8 +35,8 @@ class Block {
       transactions: [
         {
           id: '0x412d59e9a4898e3ef2d593b7db27764baed004ac088e5b22d6986b200bcb427b',
-          sender: null,
-          receiver: '0x00cec242aee336e190cef0e18bb149db99b0069fdf6964ed57',
+          senderKey: null,
+          receiverAddress: '0x00cec242aee336e190cef0e18bb149db99b0069fdf6964ed57',
           amount: '5000000n',
           version: 1,
           time: 1632270111949,

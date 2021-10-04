@@ -191,7 +191,7 @@ test('block transactions list for existing block', async (t) => {
   const { code, data } = await runAction(options);
   t.equal(code, SuccessCode);
 
-  const fields = ['id', 'sender', 'receiver', 'amount', 'version', 'time', 'signature'];
+  const fields = ['id', 'senderKey', 'receiverAddress', 'amount', 'version', 'time', 'signature'];
 
   fields.forEach((field) => {
     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));

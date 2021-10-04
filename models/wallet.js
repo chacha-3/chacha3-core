@@ -4,7 +4,7 @@ const assert = require('assert');
 
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
-const { serializeObject, deserializeObject, serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 // const addressPrefix = '420_';
 
