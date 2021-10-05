@@ -217,30 +217,8 @@ class Chain {
     return true;
   }
 
-  // validateNewBlock(newBlock) {
-  //   const previousBlock = this.lastBlockHeader();
-  //   const newBlockPrevious = newBlock.getHeader().getPrevious();
-
-  //   if (previousBlock && !newBlockPrevious.equals(previousBlock.getHeader().getHash())) {
-  //     debug('Failed to confirm new block: Does not match latest hash');
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
-
   verifyNewBlock(newBlock) {
-    const previousBlock = this.lastBlockHeader();
-    const newBlockPrevious = newBlock.getHeader().getPrevious();
-
-    if (previousBlock && !newBlockPrevious.equals(previousBlock.getHeader().getHash())) {
-      debug('Failed to confirm new block: Does not match latest hash');
-      return false;
-    }
-
-    const blockReward = newBlock.getCoinbaseTransaction().getAmount();
-
-    if (blockReward !== Chain.currentBlockReward()) {
+    if (!newBlock.verify(this.lastBlockHeader(), this.currentBlockReward())) {
       return false;
     }
 
@@ -249,7 +227,7 @@ class Chain {
 
   async confirmNewBlock(block) {
     // Add validate new block function to check previous hash, reward, and timestamp
-    if (!block.verify(Chain.mainChain.currentBlockReward())) {
+    if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
       debug('New block failed verification');
       return false;
     }
@@ -281,6 +259,8 @@ class Chain {
       debug('Failed to confirm new block: Insufficient balances');
       return false;
     }
+
+    await block.clearPendingTransactions();
 
     return true;
   }

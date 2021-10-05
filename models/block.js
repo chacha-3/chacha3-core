@@ -198,22 +198,31 @@ class Block {
     return true;
   }
 
-  // validate(reward = Block.InitialReward) {
-  //   if (!this.validateCoinbase(reward)) {
-  //     return false;
-  //   }
+  verifyPrevious(previousHeader) {
+    if (previousHeader === null) {
+      return false;
+    }
 
-  //   return true;
-  // }
+    const previousHash = this.getHeader().getPrevious();
 
-  // TODO: Move this to chain?
-  // verifyTimestamp(lastBlockTime) {
-  //   return this.time >= lastBlockTime && this.time <= Date.now();
-  // }
+    if (!previousHash.equals(previousHeader.getHash())) {
+      debug('Failed to confirm new block: Does not match latest hash');
+      return false;
+    }
 
-  verify(reward = Block.InitialReward) {
-    if (!this.verifyCoinbase(reward)) {
-      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase validation`);
+    return true;
+  }
+
+  verifyTimestamp(previousHeader) {
+    const lastBlockTime = previousHeader.getTime();
+    return this.time >= lastBlockTime && this.time <= Date.now();
+  }
+
+  verify(previousHeader = null, currentReward = null) {
+    assert(currentReward !== null);
+
+    if (!this.verifyCoinbase(currentReward)) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
       return false;
     }
 
@@ -226,6 +235,21 @@ class Block {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
       return false;
     }
+
+    // To skip the rest for genesis block
+    if (previousHeader === null) {
+      return true;
+    }
+
+    // if (this.verifyPrevious(previousHeader)) {
+    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed previous block verification`);
+    //   return false;
+    // }
+
+    // if (!this.verifyTimestamp(previousHeader)) {
+    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed timestamp verification`);
+    //   return false;
+    // }
 
     return true;
   }
@@ -371,20 +395,6 @@ class Block {
     await BlockDB.put(key, data, { valueEncoding: 'json' });
   }
 
-  static async verifyAndSave(block) {
-    if (!block.verify()) {
-      return false;
-    }
-
-    // Clear incoming transactions from pending transactions
-    for (let i = 0; i < block.getTransactionCount(); i += 1) {
-      Transaction.clear(block.getTransaction(i).getId(), true);
-    }
-
-    await block.save();
-    return true;
-  }
-
   static async load(hash) {
     let data;
 
@@ -406,6 +416,13 @@ class Block {
     block.header.setHash(hash);
 
     return block;
+  }
+
+  // On accept new block, remove transactions in block from pending transactions
+  async clearPendingTransactions() {
+    for (let i = 0; i < this.getTransactionCount(); i += 1) {
+      await Transaction.clear(this.getTransaction(i).getId(), true);
+    }
   }
 
   static async clear(hash) {

@@ -433,7 +433,9 @@ class Peer {
       if (data) {
         debug('Receive data for block');
         const block = Block.fromObject(data);
-        valid = await Block.verifyAndSave(block);
+
+        valid = await Chain.mainChain.confirmNewBlock(block);
+        // valid = await block.verifyAndSave(Chain.blockRewardAtIndex(j));
         debug(`Block index ${j} is valid: ${valid}`);
       } else {
         debug('No data');
