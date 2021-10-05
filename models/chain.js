@@ -187,6 +187,10 @@ class Chain {
   }
 
   lastBlockHeader() {
+    if (this.getLength === 0) {
+      return null;
+    }
+  
     return this.blockHeaders[this.getLength() - 1];
   }
 
@@ -214,16 +218,34 @@ class Chain {
   }
 
   // validateNewBlock(newBlock) {
-  //   const latestBlock = this.lastBlockHeader();
-  //   const previous = newBlock.getHeader().getPrevious();
+  //   const previousBlock = this.lastBlockHeader();
+  //   const newBlockPrevious = newBlock.getHeader().getPrevious();
 
-  //   if (!previous.equals(latestBlock.getHeader().getHash())) {
-  //     debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
+  //   if (previousBlock && !newBlockPrevious.equals(previousBlock.getHeader().getHash())) {
+  //     debug('Failed to confirm new block: Does not match latest hash');
   //     return false;
   //   }
 
-  //   if (!block)
+  //   return true;
   // }
+
+  verifyNewBlock(newBlock) {
+    const previousBlock = this.lastBlockHeader();
+    const newBlockPrevious = newBlock.getHeader().getPrevious();
+
+    if (previousBlock && !newBlockPrevious.equals(previousBlock.getHeader().getHash())) {
+      debug('Failed to confirm new block: Does not match latest hash');
+      return false;
+    }
+
+    const blockReward = newBlock.getCoinbaseTransaction().getAmount();
+
+    if (blockReward !== Chain.currentBlockReward()) {
+      return false;
+    }
+
+    return true;
+  }
 
   async confirmNewBlock(block) {
     // Add validate new block function to check previous hash, reward, and timestamp
@@ -281,9 +303,10 @@ class Chain {
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
 
-      if (!block.verify(Chain.blockRewardAtIndex(i))) {
-        return false;
-      }
+      // FIXME:
+      // if (!block.verify(Chain.blockRewardAtIndex(i))) {
+      //   return false;
+      // }
 
       if (!this.updateBlockBalances(block)) {
         return false;

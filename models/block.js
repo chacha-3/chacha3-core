@@ -105,6 +105,12 @@ class Block {
     return this.transactions.length;
   }
 
+  getCoinbaseTransaction() {
+    assert(this.transactions.length > 0);
+
+    return this.getTransaction(0);
+  }
+
   setTransactions(transactions) {
     this.transactions = transactions;
   }
@@ -166,7 +172,7 @@ class Block {
     return true;
   }
 
-  validateCoinbase(reward = Block.InitialReward) {
+  validateCoinbase() {
     const coinbase = this.getTransaction(0);
 
     if (coinbase.getSenderKey() !== null || coinbase.getSignature() !== null) {
@@ -177,12 +183,28 @@ class Block {
       return false;
     }
 
-    if (coinbase.amount !== reward) {
+    return true;
+  }
+
+  verifyCoinbase(reward = Block.InitialReward) {
+    if (!this.validateCoinbase()) {
+      return false;
+    }
+
+    if (this.getCoinbaseTransaction().getAmount() !== reward) {
       return false;
     }
 
     return true;
   }
+
+  // validate(reward = Block.InitialReward) {
+  //   if (!this.validateCoinbase(reward)) {
+  //     return false;
+  //   }
+
+  //   return true;
+  // }
 
   // TODO: Move this to chain?
   // verifyTimestamp(lastBlockTime) {
@@ -190,7 +212,7 @@ class Block {
   // }
 
   verify(reward = Block.InitialReward) {
-    if (!this.validateCoinbase(reward)) {
+    if (!this.verifyCoinbase(reward)) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase validation`);
       return false;
     }
