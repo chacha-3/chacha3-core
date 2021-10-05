@@ -166,9 +166,12 @@ test('error response has correct format with errors', (t) => {
   t.end();
 });
 
-// test('mock chain with blocks', async (t) => {
-//   const chain = await mock.chainWithBlocks();
+test('mock chain with blocks', async (t) => {
+  const numOfBlocks = 12;
 
+  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
 
-//   t.end();
-// });
+  t.equal(chain.getLength(), numOfBlocks);
+
+  t.end();
+});

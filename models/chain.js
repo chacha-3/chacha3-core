@@ -190,7 +190,7 @@ class Chain {
     if (this.getLength === 0) {
       return null;
     }
-  
+
     return this.blockHeaders[this.getLength() - 1];
   }
 
@@ -251,6 +251,7 @@ class Chain {
     await block.save();
 
     this.addBlockHeader(block.getHeader());
+
     await Chain.save(this);
 
     const result = this.updateBlockBalances(block);

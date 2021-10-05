@@ -199,12 +199,9 @@ class Block {
   }
 
   verifyPrevious(previousHeader) {
-    if (previousHeader === null) {
-      return false;
-    }
+    assert(previousHeader !== null);
 
     const previousHash = this.getHeader().getPrevious();
-
     if (!previousHash.equals(previousHeader.getHash())) {
       debug('Failed to confirm new block: Does not match latest hash');
       return false;
@@ -215,11 +212,15 @@ class Block {
 
   verifyTimestamp(previousHeader) {
     const lastBlockTime = previousHeader.getTime();
-    return this.time >= lastBlockTime && this.time <= Date.now();
+    const currentBlockTime = this.getHeader().getTime();
+
+    return currentBlockTime >= lastBlockTime && currentBlockTime <= Date.now();
   }
 
   verify(previousHeader = null, currentReward = null) {
     assert(currentReward !== null);
+
+    // TODO: If previous header null, check prvious is 00000
 
     if (!this.verifyCoinbase(currentReward)) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
@@ -241,15 +242,15 @@ class Block {
       return true;
     }
 
-    // if (this.verifyPrevious(previousHeader)) {
-    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed previous block verification`);
-    //   return false;
-    // }
+    if (!this.verifyPrevious(previousHeader)) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed previous block verification`);
+      return false;
+    }
 
-    // if (!this.verifyTimestamp(previousHeader)) {
-    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed timestamp verification`);
-    //   return false;
-    // }
+    if (!this.verifyTimestamp(previousHeader)) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed timestamp verification`);
+      return false;
+    }
 
     return true;
   }
