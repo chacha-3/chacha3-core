@@ -166,7 +166,7 @@ class Block {
     return true;
   }
 
-  verifyCoinbase(reward = Block.InitialReward) {
+  validateCoinbase(reward = Block.InitialReward) {
     const coinbase = this.getTransaction(0);
 
     if (coinbase.getSenderKey() !== null || coinbase.getSignature() !== null) {
@@ -184,9 +184,14 @@ class Block {
     return true;
   }
 
+  // TODO: Move this to chain?
+  // verifyTimestamp(lastBlockTime) {
+  //   return this.time >= lastBlockTime && this.time <= Date.now();
+  // }
+
   verify(reward = Block.InitialReward) {
-    if (!this.verifyCoinbase(reward)) {
-      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
+    if (!this.validateCoinbase(reward)) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase validation`);
       return false;
     }
 

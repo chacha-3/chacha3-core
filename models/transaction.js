@@ -48,10 +48,6 @@ class Transaction {
     return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
   }
 
-  setId(id) {
-    this.id = id;
-  }
-
   getIdHex() {
     return serializeBuffer(this.getId());
   }
@@ -160,7 +156,7 @@ class Transaction {
       deserializeBuffer(data.receiverAddress),
       deserializeBigInt(data.amount),
     );
-    transaction.setId(deserializeBuffer(data.id));
+
     transaction.setVersion(data.version);
     transaction.setTime(data.time);
     transaction.setSignature(deserializeBuffer(data.signature));
@@ -169,16 +165,6 @@ class Transaction {
   }
 
   toObject() {
-    // const data = {
-    //   id: this.getId(), // Remove?
-    //   // sender: this.getSenderKey() ? generateAddressEncoded(this.getSenderKey()) : null,
-    //   sender: this.getSenderKey(),
-    //   receiver: this.getReceiverAddress(),
-    //   amount: this.getAmount(),
-    //   version: this.getVersion(),
-    //   time: this.getTime(),
-    //   signature: this.getSignatur
-
     const data = {
       id: this.getId(),
       version: this.getVersion(),
@@ -246,20 +232,7 @@ class Transaction {
 
   static async savePendingTransactions(dataArray) {
     for (let j = 0; j < dataArray.length; j += 1) {
-      // TODO: Use from object
-      const loaded = deserializeObject(dataArray[j]);
-
-      // Use from object
-      const transaction = new Transaction(
-        // Not matching toObject key 'sender' instead of senderKey. To fix name?
-        loaded.senderKey,
-        loaded.receiverAddress,
-        loaded.amount,
-      );
-
-      transaction.setVersion(loaded.version);
-      transaction.setSignature(loaded.signature);
-      transaction.setTime(loaded.time);
+      const transaction = Transaction.fromObject(dataArray[j]);
 
       const saved = await transaction.saveAsPending();
       if (saved == null) {

@@ -28,12 +28,6 @@ actions.createWallet = {
     },
     required: ['label', 'password'],
   },
-  // preValidation: async (options) => {
-  //   if (!options.password) {
-  //     console.log('pre valid')
-  //     return errorResponse(ErrorCode.InvalidArgument, 'Require password', null, 'password');
-  //   }
-  // },
   handler: async (options) => {
     const wallet = new Wallet();
     wallet.generate(options.password);
@@ -41,14 +35,7 @@ actions.createWallet = {
 
     Wallet.save(wallet);
 
-    const data = {
-      label: wallet.getLabel(),
-      address: wallet.getAddress(),
-      privateKey: wallet.getPrivateKeyHex(),
-      publicKey: wallet.getPublicKeyHex(),
-    };
-
-    return okResponse(data, 'Create wallet');
+    return okResponse(wallet.toObject(), 'Create wallet');
   },
 };
 

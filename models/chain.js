@@ -213,7 +213,20 @@ class Chain {
     return true;
   }
 
+  // validateNewBlock(newBlock) {
+  //   const latestBlock = this.lastBlockHeader();
+  //   const previous = newBlock.getHeader().getPrevious();
+
+  //   if (!previous.equals(latestBlock.getHeader().getHash())) {
+  //     debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
+  //     return false;
+  //   }
+
+  //   if (!block)
+  // }
+
   async confirmNewBlock(block) {
+    // Add validate new block function to check previous hash, reward, and timestamp
     if (!block.verify(Chain.mainChain.currentBlockReward())) {
       debug('New block failed verification');
       return false;
@@ -438,7 +451,7 @@ class Chain {
     await HeaderDB.clear(); // TODO: Add test
     await BlockDB.clear();
 
-    await Chain.mainChain.clearBlocks()
+    await Chain.mainChain.clearBlocks();
     await DB.del('chain');
 
     await Chain.initializeGenesisBlock();
