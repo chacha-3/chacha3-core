@@ -286,6 +286,26 @@ test('should recover a wallet', async (t) => {
   await Wallet.clearAll();
 });
 
+test('should be unable to recover wallet with incorrect password', async (t) => {
+  const password = 'u4J0fZ31j9mx';
+
+  const wallet = new Wallet();
+  wallet.generate(password);
+
+  const { code } = await runAction({
+    action: 'recoverWallet',
+    privateKey: wallet.getPrivateKeyHex(),
+    label: 'Recovered wallet',
+    password: 'HSaLJniX7FfZ',
+  });
+
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  t.end();
+
+  await Wallet.clearAll();
+});
+
 test('should not recover a wallet without correct private key', async (t) => {
   const { code } = await runAction({
     action: 'recoverWallet',
