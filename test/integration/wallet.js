@@ -281,9 +281,8 @@ test('should recover a wallet', async (t) => {
   t.equal(typeof data.publicKey, 'string');
   t.equal(typeof data.address, 'string');
 
-  t.end();
-
   await Wallet.clearAll();
+  t.end();
 });
 
 test('should be unable to recover wallet with incorrect password', async (t) => {
@@ -300,10 +299,9 @@ test('should be unable to recover wallet with incorrect password', async (t) => 
   });
 
   t.equal(code, ErrorCode.InvalidArgument);
+  await Wallet.clearAll();
 
   t.end();
-
-  await Wallet.clearAll();
 });
 
 test('should not recover a wallet without correct private key', async (t) => {
