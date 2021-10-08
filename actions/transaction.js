@@ -120,6 +120,7 @@ actions.pendingTransactions = {
   },
 };
 
+// TODO: Remove? Should not need
 actions.clearPendingTransactions = {
   permission: 'public',
   handler: async () => {
