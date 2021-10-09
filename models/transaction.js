@@ -191,19 +191,27 @@ class Transaction {
     });
   }
 
+  static async exist(key) {
+    try {
+      await TransactionDB.get(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async saveAsPending() {
     assert(this.getId() != null);
     const key = this.getId();
 
-    try {
-      const exist = await TransactionDB.get(key);
+    const exist = await Transaction.exist(key);
 
+    if (exist) {
       debug('Pending transaction is prior transaction. Ignored');
       return false;
-    } catch (e) {
-      debug('Pending transaction is not prior transaction. Continue save');
     }
 
+    debug('Pending transaction is not prior transaction. Continue save');
     await PendingTransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
 
     debug(`Saved pending transaction: ${serializeBuffer(this.getId())}`);
