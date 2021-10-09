@@ -175,3 +175,12 @@ test('mock chain with blocks', async (t) => {
 
   t.end();
 });
+
+test('mock a block with transactions', async (t) => {
+  const numOfTransactions = 3;
+  const block = await mock.blockWithTransactions(numOfTransactions);
+
+  t.equal(block.getTransactionCount(), numOfTransactions);
+  t.equal(await block.verify(null, Chain.blockRewardAtIndex(0)), true);
+  t.end();
+});

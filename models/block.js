@@ -151,24 +151,22 @@ class Block {
   }
 
   async verifyTransactions() {
-    // Check transactions valid
-    // Also check no dulicate IDS
+    const verify = (transaction) => new Promise((resolve, reject) => (
+      transaction.verify() ? resolve() : reject()));
+
+    const promises = [];
+
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      // const transaction = await Transaction.load(this.getTransaction(i).getId());
-
       const transaction = this.getTransaction(i);
-      const isSaved = await transaction.isSaved();
-
-      // if (isSaved) {
-      //   // TODO: Run this only when mining own block
-      //   await Transaction.clear(transaction.getId(), true);
-      //   return false;
-      // }
-
-      if (!transaction.verify()) {
-        return false;
-      }
+      promises.push(verify(transaction));
     }
+
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      return false;
+    }
+
     return true;
   }
 

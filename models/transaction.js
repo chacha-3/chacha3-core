@@ -191,20 +191,21 @@ class Transaction {
     });
   }
 
-  static async exist(key) {
-    try {
-      await TransactionDB.get(key);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  // Use is saved
+  // static async exist(key) {
+  //   try {
+  //     await TransactionDB.get(key);
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
   async saveAsPending() {
     assert(this.getId() != null);
     const key = this.getId();
 
-    const exist = await Transaction.exist(key);
+    const exist = await this.isSaved();
 
     if (exist) {
       debug('Pending transaction is prior transaction. Ignored');
@@ -214,7 +215,7 @@ class Transaction {
     debug('Pending transaction is not prior transaction. Continue save');
     await PendingTransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
 
-    debug(`Saved pending transaction: ${serializeBuffer(this.getId())}`);
+    debug(`Saved pending transaction: ${serializeBuffer(key)}`);
     return true;
   }
 
@@ -275,22 +276,7 @@ class Transaction {
     const values = await readValues();
 
     const loadTransaction = (data) => new Promise((resolve) => {
-      // const wallet = new Wallet();
-      // wallet.fromSaveData(data);
-
-      const loaded = deserializeObject(data);
-
-      // TODO: Use from object
-      const transaction = new Transaction(
-        loaded.senderKey,
-        loaded.receiverAddress,
-        loaded.amount,
-      );
-
-      transaction.setVersion(loaded.version);
-      transaction.setSignature(loaded.signature);
-      transaction.setTime(loaded.time);
-
+      const transaction = Transaction.fromObject(data);
       resolve(transaction);
     });
 

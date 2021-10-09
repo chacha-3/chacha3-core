@@ -73,18 +73,18 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
 
   const minusCoinbase = numOfTransactions - 1;
 
-  let receiver = rewardReceiverWallet;
+  let sender = rewardReceiverWallet;
 
-  if (!receiver) {
-    receiver = new Wallet();
-    receiver.generate();
+  if (!sender) {
+    sender = new Wallet();
+    sender.generate();
   }
 
   const randomWallet = new Wallet();
   randomWallet.generate();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddress(), reward);
+  block.addCoinbase(sender.getAddress(), reward);
 
   if (previousBlock) {
     block.setPreviousHash(previousBlock.getHeader().getHash());
@@ -93,17 +93,14 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
   }
 
   for (let i = 0; i < minusCoinbase; i += 1) {
-    const sender = new Wallet();
-    sender.generate();
-
     const transaction = new Transaction(
-      receiver.getPublicKey(),
+      sender.getPublicKey(),
       randomWallet.getAddress(),
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
     transaction.sign(sender.getPrivateKey());
-
+    assert(transaction.verify() === true);
     // await transaction.save();
 
     block.addTransaction(transaction);
