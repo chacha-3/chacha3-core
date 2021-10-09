@@ -204,20 +204,7 @@ class Transaction {
       debug('Pending transaction is not prior transaction. Continue save');
     }
 
-    // FIXME: Use to object.
-    // Unit test for set time not checking correct, prob time set is same before and after load
-    const data = {
-      id: this.getId(),
-      version: this.getVersion(),
-      senderKey: this.getSenderKey(),
-      receiverAddress: this.getReceiverAddress(),
-      amount: this.getAmount(),
-      signature: this.getSignature(),
-      time: this.getTime(),
-    };
-
-    const serialized = serializeObject(data);
-    await PendingTransactionDB.put(key, serialized, { valueEncoding: 'json' });
+    await PendingTransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
 
     debug(`Saved pending transaction: ${serializeBuffer(this.getId())}`);
     return true;
