@@ -241,11 +241,11 @@ class Chain {
     }
 
     // FIXME: Duplicate of block.verifyTransactions()
-    const noPriorTransactions = await block.hasNoExistingTransactions();
+    // const noPriorTransactions = await block.hasNoExistingTransactions();
 
-    if (!noPriorTransactions) {
-      return false;
-    }
+    // if (!noPriorTransactions) {
+    //   return false;
+    // }
 
     debug(`Saved new block: ${block.getHeader().getHash().toString('hex')}`);
     await block.save();

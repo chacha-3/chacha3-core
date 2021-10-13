@@ -191,35 +191,31 @@ class Transaction {
     });
   }
 
+  // Use is saved
+  // static async exist(key) {
+  //   try {
+  //     await TransactionDB.get(key);
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
   async saveAsPending() {
     assert(this.getId() != null);
     const key = this.getId();
 
-    try {
-      const exist = await TransactionDB.get(key);
+    const exist = await this.isSaved();
 
+    if (exist) {
       debug('Pending transaction is prior transaction. Ignored');
       return false;
-    } catch (e) {
-      debug('Pending transaction is not prior transaction. Continue save');
     }
 
-    // FIXME: Use to object.
-    // Unit test for set time not checking correct, prob time set is same before and after load
-    const data = {
-      id: this.getId(),
-      version: this.getVersion(),
-      senderKey: this.getSenderKey(),
-      receiverAddress: this.getReceiverAddress(),
-      amount: this.getAmount(),
-      signature: this.getSignature(),
-      time: this.getTime(),
-    };
+    debug('Pending transaction is not prior transaction. Continue save');
+    await PendingTransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
 
-    const serialized = serializeObject(data);
-    await PendingTransactionDB.put(key, serialized, { valueEncoding: 'json' });
-
-    debug(`Saved pending transaction: ${serializeBuffer(this.getId())}`);
+    debug(`Saved pending transaction: ${serializeBuffer(key)}`);
     return true;
   }
 
@@ -280,22 +276,7 @@ class Transaction {
     const values = await readValues();
 
     const loadTransaction = (data) => new Promise((resolve) => {
-      // const wallet = new Wallet();
-      // wallet.fromSaveData(data);
-
-      const loaded = deserializeObject(data);
-
-      // TODO: Use from object
-      const transaction = new Transaction(
-        loaded.senderKey,
-        loaded.receiverAddress,
-        loaded.amount,
-      );
-
-      transaction.setVersion(loaded.version);
-      transaction.setSignature(loaded.signature);
-      transaction.setTime(loaded.time);
-
+      const transaction = Transaction.fromObject(data);
       resolve(transaction);
     });
 

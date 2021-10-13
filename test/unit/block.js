@@ -1,4 +1,6 @@
 const { test } = require('tap');
+const assert = require('assert');
+const crypto = require('crypto');
 
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
@@ -59,6 +61,27 @@ test('should be not have verified block when invalid coinbase amount', async (t)
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   block.transactions[0].amount = 99999;
+
+  await block.mine();
+
+  t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
+  // t.equal(block.verify(), fverifyCoinbasealse, 'mined block has invalid coinbase');
+
+  t.end();
+});
+
+test('should be not have verified block when fail coinbase validation', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  const address = wallet.getAddress();
+
+  block.addCoinbase(address);
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  block.transactions[0].receiverAddress = crypto.randomBytes(32);
 
   await block.mine();
 
@@ -362,23 +385,23 @@ test('block is valid when does not have previously saved transaction', async (t)
   t.end();
 });
 
-test('block is invalid when has previously saved transaction', async (t) => {
-  const chain = await mock.chainWithBlocks(3, 5);
+// test('block is invalid when has previously saved transaction', async (t) => {
+//   const chain = await mock.chainWithBlocks(3, 5);
 
-  const hash = chain.getBlockHeader(2).getHash();
-  const savedBlock = await Block.load(hash);
+//   const hash = chain.getBlockHeader(2).getHash();
+//   const savedBlock = await Block.load(hash);
 
-  const randomSavedTransaction = savedBlock.getTransaction(4);
+//   const randomSavedTransaction = savedBlock.getTransaction(4);
 
-  const block = new Block();
-  block.addTransaction(randomSavedTransaction);
+//   const block = new Block();
+//   block.addTransaction(randomSavedTransaction);
 
-  const result = await block.verifyTransactions();
-  t.equal(result, false);
+//   const result = await block.verifyTransactions();
+//   t.equal(result, false);
 
-  await Chain.clearMain();
-  t.end();
-});
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 test('block is invalid when has invalid transaction', async (t) => {
   const block = await mock.blockWithTransactions(4);
@@ -552,7 +575,7 @@ test('get genesis block', async (t) => {
   t.end();
 });
 
-test('block check has no existing transactions', async (t) => {
+test('block verify checks has no existing transactions', async (t) => {
   const block = await mock.blockWithTransactions(3);
 
   t.equal(await block.hasNoExistingTransactions(), true);
