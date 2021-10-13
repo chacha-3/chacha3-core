@@ -277,6 +277,8 @@ class Chain {
   // TODO:
   // Verify and load balances
   async verify() {
+    // TODO: Assert not block balances set
+
     if (!this.verifyGenesisBlock()) {
       return false;
     }
