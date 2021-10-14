@@ -145,16 +145,21 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
   const chain = new Chain();
   await Block.Genesis.save();
 
-  await chain.confirmNewBlock(Block.Genesis);
-  chain.addBlockHeader(Block.Genesis.getHeader());
+  // await chain.confirmNewBlock(Block.Genesis);
+  // console.log(chain.addBlockHeader(Block.Genesis.getHeader()));
 
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
     // No extra transactions for first block as sender has no balance to send yet
-    const numberOfTransactions = (i > 0) ? transactionsPerBlock : 1;
+    const numOfTransactions = (i > 0) ? transactionsPerBlock : 1;
 
-    const block = await mock.blockWithTransactions(numberOfTransactions, previousBlock, receiverWallet, Chain.blockRewardAtIndex(i + 1));
+    const block = await mock.blockWithTransactions(
+      numOfTransactions,
+      previousBlock,
+      receiverWallet,
+      Chain.blockRewardAtIndex(i + 1),
+    );
     // await block.save();
 
     // chain.addBlockHeader(block.getHeader());

@@ -172,6 +172,7 @@ test('mock chain with blocks', async (t) => {
   const chain = await mock.chainWithBlocks(numOfBlocks, 3);
 
   t.equal(chain.getLength(), numOfBlocks);
+  t.equal(await chain.verify(), true);
 
   t.end();
 });

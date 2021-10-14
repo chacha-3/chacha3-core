@@ -13,6 +13,7 @@ const { median, clamp } = require('../util/math');
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
 const Transaction = require('./transaction');
+const { Genesis } = require('./block');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -20,8 +21,10 @@ if (runningManualTest(process.argv)) {
 
 class Chain {
   constructor() {
-    this.blockHeaders = [];
+    this.blockHeaders = [Block.Genesis.getHeader()];
     this.accounts = {};
+
+    this.updateBlockBalances(Block.Genesis);
   }
 
   static getAdjustInterval() {
