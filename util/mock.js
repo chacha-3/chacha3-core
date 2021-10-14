@@ -111,6 +111,10 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
   return block;
 };
 
+/**
+ * @param  {number} numOfBlocks
+ * @param  {number} transactionsPerBlock
+ */
 mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
@@ -138,15 +142,8 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
 
   const minusGenesis = numOfBlocks - 1;
 
-  // const additionalBlocks = await Promise.all(
-  //   Array.from({ length: minusGenesis }, () => mock.blockWithTransactions(transactionsPerBlock)),
-  // );
-
   const chain = new Chain();
   await Block.Genesis.save();
-
-  // await chain.confirmNewBlock(Block.Genesis);
-  // console.log(chain.addBlockHeader(Block.Genesis.getHeader()));
 
   let previousBlock = Block.Genesis;
 
@@ -154,16 +151,17 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
     // No extra transactions for first block as sender has no balance to send yet
     const numOfTransactions = (i > 0) ? transactionsPerBlock : 1;
 
+    // eslint-disable-next-line no-await-in-loop
     const block = await mock.blockWithTransactions(
       numOfTransactions,
       previousBlock,
       receiverWallet,
       Chain.blockRewardAtIndex(i + 1),
     );
-    // await block.save();
 
-    // chain.addBlockHeader(block.getHeader());
+    // eslint-disable-next-line no-await-in-loop
     const result = await chain.confirmNewBlock(block);
+    assert(result);
 
     previousBlock = block;
   }
