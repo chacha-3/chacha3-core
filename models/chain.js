@@ -173,18 +173,18 @@ class Chain {
   // Revert chain to previous blocks length
   // Update the account balance and header
   // To use this method only on copies of main chain
-  async revertHeaderIndex(index) {
-    if (index <= this.getLength()) {
-      return false;
-    }
+  // async revertHeaderIndex(index) {
+  //   if (index <= this.getLength()) {
+  //     return false;
+  //   }
 
-    for (let i = this.getLength(); i > index; i -= 1) {
-      const block = await Block.load(this.getBlockHeader(i));
-      this.revertBlockBalances(block);
-    }
+  //   for (let i = this.getLength(); i > index; i -= 1) {
+  //     const block = await Block.load(this.getBlockHeader(i));
+  //     this.revertBlockBalances(block);
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   lastBlockHeader() {
     if (this.getLength === 0) {
@@ -217,14 +217,15 @@ class Chain {
     return true;
   }
 
-  verifyNewBlock(newBlock) {
-    if (!newBlock.verify(this.lastBlockHeader(), this.currentBlockReward())) {
-      return false;
-    }
+  // verifyNewBlock(newBlock) {
+  //   if (!newBlock.verify(this.lastBlockHeader(), this.currentBlockReward())) {
+  //     return false;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
+  // NOTE: Main chain
   async confirmNewBlock(block) {
     // Add validate new block function to check previous hash, reward, and timestamp
     if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
@@ -393,6 +394,7 @@ class Chain {
     return this.blockHeaders[this.blockHeaders.length - 1];
   }
 
+  // NOTE: Main chain
   static async save(chain) {
     const key = 'chain';
     const data = {
@@ -502,6 +504,7 @@ class Chain {
   //   return clearBlocks;
   // }
 
+  // NOTE: Main chain
   static async initializeGenesisBlock() {
     const chain = await Chain.load();
     if (chain.getLength() > 0) {

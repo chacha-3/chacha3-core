@@ -64,7 +64,7 @@ class Miner {
     let block = this.initMiningBlock();
 
     while (this.mining) {
-      const chain = Chain.mainChain;
+      const chain = Chain.mainChain; // TODO: Move this to after synching
 
       if (Chain.isSynching()) {
         debug('Mining paused. Chain out of sync');
