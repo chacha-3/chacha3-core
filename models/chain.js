@@ -524,11 +524,6 @@ class Chain {
   compareWork(newChain) {
     const currentWork = this.getTotalWork();
     const newWork = newChain.getTotalWork();
-    // FIXME:
-
-    if (newWork === 0) {
-      return -1;
-    }
 
     debug(`Compare block work. Current: ${currentWork}, New: ${newWork}`);
     const isAhead = newWork >= currentWork + this.getCurrentDifficulty();

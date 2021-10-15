@@ -8,6 +8,7 @@ const mock = require('../../util/mock');
 
 const { generateAddress } = require('../../models/wallet');
 const { serializeObject } = require('../../util/serialize');
+const Transaction = require('../../models/transaction');
 
 // test('create an empty chain', (t) => {
 //   const chain = new Chain();
@@ -397,6 +398,47 @@ test('verify chain', async (t) => {
   await Chain.clearMain();
   t.end();
 });
+
+// test('unable to verify chain with invalid block balance', async (t) => {
+//   const numOfBlocks = 12;
+
+//   const sender = new Wallet();
+//   sender.generate();
+
+//   const receiver = new Wallet();
+//   receiver.generate();
+
+//   const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+//   const blockReward = Chain.blockRewardAtIndex(numOfBlocks);
+
+//   const block = new Block();
+//   block.addCoinbase(sender, Chain.blockRewardAtIndex(numOfBlocks));
+
+//   const exceedBalance = blockReward * 2n;
+
+//   const invalidBalanceTransaction = new Transaction(
+//     sender.getPublicKey(),
+//     receiver.getAddress(),
+//     exceedBalance,
+//   );
+
+//   invalidBalanceTransaction.sign(sender.getPrivateKey());
+
+//   block.addTransaction(invalidBalanceTransaction);
+//   await block.mine();
+
+//   // // Inject invalid block to chain
+//   // chain.addBlockHeader(block.getHeader());
+//   // await block.save();
+
+//   // const verified = await chain.verify();
+//   // t.equal(verified, false);
+
+//   await chain.clearBlocks();
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 test('fail to verify chain if genesis block does not match chain', async (t) => {
   const chain = await mock.chainWithBlocks(12, 3);

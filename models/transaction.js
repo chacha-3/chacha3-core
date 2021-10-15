@@ -239,6 +239,10 @@ class Transaction {
     }
   }
 
+  static fromArray(data) {
+    // TODO:
+  }
+
   async isSaved() {
     try {
       await TransactionDB.get(this.getId());
