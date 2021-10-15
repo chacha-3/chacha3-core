@@ -12,10 +12,8 @@ const { deserializeBigInt } = require('../../util/serialize');
 
 test('list all wallet', async (t) => {
   await mock.createWallets(3);
-
   const { code, data } = await runAction({
     action: 'listWallets',
-    label: 'MyWalletLabel',
   });
 
   t.equal(code, SuccessCode);

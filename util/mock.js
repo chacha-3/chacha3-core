@@ -16,9 +16,7 @@ mock.createWallets = async (count, password) => {
     wallet.setLabel(`addWallet${i}`);
     wallet.generate(password);
 
-    Wallet.save(wallet);
-    resolve(wallet);
-    // wallet.save().then(() => resolve(wallet));
+    Wallet.save(wallet).then(() => resolve(wallet));
   });
 
   const promises = [];

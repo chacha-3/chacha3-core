@@ -175,7 +175,7 @@ test('delete wallet', async (t) => {
   const after = await Wallet.all();
   t.equal(after.length, 0);
 
-  Wallet.clearAll();
+  await Wallet.clearAll();
 
   t.end();
 });
