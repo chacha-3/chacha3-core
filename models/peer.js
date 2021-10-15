@@ -391,7 +391,7 @@ class Peer {
     const { data } = response;
 
     const pulledChain = Chain.fromObject(data);
-    const divergeIndex = Chain.compareWork(Chain.mainChain, pulledChain);
+    const divergeIndex = Chain.mainChain.compareWork(pulledChain);
 
     if (divergeIndex < 1) {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);

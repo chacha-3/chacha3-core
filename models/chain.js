@@ -521,8 +521,8 @@ class Chain {
     await Chain.save(chain);
   }
 
-  static compareWork(currentChain, newChain) {
-    const currentWork = currentChain.getTotalWork();
+  compareWork(newChain) {
+    const currentWork = this.getTotalWork();
     const newWork = newChain.getTotalWork();
     // FIXME:
 
@@ -531,7 +531,7 @@ class Chain {
     }
 
     debug(`Compare block work. Current: ${currentWork}, New: ${newWork}`);
-    const isAhead = newWork >= currentWork + currentChain.getCurrentDifficulty();
+    const isAhead = newWork >= currentWork + this.getCurrentDifficulty();
 
     if (!isAhead) {
       return -1;
@@ -539,8 +539,8 @@ class Chain {
 
     let i = 0;
 
-    for (; i < currentChain.getLength(); i += 1) {
-      if (!currentChain.getBlockHeader(i).getHash().equals(newChain.getBlockHeader(i).getHash())) {
+    for (; i < this.getLength(); i += 1) {
+      if (!this.getBlockHeader(i).getHash().equals(newChain.getBlockHeader(i).getHash())) {
         // Diverge index
         return i;
       }

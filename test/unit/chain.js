@@ -141,8 +141,29 @@ test('save and load chain', async (t) => {
 
 test('compare current chain with longer chain', async (t) => {
   const currentChain = await mock.chainWithHeaders(3, 5);
+  const longerChain = await mock.chainWithHeaders(5, 5);
 
-  // t.equal(result, 3);
+  const divergeIndex = currentChain.compareWork(longerChain);
+
+  t.equal(divergeIndex, 1);
+  t.end();
+});
+
+test('compare current chain with equal chain', async (t) => {
+  const currentChain = await mock.chainWithHeaders(3, 5);
+  const divergeIndex = currentChain.compareWork(currentChain);
+
+  t.equal(divergeIndex, -1);
+  t.end();
+});
+
+test('compare current chain with shorter chain', async (t) => {
+  const currentChain = await mock.chainWithHeaders(5, 5);
+  const shorterChain = await mock.chainWithHeaders(2, 5);
+
+  const divergeIndex = currentChain.compareWork(shorterChain);
+
+  t.equal(divergeIndex, -1);
   t.end();
 });
 
