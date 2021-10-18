@@ -7,7 +7,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const { generateAddress } = require('../../models/wallet');
-const { serializeObject } = require('../../util/serialize');
+const { serializeObject, deserializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
 
 // test('create an empty chain', (t) => {
@@ -262,6 +262,36 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   t.end();
 });
 
+test('unable to update block balance when account has no balance', async (t) => {
+  const chain = new Chain();
+
+  const numOfBlocks = 2;
+
+  // Coinbase wallet to send to
+  const wallet = new Wallet();
+  wallet.generate();
+
+  // const blocks = await mock.blockList(numOfBlocks, 2, wallet);
+
+  const noBalanceWallet = new Wallet();
+  noBalanceWallet.generate();
+
+  const noBalanceBlock = new Block();
+  noBalanceBlock.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+  noBalanceBlock.addCoinbase(wallet.getAddress());
+
+  const transaction = new Transaction(noBalanceWallet.getPublicKey(), wallet.getAddress(), 10);
+  transaction.sign(noBalanceWallet.getPrivateKey());
+
+  noBalanceBlock.addTransaction(transaction);
+  await noBalanceBlock.mine();
+
+  const result = chain.updateBlockBalances(noBalanceBlock);
+  t.equal(result, false);
+
+  t.end();
+});
+
 test('reverts a specific valid transaction', async (t) => {
   const chain = new Chain();
 
@@ -315,7 +345,6 @@ test('clear blocks in chain', async (t) => {
   await Chain.clearMain();
   t.end();
 });
-
 
 test('have zero balance for account without transaction', async (t) => {
   const chain = new Chain();
