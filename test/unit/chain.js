@@ -140,13 +140,28 @@ test('save and load chain', async (t) => {
   t.end();
 });
 
-test('compare current chain with longer chain', async (t) => {
+test('correct chain diverge index', async (t) => {
   const currentChain = await mock.chainWithHeaders(3, 5);
   const longerChain = await mock.chainWithHeaders(5, 5);
 
   const divergeIndex = currentChain.compareWork(longerChain);
 
+  // Diverge after genesis block
   t.equal(divergeIndex, 1);
+  t.end();
+});
+
+test('compare current chain with longer chain', async (t) => {
+  const longerChain = await mock.chainWithHeaders(5, 5);
+
+  // Export and slice data
+  const exported = longerChain.toObject();
+  exported.blockHeaders = exported.blockHeaders.slice(0, 3);
+
+  const currentChain = Chain.fromObject(exported);
+  const divergeIndex = currentChain.compareWork(longerChain);
+
+  t.equal(divergeIndex, 3);
   t.end();
 });
 
@@ -419,6 +434,16 @@ test('to and from object', async (t) => {
 });
 
 test('verify chain', async (t) => {
+  const chain = await mock.chainWithBlocks(12, 3);
+
+  const verified = await chain.verify();
+  t.equal(verified, true);
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('unable to verify chain with different genesis block', async (t) => {
   const chain = await mock.chainWithBlocks(12, 3);
 
   const verified = await chain.verify();

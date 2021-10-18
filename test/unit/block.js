@@ -12,6 +12,13 @@ const { deserializeBuffer } = require('../../util/serialize');
 const { randomNumberBetween } = require('../../util/math');
 const Header = require('../../models/header');
 
+test('should generate a random (genesis) block', async (t) => {
+  const block = await Block.generate();
+
+  t.equal(block.verifyHash(), true);
+  t.end();
+});
+
 test('should validate coinbase', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
