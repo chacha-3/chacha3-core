@@ -190,7 +190,7 @@ class Chain {
   // }
 
   lastBlockHeader() {
-    if (this.getLength === 0) {
+    if (this.getLength() === 0) {
       return null;
     }
 

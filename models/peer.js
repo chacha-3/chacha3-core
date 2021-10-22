@@ -10,7 +10,6 @@ const Block = require('./block');
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
-const { stringify } = require('querystring');
 
 class Peer {
   constructor(address, port) {
@@ -512,15 +511,15 @@ class Peer {
     return Peer.fromSaveData(data);
   }
 
-  static async checkExist(key) {
-    try {
-      await PeerDB.get(key, { valueEncoding: 'json' });
-    } catch (e) {
-      return false;
-    }
+  // static async checkExist(key) {
+  //   try {
+  //     await PeerDB.get(key, { valueEncoding: 'json' });
+  //   } catch (e) {
+  //     return false;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   async save() {
     const key = this.getId();

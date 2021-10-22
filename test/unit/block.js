@@ -376,6 +376,52 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
   t.end();
 });
 
+test('block is invalid when timestamp is before previous block timestamp', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() - 10000);
+
+  await block.mine();
+
+  t.equal(block.verifyTimestamp(previousHeader), false, 'block with timestamp before previous block fails verification');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+
+  t.end();
+});
+
+test('block is invalid when timestamp is in the future', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 2000000);
+
+  await block.mine();
+
+  t.equal(block.verifyTimestamp(previousHeader), false, 'block with timestamp in the future fails verification');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+
+  t.end();
+});
+
 test('block is valid when does not have previously saved transaction', async (t) => {
   await mock.chainWithBlocks(3, 5);
 
