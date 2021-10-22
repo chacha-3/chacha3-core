@@ -212,13 +212,14 @@ class Block {
     const lastBlockTime = previousHeader.getTime();
     const currentBlockTime = this.getHeader().getTime();
 
+    // TODO: Add threshold
     return currentBlockTime >= lastBlockTime && currentBlockTime <= Date.now();
   }
 
   verify(previousHeader = null, currentReward = null) {
     assert(currentReward !== null);
 
-    // TODO: If previous header null, check prvious is 00000
+    // TODO: If previous header null, check previous is 00000
 
     if (!this.verifyCoinbase(currentReward)) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
@@ -307,10 +308,6 @@ class Block {
 
   // verifySize() {
   //   // TODO:
-  // }
-
-  // verifyTimestamp() {
-  //   // TODO: For new blocks, ensure less than two hours into future for time errors
   // }
 
   // verifyOnlyFirstIsCoinBase() {
