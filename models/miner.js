@@ -119,13 +119,27 @@ class Miner {
             return;
           }
 
-          await Transaction.savePendingTransactions(data);
+          await Miner.savePendingTransactions(data);
         });
       }
 
       this.pendingTransactions = await Transaction.loadPending();
       debug(`Update pending transactions: ${this.pendingTransactions.length}`);
     }, 2000);
+  }
+
+  static async savePendingTransactions(dataArray) {
+    const transactions = Transaction.fromArray(dataArray);
+
+    transactions.forEach((transaction) => {
+      transaction.saveAsPending().then((saved) => {
+        if (saved === null) {
+          debug(`Rejected pending pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
+        } else {
+          debug(`Save pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
+        }
+      });
+    });
   }
 
   stopTransactionPoll() {

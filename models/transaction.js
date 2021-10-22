@@ -226,21 +226,15 @@ class Transaction {
     await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
   }
 
-  static async savePendingTransactions(dataArray) {
-    for (let j = 0; j < dataArray.length; j += 1) {
-      const transaction = Transaction.fromObject(dataArray[j]);
-
-      const saved = await transaction.saveAsPending();
-      if (saved == null) {
-        debug(`Rejected pending pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
-      } else {
-        debug(`Save pending transaction from poll: ${serializeBuffer(transaction.getId())}`);
-      }
-    }
-  }
-
   static fromArray(data) {
-    // TODO:
+    const transactions = [];
+
+    for (let i = 0; i < data.length; i += 1) {
+      const transaction = Transaction.fromObject(data[i]);
+      transactions.push(transaction);
+    }
+
+    return transactions;
   }
 
   async isSaved() {
