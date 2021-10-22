@@ -399,6 +399,50 @@ test('block is invalid when timestamp is before previous block timestamp', async
   t.end();
 });
 
+test('block is valid only when previous hash matches', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+
+  await block.mine();
+
+  t.equal(block.verifyPrevious(previousHeader), true, 'block with correct previous hash passes verification');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
+
+  t.end();
+});
+
+test('block is invalid it does not match previous hash', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(crypto.randomBytes(32));
+
+  await block.mine();
+
+  t.equal(block.verifyPrevious(previousHeader), false, 'block with invalid when previous hash does not match');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+
+  t.end();
+});
+
 test('block is invalid when timestamp is in the future', async (t) => {
   const numOfBlocks = 3;
 

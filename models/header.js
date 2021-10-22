@@ -140,6 +140,8 @@ class Header {
 
   computeHash() {
     const hashResult = crypto.createHash('sha3-256').update(this.hashData(), 'utf-8').digest();
+    assert(hashResult.length === 32);
+
     this.hash = hashResult;
   }
 
