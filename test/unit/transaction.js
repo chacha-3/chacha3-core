@@ -365,6 +365,21 @@ test('to and from transaction object', async (t) => {
   t.end();
 });
 
+test('to and from transaction array', async (t) => {
+  const numOfTransactions = 4;
+
+  const transactions = Array(numOfTransactions).fill(null).map(() => mock.transaction());
+
+  const data = Transaction.toArray(transactions);
+  t.equal(data.length, numOfTransactions);
+
+  const loaded = Transaction.fromArray(data);
+  t.equal(loaded.length, numOfTransactions);
+
+  t.ok(loaded[0].getId().equals(transactions[0].getId()));
+  t.end();
+});
+
 test('load pending transactions', async (t) => {
   const sender = new Wallet();
   sender.generate();

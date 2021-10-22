@@ -226,6 +226,16 @@ class Transaction {
     await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
   }
 
+  static toArray(transactions) {
+    const data = [];
+
+    for (let i = 0; i < transactions.length; i += 1) {
+      data.push(transactions[i].toObject());
+    }
+
+    return data;
+  }
+
   static fromArray(data) {
     const transactions = [];
 
