@@ -55,13 +55,43 @@ test('get total work in chain', async (t) => {
 });
 
 test('set chain synching status', (t) => {
-  t.equal(Chain.isSynching(), false);
+  t.equal(Chain.mainChain.isSynching(), false);
 
-  Chain.setSynching(true);
-  t.equal(Chain.isSynching(), true);
+  Chain.mainChain.setSynching(true);
+  t.equal(Chain.mainChain.isSynching(), true);
 
   t.end();
 });
+
+test('synchronize main chain with longer chain', async (t) => {
+  const numOfBlocks = 4;
+
+  const longerChain = await mock.chainWithHeaders(numOfBlocks, 3);
+  t.equal(longerChain.getLength(), 4);
+
+  const data = longerChain.toObject();
+  data.blockHeaders = data.blockHeaders.slice(0, 2);
+
+  Chain.mainChain = Chain.fromObject(data);
+  // Chain.mainChain.
+
+  t.end();
+});
+
+
+// TODO: Add after chain from array
+// test('synchronize main chain with longer chain', (t) => {
+//   t.equal(Chain.mainChain.isSynching(), false);
+
+//   const numOfBlocks = 8;
+
+//   const longerChain = await mock.chainWithBlocks(numOfBlocks, 4);
+
+//   const currentChain = Chain.from
+//   Chain.mainChain = await mock.chainWithBlocks(8, 4);
+
+//   t.end();
+// });
 
 test('calculate average block time difference in chain', async (t) => {
   const numOfBlocks = 3;

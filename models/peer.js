@@ -7,6 +7,8 @@ const ipaddr = require('ipaddr.js');
 const Chain = require('./chain');
 const Block = require('./block');
 
+const { version } = require('../package.json');
+
 const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
@@ -295,6 +297,7 @@ class Peer {
       'bong-port': process.env.PORT || 3000,
       'bong-chain-length': Chain.mainChain.getLength(),
       'bong-chain-work': Chain.mainChain.getTotalWork(),
+      'bong-version': version,
     };
   }
 
@@ -370,20 +373,27 @@ class Peer {
     return this.sendRequest(params);
   }
 
+  async updateChainInfo(chain) {
+    this.setChainLength(chain.getLength());
+    this.setTotalWork(chain.getTotalWork());
+
+    await this.save();
+  }
+
   async syncChain() {
     // Avoid synching with more than one at a time
-    if (Chain.isSynching()) {
+    if (Chain.mainChain.isSynching()) {
+      // Return true to avoid trying next peer
       return true;
     }
 
-    Chain.setSynching(true);
+    Chain.mainChain.setSynching(true);
 
     const response = await this.callAction('pullChain');
 
     // TODO: Check chain is higher than current claimed length
 
     if (!response) {
-      Chain.setSynching(false);
       return false;
     }
 
@@ -394,26 +404,22 @@ class Peer {
 
     if (divergeIndex < 1) {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);
-      Chain.setSynching(false);
       return false;
     }
 
     const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
 
-    if (valid) {
-      await Chain.save(pulledChain);
-
-      this.setChainLength(pulledChain.getLength());
-      this.setTotalWork(pulledChain.getTotalWork());
-
-      Chain.mainChain.clearBlocks(divergeIndex);
-
-      await this.save();
-    } else {
-      debug('Invalid chain');
+    if (!valid) {
+      return false;
     }
 
-    Chain.setSynching(false);
+    await Chain.save(pulledChain);
+    Chain.mainChain.clearBlocks(divergeIndex);
+
+    Chain.mainChain.setSynching(false);
+
+    await this.updateChainInfo(pulledChain);
+
     return valid;
   }
 
@@ -426,10 +432,13 @@ class Peer {
 
       debug(`Request block data: ${serializeBuffer(header.getHash())}`);
       debug(`Peer info: ${this.getAddress()}:${this.getPort()}`);
-      const { data } = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
-      debug(`Receive new block data: ${serializeBuffer(header.getHash())}`);
-
+      console.log(header.getHash())
+      console.log({ hash: serializeBuffer(header.getHash()) })
+      const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
+      console.log(response);
+      const { data } = response;
       if (data) {
+        debug(`Receive new block data: ${serializeBuffer(header.getHash())}`);
         debug('Receive data for block');
         const block = Block.fromObject(data);
 
@@ -437,6 +446,7 @@ class Peer {
         // valid = await block.verifyAndSave(Chain.blockRewardAtIndex(j));
         debug(`Block index ${j} is valid: ${valid}`);
       } else {
+        // FIXME: Saving header as null in chain
         debug('No data');
       }
     }

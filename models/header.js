@@ -20,7 +20,7 @@ class Header {
   constructor() {
     this.version = 1;
 
-    this.previous = null;
+    this.previous = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
     this.checksum = null; // TODO:
 
     this.time = Date.now();
@@ -180,7 +180,7 @@ class Header {
   }
 
   incrementNonce() {
-    this.nonce = (this.nonce < Number.MAX_SAFE_INTEGER) ? this.nonce + 1 : 0;
+    this.nonce += 1;
   }
 
   static fromObject(obj) {

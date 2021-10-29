@@ -61,7 +61,7 @@ actions.nodeInfo = {
     const data = {
       version,
       time: Date.now(),
-      port: process.env.PORT || 0,
+      port: process.env.PORT || 3000,
       chainLength: chain.getLength(),
       chainWork: chain.getTotalWork(),
       nonce: Peer.localNonce,

@@ -66,7 +66,7 @@ class Miner {
     while (this.mining) {
       const chain = Chain.mainChain; // TODO: Move this to after synching
 
-      if (Chain.isSynching()) {
+      if (Chain.mainChain.isSynching()) {
         debug('Mining paused. Chain out of sync');
         await waitUntil(() => !Chain.isSynching());
       }

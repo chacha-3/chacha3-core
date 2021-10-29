@@ -70,6 +70,7 @@ const checkPermission = (action, permission) => {
 };
 
 const runAction = async (options, permission) => {
+  console.log(options);
   if (!options || !options.action) {
     return errorResponse(ErrorCode.InvalidArgument, 'Action is missing');
   }
@@ -100,6 +101,7 @@ const runAction = async (options, permission) => {
     const validate = ajv.compile(schema);
 
     if (!validate(options)) {
+      console.log(validate.errors);
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid argument', [validate.errors[0].message]);
     }
   }

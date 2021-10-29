@@ -14,6 +14,7 @@ const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
 const Transaction = require('./transaction');
 const { Genesis } = require('./block');
+const { timeStamp } = require('console');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -25,6 +26,8 @@ class Chain {
     this.accounts = {};
 
     this.updateBlockBalances(Block.Genesis);
+
+    this.synching = false;
   }
 
   static getAdjustInterval() {
@@ -173,17 +176,20 @@ class Chain {
     }
   }
 
-  // Revert chain to previous blocks length
-  // Update the account balance and header
-  // To use this method only on copies of main chain
+  // // Revert chain to previous blocks length
+  // // Update the account balance and header
+  // // To use this method only on copies of main chain
   // async revertHeaderIndex(index) {
-  //   if (index <= this.getLength()) {
+  //   if (index >= this.getLength()) {
   //     return false;
   //   }
-
-  //   for (let i = this.getLength(); i > index; i -= 1) {
+    
+  //   console.log(index, this.getLength())
+  //   for (let i = this.getLength() - 1; i > index; i -= 1) {
+  //     console.log(i);
   //     const block = await Block.load(this.getBlockHeader(i));
   //     this.revertBlockBalances(block);
+  //     console.log(`Revert: ${i}`);
   //   }
 
   //   return true;
@@ -230,6 +236,7 @@ class Chain {
 
   // NOTE: Main chain
   async confirmNewBlock(block) {
+    console.log(block);
     // Add validate new block function to check previous hash, reward, and timestamp
     if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
       debug('New block failed verification');
@@ -254,8 +261,10 @@ class Chain {
     debug(`Saved new block: ${block.getHeader().getHash().toString('hex')}`);
     await block.save();
 
+    assert(block.getHeader() !== null);
     this.addBlockHeader(block.getHeader());
 
+    console.log(this);
     await Chain.save(this);
 
     const result = this.updateBlockBalances(block);
@@ -469,12 +478,12 @@ class Chain {
     Chain.mainChain = await Chain.load();
   }
 
-  static isSynching() {
-    return Chain.synching;
+  isSynching() {
+    return this.synching;
   }
 
-  static setSynching(synching) {
-    Chain.synching = synching;
+  setSynching(synching) {
+    this.synching = synching;
   }
 
   async clearBlocks(startIndex = 0) {
@@ -510,6 +519,7 @@ class Chain {
   // NOTE: Main chain
   static async initializeGenesisBlock() {
     const chain = await Chain.load();
+
     if (chain.getLength() > 0) {
       return;
     }
@@ -545,6 +555,22 @@ class Chain {
     return i;
   }
 
+  // static async syncMainWith(newChain) {
+    
+
+    
+
+  //   // const divergeIndex = Chain.mainChain.compareWork(newChain);
+
+    
+
+  //   // const valid = await this.verifyForwardBlocks(newChain, divergeIndex);
+
+   
+
+  //   return true;
+  // }
+
   toObject() {
     const data = {
       blockHeaders: this.blockHeaders.map((header) => header.toObject()),
@@ -557,7 +583,10 @@ class Chain {
     const chain = new Chain();
 
     for (let i = 0; i < obj.blockHeaders.length; i += 1) {
-      chain.addBlockHeader(Header.fromObject(obj.blockHeaders[i]));
+      const header = Header.fromObject(obj.blockHeaders[i]);
+      assert(header != null);
+
+      chain.addBlockHeader(header);
     }
 
     return chain;
@@ -565,6 +594,6 @@ class Chain {
 }
 
 Chain.mainChain = new Chain();
-Chain.synching = false;
+// Chain.synching = false;
 
 module.exports = Chain;
