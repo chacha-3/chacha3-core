@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
@@ -619,6 +620,28 @@ test('confirm new valid block', async (t) => {
   const confirm = await Chain.mainChain.confirmNewBlock(block);
 
   t.equal(confirm, true);
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('fail to confirm new block if previous hash does not match', async (t) => {
+  const numOfBlocks = 6;
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks - 1));
+  block.setPreviousHash(crypto.randomBytes(32));
+
+  await block.mine();
+
+  const confirm = await Chain.mainChain.confirmNewBlock(block);
+
+  t.equal(confirm, false);
 
   await Chain.clearMain();
   t.end();

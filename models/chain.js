@@ -245,10 +245,11 @@ class Chain {
     const isFirst = this.getLength() === 0;
     const blockPrevious = block.getHeader().getPrevious();
 
-    if (!isFirst && !this.lastBlockHeader().getHash().equals(blockPrevious)) {
-      debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
-      return false;
-    }
+    // Not used. Already verified above with verify()
+    // if (!isFirst && !this.lastBlockHeader().getHash().equals(blockPrevious)) {
+    //   debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
+    //   return false;
+    // }
 
     // FIXME: Duplicate of block.verifyTransactions()
     // const noPriorTransactions = await block.hasNoExistingTransactions();
