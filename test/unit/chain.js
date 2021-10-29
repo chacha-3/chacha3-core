@@ -301,7 +301,7 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
   const revertedState = { ...chain.accounts };
   t.equal(
     JSON.stringify(serializeObject(initialState)),
-    JSON.stringify(serializeObject(revertedState))
+    JSON.stringify(serializeObject(revertedState)),
   );
 
   t.end();
@@ -524,6 +524,7 @@ test('unable to verify chain with different genesis block', async (t) => {
 //   t.end();
 // });
 
+// TODO:
 test('fail to verify chain if genesis block does not match chain', async (t) => {
   const chain = await mock.chainWithBlocks(12, 3);
 
@@ -534,29 +535,30 @@ test('fail to verify chain if genesis block does not match chain', async (t) => 
   t.end();
 });
 
-test('chain with invalid block reward fails verification', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
+// FIXME: Does not check anything
+// test('chain with invalid block reward fails verification', async (t) => {
+//   const wallet = new Wallet();
+//   wallet.generate();
 
-  const chain = await mock.chainWithBlocks(Chain.getHalvingInterval() + 1, 3);
+//   const chain = await mock.chainWithBlocks(Chain.getHalvingInterval() + 1, 3);
 
-  // Reward should have halved
-  const wrongReward = Block.InitialReward;
+//   // Reward should have halved
+//   const wrongReward = Block.InitialReward;
 
-  const invalidBlock = new Block();
-  invalidBlock.addCoinbase(wallet.getAddress(), wrongReward);
-  invalidBlock.setPreviousHash(chain.lastBlockHeader().getHash());
+//   const invalidBlock = new Block();
+//   invalidBlock.addCoinbase(wallet.getAddress(), wrongReward);
+//   invalidBlock.setPreviousHash(chain.lastBlockHeader().getHash());
 
-  await invalidBlock.mine();
+//   await invalidBlock.mine();
 
-  // await invalidBlock.mine();
+//   // await invalidBlock.mine();
 
-  // const verified = await chain.verify();
-  // t.equal(verified, true);
+//   // const verified = await chain.verify();
+//   // t.equal(verified, true);
 
-  await Chain.clearMain();
-  t.end();
-});
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 test('verify genesis block', async (t) => {
   const chain = await mock.chainWithHeaders(2, 3);
@@ -600,3 +602,24 @@ test('block reward at index', async (t) => {
 
 //   t.end();
 // });
+
+test('confirm new valid block', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(6, 3);
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
+
+  await block.mine();
+
+  const confirm = await Chain.mainChain.confirmNewBlock(block);
+
+  t.equal(confirm, true);
+
+  await Chain.clearMain();
+  t.end();
+});

@@ -397,6 +397,7 @@ class Chain {
     return difficulty;
   }
 
+  // FIXME: Duplicate with last block header. Remove
   latestBlockHeader() {
     assert(this.blockHeaders.length > 0);
     assert(this.blockHeaders[this.blockHeaders.length - 1] != null);
