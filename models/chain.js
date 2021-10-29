@@ -236,7 +236,6 @@ class Chain {
 
   // NOTE: Main chain
   async confirmNewBlock(block) {
-    console.log(block);
     // Add validate new block function to check previous hash, reward, and timestamp
     if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
       debug('New block failed verification');
@@ -264,7 +263,6 @@ class Chain {
     assert(block.getHeader() !== null);
     this.addBlockHeader(block.getHeader());
 
-    console.log(this);
     await Chain.save(this);
 
     const result = this.updateBlockBalances(block);

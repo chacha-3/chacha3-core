@@ -427,15 +427,14 @@ class Peer {
     let valid = true;
 
     debug(`Diverge index: ${startIndex}. Pulled chain length: ${pulledChain.getLength()}`);
-    for (let j = startIndex; j < pulledChain.getLength() && valid; j += 1) {
-      const header = pulledChain.getBlockHeader(j);
+    for (let i = startIndex; i < pulledChain.getLength() && valid; i += 1) {
+      const header = pulledChain.getBlockHeader(i);
 
       debug(`Request block data: ${serializeBuffer(header.getHash())}`);
       debug(`Peer info: ${this.getAddress()}:${this.getPort()}`);
-      console.log(header.getHash())
-      console.log({ hash: serializeBuffer(header.getHash()) })
+
       const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
-      console.log(response);
+
       const { data } = response;
       if (data) {
         debug(`Receive new block data: ${serializeBuffer(header.getHash())}`);
@@ -443,11 +442,15 @@ class Peer {
         const block = Block.fromObject(data);
 
         valid = await Chain.mainChain.confirmNewBlock(block);
-        // valid = await block.verifyAndSave(Chain.blockRewardAtIndex(j));
-        debug(`Block index ${j} is valid: ${valid}`);
+
+        if (!valid) {
+          debug(`Block index ${i} is valid: ${valid}`);
+          return false;
+        }
       } else {
         // FIXME: Saving header as null in chain
         debug('No data');
+        return false;
       }
     }
 

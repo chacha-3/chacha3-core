@@ -466,6 +466,31 @@ test('block is invalid when timestamp is in the future', async (t) => {
   t.end();
 });
 
+test('block is invalid when coinbase reward is incorrect', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  const invalidReward = Block.InitialReward * 1000n;
+  block.addCoinbase(wallet.getAddress(), invalidReward);
+
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 2000000);
+
+  await block.mine();
+
+  t.equal(block.verifyCoinbase(Chain.blockRewardAtIndex(numOfBlocks)), false, 'block with invalid reward fails coinbase verification');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+
+  t.end();
+});
+
 test('block is valid when does not have previously saved transaction', async (t) => {
   await mock.chainWithBlocks(3, 5);
 
@@ -481,6 +506,7 @@ test('block is valid when does not have previously saved transaction', async (t)
   await Chain.clearMain();
   t.end();
 });
+
 
 // test('block is invalid when has previously saved transaction', async (t) => {
 //   const chain = await mock.chainWithBlocks(3, 5);
