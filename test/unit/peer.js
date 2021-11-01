@@ -167,3 +167,28 @@ test('update peer chain info', async (t) => {
 
   t.end();
 });
+
+test('set peer info', async (t) => {
+  const peer = new Peer('127.0.0.1', 3002);
+  peer.setPeerInfo('2.0.0', 10, 100);
+
+  t.equal(peer.getVersion(), '2.0.0');
+  t.equal(peer.getChainLength(), 10);
+  t.equal(peer.getTotalWork(), 100);
+
+  t.end();
+});
+
+test('peer equality check', async (t) => {
+  const peer = new Peer('127.0.0.1', 3000);
+  const samePeer = new Peer('127.0.0.1', 3000);
+
+  const differentPort = new Peer('127.0.0.1', 5000);
+  const differentHost = new Peer('127.0.0.2', 3000);
+
+  t.ok(Peer.areSame(peer, samePeer));
+  t.not(Peer.areSame(peer, differentPort));
+  t.not(Peer.areSame(peer, differentHost));
+
+  t.end();
+});
