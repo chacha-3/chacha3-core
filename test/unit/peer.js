@@ -154,3 +154,16 @@ test('to and from object', async (t) => {
 
   t.end();
 });
+
+test('update peer chain info', async (t) => {
+  const chainLength = 4;
+
+  const chain = await mock.chainWithHeaders(chainLength, 4);
+  const peer = mock.nodePeer();
+  peer.updateChainInfo(chain);
+
+  t.equal(peer.getChainLength(), chainLength);
+  t.equal(peer.getTotalWork(), chain.getTotalWork());
+
+  t.end();
+});

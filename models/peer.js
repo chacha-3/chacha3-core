@@ -376,8 +376,6 @@ class Peer {
   async updateChainInfo(chain) {
     this.setChainLength(chain.getLength());
     this.setTotalWork(chain.getTotalWork());
-
-    await this.save();
   }
 
   async syncChain() {
@@ -419,6 +417,7 @@ class Peer {
     Chain.mainChain.setSynching(false);
 
     await this.updateChainInfo(pulledChain);
+    this.save();
 
     return valid;
   }
