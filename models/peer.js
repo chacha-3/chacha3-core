@@ -147,13 +147,13 @@ class Peer {
     return Peer.generateKey(this.getAddress(), this.getPort());
   }
 
-  getNonce() {
-    return this.nonce;
-  }
+  // getNonce() {
+  //   return this.nonce;
+  // }
 
-  setConnection(connection) {
-    this.connection = connection;
-  }
+  // setConnection(connection) {
+  //   this.connection = connection;
+  // }
 
   getVersion() {
     return this.version;
