@@ -409,7 +409,7 @@ class Block {
     const transactions = await Block.loadTransactions(indexes);
 
     block.setTransactions(transactions);
-    block.header.setHash(hash);
+    // block.header.setHash(hash);
 
     return block;
   }

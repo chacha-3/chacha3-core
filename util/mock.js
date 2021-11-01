@@ -109,10 +109,6 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
   return block;
 };
 
-/**
- * @param  {number} numOfBlocks
- * @param  {number} transactionsPerBlock
- */
 mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
@@ -121,6 +117,37 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
 
   const chain = new Chain();
   chain.addBlockHeader(Block.Genesis.getHeader());
+
+  let previousBlock = Block.Genesis;
+
+  for (let i = 0; i < minusGenesis; i += 1) {
+    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock)
+    chain.addBlockHeader(block.getHeader());
+
+    previousBlock = block;
+  }
+
+  return chain;
+};
+
+// Alternative chain with different genesis block
+mock.altChainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
+  assert(numOfBlocks > 0);
+  assert(transactionsPerBlock > 0);
+
+  const minusGenesis = numOfBlocks - 1;
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const altGenesis = new Block();
+  altGenesis.addCoinbase(wallet.getAddress());
+  altGenesis.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  await altGenesis.mine();
+
+  const chain = new Chain();
+  chain.addBlockHeader(altGenesis.getHeader());
 
   let previousBlock = Block.Genesis;
 
@@ -144,6 +171,50 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
   await Block.Genesis.save();
 
   let previousBlock = Block.Genesis;
+
+  for (let i = 0; i < minusGenesis; i += 1) {
+    // No extra transactions for first block as sender has no balance to send yet
+    const numOfTransactions = (i > 0) ? transactionsPerBlock : 1;
+
+    // eslint-disable-next-line no-await-in-loop
+    const block = await mock.blockWithTransactions(
+      numOfTransactions,
+      previousBlock,
+      receiverWallet,
+      Chain.blockRewardAtIndex(i + 1),
+    );
+
+    // eslint-disable-next-line no-await-in-loop
+    const result = await chain.confirmNewBlock(block);
+    assert(result);
+
+    previousBlock = block;
+  }
+
+  // await Chain.save(chain);
+  return chain;
+};
+
+mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
+  assert(numOfBlocks > 0);
+  assert(transactionsPerBlock > 0);
+
+  const minusGenesis = numOfBlocks - 1;
+
+  const chain = new Chain();
+
+  const altGenesis = new Block();
+
+  const wallet = new Wallet();
+  wallet.generate();
+
+  altGenesis.addCoinbase(wallet.getAddress());
+  altGenesis.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  await altGenesis.mine();
+  await altGenesis.save();
+
+  let previousBlock = altGenesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
     // No extra transactions for first block as sender has no balance to send yet

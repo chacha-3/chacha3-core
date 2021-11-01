@@ -419,7 +419,7 @@ test('check if transaction is existing saved transaction', async (t) => {
 
   t.equal(await transaction.isSaved(), false);
 
-  transaction.save();
+  await transaction.save();
   t.equal(await transaction.isSaved(), true);
 
   t.end();

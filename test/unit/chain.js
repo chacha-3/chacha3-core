@@ -474,15 +474,15 @@ test('verify chain', async (t) => {
   t.end();
 });
 
-test('unable to verify chain with different genesis block', async (t) => {
-  const chain = await mock.chainWithBlocks(12, 3);
+// test('unable to verify chain with different genesis block', async (t) => {
+//   Chain.mainChain = await mock.altChainWithBlocks(4, 3);
 
-  const verified = await chain.verify();
-  t.equal(verified, true);
+//   const verified = await Chain.mainChain.verify();
+//   // t.equal(verified, true);
 
-  await Chain.clearMain();
-  t.end();
-});
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 // test('unable to verify chain with invalid block balance', async (t) => {
 //   const numOfBlocks = 12;

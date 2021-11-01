@@ -1,4 +1,9 @@
 const fs = require('fs');
 
 const dir = './.testdb';
-fs.rmdirSync(dir, { recursive: true });
+
+try {
+  fs.rmSync(dir, { recursive: true });
+} catch (e) {
+
+}

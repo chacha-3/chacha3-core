@@ -288,12 +288,13 @@ class Chain {
 
   // TODO:
   // Verify and load balances
+  // TODO: Remove verification of main chain. Assert valid
   async verify() {
     // TODO: Assert not block balances set
-
-    if (!this.verifyGenesisBlock()) {
-      return false;
-    }
+    assert(this.verifyGenesisBlock());
+    // if (!this.verifyGenesisBlock()) {
+    //   return false;
+    // }
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
