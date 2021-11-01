@@ -184,9 +184,9 @@ class Peer {
   }
 
   setPort(port) {
-    if (port < 1024 || port > 49151) {
-      throw Error('Invalid port. Range 1024 - 49151');
-    }
+    // if (port < 1024 || port > 49151) {
+    //   throw Error('Invalid port. Range 1024 - 49151');
+    // }
 
     this.port = port;
   }
@@ -373,6 +373,7 @@ class Peer {
     return this.sendRequest(params);
   }
 
+  // TODO: Use set peer info
   async updateChainInfo(chain) {
     this.setChainLength(chain.getLength());
     this.setTotalWork(chain.getTotalWork());
