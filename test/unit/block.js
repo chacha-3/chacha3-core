@@ -51,8 +51,6 @@ test('should have invalid coinbase when invalid address', async (t) => {
   await block.mine();
 
   t.equal(await block.validateCoinbase(), false, 'mined block has invalid coinbase');
-  // t.equal(block.verify(), false, 'mined block has invalid coinbase');
-
   t.end();
 });
 
@@ -74,6 +72,25 @@ test('should be not have verified block when invalid coinbase amount', async (t)
   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
   // t.equal(block.verify(), fverifyCoinbasealse, 'mined block has invalid coinbase');
 
+  t.end();
+});
+
+test('should have invalid coinbase when invalid transaction type', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  const address = wallet.getAddress();
+  block.addCoinbase(address);
+
+  block.transactions[0].type = Transaction.Type.Send; // Invalid type
+
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  await block.mine();
+
+  t.equal(await block.validateCoinbase(), false, 'mined block has invalid coinbase');
   t.end();
 });
 

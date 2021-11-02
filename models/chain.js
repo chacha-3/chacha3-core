@@ -6,15 +6,13 @@ const Header = require('./header');
 const {
   DB, BlockDB, HeaderDB, runningManualTest, PendingTransactionDB,
 } = require('../util/db');
-const { serializeBuffer, deserializeBuffer, serializeObject } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
 const Transaction = require('./transaction');
-const { Genesis } = require('./block');
-const { timeStamp } = require('console');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';
@@ -176,25 +174,6 @@ class Chain {
     }
   }
 
-  // // Revert chain to previous blocks length
-  // // Update the account balance and header
-  // // To use this method only on copies of main chain
-  // async revertHeaderIndex(index) {
-  //   if (index >= this.getLength()) {
-  //     return false;
-  //   }
-    
-  //   console.log(index, this.getLength())
-  //   for (let i = this.getLength() - 1; i > index; i -= 1) {
-  //     console.log(i);
-  //     const block = await Block.load(this.getBlockHeader(i));
-  //     this.revertBlockBalances(block);
-  //     console.log(`Revert: ${i}`);
-  //   }
-
-  //   return true;
-  // }
-
   lastBlockHeader() {
     if (this.getLength() === 0) {
       return null;
@@ -216,7 +195,6 @@ class Chain {
     const lastHeader = this.lastBlockHeader();
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
-      // console.log(isFirst, lastHeader.getHas(), header.getPrevious());
       // TODO: Handle error on synching
       return false;
     }
@@ -226,14 +204,6 @@ class Chain {
     return true;
   }
 
-  // verifyNewBlock(newBlock) {
-  //   if (!newBlock.verify(this.lastBlockHeader(), this.currentBlockReward())) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
-
   // NOTE: Main chain
   async confirmNewBlock(block) {
     // Add validate new block function to check previous hash, reward, and timestamp
@@ -241,22 +211,6 @@ class Chain {
       debug('New block failed verification');
       return false;
     }
-
-    const isFirst = this.getLength() === 0;
-    const blockPrevious = block.getHeader().getPrevious();
-
-    // Not used. Already verified above with verify()
-    // if (!isFirst && !this.lastBlockHeader().getHash().equals(blockPrevious)) {
-    //   debug(`Failed to confirm new block: Does not match latest hash, ${this.lastBlockHeader().getHash('hex')}, ${blockPrevious.toString('hex')}`);
-    //   return false;
-    // }
-
-    // FIXME: Duplicate of block.verifyTransactions()
-    // const noPriorTransactions = await block.hasNoExistingTransactions();
-
-    // if (!noPriorTransactions) {
-    //   return false;
-    // }
 
     debug(`Saved new block: ${block.getHeader().getHash().toString('hex')}`);
     await block.save();
@@ -292,9 +246,6 @@ class Chain {
   async verify() {
     // TODO: Assert not block balances set
     assert(this.verifyGenesisBlock());
-    // if (!this.verifyGenesisBlock()) {
-    //   return false;
-    // }
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
@@ -555,22 +506,6 @@ class Chain {
     // Update start index
     return i;
   }
-
-  // static async syncMainWith(newChain) {
-    
-
-    
-
-  //   // const divergeIndex = Chain.mainChain.compareWork(newChain);
-
-    
-
-  //   // const valid = await this.verifyForwardBlocks(newChain, divergeIndex);
-
-   
-
-  //   return true;
-  // }
 
   toObject() {
     const data = {
