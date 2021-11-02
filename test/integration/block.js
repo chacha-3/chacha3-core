@@ -50,9 +50,9 @@ test('push new block', async (t) => {
   block.addTransaction(transactionInBlock);
 
   await block.mine();
-
+  
   const options = { action: 'pushBlock', ...block.toObject() };
-
+  
   const { code } = await runAction(options);
   t.equal(code, SuccessCode);
   t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);

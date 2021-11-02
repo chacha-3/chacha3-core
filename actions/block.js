@@ -40,6 +40,7 @@ actions.pushBlock = {
             version: { type: 'integer' },
             time: { type: 'integer' },
             signature: { type: 'string', buffer: 'hex', nullable: true },
+            type: { type: 'string' },
           },
         },
       },

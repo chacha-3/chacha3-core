@@ -53,7 +53,7 @@ class Block {
   }
 
   addCoinbase(receiverAddress, currentReward = Block.InitialReward) {
-    const transaction = new Transaction(null, receiverAddress, currentReward);
+    const transaction = new Transaction(null, receiverAddress, currentReward, Transaction.Type.Mine);
     this.addTransaction(transaction);
   }
 
@@ -174,6 +174,10 @@ class Block {
     const coinbase = this.getTransaction(0);
 
     if (coinbase.getSenderKey() !== null || coinbase.getSignature() !== null) {
+      return false;
+    }
+
+    if (coinbase.getType() !== Transaction.Type.Mine) {
       return false;
     }
 

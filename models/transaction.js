@@ -13,7 +13,7 @@ const { TransactionDB, PendingTransactionDB } = require('../util/db');
 const { generateAddressEncoded } = require('./wallet');
 
 class Transaction {
-  constructor(senderKey, receiverAddress, amount) {
+  constructor(senderKey, receiverAddress, amount, type = Transaction.Type.Send) {
     this.version = 1;
 
     this.senderKey = senderKey;
@@ -24,14 +24,18 @@ class Transaction {
 
     this.signature = null;
     this.time = Date.now();
+
+    this.type = type;
   }
 
   hashData() {
+    // TODO: Use getter method
     const data = {
       version: this.version,
       receiverAddress: this.receiverAddress,
       amount: this.amount,
       time: this.time,
+      type: this.getType(),
     };
 
     assert(typeof (data.amount) === 'bigint');
@@ -53,7 +57,15 @@ class Transaction {
   }
 
   isCoinbase() {
-    return this.getSenderKey() === null && this.getSignature() === null;
+    return this.getSenderKey() === null && this.getSignature() === null && this.getType() === Transaction.Type.Mine;
+  }
+
+  getType() {
+    return this.type;
+  }
+
+  setType(type) {
+    this.type = type;
   }
 
   getVersion() {
@@ -160,6 +172,7 @@ class Transaction {
     transaction.setVersion(data.version);
     transaction.setTime(data.time);
     transaction.setSignature(deserializeBuffer(data.signature));
+    transaction.setType(data.type);
 
     return transaction;
   }
@@ -173,6 +186,7 @@ class Transaction {
       amount: this.getAmount(),
       signature: this.getSignature(),
       time: this.getTime(),
+      type: this.getType(),
     };
 
     return serializeObject(data);
@@ -309,5 +323,10 @@ class Transaction {
     await PendingTransactionDB.clear();
   }
 }
+
+Transaction.Type = {
+  Mine: 'mine',
+  Send: 'send',
+};
 
 module.exports = Transaction;

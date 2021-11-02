@@ -152,12 +152,18 @@ test('have correct hash data for transaction', (t) => {
   const receiver = new Wallet();
   receiver.generate();
 
-  const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
+  const transaction = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddress(),
+    20,
+    Transaction.Type.Send,
+  );
 
   const hashData = deserializeObject(JSON.parse(transaction.hashData()));
   t.ok(hashData.receiverAddress.equals(receiver.getAddress()));
   t.ok(hashData.senderKey.equals(sender.getPublicKey()));
 
+  t.equal(hashData.type, Transaction.Type.Send);
   t.equal(hashData.version, 1);
   t.equal(hashData.amount, 20n);
 

@@ -28,8 +28,8 @@ test('should validate coinbase', async (t) => {
   block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
+  t.equal(block.transactions[0].type, Transaction.Type.Mine);
   await block.mine();
-
   t.equal(block.validateCoinbase(), true, 'mined block has validated coinbase');
   // t.equal(block.verify(), true, 'mined block is verified');
 
