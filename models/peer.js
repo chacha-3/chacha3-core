@@ -14,14 +14,14 @@ const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
 class Peer {
-  constructor(address, port) {
+  constructor(host, port) {
     this.connection = null;
 
     this.version = null;
     this.chainLength = null;
     this.chainWork = 0;
 
-    this.address = address || null;
+    this.host = host || null;
     this.port = port || 0;
 
     this.status = Peer.Status.Idle;
@@ -30,7 +30,7 @@ class Peer {
 
   static get SeedList() {
     const seedPeers = [
-      { address: '127.0.0.1', port: 3000 },
+      { host: '127.0.0.1', port: 3000 },
     ];
 
     return seedPeers;
@@ -40,8 +40,8 @@ class Peer {
     Peer.localNonce = randomNumberBetween(1, Number.MAX_SAFE_INTEGER);
   }
 
-  static generateKey(address, port) {
-    const ipBytes = Buffer.from(ipaddr.parse(address).toByteArray());
+  static generateKey(host, port) {
+    const ipBytes = Buffer.from(ipaddr.parse(host).toByteArray());
 
     const portBytes = Buffer.allocUnsafe(2);
     portBytes.writeUInt16BE(port);
@@ -81,7 +81,7 @@ class Peer {
     const merged = Object.assign(options || {}, { action: actionName });
 
     activePeers.forEach((peer) => {
-      debug(`Broadcast to peer ${peer.getAddress()}:${peer.getPort()} ${JSON.stringify(merged)}`);
+      debug(`Broadcast to peer ${peer.getHost()}:${peer.getPort()} ${JSON.stringify(merged)}`);
       peer.sendRequest(merged);
     });
 
@@ -94,8 +94,8 @@ class Peer {
     const promises = [];
 
     for (let i = 0; i < seeds.length; i += 1) {
-      const newPeer = new Peer(seeds[i].address, seeds[i].port);
-      debug(`Add seed: ${seeds[i].address}:${seeds[i].port}`);
+      const newPeer = new Peer(seeds[i].host, seeds[i].port);
+      debug(`Add seed: ${seeds[i].host}:${seeds[i].port}`);
       newPeer.setStatus(Peer.Status.Inactive);
 
       promises.push(newPeer.save());
@@ -144,7 +144,7 @@ class Peer {
   // }
 
   getId() {
-    return Peer.generateKey(this.getAddress(), this.getPort());
+    return Peer.generateKey(this.getHost(), this.getPort());
   }
 
   // getNonce() {
@@ -191,17 +191,17 @@ class Peer {
     this.port = port;
   }
 
-  getAddress() {
-    return this.address;
+  getHost() {
+    return this.host;
   }
 
-  setAddress(address) {
+  setHost(host) {
     // FIXME: Disabled. Temp
     // if (!ipaddr.isValid(address)) {
     //   throw Error('Invalid IP address');
     // }
 
-    this.address = address;
+    this.host = host;
   }
 
   compatibleVersion() {
@@ -235,7 +235,7 @@ class Peer {
   }
 
   formattedAddress() {
-    return `${this.getAddress()}:${this.getPort()}`;
+    return `${this.getHost()}:${this.getPort()}`;
   }
 
   async reachOut() {
@@ -265,7 +265,7 @@ class Peer {
     debug(`Response nonce: ${Peer.localNonce}, ${data.nonce}`);
     const isSelf = Peer.localNonce === data.nonce;
 
-    debug(`Peer is self: ${isSelf}, ${this.getAddress()}, ${this.getPort()}`);
+    debug(`Peer is self: ${isSelf}, ${this.getHost()}, ${this.getPort()}`);
 
     if (isSelf) {
       debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
@@ -302,7 +302,7 @@ class Peer {
   }
 
   static areSame(peer1, peer2) {
-    if (peer1.getAddress() !== peer2.getAddress()) {
+    if (peer1.getHost() !== peer2.getHost()) {
       return false;
     }
 
@@ -328,7 +328,7 @@ class Peer {
       debug(`Received peer: ${JSON.stringify(data[i])}`);
 
       if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
-        debug(`New peer from sync. Saved ${receivedPeer.getAddress()}, ${receivedPeer.getPort()}`);
+        debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
         receivedPeer.setStatus(Peer.Status.Idle);
         receivedPeer.save();
       }
@@ -431,7 +431,7 @@ class Peer {
       const header = pulledChain.getBlockHeader(i);
 
       debug(`Request block data: ${serializeBuffer(header.getHash())}`);
-      debug(`Peer info: ${this.getAddress()}:${this.getPort()}`);
+      debug(`Peer info: ${this.getHost()}:${this.getPort()}`);
 
       const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
 
@@ -464,7 +464,7 @@ class Peer {
 
   toObject() {
     return {
-      address: this.getAddress(),
+      host: this.getHost(),
       port: this.getPort(),
       version: this.getVersion(),
       chainLength: this.getChainLength(),
@@ -474,7 +474,7 @@ class Peer {
   }
 
   static fromObject(data) {
-    const peer = new Peer(data.address, data.port);
+    const peer = new Peer(data.host, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);
     peer.setTotalWork(data.chainWork);
@@ -496,14 +496,14 @@ class Peer {
       version: peer.getVersion(),
       chainLength: peer.getChainLength(),
       chainWork: peer.getTotalWork(),
-      address: peer.getAddress(),
+      host: peer.getHost(),
       port: peer.getPort(),
       status: peer.getStatus(),
     };
   }
 
   static fromSaveData(data) {
-    const peer = new Peer(data.address, data.port);
+    const peer = new Peer(data.host, data.port);
     peer.setVersion(data.version);
     peer.setChainLength(data.chainLength);
     peer.setStatus(data.status);

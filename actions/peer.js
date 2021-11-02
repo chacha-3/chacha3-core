@@ -17,13 +17,13 @@ actions.addPeer = {
   permission: 'authOnly',
   schema: {
     properties: {
-      address: { type: 'string' },
+      host: { type: 'string' },
       port: { type: 'string' },
     },
-    required: ['address', 'port'],
+    required: ['host', 'port'],
   },
   handler: async (options) => {
-    const peer = new Peer(options.address, options.port);
+    const peer = new Peer(options.host, options.port);
     await peer.save();
 
     peer.reachOut();
@@ -36,13 +36,13 @@ actions.removePeer = {
   permission: 'authOnly',
   schema: {
     properties: {
-      address: { type: 'string' },
+      host: { type: 'string' },
       port: { type: 'string' },
     },
-    required: ['address', 'port'],
+    required: ['host', 'port'],
   },
   handler: async (options) => {
-    await Peer.clear(Peer.generateKey(options.address, options.port));
+    await Peer.clear(Peer.generateKey(options.host, options.port));
     return okResponse(null, 'Remove peer');
   },
 };

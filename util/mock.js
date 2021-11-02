@@ -31,7 +31,7 @@ mock.nodePeer = () => {
   const peer = new Peer();
   const ip = new Array(4).fill(0).map(() => randomNumberBetween(0, 255));
 
-  peer.setAddress(`${ip[0]}.${ip[1]}.${ip[2]}.${ip[3]}`);
+  peer.setHost(`${ip[0]}.${ip[1]}.${ip[2]}.${ip[3]}`);
   peer.setPort(8888);
   peer.setChainLength(100);
   peer.setVersion('0.0.1');

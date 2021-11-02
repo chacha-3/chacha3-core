@@ -17,7 +17,7 @@ test('list all peers', async (t) => {
 
   t.equal(data.length, 2);
 
-  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'host'));
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'port'));
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'version'));
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'chainLength'));
@@ -33,13 +33,13 @@ test('add a peer', async (t) => {
 
   const { code, data } = await runAction({
     action: 'addPeer',
-    address: '127.0.0.1',
+    host: '127.0.0.1',
     port: 3000,
   });
 
   t.equal(code, SuccessCode);
 
-  t.ok(Object.prototype.hasOwnProperty.call(data, 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'host'));
   t.ok(Object.prototype.hasOwnProperty.call(data, 'port'));
 
   await Peer.clearAll();
@@ -53,7 +53,7 @@ test('remove a saved peer', async (t) => {
 
   const { data } = await runAction({
     action: 'removePeer',
-    address: peer.getAddress(),
+    host: peer.getHost(),
     port: peer.getPort(),
   });
 

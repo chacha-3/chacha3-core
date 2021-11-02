@@ -12,7 +12,7 @@ const mock = require('../../util/mock');
 test('should create a peer', (t) => {
   const peer = new Peer('192.168.1.1', 8888);
 
-  t.equal(peer.getAddress(), '192.168.1.1');
+  t.equal(peer.getHost(), '192.168.1.1');
   t.equal(peer.getPort(), 8888);
 
   t.end();
@@ -92,7 +92,7 @@ test('save and load peer', async (t) => {
 
   t.equal(peer.getVersion(), loaded.getVersion());
   t.equal(peer.getChainLength(), loaded.getChainLength());
-  t.equal(peer.getAddress(), loaded.getAddress());
+  t.equal(peer.getHost(), loaded.getHost());
   t.equal(peer.getPort(), loaded.getPort());
   t.equal(peer.getStatus(), loaded.getStatus());
 
@@ -113,7 +113,7 @@ test('load peer list', async (t) => {
   // TODO: Check loaded value matches
 
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'version'));
-  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'host'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'chainLength'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'status'));
@@ -152,7 +152,7 @@ test('list of seed peers', async (t) => {
 
   t.ok(list.length > 0);
 
-  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'address'));
+  t.ok(Object.prototype.hasOwnProperty.call(list[0], 'host'));
   t.ok(Object.prototype.hasOwnProperty.call(list[0], 'port'));
 
   t.end();
@@ -167,7 +167,7 @@ test('to and from object', async (t) => {
 
   t.equal(peer.getVersion(), loaded.getVersion());
   t.equal(peer.getChainLength(), loaded.getChainLength());
-  t.equal(peer.getAddress(), loaded.getAddress());
+  t.equal(peer.getHost(), loaded.getHost());
   t.equal(peer.getPort(), loaded.getPort());
   t.equal(peer.getStatus(), loaded.getStatus());
 
