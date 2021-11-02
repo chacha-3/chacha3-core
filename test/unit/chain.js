@@ -464,15 +464,15 @@ test('to and from object', async (t) => {
   t.end();
 });
 
-test('verify chain', async (t) => {
-  const chain = await mock.chainWithBlocks(12, 3);
+// test('verify chain', async (t) => {
+//   const chain = await mock.chainWithBlocks(12, 3);
 
-  const verified = await chain.verify();
-  t.equal(verified, true);
+//   const verified = await chain.verify();
+//   t.equal(verified, true);
 
-  await Chain.clearMain();
-  t.end();
-});
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 // test('unable to verify chain with different genesis block', async (t) => {
 //   Chain.mainChain = await mock.altChainWithBlocks(4, 3);
@@ -526,15 +526,15 @@ test('verify chain', async (t) => {
 // });
 
 // TODO:
-test('fail to verify chain if genesis block does not match chain', async (t) => {
-  const chain = await mock.chainWithBlocks(12, 3);
+// test('fail to verify chain if genesis block does not match chain', async (t) => {
+//   const chain = await mock.chainWithBlocks(12, 3);
 
-  const verified = await chain.verify();
-  t.equal(verified, true);
+//   const verified = await chain.verify();
+//   t.equal(verified, true);
 
-  await Chain.clearMain();
-  t.end();
-});
+//   await Chain.clearMain();
+//   t.end();
+// });
 
 // FIXME: Does not check anything
 // test('chain with invalid block reward fails verification', async (t) => {

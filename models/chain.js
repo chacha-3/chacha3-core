@@ -243,7 +243,7 @@ class Chain {
   // TODO:
   // Verify and load balances
   // TODO: Remove verification of main chain. Assert valid
-  async verify() {
+  async loadAccountBalances() {
     // TODO: Assert not block balances set
     assert(this.verifyGenesisBlock());
 
