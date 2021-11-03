@@ -23,9 +23,12 @@ class Chain {
     this.blockHeaders = [Block.Genesis.getHeader()];
     this.accounts = {};
 
-    this.updateBlockBalances(Block.Genesis);
+    // TODO: Add test to check genesis block balance not loaded.
+    // Only load during verification
+    // this.updateBlockBalances(Block.Genesis);
 
     this.synching = false;
+    this.verified = false;
   }
 
   static getAdjustInterval() {
@@ -190,6 +193,19 @@ class Chain {
     return this.blockHeaders[i];
   }
 
+  isVerified() {
+    if (!this.verified) {
+      // Account balances not loaded
+      assert(Object.keys(this.accounts).length === 0);
+    }
+
+    return this.verified;
+  }
+
+  setVerified(verified) {
+    this.verified = verified;
+  }
+
   addBlockHeader(header) {
     const isFirst = this.getLength() === 0;
     const lastHeader = this.lastBlockHeader();
@@ -243,8 +259,10 @@ class Chain {
   // TODO:
   // Verify and load balances
   // TODO: Remove verification of main chain. Assert valid
-  async loadAccountBalances() {
+  // Note: Modifies balance. Destructive
+  async loadAndVerifyBalances() {
     // TODO: Assert not block balances set
+    assert(!this.isVerified());
     assert(this.verifyGenesisBlock());
 
     for (let i = 0; i < this.getLength(); i += 1) {
@@ -256,13 +274,16 @@ class Chain {
       // }
 
       if (!this.updateBlockBalances(block)) {
-        return false;
+        this.setVerified(false);
+        return;
+        // return false;
       }
     }
 
     // TODO: Verify block rewards
 
-    return true;
+    this.setVerified(true);
+    // return true;
   }
 
   getLength() {

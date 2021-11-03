@@ -464,15 +464,18 @@ test('to and from object', async (t) => {
   t.end();
 });
 
-// test('verify chain', async (t) => {
-//   const chain = await mock.chainWithBlocks(12, 3);
+test('verify chain balances', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(6, 3);
 
-//   const verified = await chain.verify();
-//   t.equal(verified, true);
+  const chain = Chain.fromObject(Chain.mainChain.toObject());
+  t.equal(chain.isVerified(), false);
 
-//   await Chain.clearMain();
-//   t.end();
-// });
+  await chain.loadAndVerifyBalances();
+  t.equal(chain.isVerified(), true);
+
+  await Chain.clearMain();
+  t.end();
+});
 
 // test('unable to verify chain with different genesis block', async (t) => {
 //   Chain.mainChain = await mock.altChainWithBlocks(4, 3);
