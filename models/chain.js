@@ -288,11 +288,8 @@ class Chain {
   }
 
   currentBlockReward() {
+    // Current reward is latest block index + 1, hence length
     return Chain.blockRewardAtIndex(this.getLength());
-  }
-
-  nextBlockReward() {
-    return Chain.blockRewardAtIndex(this.getLength() + 1);
   }
 
   static blockRewardAtIndex(index) {
