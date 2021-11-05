@@ -42,7 +42,7 @@ server.listen(port, async (err) => {
   Chain.mainChain = await Chain.load();
 
   debug('Verifying blocks and loading balances');
-  const loaded = await Chain.mainChain.loadAndVerifyBalances();
+  const loaded = await Chain.mainChain.loadBalances();
 
   if (!loaded) {
     debug('Could not load blocks. Invalid');

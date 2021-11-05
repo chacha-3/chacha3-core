@@ -103,7 +103,8 @@ class Chain {
         return false;
       }
 
-      const sufficientBalance = this.accounts[senderAddress].balance - transaction.getAmount() >= 0n;
+      const remainingBalance = this.accounts[senderAddress].balance - transaction.getAmount();
+      const sufficientBalance = remainingBalance >= 0n;
 
       if (!sufficientBalance) {
         return false;
@@ -216,6 +217,7 @@ class Chain {
     }
 
     this.blockHeaders.push(header);
+    this.setVerified(false);
 
     return true;
   }
@@ -234,14 +236,18 @@ class Chain {
     assert(block.getHeader() !== null);
     this.addBlockHeader(block.getHeader());
 
-    await Chain.save(this);
-
     const result = this.updateBlockBalances(block);
 
     if (!result) {
       debug('Failed to confirm new block: Insufficient balances');
+      Block.clear(block.getHeader().getHeader);
       return false;
     }
+
+    this.setVerified(true);
+
+    // Move out chain save from instance
+    await Chain.save(this);
 
     await block.clearPendingTransactions();
 
@@ -256,28 +262,19 @@ class Chain {
     return this.getBlockHeader(0).equals(Block.Genesis.getHeader());
   }
 
-  // TODO:
   // Verify and load balances
   // TODO: Remove verification of main chain. Assert valid
   // Note: Modifies balance. Destructive
-  async loadAndVerifyBalances() {
+  async loadBalances() {
     // TODO: Assert not block balances set
     assert(!this.isVerified());
     assert(this.verifyGenesisBlock());
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
+      const result = this.updateBlockBalances(block);
 
-      // FIXME:
-      // if (!block.verify(Chain.blockRewardAtIndex(i))) {
-      //   return false;
-      // }
-
-      if (!this.updateBlockBalances(block)) {
-        this.setVerified(false);
-        return;
-        // return false;
-      }
+      assert(result);
     }
 
     // TODO: Verify block rewards
@@ -436,6 +433,7 @@ class Chain {
   //   }
   // }
 
+  // Change to Chain.mainChain.clear();
   static async clearMain() {
     // FIXME: Should not have to clear pending transactions
     await PendingTransactionDB.clear();

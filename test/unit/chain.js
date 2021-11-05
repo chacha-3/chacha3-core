@@ -464,13 +464,21 @@ test('to and from object', async (t) => {
   t.end();
 });
 
+test('chain is unverified after adding block header', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(3, 3);
+  t.equal(Chain.mainChain.isVerified(), true);
+
+  await Chain.clearMain();
+  t.end();
+});
+
 test('verify chain balances', async (t) => {
   Chain.mainChain = await mock.chainWithBlocks(6, 3);
 
   const chain = Chain.fromObject(Chain.mainChain.toObject());
   t.equal(chain.isVerified(), false);
 
-  await chain.loadAndVerifyBalances();
+  await chain.loadBalances();
   t.equal(chain.isVerified(), true);
 
   await Chain.clearMain();
