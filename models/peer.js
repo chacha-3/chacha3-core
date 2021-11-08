@@ -330,7 +330,7 @@ class Peer {
       if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
         debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
         receivedPeer.setStatus(Peer.Status.Idle);
-        receivedPeer.save();
+        await receivedPeer.save();
       }
     }
   }
