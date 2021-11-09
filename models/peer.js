@@ -320,7 +320,7 @@ class Peer {
     const { data } = await this.callAction('listPeers');
 
     if (!data) {
-      return;
+      return false;
     }
 
     const currentPeers = await Peer.all();
@@ -335,6 +335,8 @@ class Peer {
         await receivedPeer.save();
       }
     }
+
+    return true;
   }
 
   async sendRequest(options) {
@@ -342,7 +344,6 @@ class Peer {
 
     if (process.env.NODE_ENV === 'test') {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
-
       if (response !== null) {
         return JSON.parse(response);
       }

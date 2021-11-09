@@ -223,13 +223,18 @@ test('send request to another peer', async (t) => {
   t.end();
 });
 
-// test('sync with peer list from another peer', async (t) => {
-//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+test('sync with peer list from another peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
-//   const currentPeers = await Peer.all();
-//   t.equal(currentPeers.length, 0);
+  const currentPeers = await Peer.all();
+  t.equal(currentPeers.length, 0);
 
-//   await peer.syncPeerList();
+  const result = await peer.syncPeerList();
+  t.equal(result, true);
 
-//   t.end();
-// });
+  const updatedPeers = await Peer.all();
+  t.equal(updatedPeers.length, 2);
+
+  await Peer.clearAll();
+  t.end();
+});
