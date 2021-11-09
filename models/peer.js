@@ -13,6 +13,8 @@ const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
+const { sendTestRequest } = require('../test/data/peer-response');
+
 class Peer {
   constructor(host, port) {
     this.connection = null;
@@ -330,13 +332,21 @@ class Peer {
       if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
         debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
         receivedPeer.setStatus(Peer.Status.Idle);
-        receivedPeer.save();
+        await receivedPeer.save();
       }
     }
   }
 
   async sendRequest(options) {
     const testWhitelist = ['ping'];
+
+    if (process.env.NODE_ENV === 'test') {
+      const response = sendTestRequest(this.getHost(), this.getPort(), options);
+
+      if (response !== null) {
+        return JSON.parse(response);
+      }
+    }
 
     // FIXME:
     // Ping node test causing block integration test for fail because of a background peer call
@@ -366,8 +376,8 @@ class Peer {
     debug(`Peer call action error: ${e}`);
   }
 
-  async callAction(actionName, options) {
-    const params = Object.assign(options || {}, { action: actionName });
+  async callAction(actionName, options = {}) {
+    const params = Object.assign(options, { action: actionName });
     debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
 
     return this.sendRequest(params);
