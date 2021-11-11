@@ -5,14 +5,14 @@ const Wallet = require('../models/wallet');
 const { deserializeBuffer } = require('../util/serialize');
 
 const numOfBlocks = 10;
-const transactionsPerBlock = 50;
+const transactionsPerBlock = 5;
 
 // Coinbase receiver to send out
 const sender = new Wallet();
 sender.generate();
 
 const generateBlocks = async () => {
-  const blocksData = [];
+  const blocksData = [Block.Genesis.toObject()];
   let previousHash = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
 
   for (let i = 0; i < numOfBlocks; i += 1) {
@@ -42,3 +42,19 @@ const generateBlocks = async () => {
 
   return blocksData;
 };
+
+const main = async () => {
+  const blocks = await generateBlocks();
+  const data = JSON.stringify(blocks, null, 2);
+
+  fs.writeFile('./scripts/output/test-chain.json', data, (err) => {
+    if (err) {
+        throw err;
+    }
+    console.log("JSON data is saved.");
+  });
+};
+
+
+
+main();
