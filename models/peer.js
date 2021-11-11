@@ -198,14 +198,14 @@ class Peer {
     return this.host;
   }
 
-  setHost(host) {
-    // FIXME: Disabled. Temp
-    // if (!ipaddr.isValid(address)) {
-    //   throw Error('Invalid IP address');
-    // }
+  // setHost(host) {
+  //   // FIXME: Disabled. Temp
+  //   // if (!ipaddr.isValid(address)) {
+  //   //   throw Error('Invalid IP address');
+  //   // }
 
-    this.host = host;
-  }
+  //   this.host = host;
+  // }
 
   compatibleVersion() {
     // No real check now. Compatible with all.
