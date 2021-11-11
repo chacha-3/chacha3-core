@@ -34,7 +34,7 @@ function build(opts = {}) {
   app.post('/', {
     preHandler: async (request, reply, done) => {
       if (process.env.NODE_ENV === 'test') {
-        return done();
+        // return done();
       }
 
       const port = request.headers['bong-port'];
@@ -43,7 +43,7 @@ function build(opts = {}) {
 
       // TODO: Validate input
       if (!port) {
-        return done();
+        // return done();
       }
 
       const { ip } = request;
@@ -58,9 +58,13 @@ function build(opts = {}) {
       if (!peer && !reachOutSelf) {
         const newPeer = new Peer(ip, port);
         newPeer.reachOut();
+        return;
         // return done();
-      } else if (peer.status !== Peer.Status.Active && !reachOutSelf) {
+      }
+
+      if (peer.status !== Peer.Status.Active && !reachOutSelf) {
         peer.reachOut();
+        return;
         // return done();
       }
 
@@ -83,9 +87,10 @@ function build(opts = {}) {
         // TODO: If sync fail. Find next best
       }
 
-      return done();
+      // done();
     },
     handler: async (request, reply) => {
+      console.log(request.body);
       reply.type('application/json');
 
       debug(`Request receive: ${JSON.stringify(request.body)}}`);

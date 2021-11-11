@@ -1,19 +1,19 @@
 const { test } = require('tap');
 
-// FIXME: Update to new peer response mock
+const { sendTestRequest, HOST_127_0_0_100, PORT_7000 } = require('../../util/peer-response');
+
 test('mock peer response is valid JSON format', async (t) => {
-  // TODO: Change to nodeInfo
-  // const options = { action: 'listPeers' };
-  // const response = await mockAction('127.0.0.1', 7000, options);
+  const options = { action: 'nodeInfo' };
+  const response = sendTestRequest(HOST_127_0_0_100, PORT_7000, options);
 
-  // let valid = true;
+  let valid = true;
 
-  // try {
-  //   JSON.parse(response);
-  // } catch (e) {
-  //   valid = false;
-  // }
+  try {
+    JSON.parse(response);
+  } catch (e) {
+    valid = false;
+  }
 
-  // t.equal(valid, true);
+  t.equal(valid, true);
   t.end();
 });
