@@ -13,7 +13,7 @@ const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
-const { sendTestRequest } = require('../test/data/peer-response');
+const { sendTestRequest } = require('../util/peer-response');
 
 class Peer {
   constructor(host, port) {
