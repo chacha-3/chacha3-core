@@ -344,6 +344,7 @@ class Peer {
 
     if (process.env.NODE_ENV === 'test') {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
+      console.log(response)
       if (response !== null) {
         return JSON.parse(response);
       }
@@ -402,7 +403,6 @@ class Peer {
     const response = await this.callAction('pullChain');
 
     // TODO: Check chain is higher than current claimed length
-
     if (!response) {
       return false;
     }
@@ -445,6 +445,11 @@ class Peer {
       debug(`Peer info: ${this.getHost()}:${this.getPort()}`);
 
       const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
+
+      if (!response) {
+        // TODO: Handle
+        return false;
+      }
 
       const { data } = response;
       if (data) {

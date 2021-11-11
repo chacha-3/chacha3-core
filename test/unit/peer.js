@@ -1,4 +1,5 @@
 const { test } = require('tap');
+const Chain = require('../../models/chain');
 // const chai = require('chai');
 // const dirtyChai = require('dirty-chai');
 
@@ -234,7 +235,24 @@ test('sync with peer list from another peer', async (t) => {
 
   const updatedPeers = await Peer.all();
   t.equal(updatedPeers.length, 2);
+  t.equal(updatedPeers[0].status, Peer.Status.Idle, 'Newly added peer have idle status');
 
   await Peer.clearAll();
+  t.end();
+});
+
+test('sync with peer chain', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  t.equal(Chain.mainChain.getLength(), 1);
+  t.equal(Chain.mainChain.isSynching(), false);
+
+  // TODO: Make result be the new chain length
+  const result = await peer.syncChain();
+  t.equal(result, true);
+
+  t.equal(Chain.mainChain.getLength(), 3);
+
+  await Chain.clearMain();
   t.end();
 });

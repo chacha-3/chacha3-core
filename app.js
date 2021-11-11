@@ -89,6 +89,7 @@ function build(opts = {}) {
       reply.type('application/json');
 
       debug(`Request receive: ${JSON.stringify(request.body)}}`);
+      // console.log(JSON.stringify(request.body));
       const response = await runAction(request.body, 'none');
 
       reply.send(response);
