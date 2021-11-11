@@ -16,7 +16,8 @@ const { serializeBuffer } = require('../util/serialize');
 const { sendTestRequest } = require('../util/peer-response');
 
 class Peer {
-  constructor(host, port) {
+  constructor(host, port = 0) {
+    assert(port !== 0);
     this.connection = null;
 
     this.version = null;
@@ -24,7 +25,7 @@ class Peer {
     this.chainWork = 0;
 
     this.host = host || null;
-    this.port = port || 0;
+    this.port = port;
 
     this.status = Peer.Status.Idle;
     this.failedConnect = 0;
@@ -319,9 +320,10 @@ class Peer {
     debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
     const { data } = await this.callAction('listPeers');
 
-    if (!data) {
-      return false;
-    }
+    // TODO:
+    // if (!data) {
+    //   return false;
+    // }
 
     const currentPeers = await Peer.all();
 
@@ -403,9 +405,10 @@ class Peer {
     const response = await this.callAction('pullChain');
 
     // TODO: Check chain is higher than current claimed length
-    if (!response) {
-      return false;
-    }
+    // TODO: Handle error response
+    // if (!response) {
+    //   return false;
+    // }
 
     const { data } = response;
 

@@ -35,6 +35,7 @@ function build(opts = {}) {
     preHandler: async (request, reply, done) => {
       if (process.env.NODE_ENV === 'test') {
         // return done();
+        return;
       }
 
       const port = request.headers['bong-port'];
@@ -90,7 +91,6 @@ function build(opts = {}) {
       // done();
     },
     handler: async (request, reply) => {
-      console.log(request.body);
       reply.type('application/json');
 
       debug(`Request receive: ${JSON.stringify(request.body)}}`);

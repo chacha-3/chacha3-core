@@ -22,7 +22,7 @@ test('should create a peer', (t) => {
 });
 
 test('set peer valid port', async (t) => {
-  const peer = new Peer('127.0.0.1', 0);
+  const peer = new Peer('127.0.0.1', 2000);
   peer.setPort(5000);
   
   t.equal(peer.getPort(), 5000);
@@ -99,7 +99,8 @@ test('save and load peer', async (t) => {
   t.equal(peer.getPort(), loaded.getPort());
   t.equal(peer.getStatus(), loaded.getStatus());
 
-  await Peer.clear(peer.getId());
+  await Peer.clear(peer.getId()); // FIXME:
+  await Peer.clearAll();
   t.end();
 });
 
@@ -241,7 +242,6 @@ test('sync with peer list from another peer', async (t) => {
   t.end();
 });
 
-// FIXME:
 test('sync with peer chain', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
@@ -253,6 +253,21 @@ test('sync with peer chain', async (t) => {
   t.equal(result, true);
   t.equal(Chain.mainChain.getLength(), 3);
 
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
+
+test('sync with peer chain skipped if currently synching with another peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  t.equal(Chain.mainChain.getLength(), 1);
+  Chain.mainChain.setSynching(true);
+
+  // const result = await peer.syncChain();
+  // t.equal(result, true);
+  // t.equal(Chain.mainChain.getLength(), 1);
   // TODO: Clear single peer
   await Peer.clearAll();
   await Chain.clearMain();
