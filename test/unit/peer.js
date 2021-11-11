@@ -7,7 +7,7 @@ const Peer = require('../../models/peer');
 
 const mock = require('../../util/mock');
 const { SuccessCode } = require('../../util/rpc');
-const { HOST_127_0_0_100, PORT_7000 } = require('../../util/peer-response');
+const { HOST_127_0_0_100, HOST_127_0_0_101, PORT_7000 } = require('../../util/peer-response');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -265,9 +265,26 @@ test('sync with peer chain skipped if currently synching with another peer', asy
   t.equal(Chain.mainChain.getLength(), 1);
   Chain.mainChain.setSynching(true);
 
-  // const result = await peer.syncChain();
-  // t.equal(result, true);
-  // t.equal(Chain.mainChain.getLength(), 1);
+  const result = await peer.syncChain();
+  t.equal(result, true);
+  t.equal(Chain.mainChain.getLength(), 1);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
+
+test('fail to sync with peer that has invalid chain', async (t) => {
+  const peer = new Peer(HOST_127_0_0_101, PORT_7000);
+
+  t.equal(Chain.mainChain.getLength(), 1);
+  t.equal(Chain.mainChain.isSynching(), false);
+
+  const result = await peer.syncChain();
+  t.equal(result, false);
+  t.equal(Chain.mainChain.getLength(), 1);
+
   // TODO: Clear single peer
   await Peer.clearAll();
   await Chain.clearMain();

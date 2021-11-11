@@ -409,7 +409,6 @@ class Peer {
     // if (!response) {
     //   return false;
     // }
-
     const { data } = response;
 
     const pulledChain = Chain.fromObject(data);

@@ -45,6 +45,7 @@ function build(opts = {}) {
       // TODO: Validate input
       if (!port) {
         // return done();
+        return;
       }
 
       const { ip } = request;
