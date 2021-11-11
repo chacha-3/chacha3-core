@@ -344,7 +344,7 @@ class Peer {
 
     if (process.env.NODE_ENV === 'test') {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
-      console.log(response)
+
       if (response !== null) {
         return JSON.parse(response);
       }
