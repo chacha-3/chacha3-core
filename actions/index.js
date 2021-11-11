@@ -83,7 +83,6 @@ const runAction = async (options, permission) => {
   if (!checkPermission(action, permission)) {
     return errorResponse(ErrorCode.Unauthenticated, 'Auth required');
   }
-
   if (action.preValidation) {
     await action.preValidation(options);
   }
@@ -98,12 +97,12 @@ const runAction = async (options, permission) => {
     }
 
     const validate = ajv.compile(schema);
+    const valid = validate(options);
 
-    if (!validate(options)) {
+    if (!valid) {
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid argument', [validate.errors[0].message]);
     }
   }
-
   const result = await execute(options, handler);
   return serializeObject(result);
 };

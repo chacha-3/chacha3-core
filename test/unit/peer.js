@@ -1,10 +1,13 @@
 const { test } = require('tap');
+const Chain = require('../../models/chain');
 // const chai = require('chai');
 // const dirtyChai = require('dirty-chai');
 
 const Peer = require('../../models/peer');
 
 const mock = require('../../util/mock');
+const { SuccessCode } = require('../../util/rpc');
+const { HOST_127_0_0_100, PORT_7000 } = require('../data/peer-response');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -209,5 +212,47 @@ test('peer equality check', async (t) => {
   t.not(Peer.areSame(peer, differentPort));
   t.not(Peer.areSame(peer, differentHost));
 
+  t.end();
+});
+
+test('send request to another peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  const response = await peer.sendRequest({ action: 'nodeInfo' });
+
+  t.equal(response.code, SuccessCode);
+  t.end();
+});
+
+test('sync with peer list from another peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  const currentPeers = await Peer.all();
+  t.equal(currentPeers.length, 0);
+
+  const result = await peer.syncPeerList();
+  t.equal(result, true);
+
+  const updatedPeers = await Peer.all();
+  t.equal(updatedPeers.length, 2);
+  t.equal(updatedPeers[0].status, Peer.Status.Idle, 'Newly added peer have idle status');
+
+  await Peer.clearAll();
+  t.end();
+});
+
+test('sync with peer chain', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  t.equal(Chain.mainChain.getLength(), 1);
+  t.equal(Chain.mainChain.isSynching(), false);
+
+  // TODO: Make result be the new chain length
+  const result = await peer.syncChain();
+  t.equal(result, true);
+
+  t.equal(Chain.mainChain.getLength(), 3);
+
+  await Chain.clearMain();
   t.end();
 });

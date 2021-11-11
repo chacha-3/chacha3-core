@@ -13,6 +13,8 @@ const { PeerDB } = require('../util/db');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
+const { sendTestRequest } = require('../test/data/peer-response');
+
 class Peer {
   constructor(host, port) {
     this.connection = null;
@@ -318,7 +320,7 @@ class Peer {
     const { data } = await this.callAction('listPeers');
 
     if (!data) {
-      return;
+      return false;
     }
 
     const currentPeers = await Peer.all();
@@ -333,10 +335,20 @@ class Peer {
         await receivedPeer.save();
       }
     }
+
+    return true;
   }
 
   async sendRequest(options) {
     const testWhitelist = ['ping'];
+
+    if (process.env.NODE_ENV === 'test') {
+      const response = sendTestRequest(this.getHost(), this.getPort(), options);
+      console.log(response)
+      if (response !== null) {
+        return JSON.parse(response);
+      }
+    }
 
     // FIXME:
     // Ping node test causing block integration test for fail because of a background peer call
@@ -366,8 +378,8 @@ class Peer {
     debug(`Peer call action error: ${e}`);
   }
 
-  async callAction(actionName, options) {
-    const params = Object.assign(options || {}, { action: actionName });
+  async callAction(actionName, options = {}) {
+    const params = Object.assign(options, { action: actionName });
     debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
 
     return this.sendRequest(params);
@@ -391,7 +403,6 @@ class Peer {
     const response = await this.callAction('pullChain');
 
     // TODO: Check chain is higher than current claimed length
-
     if (!response) {
       return false;
     }
@@ -434,6 +445,11 @@ class Peer {
       debug(`Peer info: ${this.getHost()}:${this.getPort()}`);
 
       const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
+
+      if (!response) {
+        // TODO: Handle
+        return false;
+      }
 
       const { data } = response;
       if (data) {
