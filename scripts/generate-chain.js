@@ -13,7 +13,7 @@ sender.generate();
 
 const generateBlocks = async () => {
   const blocksData = [Block.Genesis.toObject()];
-  let previousHash = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
+  let previousHash = Block.Genesis.getHeader().getHash();
 
   for (let i = 0; i < numOfBlocks; i += 1) {
     const receiver = new Wallet();

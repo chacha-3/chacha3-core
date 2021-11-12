@@ -213,7 +213,8 @@ class Chain {
 
     if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
       // TODO: Handle error on synching
-      return false;
+      throw Error('Added block header does not match previous hash');
+      // return false;
     }
 
     this.blockHeaders.push(header);

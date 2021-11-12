@@ -403,7 +403,6 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const response = await this.callAction('pullChain');
-
     // TODO: Check chain is higher than current claimed length
     // TODO: Handle error response
     // if (!response) {
@@ -412,8 +411,8 @@ class Peer {
     const { data } = response;
 
     const pulledChain = Chain.fromObject(data);
-    const divergeIndex = Chain.mainChain.compareWork(pulledChain);
 
+    const divergeIndex = Chain.mainChain.compareWork(pulledChain);
     if (divergeIndex < 1) {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);
       return false;
