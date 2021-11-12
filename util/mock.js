@@ -114,7 +114,7 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   const minusGenesis = numOfBlocks - 1;
 
   const chain = new Chain();
-  chain.addBlockHeader(Block.Genesis.getHeader());
+  // chain.addBlockHeader(Block.Genesis.getHeader());
 
   let previousBlock = Block.Genesis;
 

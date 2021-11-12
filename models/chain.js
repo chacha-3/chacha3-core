@@ -211,10 +211,19 @@ class Chain {
     const isFirst = this.getLength() === 0;
     const lastHeader = this.lastBlockHeader();
 
-    if (!isFirst && !header.getPrevious().equals(lastHeader.getHash())) {
+    if (isFirst) {
+      // TODO: Add proper verify genesis method
+      return header.hash.equals(Block.Genesis.getHeader().getHash());
+    }
+
+    assert(!header.getHash().equals(Block.Genesis.getHeader().getHash()));
+
+    // FIXME: Should not need to double verify
+    // Block is already verified before add block header
+    if (!header.getPrevious().equals(lastHeader.getHash())) {
       // TODO: Handle error on synching
-      throw Error('Added block header does not match previous hash');
-      // return false;
+      // throw Error('Added block header does not match previous hash');
+      return false;
     }
 
     this.blockHeaders.push(header);
@@ -235,7 +244,11 @@ class Chain {
     await block.save();
 
     assert(block.getHeader() !== null);
-    this.addBlockHeader(block.getHeader());
+    const addedHeader = this.addBlockHeader(block.getHeader());
+
+    // Would be false if previous block does not match
+    // As block is verified, return false this should be an impossible case
+    assert(addedHeader === true);
 
     const result = this.updateBlockBalances(block);
 
@@ -414,7 +427,13 @@ class Chain {
     }
 
     const headers = await Chain.loadHeaders(blockHashes);
-    chain.setBlockHeaders(headers);
+
+    // TODO: Revise this
+    // Overrides genesis only chain
+    // Perhaps use addBlockHeader instead of set blocks, for verification
+    if (headers.length > 0) {
+      chain.setBlockHeaders(headers);
+    }
 
     return chain;
   }
@@ -496,7 +515,9 @@ class Chain {
     const block = Block.Genesis;
     await block.save();
 
-    chain.addBlockHeader(block.getHeader());
+    const result = chain.addBlockHeader(block.getHeader());
+    assert(result === true);
+
     await Chain.save(chain);
   }
 
@@ -536,10 +557,21 @@ class Chain {
     const chain = new Chain();
 
     for (let i = 0; i < obj.blockHeaders.length; i += 1) {
+      if (i === 0) {
+        const genesis = Header.fromObject(obj.blockHeaders[i]);
+
+        if (!genesis.getHash().equals(Block.Genesis.getHeader().getHash())) {
+          throw Error('Genesis value does not match');
+        }
+
+        continue;
+      }
+
       const header = Header.fromObject(obj.blockHeaders[i]);
       assert(header != null);
 
-      chain.addBlockHeader(header);
+      const result = chain.addBlockHeader(header);
+      assert(result === true);
     }
 
     return chain;

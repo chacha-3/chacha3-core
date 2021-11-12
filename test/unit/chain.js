@@ -10,6 +10,7 @@ const mock = require('../../util/mock');
 const { generateAddress } = require('../../models/wallet');
 const { serializeObject, deserializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
+const { assert } = require('console');
 
 // test('create an empty chain', (t) => {
 //   const chain = new Chain();
@@ -22,7 +23,8 @@ test('add block headers to the chain', async (t) => {
   const numOfBlocks = 4;
 
   const chain = new Chain();
-  chain.addBlockHeader(Block.Genesis.getHeader());
+  // const genesisAdd = chain.addBlockHeader(Block.Genesis.getHeader());
+  // t.equal(genesisAdd, true);
 
   const minusGenesis = numOfBlocks - 1;
   let previousBlock = Block.Genesis;
@@ -31,7 +33,9 @@ test('add block headers to the chain', async (t) => {
 
   for (let i = 0; i < minusGenesis; i += 1) {
     blocks[i] = await mock.blockWithTransactions(5, previousBlock);
-    chain.addBlockHeader(blocks[i].getHeader());
+
+    const added = chain.addBlockHeader(blocks[i].getHeader());
+    t.equal(added, true);
 
     previousBlock = blocks[i];
   }
