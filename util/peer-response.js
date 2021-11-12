@@ -3,6 +3,7 @@ const { SuccessCode } = require('./rpc');
 
 const blockData = require('./mock/data/blocks.json');
 
+const HOST_127_0_0_99 = '127.0.0.99';
 const HOST_127_0_0_100 = '127.0.0.100';
 const HOST_127_0_0_101 = '127.0.0.101';
 
@@ -248,6 +249,7 @@ const sendTestRequest = (host, port, options) => {
 };
 
 module.exports = {
+  HOST_127_0_0_99,
   HOST_127_0_0_100,
   HOST_127_0_0_101,
   PORT_7000,

@@ -7,7 +7,12 @@ const Peer = require('../../models/peer');
 
 const mock = require('../../util/mock');
 const { SuccessCode } = require('../../util/rpc');
-const { HOST_127_0_0_100, HOST_127_0_0_101, PORT_7000 } = require('../../util/peer-response');
+const {
+  HOST_127_0_0_99,
+  HOST_127_0_0_100,
+  HOST_127_0_0_101,
+  PORT_7000,
+} = require('../../util/peer-response');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -284,6 +289,32 @@ test('fail to sync with peer that has invalid chain', async (t) => {
   const result = await peer.syncChain();
   t.equal(result, false);
   t.equal(Chain.mainChain.getLength(), 1);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
+
+test('broadcast to all active peers', async (t) => {
+  const activePeer = new Peer(HOST_127_0_0_100, PORT_7000);
+  activePeer.setStatus(Peer.Status.Active);
+
+  const idlePeer = new Peer(HOST_127_0_0_99, PORT_7000);
+  idlePeer.setStatus(Peer.Status.Idle);
+
+  const inactivePeer = new Peer(HOST_127_0_0_101, PORT_7000);
+  inactivePeer.setStatus(Peer.Status.Inactive);
+
+  await activePeer.save();
+  await idlePeer.save();
+  await inactivePeer.save();
+
+  const savedPeers = await Peer.all();
+  t.equal(savedPeers.length, 3);
+
+  const result = await Peer.broadcastAction('nodeInfo');
+  t.equal(result.length, 1, 'sent to one active peer');
 
   // TODO: Clear single peer
   await Peer.clearAll();

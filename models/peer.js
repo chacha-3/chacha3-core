@@ -83,12 +83,19 @@ class Peer {
 
     const merged = Object.assign(options || {}, { action: actionName });
 
-    activePeers.forEach((peer) => {
+    const promises = [];
+
+    const request = (peer) => new Promise((resolve) => {
       debug(`Broadcast to peer ${peer.getHost()}:${peer.getPort()} ${JSON.stringify(merged)}`);
-      peer.sendRequest(merged);
+      resolve(peer.sendRequest(merged));
     });
 
-    return activePeers.length;
+    for (let i = 0; i < activePeers.length; i += 1) {
+      promises.push(request(activePeers[i]));
+    }
+
+    // TODO: Map response to peer
+    return Promise.all(promises);
   }
 
   static async addSeed() {
@@ -419,7 +426,7 @@ class Peer {
     }
 
     const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
-    console.log(valid);
+
     if (!valid) {
       return false;
     }
