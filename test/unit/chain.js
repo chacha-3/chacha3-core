@@ -49,6 +49,21 @@ test('add block headers to the chain', async (t) => {
   t.end();
 });
 
+test('does not added block header to chain when previous hash does not match', async (t) => {
+  const chain = new Chain();
+
+  const block = await mock.blockWithTransactions(3, Block.Genesis);
+
+  // Set incorrect previous hash
+  block.header.previous = crypto.randomBytes(32);
+
+  const added = chain.addBlockHeader(block.getHeader());
+  t.equal(added, false, 'does not add block with incorrect previous hash');
+  t.equal(chain.getLength(), 1, 'no change to chain length');
+
+  t.end();
+});
+
 test('get total work in chain', async (t) => {
   const numOfBlocks = 4;
 
