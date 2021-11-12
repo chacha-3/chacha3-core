@@ -53,7 +53,13 @@ class Block {
   }
 
   addCoinbase(receiverAddress, currentReward = Block.InitialReward) {
-    const transaction = new Transaction(null, receiverAddress, currentReward, Transaction.Type.Mine);
+    const transaction = new Transaction(
+      null,
+      receiverAddress,
+      currentReward,
+      Transaction.Type.Mine,
+    );
+
     this.addTransaction(transaction);
   }
 
@@ -62,10 +68,6 @@ class Block {
     if (transaction.getSignature() == null && this.getTransactionCount() !== 0) {
       throw new Error('Unable to add unsigned transaction to block');
     }
-
-    // if (!transaction.verify()) {
-    //   return false;
-    // }
 
     const index = this.transactions.findIndex((t) => t.getId().equals(transaction.getId()));
 
@@ -314,10 +316,6 @@ class Block {
   //   // TODO:
   // }
 
-  // verifyOnlyFirstIsCoinBase() {
-
-  // }
-
   toObject() {
     const data = {
       header: this.getHeader().toObject(),
@@ -413,16 +411,23 @@ class Block {
     const transactions = await Block.loadTransactions(indexes);
 
     block.setTransactions(transactions);
-    // block.header.setHash(hash);
 
     return block;
   }
 
   // On accept new block, remove transactions in block from pending transactions
   async clearPendingTransactions() {
+    const clearTransaction = (id) => new Promise((resolve) => {
+      resolve(Transaction.clear(id, true));
+    });
+
+    const promises = [];
+
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      await Transaction.clear(this.getTransaction(i).getId(), true);
+      promises.push(clearTransaction(this.getTransaction(i).getId()));
     }
+
+    await Promise.all(promises);
   }
 
   static async clear(hash) {

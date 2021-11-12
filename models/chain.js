@@ -430,18 +430,6 @@ class Chain {
     return chain;
   }
 
-  // TODO: Remove. Combine all verification in loop
-  // async verifyBalances() {
-  //   for (let i = 0; i < this.getLength(); i += 1) {
-  //     // const headers = Chain.mainChain.getHea
-  //     const block = await Block.load(this.getBlockHeader(i).getHash());
-
-  //     if (block) {
-  //       this.updateBlockBalances(block);
-  //     }
-  //   }
-  // }
-
   // Change to Chain.mainChain.clear();
   static async clearMain() {
     // FIXME: Should not have to clear pending transactions

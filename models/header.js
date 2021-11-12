@@ -148,10 +148,6 @@ class Header {
   getHash() {
     assert(this.hash != null);
     return this.hash;
-    // const pass1 = crypto.createHash('sha256').update(Buffer.from(this.hashData())).digest();
-    // const pass2 = crypto.createHash('sha256').update(pass1).digest();
-
-    // return pass2;
   }
 
   setHash(hash) {
