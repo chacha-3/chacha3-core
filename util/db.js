@@ -1,4 +1,3 @@
-const fs = require('fs');
 const level = require('level');
 const sub = require('subleveldown');
 

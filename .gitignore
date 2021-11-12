@@ -117,7 +117,7 @@ dist
 .pnp.*
 
 # LevelDB storage
-data
+/data
 .shelldb
 .testdb
 
