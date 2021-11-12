@@ -335,3 +335,14 @@ test('add seed peers', async (t) => {
   await Peer.clearAll();
   t.end();
 });
+
+test('reach out to active peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  const result = await peer.reachOut();
+  t.equal(result, true);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});

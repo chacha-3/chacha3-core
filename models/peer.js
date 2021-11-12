@@ -217,18 +217,6 @@ class Peer {
 
   //   this.host = host;
   // }
-
-  compatibleVersion() {
-    // No real check now. Compatible with all.
-    const [major, minor, build] = this.getVersion().split('.');
-
-    if (major < 0 || minor < 0 || build < 1) {
-      return false;
-    }
-
-    return true;
-  }
-
   getStatus() {
     return this.status;
   }
@@ -244,12 +232,22 @@ class Peer {
   }
 
   isCompatible() {
-    // TODO: Other compatibility check
-    return this.compatibleVersion();
+    // No real check now. Compatible with all.
+    const [major, minor, build] = this.getVersion().split('.');
+
+    if (major < 0 || minor < 0 || build < 1) {
+      return false;
+    }
+
+    return true;
   }
 
   formattedAddress() {
     return `${this.getHost()}:${this.getPort()}`;
+  }
+
+  setCompatibilityStatus() {
+    this.setStatus(this.isCompatible() ? Peer.Status.Active : Peer.Status.Incompatible);
   }
 
   async reachOut() {
@@ -271,8 +269,6 @@ class Peer {
       return false;
     }
 
-    assert(data);
-
     debug(`Receive response from peer ${this.formattedAddress()}`);
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
@@ -288,20 +284,13 @@ class Peer {
       return false;
     }
 
-    if (!this.isCompatible()) {
-      this.setStatus(Peer.Status.Incompatible);
-      debug(`Incompatible peer ${this.formattedAddress()}. Version ${this.getVersion()}`);
-    } else {
-      debug(`Active peer ${this.formattedAddress()}. Version ${this.getVersion()}`);
-      this.setStatus(Peer.Status.Active);
-    }
+    this.setCompatibilityStatus();
 
     debug(`Accept peer ${this.formattedAddress()}`);
-
     await this.save();
 
     // Follow up and retrieve peer
-    this.syncPeerList();
+    await this.syncPeerList();
 
     return true;
   }
