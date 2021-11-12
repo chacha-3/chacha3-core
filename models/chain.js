@@ -454,7 +454,6 @@ class Chain {
     await Chain.mainChain.clearBlocks();
     await DB.del('chain');
 
-    await Chain.initializeGenesisBlock();
     Chain.mainChain = await Chain.load();
   }
 
@@ -495,23 +494,6 @@ class Chain {
 
   //   return clearBlocks;
   // }
-
-  // NOTE: Main chain
-  static async initializeGenesisBlock() {
-    const chain = await Chain.load();
-
-    if (chain.getLength() > 0) {
-      return;
-    }
-
-    const block = Block.Genesis;
-    await block.save();
-
-    const result = chain.addBlockHeader(block.getHeader());
-    assert(result === true);
-
-    await Chain.save(chain);
-  }
 
   compareWork(newChain) {
     const currentWork = this.getTotalWork();

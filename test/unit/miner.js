@@ -10,7 +10,6 @@ const { deserializeBuffer } = require('../../util/serialize');
 // const { expect } = chai;
 
 test('start and stop miner', async (t) => {
-  await Chain.initializeGenesisBlock();
   Chain.mainChain = await Chain.load();
 
   const miner = new Miner();
@@ -30,7 +29,6 @@ test('start and stop miner', async (t) => {
 });
 
 test('does not start miner when already running', async (t) => {
-  await Chain.initializeGenesisBlock();
   Chain.mainChain = await Chain.load();
 
   const miner = new Miner();

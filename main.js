@@ -35,9 +35,6 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
-  debug('Start initialization');
-  await Chain.initializeGenesisBlock();
-
   debug('Loading chain');
   Chain.mainChain = await Chain.load();
 
