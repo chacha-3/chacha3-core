@@ -318,6 +318,20 @@ test('broadcast to all active peers', async (t) => {
 
   // TODO: Clear single peer
   await Peer.clearAll();
-  await Chain.clearMain();
+  t.end();
+});
+
+test('add seed peers', async (t) => {
+  const initialPeers = await Peer.all();
+  t.equal(initialPeers.length, 0);
+
+  await Peer.addSeed();
+
+  const seededPeers = await Peer.all();
+  t.ok(Peer.SeedList.length > 0);
+  t.equal(seededPeers.length, Peer.SeedList.length);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
   t.end();
 });

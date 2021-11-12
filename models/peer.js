@@ -103,15 +103,19 @@ class Peer {
 
     const promises = [];
 
-    for (let i = 0; i < seeds.length; i += 1) {
-      const newPeer = new Peer(seeds[i].host, seeds[i].port);
-      debug(`Add seed: ${seeds[i].host}:${seeds[i].port}`);
+    const savePeer = (seed) => new Promise((resolve) => {
+      const newPeer = new Peer(seed.host, seed.port);
       newPeer.setStatus(Peer.Status.Inactive);
 
-      promises.push(newPeer.save());
+      debug(`Add seed: ${seed.host}:${seed.port}`);
+      resolve(newPeer.save());
+    });
+
+    for (let i = 0; i < seeds.length; i += 1) {
+      promises.push(savePeer(seeds[i]));
     }
 
-    return Promise.all(promises);
+    await Promise.all(promises);
   }
 
   static async reachOutAll() {
