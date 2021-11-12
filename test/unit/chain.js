@@ -23,8 +23,6 @@ test('add block headers to the chain', async (t) => {
   const numOfBlocks = 4;
 
   const chain = new Chain();
-  // const genesisAdd = chain.addBlockHeader(Block.Genesis.getHeader());
-  // t.equal(genesisAdd, true);
 
   const minusGenesis = numOfBlocks - 1;
   let previousBlock = Block.Genesis;

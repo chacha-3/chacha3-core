@@ -179,10 +179,7 @@ class Chain {
   }
 
   lastBlockHeader() {
-    if (this.getLength() === 0) {
-      return null;
-    }
-
+    assert(this.getLength() > 0);
     return this.blockHeaders[this.getLength() - 1];
   }
 
@@ -208,13 +205,8 @@ class Chain {
   }
 
   addBlockHeader(header) {
-    const isFirst = this.getLength() === 0;
+    assert(this.getLength() > 0);
     const lastHeader = this.lastBlockHeader();
-
-    if (isFirst) {
-      // TODO: Add proper verify genesis method
-      return header.hash.equals(Block.Genesis.getHeader().getHash());
-    }
 
     assert(!header.getHash().equals(Block.Genesis.getHeader().getHash()));
 
