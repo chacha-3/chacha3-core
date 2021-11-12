@@ -420,7 +420,7 @@ class Peer {
     }
 
     const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
-
+    console.log(valid);
     if (!valid) {
       return false;
     }

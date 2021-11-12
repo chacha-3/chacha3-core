@@ -24,7 +24,7 @@ const generateBlocks = async () => {
     block.setPreviousHash(previousHash);
 
     const minusCoinbase = transactionsPerBlock - 1;
-    for (let j = 0; j < minusCoinbase; j += 1) {
+    for (let j = 0; j < minusCoinbase && i > 0; j += 1) {
       const transaction = new Transaction(
         sender.getPublicKey(),
         receiver.getAddress(),
