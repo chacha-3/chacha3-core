@@ -446,6 +446,7 @@ class Peer {
     return valid;
   }
 
+  // TODO: Modularize
   async verifyForwardBlocks(pulledChain, startIndex) {
     let valid = true;
 

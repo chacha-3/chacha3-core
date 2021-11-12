@@ -7,7 +7,7 @@ const { performance } = require('perf_hooks');
 const Header = require('./header');
 const Transaction = require('./transaction');
 
-const { BlockDB, TransactionDB, HeaderDB } = require('../util/db');
+const { BlockDB, TransactionDB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 const Wallet = require('./wallet');
 
