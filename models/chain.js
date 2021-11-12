@@ -530,18 +530,14 @@ class Chain {
   static fromObject(obj) {
     const chain = new Chain();
 
-    for (let i = 0; i < obj.blockHeaders.length; i += 1) {
-      if (i === 0) {
-        const genesis = Header.fromObject(obj.blockHeaders[i]);
+    const { blockHeaders } = obj;
+    assert(blockHeaders.length > 0);
 
-        if (!genesis.getHash().equals(Block.Genesis.getHeader().getHash())) {
-          throw Error('Genesis value does not match');
-        }
+    const genesis = Header.fromObject(obj.blockHeaders[0]);
+    assert(genesis.getHash().equals(Block.Genesis.getHeader().getHash()));
 
-        continue;
-      }
-
-      const header = Header.fromObject(obj.blockHeaders[i]);
+    for (let i = 1; i < blockHeaders.length; i += 1) {
+      const header = Header.fromObject(blockHeaders[i]);
       assert(header != null);
 
       const result = chain.addBlockHeader(header);
