@@ -359,14 +359,14 @@ test('fetch peer chain success', async (t) => {
   t.end();
 });
 
-test('fetch peer chain fail', async (t) => {
-  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+// test('fetch peer chain fail', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
 
-  const chain = await peer.fetchChain();
-  console.log(chain);
-  t.equal(chain, null);
+//   const chain = await peer.fetchChain();
+//   console.log(chain);
+//   t.equal(chain, null);
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });

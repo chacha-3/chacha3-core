@@ -451,11 +451,6 @@ class Peer {
     }
 
     const { data } = response;
-
-    if (!data) {
-      return null;
-    }
-
     return Chain.fromObject(data);
   }
 

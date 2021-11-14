@@ -12,6 +12,23 @@ const PORT_7000 = 7000;
 
 const headers = blockData.map((block) => block.header);
 
+const unverifiedChainData = () => {
+  const headerData = headers.slice(0, 2);
+
+  const unverifiedBlock = {
+    hash: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00',
+    previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    time: 1636894589652,
+    difficulty: 1,
+    nonce: 1636681633461,
+    checksum: '0x4705a4553646b43f16351241d9af8534c6172363d5f2bfbd1f93dd05a0a96baa',
+    version: 1,
+  };
+
+  headerData.push(unverifiedBlock);
+  return headerData;
+};
+
 const responseList = [
   {
     host: HOST_127_0_0_100,
@@ -94,6 +111,18 @@ const responseList = [
     response: {
       data: {
         blockHeaders: headers.slice(0, 3),
+      },
+      message: SuccessCode,
+    },
+  },
+  // Unverified chain
+  {
+    host: HOST_127_0_0_200,
+    port: PORT_7000,
+    action: 'pullChain',
+    response: {
+      data: {
+        blockHeaders: unverifiedChainData(),
       },
       message: SuccessCode,
     },
