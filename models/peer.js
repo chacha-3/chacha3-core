@@ -418,7 +418,7 @@ class Peer {
       return false;
     }
 
-    const valid = await this.verifyForwardBlocks(pulledChain, divergeIndex);
+    const valid = await this.syncForwardBlocks(pulledChain, divergeIndex);
 
     if (!valid) {
       return false;
@@ -436,48 +436,35 @@ class Peer {
   }
 
   // TODO: Modularize
-  async verifyForwardBlocks(pulledChain, startIndex) {
-    let valid = true;
-
-    debug(`Diverge index: ${startIndex}. Pulled chain length: ${pulledChain.getLength()}`);
-    for (let i = startIndex; i < pulledChain.getLength() && valid; i += 1) {
+  async syncForwardBlocks(pulledChain, startIndex) {
+    for (let i = startIndex; i < pulledChain.getLength(); i += 1) {
       const header = pulledChain.getBlockHeader(i);
+      const block = await this.fetchBlock(header.getHash());
 
-      debug(`Request block data: ${serializeBuffer(header.getHash())}`);
-      debug(`Peer info: ${this.getHost()}:${this.getPort()}`);
-
-      const response = await this.callAction('blockInfo', { hash: serializeBuffer(header.getHash()) });
-
-      if (!response) {
-        // TODO: Handle
+      if (block === null) {
         return false;
       }
 
-      const { data } = response;
-      if (data) {
-        debug(`Receive new block data: ${serializeBuffer(header.getHash())}`);
-        debug('Receive data for block');
-        const block = Block.fromObject(data);
+      const valid = await Chain.mainChain.confirmNewBlock(block);
 
-        valid = await Chain.mainChain.confirmNewBlock(block);
-
-        if (!valid) {
-          debug(`Block index ${i} is valid: ${valid}`);
-          return false;
-        }
-      } else {
-        // FIXME: Saving header as null in chain
-        debug('No data');
+      if (!valid) {
         return false;
       }
     }
 
-    if (!valid) {
-      debug('Forward blocks not valid');
-      // TODO: Clear blocks
+    return true;
+  }
+
+  async fetchBlock(hash) {
+    const response = await this.callAction('blockInfo', { hash: serializeBuffer(hash) });
+
+    if (!response) {
+      // TODO: Handle
+      return null;
     }
 
-    return valid;
+    const { data } = response;
+    return Block.fromObject(data);
   }
 
   toObject() {

@@ -246,7 +246,7 @@ class Chain {
 
     if (!result) {
       debug('Failed to confirm new block: Insufficient balances');
-      Block.clear(block.getHeader().getHeader);
+      await Block.clear(block.getHeader().getHash());
       return false;
     }
 
