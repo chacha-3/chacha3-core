@@ -6,6 +6,7 @@ const blockData = require('./mock/data/blocks.json');
 const HOST_127_0_0_99 = '127.0.0.99';
 const HOST_127_0_0_100 = '127.0.0.100';
 const HOST_127_0_0_101 = '127.0.0.101';
+const HOST_127_0_0_200 = '127.0.0.200';
 
 const PORT_7000 = 7000;
 
@@ -252,6 +253,7 @@ module.exports = {
   HOST_127_0_0_99,
   HOST_127_0_0_100,
   HOST_127_0_0_101,
+  HOST_127_0_0_200,
   PORT_7000,
   sendTestRequest,
 };

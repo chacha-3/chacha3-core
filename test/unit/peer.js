@@ -11,6 +11,7 @@ const {
   HOST_127_0_0_99,
   HOST_127_0_0_100,
   HOST_127_0_0_101,
+  HOST_127_0_0_200,
   PORT_7000,
 } = require('../../util/peer-response');
 
@@ -341,6 +342,29 @@ test('reach out to active peer', async (t) => {
 
   const result = await peer.reachOut();
   t.equal(result, true);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});
+
+test('fetch peer chain success', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+
+  const chain = await peer.fetchChain();
+  t.ok(chain.getLength() > 0);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});
+
+test('fetch peer chain fail', async (t) => {
+  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+
+  const chain = await peer.fetchChain();
+  console.log(chain);
+  t.equal(chain, null);
 
   // TODO: Clear single peer
   await Peer.clearAll();

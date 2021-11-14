@@ -259,40 +259,35 @@ class Peer {
       const response = await this.callAction('nodeInfo', { nonce: Peer.localNonce });
       data = response.data;
     } catch (e) {
-      const status = (this.getStatus() === Peer.Status.Active)
-        ? Peer.Status.Inactive
-        : Peer.Status.Unreachable;
-
-      this.setStatus(status);
-
-      this.save();
+      this.reachOutFail();
       return false;
     }
 
-    debug(`Receive response from peer ${this.formattedAddress()}`);
     this.setPeerInfo(data.version, data.chainLength, data.chainWork);
 
-    debug(`Response nonce: ${Peer.localNonce}, ${data.nonce}`);
     const isSelf = Peer.localNonce === data.nonce;
-
-    debug(`Peer is self: ${isSelf}, ${this.getHost()}, ${this.getPort()}`);
-
     if (isSelf) {
-      debug(`Reject peer ${this.formattedAddress()}: Same nonce`);
-
       await Peer.clear(this.getId());
       return false;
     }
 
     this.setCompatibilityStatus();
-
-    debug(`Accept peer ${this.formattedAddress()}`);
     await this.save();
 
     // Follow up and retrieve peer
     await this.syncPeerList();
 
     return true;
+  }
+
+  async reachOutFail() {
+    const status = (this.getStatus() === Peer.Status.Active)
+      ? Peer.Status.Inactive
+      : Peer.Status.Unreachable;
+
+    this.setStatus(status);
+
+    await this.save();
   }
 
   static requestHeaders() {
