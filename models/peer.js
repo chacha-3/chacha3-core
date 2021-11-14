@@ -402,17 +402,9 @@ class Peer {
 
     Chain.mainChain.setSynching(true);
 
-    const response = await this.callAction('pullChain');
-    // TODO: Check chain is higher than current claimed length
-    // TODO: Handle error response
-    // if (!response) {
-    //   return false;
-    // }
-    const { data } = response;
-
-    const pulledChain = Chain.fromObject(data);
-
+    const pulledChain = await this.fetchChain();
     const divergeIndex = Chain.mainChain.compareWork(pulledChain);
+
     if (divergeIndex < 1) {
       debug(`Did not sync. Diverge index: ${divergeIndex}`);
       return false;
@@ -424,8 +416,10 @@ class Peer {
       return false;
     }
 
-    await Chain.save(pulledChain);
     Chain.mainChain.clearBlocks(divergeIndex);
+    await Chain.save(pulledChain);
+
+    // TODO: Update mainchain to pulled chain
 
     Chain.mainChain.setSynching(false);
 
@@ -435,7 +429,6 @@ class Peer {
     return valid;
   }
 
-  // TODO: Modularize
   async syncForwardBlocks(pulledChain, startIndex) {
     for (let i = startIndex; i < pulledChain.getLength(); i += 1) {
       const header = pulledChain.getBlockHeader(i);
@@ -453,6 +446,22 @@ class Peer {
     }
 
     return true;
+  }
+
+  async fetchChain() {
+    const response = await this.callAction('pullChain');
+
+    if (!response) {
+      return null;
+    }
+
+    const { data } = response;
+
+    if (!data) {
+      return null;
+    }
+
+    return Chain.fromObject(data);
   }
 
   async fetchBlock(hash) {
