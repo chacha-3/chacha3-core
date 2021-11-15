@@ -13,7 +13,10 @@ const {
   HOST_127_0_0_101,
   HOST_127_0_0_200,
   PORT_7000,
+  headers,
 } = require('../../util/peer-response');
+
+// const blockData = require('../../util/mock/data/blocks.json');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -248,7 +251,7 @@ test('sync with peer list from another peer', async (t) => {
   t.end();
 });
 
-test('sync with peer chain', async (t) => {
+test('sync with longer peer chain', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
   t.equal(Chain.mainChain.getLength(), 1);
@@ -257,6 +260,29 @@ test('sync with peer chain', async (t) => {
   // TODO: Make result be the new chain length
   const result = await peer.syncChain();
   t.equal(result, true);
+  t.equal(Chain.mainChain.getLength(), 3);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
+
+test('does not sync with shorter peer chain', async (t) => {
+  const peer = new Peer(HOST_127_0_0_99, PORT_7000);
+
+  const data = {
+    blockHeaders: headers.slice(0, 3),
+  };
+
+  Chain.mainChain = Chain.fromObject(data);
+
+  t.equal(Chain.mainChain.getLength(), 3);
+  // t.equal(Chain.mainChain.isSynching(), false);
+
+  // // TODO: Make result be the new chain length
+  const result = await peer.syncChain();
+  t.equal(result, false);
   t.equal(Chain.mainChain.getLength(), 3);
 
   // TODO: Clear single peer
@@ -342,6 +368,24 @@ test('reach out to active peer', async (t) => {
 
   const result = await peer.reachOut();
   t.equal(result, true);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});
+
+test('delete peer after reach out if peer is self', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+  await peer.save();
+
+  const beforePeers = await Peer.all();
+  t.equal(beforePeers.length, 1);
+
+  // Match mock nodeInfo response nonce
+  Peer.localNonce = 3000000;
+
+  const result = await peer.reachOut();
+  t.equal(result, false);
 
   // TODO: Clear single peer
   await Peer.clearAll();

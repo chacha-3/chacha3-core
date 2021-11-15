@@ -41,7 +41,7 @@ const responseList = [
         port: '3000',
         chainLength: 1,
         chainWork: 1,
-        nonce: 3634909521917696,
+        nonce: 3000000,
       },
       code: SuccessCode,
     },
@@ -73,36 +73,17 @@ const responseList = [
     },
   },
   // Shorter chain
-  // {
-  //   host: HOST_127_0_0_99,
-  //   port: PORT_7000,
-  //   action: 'pullChain',
-  //   response: {
-  //     data: {
-  //       blockHeaders: [
-  //         {
-  //           hash: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
-  //           previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  //           time: 1632270111948,
-  //           difficulty: 1,
-  //           nonce: 4040180215728735,
-  //           checksum: '0x635297f915d116d235ccfea6d6d671826ca176231860e569c0b96448b284c689',
-  //           version: 1,
-  //         },
-  //         {
-  //           hash: '0x007fb4b7770d392584cb22b6ba5d77b75d23bd112c285ac806f66f2d78c86cc3',
-  //           previous: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
-  //           time: 1636604961006,
-  //           difficulty: 1,
-  //           nonce: 5990812823041010,
-  //           checksum: '0x72274285f728bd151e9700c4494ea2cd26c58abaccf077b54fcd93a586b9c2af',
-  //           version: 1,
-  //         },
-  //       ],
-  //     },
-  //     message: SuccessCode,
-  //   },
-  // },
+  {
+    host: HOST_127_0_0_99,
+    port: PORT_7000,
+    action: 'pullChain',
+    response: {
+      data: {
+        blockHeaders: headers.slice(0, 2),
+      },
+      message: SuccessCode,
+    },
+  },
   // Valid chain
   {
     host: HOST_127_0_0_100,
@@ -285,4 +266,5 @@ module.exports = {
   HOST_127_0_0_200,
   PORT_7000,
   sendTestRequest,
+  headers,
 };
