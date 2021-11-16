@@ -206,17 +206,17 @@ class Chain {
 
   addBlockHeader(header) {
     assert(this.getLength() > 0);
-    const lastHeader = this.lastBlockHeader();
+    // const lastHeader = this.lastBlockHeader();
 
     assert(!header.getHash().equals(Block.Genesis.getHeader().getHash()));
 
     // FIXME: Should not need to double verify
     // Block is already verified before add block header
-    if (!header.getPrevious().equals(lastHeader.getHash())) {
-      // TODO: Handle error on synching
-      // throw Error('Added block header does not match previous hash');
-      return false;
-    }
+    // if (!header.getPrevious().equals(lastHeader.getHash())) {
+    //   // TODO: Handle error on synching
+    //   // throw Error('Added block header does not match previous hash');
+    //   return false;
+    // }
 
     this.blockHeaders.push(header);
     this.setVerified(false);
@@ -529,7 +529,7 @@ class Chain {
       assert(header != null);
 
       const result = chain.addBlockHeader(header);
-      assert(result === true);
+      // assert(result === true);
     }
 
     return chain;
