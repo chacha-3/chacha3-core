@@ -225,10 +225,12 @@ class Chain {
   }
 
   // NOTE: Main chain
+  // Add validate new block function to check previous hash, reward, and timestamp
   async confirmNewBlock(block) {
-    // Add validate new block function to check previous hash, reward, and timestamp
+    // assert(this.isVerified());
+
     if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
-      debug('New block failed verification');
+      debug(`New block failed verification: ${serializeBuffer(block.getHeader().getHash())}`);
       return false;
     }
 
@@ -252,7 +254,7 @@ class Chain {
 
     this.setVerified(true);
 
-    // Move out chain save from instance
+    // TODO: Move out chain save from instance?
     await Chain.save(this);
 
     await block.clearPendingTransactions();

@@ -3,6 +3,7 @@ const { SuccessCode } = require('./rpc');
 
 const blockData = require('./mock/data/blocks.json');
 
+const HOST_ANY = '*';
 const HOST_127_0_0_99 = '127.0.0.99';
 const HOST_127_0_0_100 = '127.0.0.100';
 const HOST_127_0_0_101 = '127.0.0.101';
@@ -12,10 +13,8 @@ const PORT_7000 = 7000;
 
 const headers = blockData.map((block) => block.header);
 
-const unverifiedChainData = () => {
-  const headerData = headers.slice(0, 2);
-
-  const unverifiedBlock = {
+const unverifiedBlock = {
+  header: {
     hash: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00',
     previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
     time: 1636894589652,
@@ -23,9 +22,25 @@ const unverifiedChainData = () => {
     nonce: 1636681633461,
     checksum: '0x4705a4553646b43f16351241d9af8534c6172363d5f2bfbd1f93dd05a0a96baa',
     version: 1,
-  };
+  },
+  transactions: [
+    {
+      id: '0x32c74847cbfeaf45ad68b1c14d7c6d678f2e76402b908fcb67f3d954c7d54b2c',
+      version: 1,
+      senderKey: null,
+      receiverAddress: '0x003aaf53fe2f752f540e4f0bcc6262d5b06b0c3b542a958952',
+      amount: '5000000n',
+      signature: null,
+      time: 1636681633455,
+      type: 'mine',
+    },
+  ],
+};
 
-  headerData.push(unverifiedBlock);
+const unverifiedChainData = () => {
+  const headerData = headers.slice(0, 2);
+  headerData.push(unverifiedBlock.header);
+
   return headerData;
 };
 
@@ -109,7 +124,7 @@ const responseList = [
     },
   },
   {
-    host: HOST_127_0_0_100,
+    host: HOST_ANY,
     port: PORT_7000,
     action: 'blockInfo',
     options: {
@@ -121,7 +136,7 @@ const responseList = [
     },
   },
   {
-    host: HOST_127_0_0_100,
+    host: HOST_ANY,
     port: PORT_7000,
     action: 'blockInfo',
     options: {
@@ -133,7 +148,7 @@ const responseList = [
     },
   },
   {
-    host: HOST_127_0_0_100,
+    host: HOST_ANY,
     port: PORT_7000,
     action: 'blockInfo',
     options: {
@@ -144,7 +159,7 @@ const responseList = [
       code: SuccessCode,
     },
   },
-  // Invalid chain
+  // Invalid chain (previous block)
   {
     host: HOST_127_0_0_101,
     port: PORT_7000,
@@ -162,21 +177,22 @@ const responseList = [
             version: 1,
           },
           {
-            hash: '0x007fb4b7770d392584cb22b6ba5d77b75d23bd112c285ac806f66f2d78c86cc3',
+            hash: '0x00511c7df060d3321a3da06b63fe1e6785f89a639796899c2ea5f85d9b5fd6f9',
             previous: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
-            time: 1636604961006,
+            time: 1636681633454,
             difficulty: 1,
-            nonce: 5990812823041010,
-            checksum: '0x72274285f728bd151e9700c4494ea2cd26c58abaccf077b54fcd93a586b9c2af',
+            nonce: 8314141122264957,
+            checksum: '0x408e7935f009c68bf30a54e62966cc214ebe47d1b78ef3caca32c56a7273e824',
             version: 1,
           },
           {
-            hash: '0x000f4edfc8f26bce7db1720c33af949e3302d0a085932ee53e176b05465232fd',
-            previous: '0x007fb4b7770d392584cb22b6ba5d77b75d23bd112c285ac806f66f2d78c86cc3',
-            time: 1636604961029,
+            hash: '0x00c62eb8109cc1cbd947ed53d7755ba25611e5b2171d8930f5f451ab86f0c3e4',
+            // Invalid previous hash
+            previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            time: 1636681633461,
             difficulty: 1,
-            nonce: 7689427402555930,
-            checksum: '0xa851b114d7d7ffab019d8edc2790e2da6055a60e5d84e586087f4c300be9cff0',
+            nonce: 5220927076187582,
+            checksum: '0xb9d7829ae3da146c71d0589df961fbb983b490d564ec0bcfc8618c490002dbe3',
             version: 1,
           },
         ],
@@ -184,7 +200,7 @@ const responseList = [
       message: SuccessCode,
     },
   },
-  // Invalid hash
+  // Invalid previous hash
   {
     host: HOST_127_0_0_101,
     port: PORT_7000,
@@ -195,7 +211,7 @@ const responseList = [
     response: {
       data: {
         header: {
-          hash: '0x0036768ee27e38856b37c61a612f05ec60047ce18657648b75f23c7554f81fdf',
+          hash: '0x000f4edfc8f26bce7db1720c33af949e3302d0a085932ee53e176b05465232fd',
           previous: '0x007fb4b7770d392584cb22b6ba5d77b75d23bd112c285ac806f66f2d78c86cc3',
           time: 1636604961029,
           difficulty: 1,
@@ -219,6 +235,19 @@ const responseList = [
       code: SuccessCode,
     },
   },
+  // Invalid hash target
+  {
+    host: HOST_127_0_0_200,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: unverifiedBlock.header.hash,
+    },
+    response: {
+      data: unverifiedBlock,
+      code: SuccessCode,
+    },
+  },
 ];
 
 const sendTestRequest = (host, port, options) => {
@@ -226,7 +255,7 @@ const sendTestRequest = (host, port, options) => {
   assert(action);
 
   const item = responseList.find((i) => {
-    if (i.host !== host) {
+    if (i.host !== HOST_ANY && i.host !== host) {
       return false;
     }
 

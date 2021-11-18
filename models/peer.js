@@ -425,14 +425,17 @@ class Peer {
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
+    // Copy and slice main chain
     for (let i = startIndex; i < pulledChain.getLength(); i += 1) {
       const header = pulledChain.getBlockHeader(i);
       const block = await this.fetchBlock(header.getHash());
 
       if (block === null) {
+        console.log('invalid block data', this.getHost(), this.getPort(), serializeBuffer(header.getHash()));
         return false;
       }
 
+      // FIXME: Use temp chain
       const valid = await Chain.mainChain.confirmNewBlock(block);
 
       if (!valid) {
@@ -446,9 +449,10 @@ class Peer {
   async fetchChain() {
     const response = await this.callAction('pullChain');
 
-    if (!response) {
-      return null;
-    }
+    // TODO: Move to call action
+    // if (!response) {
+    //   return null;
+    // }
 
     const { data } = response;
     return Chain.fromObject(data);

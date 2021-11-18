@@ -633,7 +633,10 @@ test('block reward at index', async (t) => {
 // });
 
 test('confirm new valid block', async (t) => {
-  Chain.mainChain = await mock.chainWithBlocks(6, 3);
+  const numOfBlocks = 6;
+
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
+  t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   const wallet = new Wallet();
   wallet.generate();
@@ -646,8 +649,8 @@ test('confirm new valid block', async (t) => {
   await block.mine();
 
   const confirm = await Chain.mainChain.confirmNewBlock(block);
-
   t.equal(confirm, true);
+  t.equal(Chain.mainChain.getLength(), numOfBlocks + 1);
 
   await Chain.clearMain();
   t.end();
@@ -655,7 +658,9 @@ test('confirm new valid block', async (t) => {
 
 test('fail to confirm new block if previous hash does not match', async (t) => {
   const numOfBlocks = 6;
+
   Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 3);
+  t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   const wallet = new Wallet();
   wallet.generate();
@@ -668,8 +673,10 @@ test('fail to confirm new block if previous hash does not match', async (t) => {
   await block.mine();
 
   const confirm = await Chain.mainChain.confirmNewBlock(block);
-
   t.equal(confirm, false);
+
+  // No changes to main chain if unable to confirm new block
+  t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   await Chain.clearMain();
   t.end();
