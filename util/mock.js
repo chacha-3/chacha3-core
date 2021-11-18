@@ -168,6 +168,8 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
   const chain = new Chain();
   await Block.Genesis.save();
 
+  await chain.loadBalances();
+
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
@@ -200,6 +202,7 @@ mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWall
   const minusGenesis = numOfBlocks - 1;
 
   const chain = new Chain();
+  await chain.loadBalances();
 
   const altGenesis = new Block();
 
