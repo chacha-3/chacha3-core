@@ -252,6 +252,8 @@ test('sync with peer list from another peer', async (t) => {
 });
 
 test('sync with longer peer chain', async (t) => {
+  // Add block length 1 as default
+  Chain.mainChain = await mock.chainWithBlocks(1, 1);
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
   t.equal(Chain.mainChain.getLength(), 1);

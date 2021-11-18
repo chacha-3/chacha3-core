@@ -411,9 +411,6 @@ class Peer {
       return false;
     }
 
-    Chain.mainChain.clearBlocks(divergeIndex);
-    await Chain.save(pulledChain);
-
     // TODO: Update mainchain to pulled chain
 
     Chain.mainChain.setSynching(false);
@@ -425,6 +422,10 @@ class Peer {
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
+    const tempChain = Chain.fromObject(Chain.mainChain.toObject());
+    tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);
+    await tempChain.loadBalances();
+
     // Copy and slice main chain
     for (let i = startIndex; i < pulledChain.getLength(); i += 1) {
       const header = pulledChain.getBlockHeader(i);
@@ -436,12 +437,16 @@ class Peer {
       }
 
       // FIXME: Use temp chain
-      const valid = await Chain.mainChain.confirmNewBlock(block);
+      const valid = await tempChain.confirmNewBlock(block);
 
       if (!valid) {
         return false;
       }
     }
+
+    await Chain.mainChain.clearBlocks(startIndex);
+    await Chain.save(pulledChain);
+    Chain.mainChain = pulledChain;
 
     return true;
   }
