@@ -368,6 +368,37 @@ test('block is invalid if adding transaction after mining', async (t) => {
   t.end();
 });
 
+test('unable to add transaction with invalid signature to block', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
+
+  await block.mine();
+
+  const sender = new Wallet();
+  sender.generate();
+
+  const receiver = new Wallet();
+  receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddress(),
+    200,
+  );
+
+  transaction.setSignature(crypto.randomBytes(32));
+
+  const added = block.addTransaction(transaction);
+  t.equal(added, false);
+
+  t.end();
+});
+
 test('block is invalid if hash does not meet mining difficulty', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
