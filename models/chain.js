@@ -191,6 +191,7 @@ class Chain {
     return this.blockHeaders[i];
   }
 
+  // TODO: Rename to isBalanceLoaded()
   isVerified() {
     if (!this.verified) {
       // Account balances not loaded

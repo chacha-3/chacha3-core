@@ -69,6 +69,10 @@ class Block {
       throw new Error('Unable to add unsigned transaction to block');
     }
 
+    if (!transaction.verify()) {
+      return false;
+    }
+
     const index = this.transactions.findIndex((t) => t.getId().equals(transaction.getId()));
 
     if (index >= 0) {
@@ -456,15 +460,6 @@ class Block {
     // TODO: Clear only transactions in block
     TransactionDB.clear();
     BlockDB.clear();
-  }
-
-  static async generate(receiverAddress) {
-    const block = new Block();
-    block.addCoinbase(receiverAddress);
-    block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
-    await block.mine();
-    return block;
   }
 }
 
