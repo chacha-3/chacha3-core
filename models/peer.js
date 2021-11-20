@@ -422,8 +422,12 @@ class Peer {
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
-    const tempChain = Chain.fromObject(Chain.mainChain.toObject());
-    tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);
+    // TODO: Modularize
+    const data = Chain.mainChain.toObject();
+    data.blockHeaders = data.blockHeaders.slice(0, startIndex);
+
+    const tempChain = Chain.fromObject(data);
+    // tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);
     await tempChain.loadBalances();
 
     // Copy and slice main chain
@@ -446,7 +450,8 @@ class Peer {
 
     await Chain.mainChain.clearBlocks(startIndex);
     await Chain.save(pulledChain);
-    Chain.mainChain = pulledChain;
+
+    // Chain.mainChain = pulledChain;
 
     return true;
   }

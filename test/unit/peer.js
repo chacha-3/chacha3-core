@@ -271,6 +271,8 @@ test('sync with longer peer chain', async (t) => {
 });
 
 test('does not sync with shorter peer chain', async (t) => {
+  // Add block length 1 as default
+  Chain.mainChain = await mock.chainWithBlocks(1, 1);
   const peer = new Peer(HOST_127_0_0_99, PORT_7000);
 
   const data = {
@@ -293,25 +295,28 @@ test('does not sync with shorter peer chain', async (t) => {
   t.end();
 });
 
-// FIXME:
-// test('does not sync with unverified forward block', async (t) => {
-//   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+test('does not sync with unverified forward block', async (t) => {
+  // Add block length 1 as default
+  Chain.mainChain = await mock.chainWithBlocks(1, 1);
+  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
 
-//   t.equal(Chain.mainChain.getLength(), 1);
-//   t.equal(Chain.mainChain.isSynching(), false);
+  t.equal(Chain.mainChain.getLength(), 1);
+  t.equal(Chain.mainChain.isSynching(), false);
 
-//   // TODO: Make result be the new chain length
-//   const result = await peer.syncChain();
-//   t.equal(result, false);
-//   t.equal(Chain.mainChain.getLength(), 1);
+  // TODO: Make result be the new chain length
+  const result = await peer.syncChain();
+  t.equal(result, false);
+  t.equal(Chain.mainChain.getLength(), 1);
 
-//   // TODO: Clear single peer
-//   await Peer.clearAll();
-//   await Chain.clearMain();
-//   t.end();
-// });
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
 
 test('sync with peer chain skipped if currently synching with another peer', async (t) => {
+  // Add block length 1 as default
+  Chain.mainChain = await mock.chainWithBlocks(1, 1);
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
   t.equal(Chain.mainChain.getLength(), 1);

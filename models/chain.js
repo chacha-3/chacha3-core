@@ -230,7 +230,7 @@ class Chain {
   async confirmNewBlock(block) {
     // assert(this.isVerified());
 
-    if (!block.verify(this.lastBlockHeader(), Chain.mainChain.currentBlockReward())) {
+    if (!block.verify(this.lastBlockHeader(), this.currentBlockReward())) {
       debug(`New block failed verification: ${serializeBuffer(block.getHeader().getHash())}`);
       return false;
     }
@@ -256,7 +256,7 @@ class Chain {
     this.setVerified(true);
 
     // TODO: Move out chain save from instance?
-    await Chain.save(this);
+    // await Chain.save(this);
 
     await block.clearPendingTransactions();
 
@@ -281,6 +281,11 @@ class Chain {
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
+
+      if (!block) {
+        throw Error(`Could not load block ${serializeBuffer(this.getBlockHeader(i).getHash())}, index: ${i}`);
+      }
+
       const result = this.updateBlockBalances(block);
 
       assert(result);

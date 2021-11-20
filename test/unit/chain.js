@@ -650,6 +650,7 @@ test('confirm new valid block', async (t) => {
 
   const confirm = await Chain.mainChain.confirmNewBlock(block);
   t.equal(confirm, true);
+
   t.equal(Chain.mainChain.getLength(), numOfBlocks + 1);
 
   await Chain.clearMain();

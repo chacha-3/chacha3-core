@@ -191,7 +191,6 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
     previousBlock = block;
   }
 
-  // await Chain.save(chain);
   return chain;
 };
 
@@ -236,7 +235,6 @@ mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWall
     previousBlock = block;
   }
 
-  // await Chain.save(chain);
   return chain;
 };
 
