@@ -281,13 +281,9 @@ class Chain {
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
-
-      if (!block) {
-        throw Error(`Could not load block ${serializeBuffer(this.getBlockHeader(i).getHash())}, index: ${i}`);
-      }
+      assert(block !== null);
 
       const result = this.updateBlockBalances(block);
-
       assert(result);
     }
 
@@ -387,16 +383,15 @@ class Chain {
     return this.blockHeaders[this.blockHeaders.length - 1];
   }
 
-  // NOTE: Main chain
-  static async save(chain) {
+  async save() {
     const key = 'chain';
     const data = {
-      blockHashes: chain.getBlockHeaders().map((header) => serializeBuffer(header.getHash())),
+      blockHashes: this.getBlockHeaders().map((header) => serializeBuffer(header.getHash())),
     };
 
     await DB.put(key, data, { valueEncoding: 'json' });
 
-    Chain.mainChain = chain;
+    Chain.mainChain = this;
     return { key, data };
   }
 

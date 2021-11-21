@@ -436,7 +436,6 @@ class Peer {
       const block = await this.fetchBlock(header.getHash());
 
       if (block === null) {
-        console.log('invalid block data', this.getHost(), this.getPort(), serializeBuffer(header.getHash()));
         return false;
       }
 
@@ -449,7 +448,9 @@ class Peer {
     }
 
     await Chain.mainChain.clearBlocks(startIndex);
-    await Chain.save(pulledChain);
+
+    // Override main chain
+    await pulledChain.save();
 
     // Chain.mainChain = pulledChain;
 

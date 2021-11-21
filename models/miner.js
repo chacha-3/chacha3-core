@@ -27,7 +27,7 @@ class Miner {
     assert(result === true);
 
     if (result) {
-      await Chain.save(Chain.mainChain);
+      await Chain.mainChain.save();
       debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
       Peer.broadcastAction('pushBlock', block.toObject());
 

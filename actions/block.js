@@ -60,7 +60,7 @@ actions.pushBlock = {
     }
 
     await block.save();
-    await Chain.save(Chain.mainChain);
+    await Chain.mainChain.save();
 
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // Remove pending transactions, except coinbase

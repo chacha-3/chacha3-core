@@ -176,7 +176,7 @@ test('load empty chain', async (t) => {
 test('save and load chain', async (t) => {
   const numOfBlocks = 3;
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
-  const { key } = await Chain.save(chain);
+  const { key } = await chain.save();
   t.equal(key, 'chain');
 
   const loaded = await Chain.load();

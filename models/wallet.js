@@ -106,6 +106,9 @@ class Wallet {
   }
 
   generate(password) {
+    assert(this.privateKey === null);
+    assert(this.publicKey === null);
+
     const passphrase = password || '';
 
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
