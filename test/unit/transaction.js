@@ -182,7 +182,7 @@ test('have correct hash data for transaction with no sender', (t) => {
   const transaction = new Transaction(null, receiver.getAddress(), 20);
 
   const hashData = JSON.parse(transaction.hashData());
-  t.equal(hashData.senderKey, undefined);
+  t.equal(hashData.senderKey, null);
 
   t.end();
 });
@@ -201,7 +201,7 @@ test('have correct hash data for coinbase transaction', (t) => {
 
   t.equal(hashData.version, 1);
   t.equal(hashData.amount, 50n);
-  t.equal(hashData.senderKey, undefined);
+  t.equal(hashData.senderKey, null);
 
   t.end();
 });

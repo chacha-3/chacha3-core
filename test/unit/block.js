@@ -752,11 +752,14 @@ test('does not continue with block transaction deletion if not block found', asy
   t.end();
 });
 
-test('get genesis block', async (t) => {
+test('get and verify genesis block', async (t) => {
   const block = Block.Genesis;
 
-  // TODO: Check
-  // t.equal(block.verify(), true);
+  const verified = await block.verify(
+    null,
+    Chain.blockRewardAtIndex(0),
+  );
+  t.equal(verified, true);
 
   t.end();
 });

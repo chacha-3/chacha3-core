@@ -24,23 +24,24 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
+        hash: '0x0061635acc8df89dbbb9c23d7289cc25009b528c77d8386adff88609ce1d7867',
         previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1632270111948,
+        time: 1637455619677,
         difficulty: 1,
-        nonce: 4040180215728735,
-        checksum: '0x635297f915d116d235ccfea6d6d671826ca176231860e569c0b96448b284c689',
+        nonce: 8257837523920223,
+        checksum: '0xef6d59744100c2efa3c5945f2781481d9d46ce98837646734e0433ce109630a1',
         version: 1,
       },
       transactions: [
         {
-          id: '0x412d59e9a4898e3ef2d593b7db27764baed004ac088e5b22d6986b200bcb427b',
-          senderKey: null,
-          receiverAddress: '0x00cec242aee336e190cef0e18bb149db99b0069fdf6964ed57',
-          amount: '5000000n',
+          id: '0x78e493e24a9f571b3b1b20f6e1119cc4f8422d293577f793f2bf23fd5e94c486',
           version: 1,
-          time: 1632270111949,
+          senderKey: null,
+          receiverAddress: '0x0080f787f5b844fed1489e4b1c1859ba7b05eb392565c4f637',
+          amount: '5000000n',
           signature: null,
+          time: 1637455619678,
+          type: 'mine',
         },
       ],
     };
@@ -256,6 +257,7 @@ class Block {
       return false;
     }
 
+    // TODO: Verify timestamp for genesis required?
     if (!this.verifyTimestamp(previousHeader)) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed timestamp verification`);
       return false;

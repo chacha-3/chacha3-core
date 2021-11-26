@@ -398,6 +398,7 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const pulledChain = await this.fetchChain();
+
     const divergeIndex = Chain.mainChain.compareWork(pulledChain);
 
     if (divergeIndex < 1) {
