@@ -572,7 +572,8 @@ test('block is valid when does not have previously saved transaction', async (t)
 });
 
 test('block is invalid when has previously saved transaction', async (t) => {
-  const chain = await mock.chainWithBlocks(3, 5);
+  const numOfBlocks = 3;
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
 
   const hash = chain.getBlockHeader(2).getHash();
   const savedBlock = await Block.load(hash);
@@ -581,10 +582,16 @@ test('block is invalid when has previously saved transaction', async (t) => {
 
   const block = new Block();
   block.addTransaction(randomSavedTransaction);
+  await block.mine();
 
-  const result = await block.verifyTransactions();
-  t.equal(result, false);
-  // TODO: Check verify() result
+  t.equal(await block.verifyTransactions(), false);
+
+  const verified = await block.verify(
+    block.getHeader().getPrevious(),
+    Chain.blockRewardAtIndex(numOfBlocks),
+  );
+
+  t.equal(verified, false);
 
   await Chain.clearMain();
   t.end();
