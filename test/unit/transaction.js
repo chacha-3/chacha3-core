@@ -1,6 +1,4 @@
 const { test } = require('tap');
-// const chai = require('chai');
-// const dirtyChai = require('dirty-chai');
 
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
@@ -9,8 +7,6 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
 const { deserializeBuffer, serializeBuffer } = require('../../util/serialize');
-// const { expect } = chai;
-// chai.use(dirtyChai);
 
 test('should create a verified transaction', (t) => {
   const sender = new Wallet();
@@ -23,7 +19,6 @@ test('should create a verified transaction', (t) => {
     sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  // const { privateKey } = sender.getKeys();
   transaction.sign(sender.getPrivateKey());
 
   const { length } = transaction.getSignature();

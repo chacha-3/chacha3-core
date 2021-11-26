@@ -44,14 +44,13 @@ const serializeObject = (obj) => {
   const serialized = { ...obj };
 
   Object.keys(obj).forEach((key) => {
-    // assert(Buffer.isBuffer(obj[key]));
     const value = obj[key];
 
     if (value === undefined || value === null) {
       return;
     }
 
-    if (Buffer.isBuffer(value)) { // FIXME: Double check
+    if (Buffer.isBuffer(value)) {
       serialized[key] = serializeBuffer(value);
     } else if (typeof (value) === 'bigint') {
       serialized[key] = serializeBigInt(value);
