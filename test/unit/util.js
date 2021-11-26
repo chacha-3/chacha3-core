@@ -3,7 +3,6 @@ const { test } = require('tap');
 const { runningManualTest } = require('../../util/db');
 const {
   serializeObject,
-  deserializeObject,
   deserializeBuffer,
   serializeBuffer,
   serializeBigInt,
@@ -59,7 +58,7 @@ test('serialize and deserialize buffer', (t) => {
   t.end();
 });
 
-test('serialize and deserialize object', (t) => {
+test('serialize object', (t) => {
   const source = {
     a: 1,
     b: 'value',
@@ -91,22 +90,6 @@ test('serialize and deserialize object', (t) => {
   t.equal(serialized.nested.d, null);
   t.equal(serialized.nested.e, '100000000000000000n');
   t.equal(serialized.array.length, 1);
-
-  const deserialized = deserializeObject(serialized);
-
-  t.equal(deserialized.a, source.a);
-  t.equal(deserialized.b, source.b);
-  t.ok(deserialized.c.equals(source.c));
-  t.equal(deserialized.d, source.d);
-  t.equal(deserialized.e, source.e);
-
-  t.equal(deserialized.nested.a, source.a);
-  t.equal(deserialized.nested.b, source.b);
-  t.ok(deserialized.nested.c.equals(source.c));
-  t.equal(deserialized.nested.d, source.d);
-  t.equal(deserialized.nested.e, source.e);
-  t.equal(deserialized.array.length, 1);
-  t.equal(deserialized.f, 0n);
 
   t.end();
 });
