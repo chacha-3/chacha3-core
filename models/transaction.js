@@ -6,11 +6,10 @@ const debug = require('debug')('transaction:model');
 const Wallet = require('./wallet');
 
 const {
-  serializeObject, deserializeObject, serializeBuffer, deserializeBuffer, deserializeBigInt,
+  serializeObject, serializeBuffer, deserializeBuffer, deserializeBigInt,
 } = require('../util/serialize');
 
 const { TransactionDB, PendingTransactionDB } = require('../util/db');
-const { generateAddressEncoded } = require('./wallet');
 
 class Transaction {
   constructor(senderKey, receiverAddress, amount, type = Transaction.Type.Send) {
@@ -161,8 +160,6 @@ class Transaction {
   }
 
   static fromObject(data) {
-    // const data = deserializeObject(obj);
-
     const transaction = new Transaction(
       deserializeBuffer(data.senderKey),
       deserializeBuffer(data.receiverAddress),

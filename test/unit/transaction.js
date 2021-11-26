@@ -8,7 +8,7 @@ const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
-const { deserializeBuffer, deserializeObject } = require('../../util/serialize');
+const { deserializeBuffer, deserializeObject, serializeBuffer } = require('../../util/serialize');
 // const { expect } = chai;
 // chai.use(dirtyChai);
 
@@ -159,14 +159,16 @@ test('have correct hash data for transaction', (t) => {
     Transaction.Type.Send,
   );
 
-  const hashData = deserializeObject(JSON.parse(transaction.hashData()));
-  t.ok(hashData.receiverAddress.equals(receiver.getAddress()));
-  t.ok(hashData.senderKey.equals(sender.getPublicKey()));
+  const hashData = JSON.parse(transaction.hashData());
+
+  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddress()));
+  t.equal(hashData.senderKey, serializeBuffer(sender.getPublicKey()));
 
   t.equal(hashData.type, Transaction.Type.Send);
   t.equal(hashData.version, 1);
-  t.equal(hashData.amount, 20n);
+  t.equal(hashData.amount, '20n');
 
+  t.equal(hashData.signture, undefined);
   t.ok(hashData.time > 0);
 
   t.end();

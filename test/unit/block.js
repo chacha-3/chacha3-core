@@ -659,7 +659,7 @@ test('correct block object format', async (t) => {
   t.equal(obj.transactions.length, 3);
 
   const loaded = Block.fromObject(obj);
-  // t.equal(loaded.verify(), true); // FIXME:
+  // TODO:
 
   t.end();
 });

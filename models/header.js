@@ -2,7 +2,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
-const { serializeObject, deserializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
+const { serializeObject, deserializeBuffer } = require('../util/serialize');
 
 // TODO: Cleaner way for this. Add generic environment check
 
@@ -180,17 +180,15 @@ class Header {
   }
 
   static fromObject(obj) {
-    const data = deserializeObject(obj);
-
     const header = new Header();
 
-    header.setHash(data.hash);
-    header.setPrevious(data.previous);
-    header.setTime(data.time);
-    header.setDifficulty(data.difficulty);
-    header.setNonce(data.nonce);
-    header.setChecksum(data.checksum);
-    header.setVersion(data.version);
+    header.setHash(deserializeBuffer(obj.hash));
+    header.setPrevious(deserializeBuffer(obj.previous));
+    header.setTime(obj.time);
+    header.setDifficulty(obj.difficulty);
+    header.setNonce(obj.nonce);
+    header.setChecksum(deserializeBuffer(obj.checksum));
+    header.setVersion(obj.version);
 
     return header;
   }
