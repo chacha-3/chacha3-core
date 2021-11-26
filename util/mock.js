@@ -84,8 +84,6 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
 
   if (previousBlock) {
     block.setPreviousHash(previousBlock.getHeader().getHash());
-  } else {
-    block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   }
 
   for (let i = 0; i < minusCoinbase; i += 1) {
@@ -140,7 +138,6 @@ mock.altChainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
 
   const altGenesis = new Block();
   altGenesis.addCoinbase(wallet.getAddress());
-  altGenesis.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await altGenesis.mine();
 
@@ -209,7 +206,6 @@ mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWall
   wallet.generate();
 
   altGenesis.addCoinbase(wallet.getAddress());
-  altGenesis.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await altGenesis.mine();
   await altGenesis.save();
@@ -269,7 +265,7 @@ mock.pendingTransactions = (numOfTransactions) => {
 
 mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
   const blocks = [];
-  let previousHash = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
+  let previousHash = null;
 
   let wallet = minerWallet;
 

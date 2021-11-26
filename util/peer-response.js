@@ -16,22 +16,22 @@ const headers = blockData.map((block) => block.header);
 const unverifiedBlock = {
   header: {
     hash: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00',
-    previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    time: 1636894589652,
+    previous: null,
+    time: 1637902963395,
     difficulty: 1,
-    nonce: 1636681633461,
-    checksum: '0x4705a4553646b43f16351241d9af8534c6172363d5f2bfbd1f93dd05a0a96baa',
+    nonce: 8609437805620442,
+    checksum: '0x385deec3656ac30a97d5b37837732214c0175950073f08aaffc095470eabd876',
     version: 1,
   },
   transactions: [
     {
-      id: '0x32c74847cbfeaf45ad68b1c14d7c6d678f2e76402b908fcb67f3d954c7d54b2c',
+      id: '0x142f7bb983445793a031aed7e241a48efa74dbdd70d3d0ed74404485fc96ba05',
       version: 1,
       senderKey: null,
-      receiverAddress: '0x003aaf53fe2f752f540e4f0bcc6262d5b06b0c3b542a958952',
+      receiverAddress: '0x00cc460a150ce94fe032e806d586fc84ec515dc12ed934743b',
       amount: '5000000n',
       signature: null,
-      time: 1636681633455,
+      time: 1637902963396,
       type: 'mine',
     },
   ],
@@ -40,6 +40,13 @@ const unverifiedBlock = {
 const unverifiedChainData = () => {
   const headerData = headers.slice(0, 2);
   headerData.push(unverifiedBlock.header);
+
+  return headerData;
+};
+
+const invalidChain = () => {
+  const headerData = headers.slice(0, 3);
+  headerData[2].previous = '0xffffff00000000000000000000000000000000000000000000000000000000ff';
 
   return headerData;
 };
@@ -166,36 +173,7 @@ const responseList = [
     action: 'pullChain',
     response: {
       data: {
-        blockHeaders: [
-          {
-            hash: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
-            previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-            time: 1632270111948,
-            difficulty: 1,
-            nonce: 4040180215728735,
-            checksum: '0x635297f915d116d235ccfea6d6d671826ca176231860e569c0b96448b284c689',
-            version: 1,
-          },
-          {
-            hash: '0x00511c7df060d3321a3da06b63fe1e6785f89a639796899c2ea5f85d9b5fd6f9',
-            previous: '0x0050ea546768dc7609dc5fe4efe00d8d84349d02fcde3cfad6115360b7e6d9c1',
-            time: 1636681633454,
-            difficulty: 1,
-            nonce: 8314141122264957,
-            checksum: '0x408e7935f009c68bf30a54e62966cc214ebe47d1b78ef3caca32c56a7273e824',
-            version: 1,
-          },
-          {
-            hash: '0x00c62eb8109cc1cbd947ed53d7755ba25611e5b2171d8930f5f451ab86f0c3e4',
-            // Invalid previous hash
-            previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-            time: 1636681633461,
-            difficulty: 1,
-            nonce: 5220927076187582,
-            checksum: '0xb9d7829ae3da146c71d0589df961fbb983b490d564ec0bcfc8618c490002dbe3',
-            version: 1,
-          },
-        ],
+        blockHeaders: invalidChain(),
       },
       message: SuccessCode,
     },

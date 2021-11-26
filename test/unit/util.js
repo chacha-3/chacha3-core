@@ -58,6 +58,18 @@ test('serialize and deserialize buffer', (t) => {
   t.end();
 });
 
+test('serialize and deserialize null buffer', (t) => {
+  const buffer = null;
+
+  const serialized = serializeBuffer(buffer);
+  t.equal(serialized, null);
+
+  const deserialized = deserializeBuffer(serialized);
+  t.equal(deserialized, null);
+
+  t.end();
+});
+
 test('serialize object', (t) => {
   const source = {
     a: 1,

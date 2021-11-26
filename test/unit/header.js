@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { test } = require('tap');
 // const chai = require('chai');
 
@@ -119,7 +120,11 @@ test('unable to load unsaved header', async (t) => {
 
 test('to and from header object', async (t) => {
   const block = await mock.blockWithTransactions(1);
+
+  const previous = crypto.randomBytes(32);
+
   const header = block.getHeader();
+  header.setPrevious(previous);
 
   const data = header.toObject();
   const loaded = Header.fromObject(data);

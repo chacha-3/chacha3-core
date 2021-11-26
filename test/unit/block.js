@@ -19,7 +19,6 @@ test('should validate coinbase', async (t) => {
   const block = new Block();
 
   block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   t.equal(block.transactions[0].type, Transaction.Type.Mine);
   await block.mine();
@@ -39,8 +38,6 @@ test('should have invalid coinbase when invalid address', async (t) => {
   address[5] += 20; // Tamper, should fail checksum
 
   block.addCoinbase(address);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   await block.mine();
 
   t.equal(await block.validateCoinbase(), false, 'mined block has invalid coinbase');
@@ -56,7 +53,6 @@ test('should be not have verified block when invalid coinbase amount', async (t)
   const address = wallet.getAddress();
 
   block.addCoinbase(address);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   block.transactions[0].amount = 99999;
 
@@ -78,9 +74,6 @@ test('should have invalid coinbase when invalid transaction type', async (t) => 
   block.addCoinbase(address);
 
   block.transactions[0].type = Transaction.Type.Send; // Invalid type
-
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   await block.mine();
 
   t.equal(await block.validateCoinbase(), false, 'mined block has invalid coinbase');
@@ -92,12 +85,9 @@ test('should be not have verified block when fail coinbase validation', async (t
   wallet.generate();
 
   const block = new Block();
-
   const address = wallet.getAddress();
 
   block.addCoinbase(address);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   block.transactions[0].receiverAddress = crypto.randomBytes(32);
 
   await block.mine();
@@ -125,7 +115,6 @@ test('coinbase should not have signature and sender', async (t) => {
 
   transaction.sign(sender.getPrivateKey());
 
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   block.addCoinbase(receiver.getAddress());
   block.addTransaction(transaction);
 
@@ -157,7 +146,6 @@ test('cannot add unsigned transaction to block', async (t) => {
     100,
   );
 
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   block.addCoinbase(receiver.getAddress());
 
   t.throws(() => { block.addTransaction(transaction); });
@@ -189,8 +177,6 @@ test('does not add same transaction twice', async (t) => {
   t.equal(resultFirst, true);
   t.equal(resultSecond, false);
 
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   await block.mine();
 
   t.end();
@@ -215,8 +201,6 @@ test('get object representation of a block', async (t) => {
   transaction1.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction1);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   await block.mine();
 
   t.end();
@@ -230,7 +214,6 @@ test('verify block with only coinbase has checksum', async (t) => {
   receiver.generate();
 
   const block = new Block();
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   block.addCoinbase(receiver.getAddress());
 
   await block.mine();
@@ -260,8 +243,6 @@ test('verify block with checksum', async (t) => {
   transaction1.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction1);
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
   await block.mine();
 
   t.equal(block.verifyChecksum(), true);
@@ -298,8 +279,6 @@ test('checksum is updated when adding transaction', async (t) => {
     transaction.sign(sender.getPrivateKey());
 
     block.addTransaction(transaction);
-    block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
-
     await block.mine();
 
     if (previousChecksum) {
@@ -317,9 +296,7 @@ test('block is invalid when checksum is incorrect', async (t) => {
   wallet.generate();
 
   const block = new Block();
-
   block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
 
@@ -336,9 +313,7 @@ test('block is invalid if adding transaction after mining', async (t) => {
   wallet.generate();
 
   const block = new Block();
-
   block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
 
@@ -373,9 +348,7 @@ test('unable to add transaction with invalid signature to block', async (t) => {
   wallet.generate();
 
   const block = new Block();
-
   block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   await block.mine();
 
@@ -404,9 +377,7 @@ test('block is invalid if hash does not meet mining difficulty', async (t) => {
   wallet.generate();
 
   const block = new Block();
-
   block.addCoinbase(wallet.getAddress());
-  block.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
 
   // Set hash manually instead of mining block
   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));

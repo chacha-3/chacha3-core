@@ -340,7 +340,6 @@ test('unable to update block balance when account has no balance', async (t) => 
   noBalanceWallet.generate();
 
   const noBalanceBlock = new Block();
-  noBalanceBlock.setPreviousHash(deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000'));
   noBalanceBlock.addCoinbase(wallet.getAddress());
 
   const transaction = new Transaction(noBalanceWallet.getPublicKey(), wallet.getAddress(), 10);

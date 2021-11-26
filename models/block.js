@@ -24,23 +24,23 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x0061635acc8df89dbbb9c23d7289cc25009b528c77d8386adff88609ce1d7867',
-        previous: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        time: 1637455619677,
+        hash: '0x00b6b30267c1502e2d717a2696410bf9c03e448741efc9ccabd1bc84e6fa3dbd',
+        previous: null,
+        time: 1637902963395,
         difficulty: 1,
-        nonce: 8257837523920223,
-        checksum: '0xef6d59744100c2efa3c5945f2781481d9d46ce98837646734e0433ce109630a1',
+        nonce: 8609437805620442,
+        checksum: '0x385deec3656ac30a97d5b37837732214c0175950073f08aaffc095470eabd876',
         version: 1,
       },
       transactions: [
         {
-          id: '0x78e493e24a9f571b3b1b20f6e1119cc4f8422d293577f793f2bf23fd5e94c486',
+          id: '0x142f7bb983445793a031aed7e241a48efa74dbdd70d3d0ed74404485fc96ba05',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x0080f787f5b844fed1489e4b1c1859ba7b05eb392565c4f637',
+          receiverAddress: '0x00cc460a150ce94fe032e806d586fc84ec515dc12ed934743b',
           amount: '5000000n',
           signature: null,
-          time: 1637455619678,
+          time: 1637902963396,
           type: 'mine',
         },
       ],

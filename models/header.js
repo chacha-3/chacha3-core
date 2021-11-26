@@ -20,7 +20,7 @@ class Header {
   constructor() {
     this.version = 1;
 
-    this.previous = deserializeBuffer('0x0000000000000000000000000000000000000000000000000000000000000000');
+    this.previous = null;
     this.checksum = null; // TODO:
 
     this.time = Date.now();
@@ -84,7 +84,7 @@ class Header {
 
   hashData() {
     assert(this.checksum !== null && this.time != null);
-    assert(this.previous !== null && this.previous.length === 32);
+    // assert(this.previous !== null && this.previous.length === 32);
 
     const data = {
       version: this.version,
