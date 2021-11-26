@@ -46,7 +46,8 @@ const unverifiedChainData = () => {
 
 const invalidChain = () => {
   const headerData = headers.slice(0, 3);
-  headerData[2].previous = '0xffffff00000000000000000000000000000000000000000000000000000000ff';
+  console.log(headerData)
+  // headerData[2].previous = '0xffffff00000000000000000000000000000000000000000000000000000000ff';
 
   return headerData;
 };

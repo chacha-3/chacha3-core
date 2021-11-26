@@ -428,6 +428,7 @@ class Peer {
     data.blockHeaders = data.blockHeaders.slice(0, startIndex);
 
     const tempChain = Chain.fromObject(data);
+
     // tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);
     await tempChain.loadBalances();
 
@@ -440,7 +441,6 @@ class Peer {
         return false;
       }
 
-      // FIXME: Use temp chain
       const valid = await tempChain.confirmNewBlock(block);
 
       if (!valid) {
