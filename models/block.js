@@ -158,8 +158,19 @@ class Block {
   }
 
   async verifyTransactions() {
-    const verify = (transaction) => new Promise((resolve, reject) => (
-      transaction.verify() ? resolve() : reject()));
+    const verify = (transaction) => new Promise((resolve, reject) => {
+      transaction.isSaved().then((saved) => {
+        if (saved) {
+          return reject();
+        }
+
+        if (!transaction.verify()) {
+          return reject();
+        }
+
+        return resolve();
+      });
+    });
 
     const promises = [];
 

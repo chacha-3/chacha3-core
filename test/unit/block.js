@@ -563,31 +563,32 @@ test('block is valid when does not have previously saved transaction', async (t)
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
 
-  const result = await block.verifyTransactions();
-  t.equal(result, true);
+  t.equal(await block.verifyTransactions(), true);
+  // FIXME: Add reward and previous hash
+  // t.equal(await block.verify(), true);
 
   await Chain.clearMain();
   t.end();
 });
 
+test('block is invalid when has previously saved transaction', async (t) => {
+  const chain = await mock.chainWithBlocks(3, 5);
 
-// test('block is invalid when has previously saved transaction', async (t) => {
-//   const chain = await mock.chainWithBlocks(3, 5);
+  const hash = chain.getBlockHeader(2).getHash();
+  const savedBlock = await Block.load(hash);
 
-//   const hash = chain.getBlockHeader(2).getHash();
-//   const savedBlock = await Block.load(hash);
+  const randomSavedTransaction = savedBlock.getTransaction(4);
 
-//   const randomSavedTransaction = savedBlock.getTransaction(4);
+  const block = new Block();
+  block.addTransaction(randomSavedTransaction);
 
-//   const block = new Block();
-//   block.addTransaction(randomSavedTransaction);
+  const result = await block.verifyTransactions();
+  t.equal(result, false);
+  // TODO: Check verify() result
 
-//   const result = await block.verifyTransactions();
-//   t.equal(result, false);
-
-//   await Chain.clearMain();
-//   t.end();
-// });
+  await Chain.clearMain();
+  t.end();
+});
 
 test('block is invalid when has invalid transaction', async (t) => {
   const block = await mock.blockWithTransactions(4);
