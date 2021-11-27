@@ -384,7 +384,7 @@ test('reverts a specific valid transaction', async (t) => {
   t.end();
 });
 
-test('clear blocks in chain', async (t) => {
+test('clear blocks in chain starting from index', async (t) => {
   const numOfBlocks = 12;
 
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);

@@ -64,7 +64,13 @@ mock.createPeers = async (count) => {
   return Promise.all(promises);
 };
 
-mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardReceiverWallet, reward) => {
+mock.blockWithTransactions = async (
+  numOfTransactions,
+  previousBlock,
+  rewardReceiverWallet,
+  reward,
+  currentDifficulty,
+) => {
   assert(numOfTransactions > 0);
 
   const minusCoinbase = numOfTransactions - 1;
@@ -100,7 +106,7 @@ mock.blockWithTransactions = async (numOfTransactions, previousBlock, rewardRece
     block.addTransaction(transaction);
   }
 
-  await block.mine();
+  await block.mine(currentDifficulty);
 
   return block;
 };
@@ -114,10 +120,20 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   const chain = new Chain();
   // chain.addBlockHeader(Block.Genesis.getHeader());
 
+  const receiverWallet = new Wallet();
+  receiverWallet.generate();
+
   let previousBlock = Block.Genesis;
 
   for (let i = 0; i < minusGenesis; i += 1) {
-    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock)
+    const block = await mock.blockWithTransactions(
+      transactionsPerBlock,
+      previousBlock,
+      receiverWallet,
+      Chain.blockRewardAtIndex(i + 1),
+      chain.getCurrentDifficulty(),
+    );
+
     chain.addBlockHeader(block.getHeader());
 
     previousBlock = block;
@@ -179,6 +195,7 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
       previousBlock,
       receiverWallet,
       Chain.blockRewardAtIndex(i + 1),
+      chain.getCurrentDifficulty(),
     );
 
     // eslint-disable-next-line no-await-in-loop

@@ -211,6 +211,11 @@ class Chain {
 
     assert(!header.getHash().equals(Block.Genesis.getHeader().getHash()));
 
+    if (header.getDifficulty() < this.getCurrentDifficulty()) {
+      throw Error('Block does not meet current difficulty');
+      // return false;
+    }
+
     // FIXME: Should not need to double verify
     // Block is already verified before add block header
     // if (!header.getPrevious().equals(lastHeader.getHash())) {
@@ -281,6 +286,9 @@ class Chain {
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
+      if (block === null) {
+        console.log(this.getBlockHeader(i).getHash())
+      }
       assert(block !== null);
 
       const result = this.updateBlockBalances(block);

@@ -398,7 +398,6 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const pulledChain = await this.fetchChain();
-
     const divergeIndex = Chain.mainChain.compareWork(pulledChain);
 
     if (divergeIndex < 1) {
@@ -423,10 +422,12 @@ class Peer {
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
+    // Ahead is measured in work instead of length
+    // assert(startIndex < pulledChain.length - 1);
+
     // TODO: Modularize
     const data = Chain.mainChain.toObject();
     data.blockHeaders = data.blockHeaders.slice(0, startIndex);
-
     const tempChain = Chain.fromObject(data);
 
     // tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);

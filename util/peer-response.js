@@ -2,6 +2,7 @@ const assert = require('assert');
 const { SuccessCode } = require('./rpc');
 
 const blockData = require('./mock/data/blocks.json');
+const unverifiedBlockData = require('./mock/data/unverified-block.json');
 
 const HOST_ANY = '*';
 const HOST_127_0_0_99 = '127.0.0.99';
@@ -13,9 +14,11 @@ const PORT_7000 = 7000;
 
 const headers = blockData.map((block) => block.header);
 
+const unverifiedHash = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
+
 const unverifiedBlock = {
   header: {
-    hash: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00',
+    hash: unverifiedHash,
     previous: null,
     time: 1637902963395,
     difficulty: 1,
@@ -37,17 +40,23 @@ const unverifiedBlock = {
   ],
 };
 
+const invalidBlock = { ...blockData[3] };
+invalidBlock.header.previous = blockData[8].header.previous;
+
 const unverifiedChainData = () => {
   const headerData = headers.slice(0, 2);
+  unverifiedBlock.header.previous = headers[1].hash;
+
   headerData.push(unverifiedBlock.header);
 
   return headerData;
 };
 
 const invalidChain = () => {
-  const headerData = headers.slice(0, 3);
-  console.log(headerData)
-  // headerData[2].previous = '0xffffff00000000000000000000000000000000000000000000000000000000ff';
+  const headerData = headers.slice(0, 2);
+  const block = { ...invalidBlock };
+
+  headerData.push(block.header);
 
   return headerData;
 };
@@ -126,7 +135,7 @@ const responseList = [
     action: 'pullChain',
     response: {
       data: {
-        blockHeaders: unverifiedChainData(),
+        blockHeaders: unverifiedBlockData.map((block) => block.header),
       },
       message: SuccessCode,
     },
@@ -181,42 +190,22 @@ const responseList = [
   },
   // Invalid previous hash
   {
-    host: HOST_127_0_0_101,
+    host: HOST_ANY,
     port: PORT_7000,
     action: 'blockInfo',
     options: {
-      hash: '0x000f4edfc8f26bce7db1720c33af949e3302d0a085932ee53e176b05465232fd',
+      hash: unverifiedHash,
     },
     response: {
       data: {
-        header: {
-          hash: '0x000f4edfc8f26bce7db1720c33af949e3302d0a085932ee53e176b05465232fd',
-          previous: '0x007fb4b7770d392584cb22b6ba5d77b75d23bd112c285ac806f66f2d78c86cc3',
-          time: 1636604961029,
-          difficulty: 1,
-          nonce: 7689427402555930,
-          checksum: '0xa851b114d7d7ffab019d8edc2790e2da6055a60e5d84e586087f4c300be9cff0',
-          version: 1,
-        },
-        transactions: [
-          {
-            id: '0xe0ce92bc7051e2bf6191a074d912742f8199e4ce66a2d283cee869c2833b257a',
-            version: 1,
-            senderKey: null,
-            receiverAddress: '0x008ecc21103c9c5b609c4e9c52e4a8e676f14d98fa02527b05',
-            amount: '5000000n',
-            signature: null,
-            time: 1636604961029,
-            type: 'mine',
-          },
-        ],
+        header: invalidBlock,
       },
       code: SuccessCode,
     },
   },
   // Invalid hash target
   {
-    host: HOST_127_0_0_200,
+    host: HOST_ANY,
     port: PORT_7000,
     action: 'blockInfo',
     options: {

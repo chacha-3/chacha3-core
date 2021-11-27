@@ -130,11 +130,11 @@ class Block {
     this.header = header;
   }
 
-  async mine(difficulty) {
+  async mine(difficulty = 1) {
     const start = performance.now();
     let found = false;
 
-    this.header.setDifficulty(difficulty || 1);
+    this.header.setDifficulty(difficulty);
 
     while (!found) {
       this.header.incrementNonce();
@@ -150,6 +150,7 @@ class Block {
     return end - start;
   }
 
+  // FIXME: Move this to header
   verifyHash() {
     assert(this.getTransactionCount() > 0);
 
