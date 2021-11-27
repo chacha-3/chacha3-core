@@ -334,6 +334,8 @@ test('sync with peer chain skipped if currently synching with another peer', asy
 
 // FIXME: Not working
 test('fail to sync with peer that has invalid chain (invalid previous hash)', async (t) => {
+  // Add block length 1 as default
+  Chain.mainChain = await mock.chainWithBlocks(1, 1);
   const peer = new Peer(HOST_127_0_0_101, PORT_7000);
 
   t.equal(Chain.mainChain.getLength(), 1);

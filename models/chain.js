@@ -234,7 +234,6 @@ class Chain {
   // Add validate new block function to check previous hash, reward, and timestamp
   async confirmNewBlock(block) {
     // assert(this.isVerified());
-
     if (!block.verify(this.lastBlockHeader(), this.currentBlockReward())) {
       debug(`New block failed verification: ${serializeBuffer(block.getHeader().getHash())}`);
       return false;
@@ -276,6 +275,29 @@ class Chain {
     return this.getBlockHeader(0).equals(Block.Genesis.getHeader());
   }
 
+  verifyHeaders() {
+    let { hash, time } = Block.Genesis.header;
+
+    // Skip verify genesis
+    // TODO: Merge verification
+    for (let i = 1; i < this.getLength(); i += 1) {
+      const header = this.getBlockHeader(i);
+
+      if (!header.getPrevious().equals(hash)) {
+        return false;
+      }
+
+      if (!header.getTime() >= time) {
+        return false;
+      }
+
+      hash = header.getHash();
+      time = header.getTime();
+    }
+
+    return true;
+  }
+
   // Verify and load balances
   // TODO: Remove verification of main chain. Assert valid
   // Note: Modifies balance. Destructive
@@ -286,9 +308,6 @@ class Chain {
 
     for (let i = 0; i < this.getLength(); i += 1) {
       const block = await Block.load(this.getBlockHeader(i).getHash());
-      if (block === null) {
-        console.log(this.getBlockHeader(i).getHash())
-      }
       assert(block !== null);
 
       const result = this.updateBlockBalances(block);

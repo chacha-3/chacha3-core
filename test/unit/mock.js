@@ -10,7 +10,6 @@ test('mock chain with blocks', async (t) => {
   t.end();
 });
 
-
 test('mock peer response is valid JSON format', async (t) => {
   const options = { action: 'nodeInfo' };
   const response = sendTestRequest(HOST_127_0_0_100, PORT_7000, options);

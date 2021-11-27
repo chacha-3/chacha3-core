@@ -3,6 +3,7 @@ const { SuccessCode } = require('./rpc');
 
 const blockData = require('./mock/data/blocks.json');
 const unverifiedBlockData = require('./mock/data/unverified-block.json');
+const invalidBlockData = require('./mock/data/invalid-block.json');
 
 const HOST_ANY = '*';
 const HOST_127_0_0_99 = '127.0.0.99';
@@ -14,52 +15,52 @@ const PORT_7000 = 7000;
 
 const headers = blockData.map((block) => block.header);
 
-const unverifiedHash = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
+// const unverifiedHash = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
 
-const unverifiedBlock = {
-  header: {
-    hash: unverifiedHash,
-    previous: null,
-    time: 1637902963395,
-    difficulty: 1,
-    nonce: 8609437805620442,
-    checksum: '0x385deec3656ac30a97d5b37837732214c0175950073f08aaffc095470eabd876',
-    version: 1,
-  },
-  transactions: [
-    {
-      id: '0x142f7bb983445793a031aed7e241a48efa74dbdd70d3d0ed74404485fc96ba05',
-      version: 1,
-      senderKey: null,
-      receiverAddress: '0x00cc460a150ce94fe032e806d586fc84ec515dc12ed934743b',
-      amount: '5000000n',
-      signature: null,
-      time: 1637902963396,
-      type: 'mine',
-    },
-  ],
-};
+// const unverifiedBlock = {
+//   header: {
+//     hash: unverifiedHash,
+//     previous: null,
+//     time: 1637902963395,
+//     difficulty: 1,
+//     nonce: 8609437805620442,
+//     checksum: '0x385deec3656ac30a97d5b37837732214c0175950073f08aaffc095470eabd876',
+//     version: 1,
+//   },
+//   transactions: [
+//     {
+//       id: '0x142f7bb983445793a031aed7e241a48efa74dbdd70d3d0ed74404485fc96ba05',
+//       version: 1,
+//       senderKey: null,
+//       receiverAddress: '0x00cc460a150ce94fe032e806d586fc84ec515dc12ed934743b',
+//       amount: '5000000n',
+//       signature: null,
+//       time: 1637902963396,
+//       type: 'mine',
+//     },
+//   ],
+// };
 
-const invalidBlock = { ...blockData[3] };
-invalidBlock.header.previous = blockData[8].header.previous;
+// const invalidBlock = { ...blockData[3] };
+// invalidBlock.header.previous = blockData[8].header.previous;
 
-const unverifiedChainData = () => {
-  const headerData = headers.slice(0, 2);
-  unverifiedBlock.header.previous = headers[1].hash;
+// const unverifiedChainData = () => {
+//   const headerData = headers.slice(0, 2);
+//   unverifiedBlock.header.previous = headers[1].hash;
 
-  headerData.push(unverifiedBlock.header);
+//   headerData.push(unverifiedBlock.header);
 
-  return headerData;
-};
+//   return headerData;
+// };
 
-const invalidChain = () => {
-  const headerData = headers.slice(0, 2);
-  const block = { ...invalidBlock };
+// const invalidChain = () => {
+//   const headerData = headers.slice(0, 2);
+//   const block = { ...invalidBlock };
 
-  headerData.push(block.header);
+//   headerData.push(block.header);
 
-  return headerData;
-};
+//   return headerData;
+// };
 
 const responseList = [
   {
@@ -183,7 +184,7 @@ const responseList = [
     action: 'pullChain',
     response: {
       data: {
-        blockHeaders: invalidChain(),
+        blockHeaders: invalidBlockData.map((blocks) => blocks.header),
       },
       message: SuccessCode,
     },
@@ -194,11 +195,11 @@ const responseList = [
     port: PORT_7000,
     action: 'blockInfo',
     options: {
-      hash: unverifiedHash,
+      hash: invalidBlockData[2].header.hash,
     },
     response: {
       data: {
-        header: invalidBlock,
+        header: invalidBlockData[2],
       },
       code: SuccessCode,
     },
@@ -209,10 +210,10 @@ const responseList = [
     port: PORT_7000,
     action: 'blockInfo',
     options: {
-      hash: unverifiedBlock.header.hash,
+      hash: unverifiedBlockData[2].header.hash,
     },
     response: {
-      data: unverifiedBlock,
+      data: unverifiedBlockData[2],
       code: SuccessCode,
     },
   },
