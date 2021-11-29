@@ -44,12 +44,7 @@ class Peer {
   }
 
   static generateKey(host, port) {
-    const ipBytes = Buffer.from(ipaddr.parse(host).toByteArray());
-
-    const portBytes = Buffer.allocUnsafe(2);
-    portBytes.writeUInt16BE(port);
-
-    return Buffer.concat([ipBytes, portBytes]);
+    return `${host}:${port}`;
   }
 
   static async all() {

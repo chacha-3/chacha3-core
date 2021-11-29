@@ -51,9 +51,8 @@ test('set peer valid port', async (t) => {
 
 test('peer have correct key', (t) => {
   const peer = new Peer('192.168.1.1', 8888);
-  const result = Buffer.from([192, 168, 1, 1, 0x22, 0xb8]);
 
-  t.ok(peer.getId().equals(result));
+  t.equal(peer.getId(), '192.168.1.1:8888');
   t.end();
 });
 
