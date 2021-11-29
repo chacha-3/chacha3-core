@@ -33,7 +33,7 @@ test('should create a peer', (t) => {
 test('set peer valid port', async (t) => {
   const peer = new Peer('127.0.0.1', 2000);
   peer.setPort(5000);
-  
+
   t.equal(peer.getPort(), 5000);
 
   t.end();
@@ -51,8 +51,9 @@ test('set peer valid port', async (t) => {
 
 test('peer have correct key', (t) => {
   const peer = new Peer('192.168.1.1', 8888);
+  const result = Buffer.from([0xc5, 0xd9, 0x93, 0x2e, 0x58, 0x9e, 0x84, 0x8e]);
 
-  t.equal(peer.getId(), '192.168.1.1:8888');
+  t.ok(peer.getId().equals(result));
   t.end();
 });
 

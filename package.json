@@ -24,6 +24,7 @@
     "selfsigned": "^1.10.11",
     "shell-quote": "^1.7.2",
     "subleveldown": "^5.0.1",
+    "xxhash": "^0.3.0",
     "yargs": "^17.0.1"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 const assert = require('assert');
 const bent = require('bent');
+const { XXHash64 } = require('xxhash');
 
 const debug = require('debug')('peer:model');
 
@@ -44,7 +45,10 @@ class Peer {
   }
 
   static generateKey(host, port) {
-    return `${host}:${port}`;
+    const hash = new XXHash64(0x02541cbe);
+    hash.update(Buffer.from(`${host}:${port}`, 'utf-8'));
+
+    return hash.digest('buffer');
   }
 
   static async all() {
