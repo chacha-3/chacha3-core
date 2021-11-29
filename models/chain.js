@@ -62,6 +62,7 @@ class Chain {
     return expectedTime[process.env.NODE_ENV || 'development'];
   }
 
+  // TODO: expectedTimePerBlock is fixed and should not need to be required as a parameter
   static calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock) {
     const adjustFactorLimit = 4;
 
@@ -212,8 +213,7 @@ class Chain {
     assert(!header.getHash().equals(Block.Genesis.getHeader().getHash()));
 
     if (header.getDifficulty() < this.getCurrentDifficulty()) {
-      throw Error('Block does not meet current difficulty');
-      // return false;
+      return false;
     }
 
     // FIXME: Should not need to double verify

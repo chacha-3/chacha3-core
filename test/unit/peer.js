@@ -332,7 +332,6 @@ test('sync with peer chain skipped if currently synching with another peer', asy
   t.end();
 });
 
-// FIXME: Not working
 test('fail to sync with peer that has invalid chain (invalid previous hash)', async (t) => {
   // Add block length 1 as default
   Chain.mainChain = await mock.chainWithBlocks(1, 1);
@@ -430,15 +429,3 @@ test('fetch peer chain success', async (t) => {
   await Peer.clearAll();
   t.end();
 });
-
-// test('fetch peer chain fail', async (t) => {
-//   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
-
-//   const chain = await peer.fetchChain();
-//   console.log(chain);
-//   t.equal(chain, null);
-
-//   // TODO: Clear single peer
-//   await Peer.clearAll();
-//   t.end();
-// });

@@ -49,6 +49,24 @@ test('add block headers to the chain', async (t) => {
   t.end();
 });
 
+test('does not add block header that does not match current difficulty to chain', async (t) => {
+  // Enough blocks to have the difficulty adjusted
+  const numOfBlocks = Chain.getAdjustInterval() + 1;
+
+  const chain = await mock.chainWithBlocks(numOfBlocks, 3);
+  t.equal(chain.getLength(), numOfBlocks, 'chain has correct initial length');
+  t.ok(chain.getCurrentDifficulty() > 1, 'chain has increased difficulty past adjust interval');
+
+  const block = await mock.blockWithTransactions(2, Block.Genesis);
+  block.header.setDifficulty(1);
+
+  const added = chain.addBlockHeader(block.getHeader());
+  t.equal(added, false);
+
+  t.equal(chain.getLength(), numOfBlocks, 'no change to chain length');
+  t.end();
+});
+
 // test('does not added block header to chain when previous hash does not match', async (t) => {
 //   const chain = new Chain();
 
