@@ -67,6 +67,7 @@ test('does not add block header that does not match current difficulty to chain'
   t.end();
 });
 
+// TODO: Remove. Validation moved elsewhere
 // test('does not added block header to chain when previous hash does not match', async (t) => {
 //   const chain = new Chain();
 

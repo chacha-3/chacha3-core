@@ -153,28 +153,16 @@ class Peer {
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
-  // isSignificantlyAhead() {
-  //   return this.getChainLength() > Chain.mainChain + 10;
-  // }
-
   getId() {
     return Peer.generateKey(this.getHost(), this.getPort());
   }
-
-  // getNonce() {
-  //   return this.nonce;
-  // }
-
-  // setConnection(connection) {
-  //   this.connection = connection;
-  // }
 
   getVersion() {
     return this.version;
   }
 
-  setVersion(version) {
-    this.version = version;
+  setVersion(versionName) {
+    this.version = versionName;
   }
 
   getChainLength() {
@@ -225,8 +213,8 @@ class Peer {
     this.status = status;
   }
 
-  setPeerInfo(version, chainLength, chainWork) {
-    this.setVersion(version);
+  setPeerInfo(versionName, chainLength, chainWork) {
+    this.setVersion(versionName);
     this.setChainLength(chainLength);
     this.setTotalWork(chainWork);
   }
