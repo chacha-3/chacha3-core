@@ -43,7 +43,6 @@ test('set peer valid port', async (t) => {
 // test('set peer invalid port', async (t) => {
 //   const peer = new Peer('127.0.0.1', 0);
 //   t.err(peer.setPort(1000));
-  
 //   // t.equal(peer.getPort(), 5000);
 
 //   t.end();

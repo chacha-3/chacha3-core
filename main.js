@@ -6,6 +6,7 @@ const ipc = require('./ipc');
 
 const Peer = require('./models/peer');
 const Chain = require('./models/chain');
+const Block = require('./models/block');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -34,6 +35,10 @@ server.listen(port, async (err) => {
     console.log(err);
     process.exit(1);
   }
+
+
+  // TODO: Genesis saved check
+  await Block.Genesis.save();
 
   debug('Loading chain');
   Chain.mainChain = await Chain.load();
