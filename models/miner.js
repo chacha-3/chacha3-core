@@ -20,7 +20,7 @@ class Miner {
     this.pendingTransactions = [];
   }
 
-  async foundBlock(block) {
+  static async foundBlock(block) {
     debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
 
     const result = await Chain.mainChain.confirmNewBlock(block);
@@ -30,10 +30,6 @@ class Miner {
       await Chain.mainChain.save();
       debug(`Confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
       Peer.broadcastAction('pushBlock', block.toObject());
-
-      // Clear pending transactions
-      // TODO: Clear only transactions in block
-      this.pendingTransactions = [];
     } else {
       debug(`Reject confirmed new block: ${serializeBuffer(block.getHeader().getHash())}`);
     }
@@ -82,7 +78,7 @@ class Miner {
 
       const transactionsVerified = await block.verifyTransactions();
       if (block.verifyHash() && transactionsVerified) {
-        await this.foundBlock(block);
+        await Miner.foundBlock(block);
 
         // Init new block for mining
         block = this.initMiningBlock();

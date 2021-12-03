@@ -242,8 +242,6 @@ class Block {
   verify(previousHeader = null, currentReward = null) {
     assert(currentReward !== null);
 
-    // TODO: If previous header null, check previous is 00000
-
     if (!this.verifyCoinbase(currentReward)) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed coinbase verification`);
       return false;

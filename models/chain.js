@@ -299,7 +299,6 @@ class Chain {
   }
 
   // Verify and load balances
-  // TODO: Remove verification of main chain. Assert valid
   // Note: Modifies balance. Destructive
   async loadBalances() {
     // TODO: Assert not block balances set

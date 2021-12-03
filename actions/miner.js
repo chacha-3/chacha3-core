@@ -58,8 +58,8 @@ actions.stopMiner = {
 };
 
 actions.minerStatus = {
-  permission: 'public', // TODO: Change to private
-  handler: async (options) => {
+  permission: 'authOnly',
+  handler: async () => {
     const data = {
       isMining: miner.isMining(),
     };
