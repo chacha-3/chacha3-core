@@ -17,6 +17,7 @@ actions.createTransaction = {
       address: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       password: { type: 'string' },
+      type: { type: 'string' },
     },
     required: ['key', 'address', 'amount', 'password'],
   },
@@ -49,6 +50,7 @@ actions.createTransaction = {
       senderWallet.getPublicKey(),
       options.address,
       amount,
+      options.type,
     );
 
     transaction.sign(senderWallet.getPrivateKey(), options.password);
