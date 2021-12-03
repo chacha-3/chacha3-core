@@ -7,8 +7,6 @@ const Chain = require('../../models/chain');
 const { runAction } = require('../../actions');
 const { SuccessCode } = require('../../util/rpc');
 
-const app = require('../../app')();
-
 test('display chain info', async (t) => {
   Chain.mainChain = await mock.chainWithBlocks(5, 3);
 

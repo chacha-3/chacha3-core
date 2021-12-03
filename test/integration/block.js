@@ -6,7 +6,6 @@ const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
 
 const { runAction } = require('../../actions');
-const { WalletDB } = require('../../util/db');
 const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const Chain = require('../../models/chain');
@@ -14,7 +13,6 @@ const Block = require('../../models/block');
 const { serializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
 const { randomNumberBetween } = require('../../util/math');
-const app = require('../../app')();
 
 test('push new block', async (t) => {
   const initialBlockCount = 2;
@@ -50,9 +48,9 @@ test('push new block', async (t) => {
   block.addTransaction(transactionInBlock);
 
   await block.mine();
-  
+
   const options = { action: 'pushBlock', ...block.toObject() };
-  
+
   const { code } = await runAction(options);
   t.equal(code, SuccessCode);
   t.equal(Chain.mainChain.getLength(), initialBlockCount + 1);
@@ -107,7 +105,7 @@ test('unable to push invalid block', async (t) => {
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
-  const { code, data } = await runAction(options);
+  const { code } = await runAction(options);
   t.equal(code, ErrorCode.InvalidArgument);
 
   await Chain.clearMain();

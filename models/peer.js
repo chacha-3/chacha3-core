@@ -4,7 +4,6 @@ const { XXHash64 } = require('xxhash');
 
 const debug = require('debug')('peer:model');
 
-const ipaddr = require('ipaddr.js');
 const Chain = require('./chain');
 const Block = require('./block');
 
@@ -196,14 +195,6 @@ class Peer {
     return this.host;
   }
 
-  // setHost(host) {
-  //   // FIXME: Disabled. Temp
-  //   // if (!ipaddr.isValid(address)) {
-  //   //   throw Error('Invalid IP address');
-  //   // }
-
-  //   this.host = host;
-  // }
   getStatus() {
     return this.status;
   }

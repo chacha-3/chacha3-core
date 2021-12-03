@@ -56,7 +56,19 @@ class Transaction {
   }
 
   isCoinbase() {
-    return this.getSenderKey() === null && this.getSignature() === null && this.getType() === Transaction.Type.Mine;
+    if (this.getSenderKey() !== null) {
+      return false;
+    }
+
+    if (this.getSignature() !== null) {
+      return false;
+    }
+
+    if (this.getType() !== Transaction.Type.Mine) {
+      return false;
+    }
+
+    return true;
   }
 
   getType() {

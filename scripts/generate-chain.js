@@ -2,7 +2,6 @@ const fs = require('fs');
 const Block = require('../models/block');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
-const { deserializeBuffer } = require('../util/serialize');
 
 const numOfBlocks = 10;
 const transactionsPerBlock = 5;
@@ -49,9 +48,8 @@ const main = async () => {
 
   fs.writeFile('./scripts/output/test-chain.json', data, (err) => {
     if (err) {
-        throw err;
+      throw err;
     }
-    console.log("JSON data is saved.");
   });
 };
 
