@@ -36,9 +36,11 @@ server.listen(port, async (err) => {
     process.exit(1);
   }
 
-
   // TODO: Genesis saved check
   await Block.Genesis.save();
+
+  // FIXME: To reach out after load blocks?
+  await Peer.reachOutAll();
 
   debug('Loading chain');
   Chain.mainChain = await Chain.load();
@@ -53,7 +55,6 @@ server.listen(port, async (err) => {
 
   debug('Done loading blocks');
 
-  await Peer.reachOutAll();
 
   // Sync with longest chain
   const peerPriority = await Peer.withLongestActiveChains();

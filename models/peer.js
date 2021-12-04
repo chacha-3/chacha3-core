@@ -264,9 +264,9 @@ class Peer {
       : Peer.Status.Unreachable;
 
     this.setStatus(status);
-    this.failConnect();
-
     await this.save();
+
+    await this.failConnect();
   }
 
   async failConnect() {
@@ -274,7 +274,16 @@ class Peer {
 
     if (this.failedConnect >= 4) {
       await Peer.clear(this.getId());
+    } else {
+      this.retryReachOut();
     }
+  }
+
+  retryReachOut() {
+    const oneMinute = 60000;
+
+    // Retry in one minute
+    setTimeout(() => this.reachOut(), oneMinute);
   }
 
   static requestHeaders() {
