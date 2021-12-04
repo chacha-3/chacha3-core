@@ -266,7 +266,7 @@ class Peer {
     this.setStatus(status);
     await this.save();
 
-    await this.failConnect();
+    this.failConnect();
   }
 
   async failConnect() {
@@ -280,6 +280,10 @@ class Peer {
   }
 
   retryReachOut() {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const oneMinute = 60000;
 
     // Retry in one minute
