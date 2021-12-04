@@ -229,7 +229,7 @@ test('get object representation of a block', async (t) => {
   t.end();
 });
 
-test('verify block with only coinbase has checksum', async (t) => {
+test('verify that a block with only a coinbase has checksum', async (t) => {
   const sender = new Wallet();
   sender.generate();
 
@@ -242,7 +242,6 @@ test('verify block with only coinbase has checksum', async (t) => {
   await block.mine();
 
   t.equal(block.verifyChecksum(), true);
-  // t.equal(block.verify(), true); FIXME:
 
   t.end();
 });
@@ -310,58 +309,6 @@ test('checksum is updated when adding transaction', async (t) => {
   t.end();
 });
 
-test('block is invalid when checksum is incorrect', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
-
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
-
-  await block.mine();
-
-  block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
-
-  t.equal(block.verifyChecksum(), false, 'tampered block has invalid checksum');
-  // t.equal(block.verify(), false, 'tampered block fails verification'); // FIXME:
-
-  t.end();
-});
-
-test('block is invalid if adding transaction after mining', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
-
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
-
-  await block.mine();
-
-  t.equal(block.verifyHash(), true, 'mined block has verified hash');
-  // t.equal(block.verify(), true, 'mined block is verified'); // FIXME:
-
-  const sender = new Wallet();
-  sender.generate();
-
-  const receiver = new Wallet();
-  receiver.generate();
-
-  const addTransaction = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    200,
-  );
-
-  addTransaction.sign(sender.getPrivateKey());
-
-  // Tamper block. Add transaction without changes to checksum
-  block.transactions.push(addTransaction);
-
-  t.equal(block.verifyChecksum(), false, 'tampered transaction has invalid hash');
-  // t.equal(block.verify(), false, 'tampered transaction is unverified'); // FIXME:
-
-  t.end();
-});
-
 test('unable to add transaction with invalid signature to block', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
@@ -387,22 +334,6 @@ test('unable to add transaction with invalid signature to block', async (t) => {
 
   const added = block.addTransaction(transaction);
   t.equal(added, false);
-
-  t.end();
-});
-
-test('block is invalid if hash does not meet mining difficulty', async (t) => {
-  const wallet = new Wallet();
-  wallet.generate();
-
-  const block = new Block();
-  block.addCoinbase(wallet.getAddress());
-
-  // Set hash manually instead of mining block
-  block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
-
-  t.equal(block.verifyHash(), false, 'invalid hash');
-  // t.equal(block.verify(), false, 'invalid transaction is unverified'); // FIXME:
 
   t.end();
 });
@@ -522,7 +453,7 @@ test('block is invalid when coinbase reward is incorrect', async (t) => {
   t.end();
 });
 
-test('block is invalid when hash does not meet target', async (t) => {
+test('block is invalid when hash does not meet target (mining difficult)', async (t) => {
   const numOfBlocks = 3;
 
   const chain = await mock.chainWithHeaders(numOfBlocks, 2);
@@ -670,8 +601,6 @@ test('correct block object format', async (t) => {
 
 test('save and load block', async (t) => {
   const block = await mock.blockWithTransactions(3);
-  // t.equal(block.verify(), true);
-
   await block.save();
 
   const key = block.getHeader().getHash();
@@ -692,7 +621,6 @@ test('save and load block', async (t) => {
 
 test('save and load block', async (t) => {
   const block = await mock.blockWithTransactions(3);
-  // t.equal(block.verify(), true);
 
   await block.save();
 
