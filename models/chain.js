@@ -233,8 +233,9 @@ class Chain {
   // NOTE: Main chain
   // Add validate new block function to check previous hash, reward, and timestamp
   async confirmNewBlock(block) {
-    // assert(this.isVerified());
-    if (!block.verify(this.lastBlockHeader(), this.currentBlockReward())) {
+    const blockVerified = await block.verify(this.lastBlockHeader(), this.currentBlockReward());
+
+    if (!blockVerified) {
       debug(`New block failed verification: ${serializeBuffer(block.getHeader().getHash())}`);
       return false;
     }

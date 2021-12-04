@@ -30,7 +30,7 @@ test('should validate coinbase', async (t) => {
   await block.mine();
 
   t.equal(await block.verifyCoinbase(), true, 'mined block has valid coinbase');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true, 'mined block has valid coinbase');
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true, 'mined block has valid coinbase');
 
   await Chain.clearMain();
 });
@@ -71,7 +71,7 @@ test('should be not have verified block when invalid coinbase amount', async (t)
   await block.mine();
 
   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
 
   await Chain.clearMain();
 
@@ -115,7 +115,7 @@ test('should be not have verified block when fail coinbase validation', async (t
   await block.mine();
 
   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
 
   await Chain.clearMain();
   t.end();
@@ -263,13 +263,13 @@ test('verify block with checksum', async (t) => {
   await block.mine();
 
   t.equal(await block.verifyChecksum(), true);
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
 
   // Tamper checksum byte
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
   t.equal(await block.verifyChecksum(), false);
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
   await Chain.clearMain(); // FIXME: Need this?
   t.end();
@@ -356,7 +356,7 @@ test('block is invalid when timestamp is before previous block timestamp', async
   await block.mine();
 
   t.equal(block.verifyTimestamp(previousHeader), false, 'block with timestamp before previous block fails verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
 
   t.end();
 });
@@ -378,7 +378,7 @@ test('block is valid only when previous hash matches', async (t) => {
   await block.mine();
 
   t.equal(block.verifyPrevious(previousHeader), true, 'block with correct previous hash passes verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), true);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), true);
 
   t.end();
 });
@@ -400,7 +400,7 @@ test('block is invalid it does not match previous hash', async (t) => {
   await block.mine();
 
   t.equal(block.verifyPrevious(previousHeader), false, 'block with invalid when previous hash does not match');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
 
   t.end();
 });
@@ -423,7 +423,7 @@ test('block is invalid when timestamp is in the future', async (t) => {
   await block.mine();
 
   t.equal(block.verifyTimestamp(previousHeader), false, 'block with timestamp in the future fails verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
 
   t.end();
 });
@@ -448,7 +448,7 @@ test('block is invalid when coinbase reward is incorrect', async (t) => {
   await block.mine();
 
   t.equal(block.verifyCoinbase(Chain.blockRewardAtIndex(numOfBlocks - 1)), false, 'block with invalid reward fails coinbase verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
 
   t.end();
 });
@@ -470,7 +470,7 @@ test('block is invalid when hash does not meet target (mining difficult)', async
   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
 
   t.equal(block.verifyHash(), false, 'block with invalid hash fails coinbase verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
   t.end();
 });
@@ -492,7 +492,7 @@ test('block is valid when does not have previously saved transaction', async (t)
   await block.mine();
 
   t.equal(await block.verifyTransactions(), true);
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
 
   await Chain.clearMain();
   t.end();

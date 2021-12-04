@@ -239,7 +239,7 @@ class Block {
     return currentBlockTime >= lastBlockTime && currentBlockTime <= Date.now() + threshold;
   }
 
-  verify(previousHeader = null, currentReward = null) {
+  async verify(previousHeader = null, currentReward = null) {
     assert(currentReward !== null);
 
     if (!this.verifyCoinbase(currentReward)) {
@@ -258,10 +258,10 @@ class Block {
       return false;
     }
 
-    // if (!(await this.verifyTransactions())) {
-    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification`);
-    //   return false;
-    // }
+    if (!(await this.verifyTransactions())) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification`);
+      return false;
+    }
 
     // To skip the rest for genesis block
     if (previousHeader === null) {
@@ -295,6 +295,7 @@ class Block {
     this.header.setChecksum(newChecksum);
   }
 
+  // TODO: Remove. Unused
   async hasNoExistingTransactions() {
     const checkNotSaved = (transaction) => new Promise((resolve, reject) => {
       transaction.isSaved().then((saved) => (saved ? reject() : resolve()));
