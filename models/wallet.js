@@ -153,31 +153,33 @@ class Wallet {
     this.publicKey = publicKey;
   }
 
+  // TODO: Remove use
   getPublicKeyHex() {
     assert(this.privateKey !== null);
 
     return serializeBuffer(this.publicKey);
   }
 
+  // TODO: Remove use
   getPrivateKeyHex() {
     assert(this.privateKey !== null);
 
     return serializeBuffer(this.privateKey);
   }
 
-  getPublicKeyObject() {
-    return crypto.createPublicKey({
-      key: this.publicKey, format: 'der', type: 'spki',
-    });
-  }
+  // getPublicKeyObject() {
+  //   return crypto.createPublicKey({
+  //     key: this.publicKey, format: 'der', type: 'spki',
+  //   });
+  // }
 
-  getPrivateKeyObject(password) {
-    const passphrase = password || '';
+  // getPrivateKeyObject(password) {
+  //   const passphrase = password || '';
 
-    return crypto.createPrivateKey({
-      key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
-    });
-  }
+  //   return crypto.createPrivateKey({
+  //     key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
+  //   });
+  // }
 
   getAddress() {
     assert(this.publicKey != null);

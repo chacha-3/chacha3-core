@@ -108,7 +108,7 @@ test('save and load peer', async (t) => {
   t.equal(peer.getStatus(), loaded.getStatus());
 
   await Peer.clear(peer.getId()); // FIXME:
-  await Peer.clearAll();
+  // await Peer.clearAll();
   t.end();
 });
 
@@ -425,6 +425,23 @@ test('fetch peer chain success', async (t) => {
   t.ok(chain.getLength() > 0);
 
   // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});
+
+test('delete peer after fail to connect four times', async (t) => {
+  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+  await peer.save();
+
+  for (let i = 0; i < 3; i += 1) {
+    await peer.failConnect();
+  }
+
+  t.equal((await Peer.all()).length, 1);
+
+  await peer.failConnect();
+  t.equal((await Peer.all()).length, 0);
+
   await Peer.clearAll();
   t.end();
 });

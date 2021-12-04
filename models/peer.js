@@ -264,8 +264,17 @@ class Peer {
       : Peer.Status.Unreachable;
 
     this.setStatus(status);
+    this.failConnect();
 
     await this.save();
+  }
+
+  async failConnect() {
+    this.failedConnect += 1;
+
+    if (this.failedConnect >= 4) {
+      await Peer.clear(this.getId());
+    }
   }
 
   static requestHeaders() {
