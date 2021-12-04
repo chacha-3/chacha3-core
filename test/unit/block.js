@@ -13,19 +13,26 @@ const { randomNumberBetween } = require('../../util/math');
 const Header = require('../../models/header');
 
 test('should validate coinbase', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
 
   block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 100);
 
-  t.equal(block.transactions[0].type, Transaction.Type.Mine);
   await block.mine();
-  t.equal(block.validateCoinbase(), true, 'mined block has validated coinbase');
-  // t.equal(block.verify(), true, 'mined block is verified');
 
-  t.end();
+  t.equal(await block.verifyCoinbase(), true, 'mined block has valid coinbase');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true, 'mined block has valid coinbase');
+
+  await Chain.clearMain();
 });
 
 test('should have invalid coinbase when invalid address', async (t) => {
@@ -45,21 +52,28 @@ test('should have invalid coinbase when invalid address', async (t) => {
 });
 
 test('should be not have verified block when invalid coinbase amount', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
 
-  const address = wallet.getAddress();
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() - 50);
 
-  block.addCoinbase(address);
-
-  block.transactions[0].amount = 99999;
+  block.transactions[0].amount = 10000000000000000000n;
 
   await block.mine();
 
   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
-  // t.equal(block.verify(), fverifyCoinbasealse, 'mined block has invalid coinbase');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
+
+  await Chain.clearMain();
 
   t.end();
 });
@@ -81,20 +95,29 @@ test('should have invalid coinbase when invalid transaction type', async (t) => 
 });
 
 test('should be not have verified block when fail coinbase validation', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
-  const address = wallet.getAddress();
 
-  block.addCoinbase(address);
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 50);
+
+  // Tamper coinbase
   block.transactions[0].receiverAddress = crypto.randomBytes(32);
 
   await block.mine();
 
   t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
-  // t.equal(block.verify(), false, 'mined block has invalid coinbase');
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
 
+  await Chain.clearMain();
   t.end();
 });
 
@@ -225,35 +248,31 @@ test('verify block with only coinbase has checksum', async (t) => {
 });
 
 test('verify block with checksum', async (t) => {
-  const sender = new Wallet();
-  sender.generate();
+  const numOfBlocks = 3;
 
-  const receiver = new Wallet();
-  receiver.generate();
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5, wallet);
+  const previousHeader = chain.lastBlockHeader();
 
   const block = new Block();
-  block.addCoinbase(receiver.getAddress());
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 100);
 
-  const transaction1 = new Transaction(
-    sender.getPublicKey(),
-    receiver.getAddress(),
-    410,
-  );
-
-  transaction1.sign(sender.getPrivateKey());
-
-  block.addTransaction(transaction1);
   await block.mine();
 
-  t.equal(block.verifyChecksum(), true);
-  // t.equal(block.verify(), true); FIXME:
+  t.equal(await block.verifyChecksum(), true);
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
 
   // Tamper checksum byte
   block.header.checksum[2] += Math.floor(Math.random() * 10) + 1;
 
-  t.equal(block.verifyChecksum(), false);
-  // t.equal(block.verify(), false); FIXME:
+  t.equal(await block.verifyChecksum(), false);
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
+  await Chain.clearMain(); // FIXME: Need this?
   t.end();
 });
 
