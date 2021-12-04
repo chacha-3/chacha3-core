@@ -235,8 +235,8 @@ class Block {
     const lastBlockTime = previousHeader.getTime();
     const currentBlockTime = this.getHeader().getTime();
 
-    // TODO: Add threshold
-    return currentBlockTime >= lastBlockTime && currentBlockTime <= Date.now();
+    const threshold = 5000; // TODO: Test
+    return currentBlockTime >= lastBlockTime && currentBlockTime <= Date.now() + threshold;
   }
 
   verify(previousHeader = null, currentReward = null) {
@@ -252,10 +252,16 @@ class Block {
       return false;
     }
 
+    // Combine verify checksum and transactions
     if (!this.verifyChecksum()) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
       return false;
     }
+
+    // if (!(await this.verifyTransactions())) {
+    //   debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification`);
+    //   return false;
+    // }
 
     // To skip the rest for genesis block
     if (previousHeader === null) {

@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const bs58 = require('bs58');
 const assert = require('assert');
 
 // const DB = require('../util/database');
@@ -236,6 +235,20 @@ class Wallet {
 
     await WalletDB.del(address);
   }
+
+  // TODO:
+  // changePassword(currentPassword, newPassword) {
+  //   let privateKeyObject;
+
+  //   try {
+  //     privateKeyObject = crypto.createPrivateKey({
+  //       key: privateKey, format: 'der', type: 'pkcs8', currentPassword,
+  //     });
+  //   } catch (e) {
+  //     return false;
+  //   }
+
+  // }
 
   static recover(privateKey, password) {
     const passphrase = password || '';

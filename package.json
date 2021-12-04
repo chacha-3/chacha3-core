@@ -19,7 +19,6 @@
     "fastify": "^3.17.0",
     "fastify-websocket": "^3.2.0",
     "level": "^7.0.0",
-    "node-cron": "^3.0.0",
     "node-ipc": "<10.0.0",
     "selfsigned": "^1.10.11",
     "shell-quote": "^1.7.2",

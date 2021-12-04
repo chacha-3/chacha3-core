@@ -513,30 +513,36 @@ test('block is invalid when hash does not meet target', async (t) => {
   wallet.generate();
 
   const block = new Block();
-  block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks - 1));
+  block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks));
   block.setPreviousHash(previousHeader.getHash());
-  block.header.setTime(previousHeader.getTime() + 2000000);
+  block.header.setTime(previousHeader.getTime() + 100);
 
   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
 
   t.equal(block.verifyHash(), false, 'block with invalid hash fails coinbase verification');
-  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks - 1)), false);
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
   t.end();
 });
 
 test('block is valid when does not have previously saved transaction', async (t) => {
-  await mock.chainWithBlocks(3, 5);
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+  const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
   wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 100);
+
+  await block.mine();
 
   t.equal(await block.verifyTransactions(), true);
-  // FIXME: Add reward and previous hash
-  // t.equal(await block.verify(), true);
+  t.equal(block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), true);
 
   await Chain.clearMain();
   t.end();
@@ -544,15 +550,23 @@ test('block is valid when does not have previously saved transaction', async (t)
 
 test('block is invalid when has previously saved transaction', async (t) => {
   const numOfBlocks = 3;
+
   const chain = await mock.chainWithBlocks(numOfBlocks, 5);
+  const previousHeader = chain.lastBlockHeader();
 
   const hash = chain.getBlockHeader(2).getHash();
   const savedBlock = await Block.load(hash);
 
   const randomSavedTransaction = savedBlock.getTransaction(4);
 
+  const wallet = new Wallet();
+  wallet.generate();
+
   const block = new Block();
+  block.addCoinbase(wallet.getAddress());
   block.addTransaction(randomSavedTransaction);
+  block.header.setTime(previousHeader.getTime() + 100);
+
   await block.mine();
 
   t.equal(await block.verifyTransactions(), false);
