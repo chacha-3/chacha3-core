@@ -332,7 +332,6 @@ class Peer {
 
       if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
         debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
-        console.log(receivedPeer.getStatus())
         receivedPeer.setStatus(Peer.Status.Idle);
         await receivedPeer.save();
       }

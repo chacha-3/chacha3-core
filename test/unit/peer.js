@@ -404,6 +404,20 @@ test('reach out to active peer', async (t) => {
   t.end();
 });
 
+test('does not reach out to self as peer connecting to self', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+  t.equal((await Peer.all()).length, 0);
+
+  // Set matching nonce
+  Peer.localNonce = 3000000;
+
+  const result = await peer.reachOut();
+  t.equal(result, false);
+  t.equal((await Peer.all()).length, 0);
+
+  t.end();
+});
+
 test('delete peer after reach out if peer is self', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
   await peer.save();
