@@ -52,8 +52,7 @@ mock.createPeers = async (count) => {
   const createPeer = () => new Promise((resolve) => {
     const peer = mock.nodePeer();
 
-    peer.save();
-    resolve(peer);
+    peer.save().then(() => resolve(peer));
   });
 
   const promises = [];

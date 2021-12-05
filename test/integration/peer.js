@@ -1,8 +1,6 @@
 const { test } = require('tap');
 
 const Peer = require('../../models/peer');
-const Wallet = require('../../models/wallet');
-
 const mock = require('../../util/mock');
 
 const { runAction } = require('../../actions');
@@ -40,6 +38,7 @@ test('filter peers by status', async (t) => {
   ];
 
   const peerList = await Peer.all();
+  t.equal(peerList.length, 4);
 
   for (let i = 0; i < status.length; i += 1) {
     const peer = peerList[i];

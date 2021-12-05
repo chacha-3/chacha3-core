@@ -108,7 +108,7 @@ test('save and load peer', async (t) => {
   t.equal(peer.getStatus(), loaded.getStatus());
 
   await Peer.clear(peer.getId()); // FIXME:
-  // await Peer.clearAll();
+  await Peer.clearAll();
   t.end();
 });
 
@@ -414,6 +414,8 @@ test('does not reach out to self as peer connecting to self', async (t) => {
   const result = await peer.reachOut();
   t.equal(result, false);
   t.equal((await Peer.all()).length, 0);
+
+  // await Peer.clearAll();
 
   t.end();
 });
