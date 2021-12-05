@@ -313,7 +313,7 @@ class Peer {
 
   async syncPeerList() {
     debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
-    const { data } = await this.callAction('listPeers');
+    const { data } = await this.callAction('listPeers', { status: 'active|inactive' });
 
     // TODO:
     // if (!data) {
@@ -324,10 +324,15 @@ class Peer {
 
     for (let i = 0; i < data.length; i += 1) {
       const receivedPeer = Peer.fromObject(data[i]);
+
       debug(`Received peer: ${JSON.stringify(data[i])}`);
 
-      if (currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1) {
+      const acceptStatus = [Peer.Status.Active, Peer.Status.Inactive];
+      const notExisting = currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1;
+
+      if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
         debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
+        console.log(receivedPeer.getStatus())
         receivedPeer.setStatus(Peer.Status.Idle);
         await receivedPeer.save();
       }

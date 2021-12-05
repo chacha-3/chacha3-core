@@ -243,7 +243,7 @@ test('sync with peer list from another peer', async (t) => {
   t.equal(result, true);
 
   const updatedPeers = await Peer.all();
-  t.equal(updatedPeers.length, 5);
+  t.equal(updatedPeers.length, 3); // Only peers with status of 'active' and 'inactive'
   t.equal(updatedPeers[0].status, Peer.Status.Idle, 'Newly added peer have idle status');
 
   await Peer.clearAll();
@@ -396,8 +396,8 @@ test('reach out to active peer', async (t) => {
   const result = await peer.reachOut();
   t.equal(result, true);
 
-  // 1 peer plus connected peer has 5 other peers
-  t.equal((await Peer.all()).length, 6);
+  // 1 connected peer plus 3 other active/inactive peer of connected peer
+  t.equal((await Peer.all()).length, 4);
 
   // TODO: Clear single peer
   await Peer.clearAll();
