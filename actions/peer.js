@@ -3,11 +3,27 @@ const { okResponse } = require('../util/rpc');
 
 const actions = {};
 
+const optionFilter = (opts, field) => (obj) => {
+  if (!opts[field]) {
+    return true;
+  }
+
+  const filterString = opts[field].split('|');
+  return filterString.includes(obj[field]);
+};
+
 actions.listPeers = {
-  permission: 'public', // TODO: Change to private
-  handler: async () => {
+  permission: 'public',
+  schema: {
+    properties: {
+      status: { type: 'string' },
+    },
+  },
+  handler: async (options) => {
     const peers = await Peer.all();
-    const data = peers.map((peer) => peer.toObject());
+    const data = peers
+      .filter(optionFilter(options, 'status'))
+      .map((peer) => peer.toObject());
 
     return { data, code: 'ok', message: 'Peer list' };
   },

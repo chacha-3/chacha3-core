@@ -288,7 +288,7 @@ class Chain {
         return false;
       }
 
-      if (!header.getTime() >= time) {
+      if (header.getTime() < time) {
         return false;
       }
 

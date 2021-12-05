@@ -192,6 +192,7 @@ const onLineInput = async (line) => {
     };
 
     for (let i = 1; i < parseQuote.length; i += 1) {
+      // FIXME: Handle { op: '||' }
       const [key, value] = parseQuote[i].split(':');
       options[key] = value;
     }
