@@ -65,7 +65,6 @@ class Miner {
       }
 
       // const pendingList = await Transaction.loadPending();
-
       const rejected = block.addPendingTransactions(this.pendingTransactions);
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
@@ -76,8 +75,8 @@ class Miner {
 
       block.header.computeHash();
 
-      const transactionsVerified = await block.verifyTransactions();
-      if (block.verifyHash() && transactionsVerified) {
+      // const transactionsVerified = await block.verifyTransactions();
+      if (block.verifyHash()) {
         await Miner.foundBlock(block);
 
         // Init new block for mining

@@ -234,7 +234,6 @@ class Chain {
   // Add validate new block function to check previous hash, reward, and timestamp
   async confirmNewBlock(block) {
     const blockVerified = await block.verify(this.lastBlockHeader(), this.currentBlockReward());
-
     if (!blockVerified) {
       debug(`New block failed verification: ${serializeBuffer(block.getHeader().getHash())}`);
       return false;
@@ -244,6 +243,7 @@ class Chain {
     await block.save();
 
     assert(block.getHeader() !== null);
+
     const addedHeader = this.addBlockHeader(block.getHeader());
 
     // Would be false if previous block does not match
@@ -484,14 +484,14 @@ class Chain {
 
   // Change to Chain.mainChain.clear();
   static async clearMain() {
-    // FIXME: Should not have to clear pending transactions
-    await PendingTransactionDB.clear();
-    await Transaction.clearAll();
+    // await Transaction.clearAll();
     // FIXME: Clear using model method
-    await HeaderDB.clear(); // TODO: Add test
-    await BlockDB.clear();
 
-    await Chain.mainChain.clearBlocks();
+    await Chain.mainChain.clear();
+    // await HeaderDB.clear(); // TODO: Add test
+    // await BlockDB.clear();
+
+    // await Chain.mainChain.clearBlocks();
     await DB.del('chain');
 
     Chain.mainChain = await Chain.load();

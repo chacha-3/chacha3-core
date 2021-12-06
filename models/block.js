@@ -252,7 +252,7 @@ class Block {
       return false;
     }
 
-    // Combine verify checksum and transactions
+    // // Combine verify checksum and transactions
     if (!this.verifyChecksum()) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
       return false;
@@ -390,6 +390,8 @@ class Block {
   static async loadTransactions(indexes) {
     const loadTransaction = (hash) => new Promise((resolve) => {
       const transaction = Transaction.load(hash);
+      assert(transaction !== null);
+
       resolve(transaction);
     });
 
@@ -433,6 +435,10 @@ class Block {
     const indexes = data.transactionIndexes.map((hexKey) => deserializeBuffer(hexKey));
     const transactions = await Block.loadTransactions(indexes);
 
+    if (transactions.length > 0) {
+      assert(transactions[0] !== null);
+    }
+
     block.setTransactions(transactions);
 
     return block;
@@ -463,6 +469,10 @@ class Block {
     for (let i = 0; i < block.getTransactionCount(); i += 1) {
       // FIXME: Does not await. But test still passes
       // TODO: Wrap in promise
+
+      if (!block.getTransaction(i).getId()) {
+        console.log(block.getTransaction(i));
+      }
       await Transaction.clear(block.getTransaction(i).getId());
     }
 

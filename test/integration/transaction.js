@@ -39,6 +39,7 @@ test('create a transaction with sufficient balance', async (t) => {
   // TODO: More check
 
   await Chain.clearMain();
+  await Transaction.clearAllPending();
 
   t.end();
 });
@@ -69,6 +70,8 @@ test('create a transaction with selected wallet', async (t) => {
 
   await Wallet.clearAll();
   await Chain.clearMain();
+
+  await Transaction.clearAllPending();
 
   t.end();
 });
@@ -183,7 +186,7 @@ test('unable to create a transaction with incorrect password', async (t) => {
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
-  const { code} = await runAction({
+  const { code } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),

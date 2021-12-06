@@ -59,6 +59,7 @@ test('push new block', async (t) => {
   t.equal(pendingAfter.length, 1);
 
   await Chain.clearMain();
+  await Transaction.clearAll(); // TODO: Clear only pending transaction
 
   t.end();
 });
