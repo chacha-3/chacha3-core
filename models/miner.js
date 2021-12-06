@@ -71,7 +71,7 @@ class Miner {
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
       block.header.incrementNonce();
 
-      const latestBlock = chain.latestBlockHeader();
+      const latestBlock = chain.lastBlockHeader();
       block.setPreviousHash(latestBlock.getHash());
 
       block.header.computeHash();

@@ -79,10 +79,6 @@ test('should get encoded wallet address', (t) => {
   const encoded = wallet.getAddressEncoded();
   t.equal(encoded.slice(0, 4), '0x00');
 
-  // FIXME:
-  // t.equal(encoded.slice(0, Wallet.AddressPrefix.length), Wallet.AddressPrefix, 'wallet has prefix');
-  // t.equal(encoded[Wallet.AddressPrefix.length], '1', 'wallet encoded address starts with 1');
-
   t.end();
 });
 

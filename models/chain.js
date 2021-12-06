@@ -402,14 +402,6 @@ class Chain {
     return difficulty;
   }
 
-  // FIXME: Duplicate with last block header. Remove
-  latestBlockHeader() {
-    assert(this.blockHeaders.length > 0);
-    assert(this.blockHeaders[this.blockHeaders.length - 1] != null);
-
-    return this.blockHeaders[this.blockHeaders.length - 1];
-  }
-
   async save() {
     const key = 'chain';
     const data = {
@@ -460,6 +452,36 @@ class Chain {
     return chain;
   }
 
+  async clear(isMain = false) {
+    const clearHeader = (hash) => new Promise((resolve) => {
+      Header.clear(hash).then(() => resolve(hash));
+    });
+
+    const clearBlock = (hash) => new Promise((resolve) => {
+      Block.clear(hash).then(() => resolve(hash));
+    });
+
+    const promises = [];
+
+    for (let x = 0; x < this.getLength(); x += 1) {
+      promises.push(clearBlock(this.getBlockHeader(x).getHash()));
+      promises.push(clearHeader(this.getBlockHeader(x).getHash()));
+    }
+
+    await Promise.all(promises);
+
+    this.setBlockHeaders([]);
+    this.accounts = {};
+
+    this.synching = false;
+    this.verified = false;
+
+    if (isMain) {
+      await DB.del('chain');
+      Chain.mainChain = await Chain.load();
+    }
+  }
+
   // Change to Chain.mainChain.clear();
   static async clearMain() {
     // FIXME: Should not have to clear pending transactions
@@ -497,21 +519,6 @@ class Chain {
 
     return Promise.all(promises);
   }
-
-  // Clear rejected block data in diverging chain
-  // static async clearRejectedBlocks(chain, startIndex) {
-  //   const clearBlocks = [];
-  //   for (let x = startIndex; x < chain.getLength(); x += 1) {
-  //     clearBlocks.push(chain.getBlockHeader(x).getHash());
-  //   }
-
-  //   clearBlocks.forEach(async (hash) => {
-  //     debug(`Clear rejected block: ${serializeBuffer(hash)}`);
-  //     await Block.clear(hash);
-  //   });
-
-  //   return clearBlocks;
-  // }
 
   compareWork(newChain) {
     const currentWork = this.getTotalWork();

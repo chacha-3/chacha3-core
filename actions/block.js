@@ -100,7 +100,6 @@ actions.blockInfo = {
       return errorResponse(ErrorCode.NotFound, 'Block not found');
     }
 
-    // FIXME: Unreproducible internal error in this action when running test
     assert(block !== null);
 
     return okResponse(block.toObject(), 'Block Info');

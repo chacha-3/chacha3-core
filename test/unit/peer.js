@@ -97,8 +97,6 @@ test('save and load peer', async (t) => {
   const peer = mock.nodePeer();
   await peer.save();
 
-  // t.ok(key.equals(peer.getId()));
-
   const loaded = await Peer.load(peer.getId());
 
   t.equal(peer.getVersion(), loaded.getVersion());
@@ -107,8 +105,7 @@ test('save and load peer', async (t) => {
   t.equal(peer.getPort(), loaded.getPort());
   t.equal(peer.getStatus(), loaded.getStatus());
 
-  await Peer.clear(peer.getId()); // FIXME:
-  await Peer.clearAll();
+  await Peer.clear(peer.getId());
   t.end();
 });
 

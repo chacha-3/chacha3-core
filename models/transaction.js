@@ -16,7 +16,7 @@ class Transaction {
     this.version = 1;
 
     this.senderKey = senderKey;
-    this.receiverAddress = receiverAddress; // FIXME: Change to use buffer?
+    this.receiverAddress = receiverAddress;
 
     // assert.strictEqual(amount > 0, true);
     this.amount = (typeof (amount) === 'bigint') ? amount : BigInt(amount);

@@ -271,7 +271,7 @@ test('verify block with checksum', async (t) => {
   t.equal(await block.verifyChecksum(), false);
   t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
-  await Chain.clearMain(); // FIXME: Need this?
+  await chain.clearBlocks();
   t.end();
 });
 

@@ -98,7 +98,6 @@ test('should not start a miner that is already running', async (t) => {
     address: receiver.getAddressEncoded(),
   });
 
-
   // Duplicate start
   const { code } = await runAction({
     action: 'startMiner',
