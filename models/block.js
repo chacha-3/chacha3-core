@@ -462,6 +462,16 @@ class Block {
     await Promise.all(promises);
   }
 
+  async clearTransactions() {
+    const promises = [];
+
+    for (let i = 0; i < this.getTransactionCount(); i += 1) {
+      promises.push(Transaction.clear(this.getTransaction(i).getId()));
+    }
+
+    return Promise.all(promises);
+  }
+
   static async clear(hash) {
     const block = await Block.load(hash);
 
@@ -469,21 +479,8 @@ class Block {
       return;
     }
 
-    for (let i = 0; i < block.getTransactionCount(); i += 1) {
-      // FIXME: Does not await. But test still passes
-      // TODO: Wrap in promise
+    await block.clearTransactions();
 
-      if (!block.getTransaction(i).getId()) {
-        console.log(block.getTransaction(i));
-      }
-      await Transaction.clear(block.getTransaction(i).getId());
-    }
-
-    // FIXME: Error sometimes
-    // Block load return { header: null, transactions: [ null, null, null ] }
-    // Promise.all([Header.clear(hash), BlockDB.del(hash)]);
-
-    // But this works fine.
     await Header.clear(hash);
     await BlockDB.del(hash);
   }
