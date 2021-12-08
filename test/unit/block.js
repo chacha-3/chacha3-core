@@ -703,15 +703,3 @@ test('get and verify genesis block', async (t) => {
 
   t.end();
 });
-
-test('block verify checks has no existing transactions', async (t) => {
-  const block = await mock.blockWithTransactions(3);
-
-  t.equal(await block.hasNoExistingTransactions(), true);
-
-  await block.getTransaction(2).save();
-  t.equal(await block.hasNoExistingTransactions(), false);
-
-  await Block.clearAll();
-  t.end();
-});

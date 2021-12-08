@@ -64,19 +64,22 @@ class Block {
     this.addTransaction(transaction);
   }
 
+  transactionAdded(transactionId) {
+    const found = this.transactions.find((t) => t.getId().equals(transactionId));
+    return found !== undefined;
+  }
+
   addTransaction(transaction) {
+    if (this.transactionAdded(transaction.getId())) {
+      return false;
+    }
+
     // Only the coinbase transaction can be added without signature
     if (transaction.getSignature() == null && this.getTransactionCount() !== 0) {
       throw new Error('Unable to add unsigned transaction to block');
     }
 
     if (!transaction.verify()) {
-      return false;
-    }
-
-    const index = this.transactions.findIndex((t) => t.getId().equals(transaction.getId()));
-
-    if (index >= 0) {
       return false;
     }
 
@@ -247,11 +250,6 @@ class Block {
       return false;
     }
 
-    if (!this.verifyHash()) {
-      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed hash verification`);
-      return false;
-    }
-
     // // Combine verify checksum and transactions
     if (!this.verifyChecksum()) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed checksum verification`);
@@ -260,6 +258,11 @@ class Block {
 
     if (!(await this.verifyTransactions())) {
       debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification`);
+      return false;
+    }
+
+    if (!this.verifyHash()) {
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed hash verification`);
       return false;
     }
 
@@ -293,28 +296,6 @@ class Block {
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
     const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
     this.header.setChecksum(newChecksum);
-  }
-
-  // TODO: Remove. Unused
-  async hasNoExistingTransactions() {
-    const checkNotSaved = (transaction) => new Promise((resolve, reject) => {
-      transaction.isSaved().then((saved) => (saved ? reject() : resolve()));
-    });
-
-    const promises = [];
-
-    for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      const transaction = this.getTransaction(i);
-      promises.push(checkNotSaved(transaction));
-    }
-
-    try {
-      await Promise.all(promises);
-    } catch (e) {
-      return false;
-    }
-
-    return true;
   }
 
   verifyChecksum() {
