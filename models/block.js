@@ -165,10 +165,12 @@ class Block {
     const verify = (transaction) => new Promise((resolve, reject) => {
       transaction.isSaved().then((saved) => {
         if (saved) {
+          debug(`Transaction ${serializeBuffer(transaction.getId())} is already saved`);
           return reject();
         }
 
         if (!transaction.verify()) {
+          debug(`Transaction ${serializeBuffer(transaction.getId())} is not verified`);
           return reject();
         }
 

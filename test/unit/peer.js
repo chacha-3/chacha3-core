@@ -39,14 +39,14 @@ test('set peer valid port', async (t) => {
   t.end();
 });
 
-// TODO:
-// test('set peer invalid port', async (t) => {
-//   const peer = new Peer('127.0.0.1', 0);
-//   t.err(peer.setPort(1000));
-//   // t.equal(peer.getPort(), 5000);
+// // TODO:
+// // test('set peer invalid port', async (t) => {
+// //   const peer = new Peer('127.0.0.1', 0);
+// //   t.err(peer.setPort(1000));
+// //   // t.equal(peer.getPort(), 5000);
 
-//   t.end();
-// });
+// //   t.end();
+// // });
 
 test('peer have correct key', (t) => {
   const peer = new Peer('192.168.1.1', 8888);
@@ -56,15 +56,15 @@ test('peer have correct key', (t) => {
   t.end();
 });
 
-// test('peer is self when matching nonce', (t) => {
-//   const peer = new Peer('192.168.1.1', 8888);
+// // test('peer is self when matching nonce', (t) => {
+// //   const peer = new Peer('192.168.1.1', 8888);
 
-//   // t.equal(peer.isSelf(), true);
+// //   // t.equal(peer.isSelf(), true);
 
-//   // t.equal(peer.isSelf(), false);
+// //   // t.equal(peer.isSelf(), false);
 
-//   t.end();
-// });
+// //   t.end();
+// // });
 
 test('peer nonce generate', (t) => {
   // const peer = new Peer('192.168.1.1', 8888);
@@ -247,9 +247,13 @@ test('sync with peer list from another peer', async (t) => {
   t.end();
 });
 
+// FIXME: Transaction verification failed because
+// Transaction 0x133aa8f8877934bbd5d8d2f68bc41ebcc5d249f49c05383aebcff067b17d46d5
+// Already saved
 test('sync with longer peer chain', async (t) => {
   // Add block length 1 as default
   Chain.mainChain = await mock.chainWithBlocks(1, 1);
+
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
   t.equal(Chain.mainChain.getLength(), 1);
@@ -462,3 +466,46 @@ test('delete peer after fail to connect four times', async (t) => {
   await Peer.clearAll();
   t.end();
 });
+
+test('parse peer request headers', async (t) => {
+  const request = {
+    headers: {
+      'bong-port': '3000',
+      'bong-chain-work': '200',
+      'bong-chain-length': '20',
+    },
+  };
+
+  const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
+
+  t.equal(port, 3000);
+  t.equal(typeof (port), 'number');
+
+  t.equal(chainWork, 200);
+  t.equal(typeof (chainWork), 'number');
+
+  t.equal(chainLength, 20);
+  t.equal(typeof (chainLength), 'number');
+
+  t.end();
+});
+
+// test('set active peer status from compatibility', async (t) => {
+//   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   // compatiblePeer.setVersion('0.0.2');
+
+//   // t.equal(compatiblePeer.isCompatible(), true);
+//   // t.equal(compatiblePeer.getStatus(), Peer.Status.Idle);
+
+//   // compatiblePeer.setCompatibilityStatus();
+
+//   // const incompatiblePeer = new Peer(HOST_127_0_0_200, PORT_7000);
+//   // incompatiblePeer.setVersion('0.0.0');
+
+//   // t.equal(incompatiblePeer.isCompatible(), false);
+//   // t.equal(compatiblePeer.getStatus(), Peer.Status.Idle);
+
+//   // await Peer.clearAll();
+//   t.end();
+// });
+

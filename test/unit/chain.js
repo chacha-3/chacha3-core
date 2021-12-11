@@ -3,6 +3,7 @@ const { test } = require('tap');
 
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
+const Header = require('../../models/block');
 const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
@@ -424,6 +425,27 @@ test('clear blocks in chain starting from index', async (t) => {
   t.ok(nonClearedBlock.getHeader().getHash().equals(nonClearId));
 
   await Chain.clearMain();
+  t.end();
+});
+
+test('clear main chain data', async (t) => {
+  const numOfBlocks = 12;
+
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlocks, 5);
+  t.equal(Chain.mainChain.getLength(), numOfBlocks);
+
+  const header = Chain.mainChain.lastBlockHeader();
+  const clearedBlock = await Block.load(header.getHash());
+
+  t.not(await Header.load(clearedBlock.getHeader().getHash()), null);
+  t.not(await Transaction.load(clearedBlock.getTransaction(0).getId()), null);
+
+  await Chain.clearMain();
+  t.equal(Chain.mainChain.getLength(), 1);
+
+  t.equal(await Header.load(clearedBlock.getHeader().getHash()), null);
+  t.equal(await Transaction.load(clearedBlock.getTransaction(0).getId()), null);
+
   t.end();
 });
 
