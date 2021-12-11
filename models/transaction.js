@@ -56,11 +56,7 @@ class Transaction {
   }
 
   isCoinbase() {
-    if (this.getSenderKey() !== null) {
-      return false;
-    }
-
-    if (this.getSignature() !== null) {
+    if (this.getSenderKey() !== null || this.getSignature() !== null) {
       return false;
     }
 

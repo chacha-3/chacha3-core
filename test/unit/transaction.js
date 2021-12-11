@@ -441,3 +441,14 @@ test('check transaction is coinbase', async (t) => {
 
   t.end();
 });
+
+test('coinbase only valid when correct transaction type', async (t) => {
+  const block = await mock.blockWithTransactions(3);
+
+  t.equal(block.getTransaction(0).isCoinbase(), true);
+
+  block.transactions[0].setType(Transaction.Type.Send);
+  t.equal(block.getTransaction(0).isCoinbase(), false);
+
+  t.end();
+});
