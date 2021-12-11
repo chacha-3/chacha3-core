@@ -34,62 +34,37 @@ function build(opts = {}) {
   app.post('/', {
     preHandler: async (request, reply, done) => {
       if (process.env.NODE_ENV === 'test') {
-        // return done();
         return;
       }
 
-      const port = request.headers['bong-port'];
-      const chainWork = request.headers['bong-chain-work'];
-      const chainLength = request.headers['bong-chain-length'];
+      const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
 
-      // TODO: Validate input
       if (!port) {
-        // return done();
         return;
       }
 
       const { ip } = request;
-      const key = Peer.generateKey(ip, port);
-
-      const peer = await Peer.load(key);
 
       const { action, nonce } = request.body;
       const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
 
-      // TODO: Move this to nodeInfo action
-      if (!peer && !reachOutSelf) {
-        const newPeer = new Peer(ip, port);
-        newPeer.reachOut();
+      if (reachOutSelf) {
         return;
-        // return done();
       }
 
-      if (peer.status !== Peer.Status.Active && !reachOutSelf) {
-        peer.reachOut();
-        return;
-        // return done();
-      }
+      const peer = await Peer.discoverNewOrExisting(ip, port);
+      peer.setTotalWork(chainWork);
+      peer.setChainLength(chainLength);
 
       const syncActions = ['nodeInfo', 'pushBlock'];
 
-      const threshold = Chain.mainChain.getCurrentDifficulty() * 5;
-      const upperThreshold = Chain.mainChain.getTotalWork() + threshold;
-
-      const significantlyAhead = Number.parseInt(chainWork, 10) > upperThreshold;
-
-      debug(`Significantly ahead: ${significantlyAhead}`);
-
-      if (syncActions.includes(actionList) && significantlyAhead) {
+      if (syncActions.includes(actionList) && peer.isSignificantlyAhead()) {
         debug('Sync with chain significantly ahead');
 
-        peer.setChainLength(chainLength);
-        peer.setTotalWork(chainWork);
-
-        peer.syncChain(); // TODO: Add claimed work to verify is correct
+        peer.syncChain();
+        // TODO: Add claimed work to verify is correct
         // TODO: If sync fail. Find next best
       }
-
-      // done();
     },
     handler: async (request, reply) => {
       reply.type('application/json');

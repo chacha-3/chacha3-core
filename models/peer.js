@@ -299,6 +299,37 @@ class Peer {
     };
   }
 
+  static parseRequestHeaders(request) {
+    const { headers } = request;
+
+    return {
+      chainWork: Number.parseInt(headers['bong-chain-work'], 10),
+      chainLength: Number.parseInt(headers['bong-chain-length'], 10),
+      port: Number.parseInt(headers['bong-port'], 10),
+    };
+  }
+
+  // static validRequestHeaders(request) {
+  //   const { headers } = request;
+  //   const required = ['bong-port', 'bong-chain-work', 'bong-chain-length'];
+
+  //   for (let i = 0; i < required.length; i += 1) {
+  //     if (!Object.prototype.hasOwnProperty.call(headers, required[i])) {
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // }
+
+  // setFromHeaders(headers) {
+  //   this.setPort(Number.parseInt(headers['bong-port'], 10));
+  //   this.setTotalWork(Number.parseInt(headers['bong-chain-work'], 10));
+  //   this.setChainLength(Number.parseInt(headers['bong-chain-length'], 10));
+
+    
+  // }
+
   static areSame(peer1, peer2) {
     if (peer1.getHost() !== peer2.getHost()) {
       return false;
@@ -390,6 +421,13 @@ class Peer {
   async updateChainInfo(chain) {
     this.setChainLength(chain.getLength());
     this.setTotalWork(chain.getTotalWork());
+  }
+
+  isSignificantlyAhead() {
+    const threshold = Chain.mainChain.getCurrentDifficulty() * 5;
+    const upperThreshold = Chain.mainChain.getTotalWork() + threshold;
+
+    return this.getTotalWork() > upperThreshold;
   }
 
   async syncChain() {
@@ -542,6 +580,23 @@ class Peer {
     return peer;
   }
 
+  static async discoverNewOrExisting(host, port) {
+    let peer = await Peer.load(Peer.generateKey(host, port));
+
+    if (!peer) {
+      peer = new Peer(host, port);
+      peer.reachOut();
+
+      return peer;
+    }
+
+    if (peer.getStatus() !== Peer.Status.Active) {
+      peer.reachOut();
+    }
+
+    return peer;
+  }
+
   static async load(key) {
     let data;
 
@@ -576,6 +631,7 @@ Peer.localNonce = 0;
 
 Peer.Status = {
   Idle: 'idle',
+  Reaching: 'reaching', // TODO: Use
   Inactive: 'inactive',
   Unreachable: 'unreachable',
   Active: 'active',
