@@ -163,11 +163,13 @@ const deleteHistory = async () => {
   await ShellDB.put('history', [], { valueEncoding: 'json' });
 };
 
+// TODO: Modularize
 const onLineInput = async (line) => {
   // eslint-disable-next-line no-param-reassign
   line = line.trim();
   // let options = {};
 
+  // While prompting for password fields
   if (promptFields.length > 0) {
     // After prompt password.
     // Merge password to last request to sent again
@@ -193,6 +195,7 @@ const onLineInput = async (line) => {
       JSON.stringify(lastRequest),
     );
   } else {
+    // Handle special commands
     if (line === '/exit' || line === '/quit') {
       rl.close();
     } else if (line === '/clear') {
