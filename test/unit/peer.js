@@ -490,6 +490,26 @@ test('parse peer request headers', async (t) => {
   t.end();
 });
 
+test('check if peer block work is significantly ahead', async (t) => {
+  const numOfBlock = 3;
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlock, 5);
+
+  const currentDifficulty = Chain.mainChain.getCurrentDifficulty();
+
+  const aboveThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 6);
+  const belowThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 2);
+
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+  peer.setTotalWork((numOfBlock * currentDifficulty) + aboveThreshold);
+  t.equal(peer.isSignificantlyAhead(), true);
+
+  peer.setTotalWork((numOfBlock * currentDifficulty) + belowThreshold);
+  t.equal(peer.isSignificantlyAhead(), false);
+
+  await Chain.clearMain();
+  t.end();
+});
+
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
 //   // compatiblePeer.setVersion('0.0.2');

@@ -485,9 +485,10 @@ class Peer {
       const header = pulledChain.getBlockHeader(i);
       const block = await this.fetchBlock(header.getHash());
 
-      if (block === null) {
-        return false;
-      }
+      // TODO:
+      // if (block === null) {
+      //   return false;
+      // }
 
       const valid = await tempChain.confirmNewBlock(block);
 
@@ -521,10 +522,10 @@ class Peer {
   async fetchBlock(hash) {
     const response = await this.callAction('blockInfo', { hash: serializeBuffer(hash) });
 
-    if (!response) {
-      // TODO: Handle
-      return null;
-    }
+    // TODO: Handle
+    // if (!response) {
+    //   return null;
+    // }
 
     const { data } = response;
     return Block.fromObject(data);
