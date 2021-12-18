@@ -107,6 +107,31 @@ test('should not recover a wallet with incorrect password', (t) => {
   t.end();
 });
 
+test('should change the wallet password', (t) => {
+  const oldPassword = 'YVB3brq4';
+  const newPassword = 'fEBvGD9i';
+
+  const wallet = new Wallet();
+  wallet.generate(oldPassword);
+
+  const privateKeyBefore = wallet.getPrivateKey();
+  const publicKeyBefore = wallet.getPublicKey();
+
+  const changed = wallet.changePassword(oldPassword, newPassword);
+  t.equal(changed, true);
+
+  const privateKeyAfter = wallet.getPrivateKey();
+  const publicKeyAfter = wallet.getPublicKey();
+
+  t.notOk(privateKeyBefore.equals(privateKeyAfter), 'encrypted private key is different');
+  t.ok(publicKeyBefore.equals(publicKeyAfter), 'public key remains same');
+
+  t.equal(Wallet.recover(wallet.getPrivateKey(), oldPassword), null);
+  t.not(Wallet.recover(wallet.getPrivateKey(), newPassword), null);
+
+  t.end();
+});
+
 test('should not recover a wallet with invalid key', (t) => {
   const oldWallet = new Wallet();
   oldWallet.generate();

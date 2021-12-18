@@ -8,6 +8,13 @@ const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 // const addressPrefix = '420_';
 
 class Wallet {
+  constructor() {
+    this.label = '';
+
+    this.privateKey = null;
+    this.publicKey = null;
+  }
+
   static get AddressPrefix() {
     return '';
   }
@@ -97,11 +104,13 @@ class Wallet {
     return deserializeBuffer(selected);
   }
 
-  constructor() {
-    this.label = '';
-
-    this.privateKey = null;
-    this.publicKey = null;
+  static privateKeyEncodingOptions(passphrase) {
+    return {
+      type: 'pkcs8',
+      format: 'der',
+      cipher: 'aes-256-cbc',
+      passphrase,
+    };
   }
 
   generate(password) {
@@ -116,12 +125,7 @@ class Wallet {
         type: 'spki',
         format: 'der',
       },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'der',
-        cipher: 'aes-256-cbc',
-        passphrase,
-      },
+      privateKeyEncoding: Wallet.privateKeyEncodingOptions(passphrase),
     });
 
     this.privateKey = privateKey;
@@ -236,19 +240,22 @@ class Wallet {
     await WalletDB.del(address);
   }
 
-  // TODO:
-  // changePassword(currentPassword, newPassword) {
-  //   let privateKeyObject;
+  // TODO: Remove default blank pass
+  changePassword(currentPassword = '', newPassword) {
+    let privateKeyObject;
 
-  //   try {
-  //     privateKeyObject = crypto.createPrivateKey({
-  //       key: privateKey, format: 'der', type: 'pkcs8', currentPassword,
-  //     });
-  //   } catch (e) {
-  //     return false;
-  //   }
+    try {
+      privateKeyObject = crypto.createPrivateKey({
+        key: this.getPrivateKey(), format: 'der', type: 'pkcs8', passphrase: currentPassword,
+      });
+    } catch (e) {
+      return false;
+    }
 
-  // }
+    this.setPrivateKey(privateKeyObject.export(Wallet.privateKeyEncodingOptions(newPassword)));
+
+    return true;
+  }
 
   static recover(privateKey, password) {
     const passphrase = password || '';
