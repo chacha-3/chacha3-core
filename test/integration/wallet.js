@@ -327,6 +327,25 @@ test('should not change a wallet password with incorrect password', async (t) =>
   t.end();
 });
 
+test('should prompt current and new password to change password if not provided', async (t) => {
+  const currentPassword = 'S7eKL77H';
+
+  const [wallet] = await mock.createWallets(1, currentPassword);
+
+  const { code, prompt } = await runAction({
+    action: 'changeWalletPassword',
+    address: wallet.getAddressEncoded(),
+  });
+
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  const prompts = prompt.split('|');
+  t.ok(prompts.includes('currentPassword') && prompts.includes('newPassword'));
+
+  await Wallet.clearAll();
+  t.end();
+});
+
 test('should be unable to recover wallet with incorrect password', async (t) => {
   const password = 'u4J0fZ31j9mx';
 

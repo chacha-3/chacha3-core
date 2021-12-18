@@ -100,7 +100,8 @@ const runAction = async (options, permission) => {
       (field) => !Object.prototype.hasOwnProperty.call(options, field),
     );
 
-    if (missingPassFields.length > 0 && !options.password) {
+    console.log(missingPassFields.length)
+    if (missingPassFields.length > 0) {
       const pluralize = missingPassFields.length > 1 ? 's' : '';
 
       return errorResponse(
