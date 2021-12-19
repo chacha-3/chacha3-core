@@ -89,7 +89,6 @@ actions.listBlocks = {
     const end = (options.limit === undefined) ? options.limit : options.limit + (start || 0);
 
     const data = chain.blockHeaders.slice(start, end).map((header) => header.toObject());
-
     return okResponse(data, 'Block list');
   },
 };
