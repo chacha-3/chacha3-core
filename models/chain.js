@@ -288,6 +288,7 @@ class Chain {
         return false;
       }
 
+      // TODO: Determine timestamp verification
       if (header.getTime() < time) {
         return false;
       }
@@ -484,14 +485,8 @@ class Chain {
 
   // Change to Chain.mainChain.clear();
   static async clearMain() {
-    // await Transaction.clearAll();
-    // FIXME: Clear using model method
+    await Chain.mainChain.clear(true);
 
-    await Chain.mainChain.clear();
-    // await HeaderDB.clear(); // TODO: Add test
-    // await BlockDB.clear();
-
-    // await Chain.mainChain.clearBlocks();
     await DB.del('chain');
 
     Chain.mainChain = await Chain.load();

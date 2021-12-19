@@ -27,7 +27,10 @@ function completer(line) {
 
 let retrying;
 let lastRequest;
-let inputPassword = false;
+
+// let isPrompting = false;
+let promptFields = [];
+
 let prompt = null;
 
 const rl = readline.createInterface(process.stdin, process.stdout, completer);
@@ -124,6 +127,14 @@ function setDefaultPrompt() {
   rl.setPrompt(chalk.bold.redBright('$ '));
 }
 
+function promptPendingField() {
+  if (promptFields.length === 0) {
+    return;
+  }
+
+  rl.setPrompt(`${camelCaseToTitle(promptFields[0])}: `);
+  rl.prompt();
+}
 function start() {
   console.clear();
   console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${version})`)}`);
@@ -152,25 +163,39 @@ const deleteHistory = async () => {
   await ShellDB.put('history', [], { valueEncoding: 'json' });
 };
 
+// TODO: Modularize
 const onLineInput = async (line) => {
   // eslint-disable-next-line no-param-reassign
   line = line.trim();
-  let options = {};
+  // let options = {};
 
-  if (inputPassword) {
+  // While prompting for password fields
+  if (promptFields.length > 0) {
     // After prompt password.
     // Merge password to last request to sent again
-    options = lastRequest;
-    options.password = line;
+    // options = lastRequest;
 
-    inputPassword = false;
+    const field = promptFields.shift();
+    lastRequest[field] = line;
+
+    // isPrompting = false;
 
     // Remove password from history
     rl.history.shift();
     await saveHistory();
 
+    if (promptFields.length > 0) {
+      promptPendingField();
+      return;
+    }
+
     setDefaultPrompt();
+    ipc.of[ipcId].emit(
+      'message', // any event or message type your server listens for
+      JSON.stringify(lastRequest),
+    );
   } else {
+    // Handle special commands
     if (line === '/exit' || line === '/quit') {
       rl.close();
     } else if (line === '/clear') {
@@ -187,24 +212,26 @@ const onLineInput = async (line) => {
     const parseQuote = parse(line);
     const actionName = parseQuote[0];
 
-    options = {
+    const options = {
       action: actionName,
     };
 
     for (let i = 1; i < parseQuote.length; i += 1) {
-      // FIXME: Handle { op: '||' }
-      const [key, value] = parseQuote[i].split(':');
-      options[key] = value;
+      // Ignore operators such as & and |
+      if (!parseQuote[i].op) {
+        const [key, value] = parseQuote[i].split(':');
+        options[key] = value;
+      }
     }
 
     lastRequest = options;
     await saveHistory();
-  }
 
-  ipc.of[ipcId].emit(
-    'message', // any event or message type your server listens for
-    JSON.stringify(options),
-  );
+    ipc.of[ipcId].emit(
+      'message', // any event or message type your server listens for
+      JSON.stringify(options),
+    );
+  }
 };
 
 const onClose = () => {
@@ -243,11 +270,10 @@ const ipcMessage = (data) => {
   const parsed = JSON.parse(data);
   prompt = parsed.prompt;
 
-  if (prompt === 'password') {
-    inputPassword = true;
-
-    rl.setPrompt('Password: ');
-    rl.prompt();
+  if (prompt) {
+    // const prompts = prompt.split('|');
+    promptFields = prompt.split('|');
+    promptPendingField();
 
     return;
   }
@@ -259,7 +285,7 @@ const ipcMessage = (data) => {
 setDefaultPrompt();
 
 rl.input.on('keypress', () => {
-  if (!inputPassword) {
+  if (promptFields.length === 0) {
     return;
   }
 

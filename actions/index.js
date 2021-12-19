@@ -90,17 +90,36 @@ const runAction = async (options, permission) => {
   const { schema, handler } = action;
 
   if (schema) {
-    const requiresPassword = schema.required && schema.required.includes('password');
+    const promptFields = ['password', 'currentPassword', 'newPassword'];
 
-    if (requiresPassword && !options.password) {
-      return errorResponse(ErrorCode.InvalidArgument, 'Enter wallet passphrase', null, 'password');
+    const requiredPassFields = (schema.required)
+      ? promptFields.filter((field) => schema.required.includes(field))
+      : [];
+
+    const missingPassFields = requiredPassFields.filter(
+      (field) => !Object.prototype.hasOwnProperty.call(options, field),
+    );
+
+    if (missingPassFields.length > 0) {
+      const pluralize = missingPassFields.length > 1 ? 's' : '';
+
+      return errorResponse(
+        ErrorCode.InvalidArgument,
+        `Password field${pluralize} required`,
+        null,
+        missingPassFields.join('|'),
+      );
     }
 
     const validate = ajv.compile(schema);
     const valid = validate(options);
 
     if (!valid) {
-      return errorResponse(ErrorCode.InvalidArgument, 'Invalid argument', [validate.errors[0].message]);
+      return errorResponse(
+        ErrorCode.InvalidArgument,
+        'Invalid argument',
+        [validate.errors[0].message],
+      );
     }
   }
   const result = await execute(options, handler);

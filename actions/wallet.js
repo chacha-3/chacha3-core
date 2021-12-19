@@ -95,6 +95,42 @@ actions.recoverWallet = {
   },
 };
 
+actions.changeWalletPassword = {
+  permission: 'authOnly',
+  schema: {
+    properties: {
+      address: { type: 'string', buffer: 'hex' },
+      currentPassword: { type: 'string' },
+      newPassword: { type: 'string' },
+    },
+    required: ['address', 'currentPassword', 'newPassword'],
+  },
+  preValidation: async (options) => {
+    let selectedWallet;
+
+    if (!options.address && (selectedWallet = await Wallet.getSelected())) {
+      // eslint-disable-next-line no-param-reassign
+      options.address = serializeBuffer(selectedWallet);
+    }
+  },
+  handler: async (options) => {
+    const wallet = await Wallet.load(options.address);
+
+    if (!wallet) {
+      return errorResponse(ErrorCode.NotFound, 'Wallet not found');
+    }
+
+    const changed = wallet.changePassword(options.currentPassword, options.newPassword);
+
+    if (!changed) {
+      return errorResponse(ErrorCode.InvalidArgument, 'Unable to change wallet password');
+    }
+
+    await Wallet.save(wallet);
+    return okResponse(wallet.toObject(), 'Update wallet password');
+  },
+};
+
 actions.verifyWallet = {
   permission: 'authOnly',
   schema: {
