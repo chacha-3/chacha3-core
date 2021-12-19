@@ -491,6 +491,7 @@ class Peer {
 
       const valid = await tempChain.confirmNewBlock(block);
 
+      // FIXME: If invalid need to revert
       if (!valid) {
         return false;
       }

@@ -16,7 +16,7 @@ const {
   headers,
 } = require('../../util/peer-response');
 
-// const blockData = require('../../util/mock/data/blocks.json');
+const blockData = require('../../util/mock/data/blocks.json');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -308,23 +308,7 @@ test('does not sync with unverified forward block', async (t) => {
   t.equal(result, false);
   t.equal(Chain.mainChain.getLength(), 1);
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  await Chain.clearMain();
-  t.end();
-});
-
-test('sync with peer chain skipped if currently synching with another peer', async (t) => {
-  // Add block length 1 as default
-  Chain.mainChain = await mock.chainWithBlocks(1, 1);
-  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-
-  t.equal(Chain.mainChain.getLength(), 1);
-  Chain.mainChain.setSynching(true);
-
-  const result = await peer.syncChain();
-  t.equal(result, true);
-  t.equal(Chain.mainChain.getLength(), 1);
+  // FIXME: Check not blocks and transaction saved
 
   // TODO: Clear single peer
   await Peer.clearAll();
@@ -332,163 +316,181 @@ test('sync with peer chain skipped if currently synching with another peer', asy
   t.end();
 });
 
-test('fail to sync with peer that has invalid chain (invalid previous hash)', async (t) => {
-  // Add block length 1 as default
-  Chain.mainChain = await mock.chainWithBlocks(1, 1);
-  const peer = new Peer(HOST_127_0_0_101, PORT_7000);
+// test('sync with peer chain skipped if currently synching with another peer', async (t) => {
+//   // Add block length 1 as default
+//   Chain.mainChain = await mock.chainWithBlocks(1, 1);
+//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
-  t.equal(Chain.mainChain.getLength(), 1);
-  t.equal(Chain.mainChain.isSynching(), false);
+//   t.equal(Chain.mainChain.getLength(), 1);
+//   Chain.mainChain.setSynching(true);
 
-  const result = await peer.syncChain();
-  t.equal(result, false);
-  t.equal(Chain.mainChain.getLength(), 1);
+//   const result = await peer.syncChain();
+//   t.equal(result, true);
+//   t.equal(Chain.mainChain.getLength(), 1);
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  await Chain.clearMain();
-  t.end();
-});
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   await Chain.clearMain();
+//   t.end();
+// });
 
-test('broadcast to all active peers', async (t) => {
-  const activePeer = new Peer(HOST_127_0_0_100, PORT_7000);
-  activePeer.setStatus(Peer.Status.Active);
+// test('fail to sync with peer that has invalid chain (invalid previous hash)', async (t) => {
+//   // Add block length 1 as default
+//   Chain.mainChain = await mock.chainWithBlocks(1, 1);
+//   const peer = new Peer(HOST_127_0_0_101, PORT_7000);
 
-  const idlePeer = new Peer(HOST_127_0_0_99, PORT_7000);
-  idlePeer.setStatus(Peer.Status.Idle);
+//   t.equal(Chain.mainChain.getLength(), 1);
+//   t.equal(Chain.mainChain.isSynching(), false);
 
-  const inactivePeer = new Peer(HOST_127_0_0_101, PORT_7000);
-  inactivePeer.setStatus(Peer.Status.Inactive);
+//   const result = await peer.syncChain();
+//   t.equal(result, false);
+//   t.equal(Chain.mainChain.getLength(), 1);
 
-  await activePeer.save();
-  await idlePeer.save();
-  await inactivePeer.save();
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   await Chain.clearMain();
+//   t.end();
+// });
 
-  const savedPeers = await Peer.all();
-  t.equal(savedPeers.length, 3);
+// test('broadcast to all active peers', async (t) => {
+//   const activePeer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   activePeer.setStatus(Peer.Status.Active);
 
-  const result = await Peer.broadcastAction('nodeInfo');
-  t.equal(result.length, 1, 'sent to one active peer');
+//   const idlePeer = new Peer(HOST_127_0_0_99, PORT_7000);
+//   idlePeer.setStatus(Peer.Status.Idle);
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+//   const inactivePeer = new Peer(HOST_127_0_0_101, PORT_7000);
+//   inactivePeer.setStatus(Peer.Status.Inactive);
 
-test('add seed peers', async (t) => {
-  const initialPeers = await Peer.all();
-  t.equal(initialPeers.length, 0);
+//   await activePeer.save();
+//   await idlePeer.save();
+//   await inactivePeer.save();
 
-  await Peer.addSeed();
+//   const savedPeers = await Peer.all();
+//   t.equal(savedPeers.length, 3);
 
-  const seededPeers = await Peer.all();
-  t.ok(Peer.SeedList.length > 0);
-  t.equal(seededPeers.length, Peer.SeedList.length);
+//   const result = await Peer.broadcastAction('nodeInfo');
+//   t.equal(result.length, 1, 'sent to one active peer');
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-test('reach out to active peer', async (t) => {
-  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-  t.equal((await Peer.all()).length, 0);
+// test('add seed peers', async (t) => {
+//   const initialPeers = await Peer.all();
+//   t.equal(initialPeers.length, 0);
 
-  const result = await peer.reachOut();
-  t.equal(result, true);
+//   await Peer.addSeed();
 
-  // 1 connected peer plus 3 other active/inactive peer of connected peer
-  t.equal((await Peer.all()).length, 4);
+//   const seededPeers = await Peer.all();
+//   t.ok(Peer.SeedList.length > 0);
+//   t.equal(seededPeers.length, Peer.SeedList.length);
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-test('does not reach out to self as peer connecting to self', async (t) => {
-  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-  t.equal((await Peer.all()).length, 0);
+// test('reach out to active peer', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   t.equal((await Peer.all()).length, 0);
 
-  // Set matching nonce
-  Peer.localNonce = 3000000;
+//   const result = await peer.reachOut();
+//   t.equal(result, true);
 
-  const result = await peer.reachOut();
-  t.equal(result, false);
-  t.equal((await Peer.all()).length, 0);
+//   // 1 connected peer plus 3 other active/inactive peer of connected peer
+//   t.equal((await Peer.all()).length, 4);
 
-  // await Peer.clearAll();
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-  t.end();
-});
+// test('does not reach out to self as peer connecting to self', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   t.equal((await Peer.all()).length, 0);
 
-test('delete peer after reach out if peer is self', async (t) => {
-  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-  await peer.save();
+//   // Set matching nonce
+//   Peer.localNonce = 3000000;
 
-  const beforePeers = await Peer.all();
-  t.equal(beforePeers.length, 1);
+//   const result = await peer.reachOut();
+//   t.equal(result, false);
+//   t.equal((await Peer.all()).length, 0);
 
-  // Match mock nodeInfo response nonce
-  Peer.localNonce = 3000000;
+//   // await Peer.clearAll();
 
-  const result = await peer.reachOut();
-  t.equal(result, false);
+//   t.end();
+// });
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+// test('delete peer after reach out if peer is self', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   await peer.save();
 
-test('fetch peer chain success', async (t) => {
-  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+//   const beforePeers = await Peer.all();
+//   t.equal(beforePeers.length, 1);
 
-  const chain = await peer.fetchChain();
-  t.ok(chain.getLength() > 0);
+//   // Match mock nodeInfo response nonce
+//   Peer.localNonce = 3000000;
 
-  // TODO: Clear single peer
-  await Peer.clearAll();
-  t.end();
-});
+//   const result = await peer.reachOut();
+//   t.equal(result, false);
 
-test('delete peer after fail to connect four times', async (t) => {
-  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
-  await peer.save();
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-  for (let i = 0; i < 3; i += 1) {
-    await peer.failConnect();
-  }
+// test('fetch peer chain success', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
-  t.equal((await Peer.all()).length, 1);
+//   const chain = await peer.fetchChain();
+//   t.ok(chain.getLength() > 0);
 
-  await peer.failConnect();
-  t.equal((await Peer.all()).length, 0);
+//   // TODO: Clear single peer
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-  await Peer.clearAll();
-  t.end();
-});
+// test('delete peer after fail to connect four times', async (t) => {
+//   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+//   await peer.save();
 
-test('parse peer request headers', async (t) => {
-  const request = {
-    headers: {
-      'bong-port': '3000',
-      'bong-chain-work': '200',
-      'bong-chain-length': '20',
-    },
-  };
+//   for (let i = 0; i < 3; i += 1) {
+//     await peer.failConnect();
+//   }
 
-  const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
+//   t.equal((await Peer.all()).length, 1);
 
-  t.equal(port, 3000);
-  t.equal(typeof (port), 'number');
+//   await peer.failConnect();
+//   t.equal((await Peer.all()).length, 0);
 
-  t.equal(chainWork, 200);
-  t.equal(typeof (chainWork), 'number');
+//   await Peer.clearAll();
+//   t.end();
+// });
 
-  t.equal(chainLength, 20);
-  t.equal(typeof (chainLength), 'number');
+// test('parse peer request headers', async (t) => {
+//   const request = {
+//     headers: {
+//       'bong-port': '3000',
+//       'bong-chain-work': '200',
+//       'bong-chain-length': '20',
+//     },
+//   };
 
-  t.end();
-});
+//   const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
+
+//   t.equal(port, 3000);
+//   t.equal(typeof (port), 'number');
+
+//   t.equal(chainWork, 200);
+//   t.equal(typeof (chainWork), 'number');
+
+//   t.equal(chainLength, 20);
+//   t.equal(typeof (chainLength), 'number');
+
+//   t.end();
+// });
 
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
