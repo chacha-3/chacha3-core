@@ -76,9 +76,19 @@ actions.pushBlock = {
 
 actions.listBlocks = {
   permission: 'public',
-  handler: async () => {
+  schema: {
+    properties: {
+      offset: { type: 'integer' },
+      limit: { type: 'integer' },
+    },
+  },
+  handler: async (options) => {
     const chain = Chain.mainChain;
-    const data = chain.blockHeaders.map((header) => header.toObject());
+
+    const start = options.offset;
+    const end = (options.limit === undefined) ? options.limit : options.limit + (start || 0);
+
+    const data = chain.blockHeaders.slice(start, end).map((header) => header.toObject());
 
     return okResponse(data, 'Block list');
   },
