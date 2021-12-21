@@ -1,3 +1,5 @@
+const assert = require('assert');
+
 const Block = require('../models/block');
 const Wallet = require('../models/wallet');
 const { deserializeBuffer } = require('../util/serialize');

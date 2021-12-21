@@ -24,23 +24,23 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x00b6b30267c1502e2d717a2696410bf9c03e448741efc9ccabd1bc84e6fa3dbd',
+        hash: '0x002ed2b2660cd65529d69fa8a49bd43d9ab31964e604e2c86924bbc84dc272a4',
         previous: null,
-        time: 1637902963395,
+        time: 1640089356037,
         difficulty: 1,
-        nonce: 8609437805620442,
-        checksum: '0x385deec3656ac30a97d5b37837732214c0175950073f08aaffc095470eabd876',
+        nonce: 842169246139465,
+        checksum: '0x06655e29e6aedb0f263b3651145e3f92713d0c00608cd042d884dc5162c80b91',
         version: 1,
       },
       transactions: [
         {
-          id: '0x142f7bb983445793a031aed7e241a48efa74dbdd70d3d0ed74404485fc96ba05',
+          id: '0x7cd22c093e148a02db000df5f2b58adea9aa6dfa858b30b652518b42138d5307',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x00cc460a150ce94fe032e806d586fc84ec515dc12ed934743b',
+          receiverAddress: '0x00076999a3d399bfabc2d0ac61b0ecd59ad212848cb3695517',
           amount: '5000000n',
           signature: null,
-          time: 1637902963396,
+          time: 1640089356038,
           type: 'mine',
         },
       ],
@@ -206,6 +206,7 @@ class Block {
     }
 
     if (!Wallet.verifyAddress(coinbase.getReceiverAddress())) {
+      debug('Invalid coinbase wallet address');
       return false;
     }
 
