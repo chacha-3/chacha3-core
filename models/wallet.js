@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const assert = require('assert');
 
+const XXHash = require('xxhash');
+
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
@@ -51,11 +53,15 @@ class Wallet {
     await WalletDB.clear();
   }
 
+  static checksumHash(fingerprint) {
+    return XXHash.hash(fingerprint, 0xe782cbe4, 'buffer').slice(-4);
+  }
+
   static generateAddress(publicKey) {
     const version = Buffer.from([0x00]);
 
     const fingerprint = crypto.createHash('SHA3-256').update(publicKey).digest().slice(-20);
-    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+    const checksum = Wallet.checksumHash(fingerprint);
 
     return Buffer.concat([version, fingerprint, checksum]);
   }
@@ -72,7 +78,7 @@ class Wallet {
     }
 
     const fingerprint = address.slice(1, 21);
-    const checksum = crypto.createHash('SHA3-256').update(fingerprint).digest().slice(-4);
+    const checksum = Wallet.checksumHash(fingerprint);
 
     return address.slice(21, 25).equals(checksum);
   }

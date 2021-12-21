@@ -304,9 +304,18 @@ test('unselect a deleted wallet', async (t) => {
   t.end();
 });
 
+test('verify generated  wallet address checksum', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  t.equal(Wallet.verifyAddress(wallet.getAddress()), true, 'Valid address');
+
+  t.end();
+});
+
 test('verify wallet address checksum', async (t) => {
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcF')), true, 'Valid address');
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf22')), false, 'Invalid checksum');
+  t.equal(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b069')), true, 'Valid address');
+  t.equal(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b079')), false, 'Invalid checksum');
 
   t.end();
 });
