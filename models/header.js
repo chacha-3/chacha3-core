@@ -142,7 +142,8 @@ class Header {
     const hashResult = blake3.hash(this.hashData());
     assert(hashResult.length === 32);
 
-    this.hash = hashResult;
+    // this.hash = hashResult;
+    return hashResult;
   }
 
   getHash() {
