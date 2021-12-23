@@ -24,7 +24,10 @@ actions.createWallet = {
   schema: {
     properties: {
       label: { type: 'string' },
-      password: { type: 'string' },
+      password: {
+        type: 'string',
+        auth: true,
+      },
     },
     required: ['label', 'password'],
   },

@@ -28,6 +28,15 @@ ajv.addKeyword('buffer', {
   },
 });
 
+ajv.addKeyword('auth', {
+  validate: function validate (schema, data) {
+    console.log(schema)
+    validate.errors = [{keyword: 'auth', message: 'shoud be authenticated.', params: {keyword: 'auth'}}];
+    return false;
+  },
+  errors: true
+});
+
 const actions = {
   ...wallet,
   ...transaction,

@@ -21,6 +21,7 @@
     "fastify-websocket": "^3.2.0",
     "level": "^7.0.0",
     "node-ipc": "<10.0.0",
+    "password-validator": "^5.2.1",
     "secure-random-password": "^0.2.3",
     "selfsigned": "^1.10.11",
     "shell-quote": "^1.7.2",

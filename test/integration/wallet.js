@@ -30,13 +30,14 @@ test('list all wallet', async (t) => {
 });
 
 test('create wallet', async (t) => {
-  const { code, data } = await runAction({
+  const { code, data, errors } = await runAction({
     action: 'createWallet',
     label: 'MyWalletLabel',
-    password: 'xLrbjQ4uacvw',
+    password: randomPassword(),
   });
 
   t.equal(code, SuccessCode);
+  console.log(errors)
   t.equal(data.label, 'MyWalletLabel');
 
   t.equal(typeof data.label, 'string');
