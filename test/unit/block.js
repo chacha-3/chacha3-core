@@ -475,6 +475,28 @@ test('block is invalid when hash does not meet target (mining difficult)', async
   t.end();
 });
 
+test('block is invalid when hash meet difficulty but is incorrect', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks));
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() + 100);
+
+  block.header.setHash(deserializeBuffer('0x00000000000000000000ffffffffffffffffffffffffffffffffffffffffff00'));
+
+  t.equal(block.verifyHash(), false, 'block with invalid hash fails coinbase verification');
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
+
+  t.end();
+});
+
 test('block is valid when does not have previously saved transaction', async (t) => {
   const numOfBlocks = 3;
 
