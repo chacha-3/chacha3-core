@@ -1,5 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
+const blake3 = require('blake3');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
 const { serializeObject, deserializeBuffer } = require('../util/serialize');
@@ -92,7 +93,7 @@ class Header {
       time: this.time,
       difficulty: this.difficulty,
       nonce: this.nonce,
-      checksum: this.getChecksum,
+      checksum: this.getChecksum(),
     };
 
     return JSON.stringify(serializeObject(data));

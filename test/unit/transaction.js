@@ -154,17 +154,24 @@ test('have correct hash data for transaction', async (t) => {
     Transaction.Type.Send,
   );
 
-  const hashData = JSON.parse(transaction.hashData());
+  const data = JSON.parse(transaction.hashData());
 
-  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddress()));
-  t.equal(hashData.senderKey, serializeBuffer(sender.getPublicKey()));
+  const results = [
+    { key: 'version', value: 1 },
+    { key: 'senderKey', value: serializeBuffer(sender.getPublicKey()) },
+    { key: 'receiverAddress', value: serializeBuffer(receiver.getAddress()) },
+    { key: 'amount', value: '20n' },
+    { key: 'time', value: transaction.getTime() },
+    { key: 'type', value: Transaction.Type.Send} ,
+  ];
 
-  t.equal(hashData.type, Transaction.Type.Send);
-  t.equal(hashData.version, 1);
-  t.equal(hashData.amount, '20n');
+  // Order of keys is important to ensure hash has same output
+  Object.keys(data).forEach((key, index) => {
+    t.equal(key, results[index].key);
+    t.equal(data[key], results[index].value);
+  });
 
-  t.equal(hashData.signture, undefined);
-  t.ok(hashData.time > 0);
+  t.equal(data.signature, undefined);
 
   t.end();
 });
@@ -176,15 +183,36 @@ test('have correct hash data for transaction with no sender', async (t) => {
   const receiver = new Wallet();
   await receiver.generate();
 
-  const transaction = new Transaction(null, receiver.getAddress(), 20);
+  const transaction = new Transaction(
+    null,
+    receiver.getAddress(),
+    20,
+    Transaction.Type.Send,
+  );
 
-  const hashData = JSON.parse(transaction.hashData());
-  t.equal(hashData.senderKey, null);
+  const data = JSON.parse(transaction.hashData());
+
+  const results = [
+    { key: 'version', value: 1 },
+    { key: 'senderKey', value: null },
+    { key: 'receiverAddress', value: serializeBuffer(receiver.getAddress()) },
+    { key: 'amount', value: '20n' },
+    { key: 'time', value: transaction.getTime() },
+    { key: 'type', value: Transaction.Type.Send} ,
+  ];
+
+  // Order of keys is important to ensure hash has same output
+  Object.keys(data).forEach((key, index) => {
+    t.equal(key, results[index].key);
+    t.equal(data[key], results[index].value);
+  });
+
+  t.equal(data.signature, undefined);
 
   t.end();
 });
 
-test('have correct hash data for coinbase transaction',async  (t) => {
+test('have correct hash data for coinbase transaction', async (t) => {
   const sender = new Wallet();
   await sender.generate();
 
@@ -193,13 +221,23 @@ test('have correct hash data for coinbase transaction',async  (t) => {
 
   const transaction = new Transaction(null, receiver.getAddress(), 50);
 
-  const hashData = JSON.parse(transaction.hashData());
-  t.equal(hashData.receiverAddress, serializeBuffer(receiver.getAddress()));
+  // const hashData = JSON.parse(transaction.hashData());
+  const data = JSON.parse(transaction.hashData());
 
-  t.equal(hashData.version, 1);
-  t.equal(hashData.amount, '50n');
-  t.equal(hashData.senderKey, null);
+  const results = [
+    { key: 'version', value: 1 },
+    { key: 'senderKey', value: null },
+    { key: 'receiverAddress', value: serializeBuffer(receiver.getAddress()) },
+    { key: 'amount', value: '50n' },
+    { key: 'time', value: transaction.getTime() },
+    { key: 'type', value: Transaction.Type.Send },
+  ];
 
+  // Order of keys is important to ensure hash has same output
+  Object.keys(data).forEach((key, index) => {
+    t.equal(key, results[index].key);
+    t.equal(data[key], results[index].value);
+  });
   t.end();
 });
 

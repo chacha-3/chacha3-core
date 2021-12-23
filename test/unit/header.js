@@ -4,6 +4,8 @@ const { test } = require('tap');
 
 const Header = require('../../models/header');
 const mock = require('../../util/mock');
+const { headers } = require('../../util/peer-response');
+const { deserializeBuffer } = require('../../util/serialize');
 
 // const { expect } = chai;
 
@@ -34,6 +36,35 @@ test('get difficulty target', (t) => {
   // Difficulty is rounded up but cannot be less than 1
   header.setDifficulty(0.25);
   t.equal(header.getTarget(), BigInt(Header.MinTarget));
+
+  t.end();
+});
+
+test('hash data is correct', (t) => {
+  const header = new Header();
+  header.setVersion(1);
+  header.setPrevious(deserializeBuffer('0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'));
+  header.setTime(1000000233);
+  header.setDifficulty(1);
+  header.setNonce(1001);
+  header.setChecksum(deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'));
+
+  const data = JSON.parse(header.hashData());
+
+  const results = [
+    { key: 'version', value: 1 },
+    { key: 'previous', value: '0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'},
+    { key: 'time', value: 1000000233 },
+    { key: 'difficulty', value: 1 },
+    { key: 'nonce', value: 1001 },
+    { key: 'checksum', value: '0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'},
+  ];
+
+  // Order of keys is important to ensure hash has same output
+  Object.keys(data).forEach((key, index) => {
+    t.equal(key, results[index].key);
+    t.equal(data[key], results[index].value);
+  });
 
   t.end();
 });
