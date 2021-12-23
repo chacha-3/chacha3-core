@@ -24,23 +24,23 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x908a996bdc3747823684d889904ad79097ba35911e6c3a95edf18bf7c3df05ce',
+        hash: '0xea77280a1edd88cb817d873b0e412c647f5ad83dd82d854bd3aa344036fd5ed6',
         previous: null,
-        time: 1640254331789,
+        time: 1640256849509,
         difficulty: 1,
-        nonce: 935438243298649,
-        checksum: '0xb447963c16ce79555ed431669776c2b605ed6e94209b728f382efaf5c609080b',
+        nonce: 3366597111359845,
+        checksum: '0x30f2be38f27727a01f5488346f6628924ba21cb703b6f220553d8696f07c28df',
         version: 1,
       },
       transactions: [
         {
-          id: '0x35fd7699df86dcf7396eec614c69142ad6dccf4e79c92c62d33a111c2e23cca5',
+          id: '0x9f77b917a978c95c0384efe5def1d2e7e6d74a1bface0dd088652a06fbefa694',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x00f3b2b1808492685a66ba7c908f7308969fecd8b3065a2273',
+          receiverAddress: '0x0097aaec5857862386024ece34ab7bd1871b1185d792b46145',
           amount: '5000000n',
           signature: null,
-          time: 1640254331789,
+          time: 1640256849509,
           type: 'mine',
         },
       ],
@@ -154,8 +154,12 @@ class Block {
   }
 
   // FIXME: Move this to header
-  verifyHash() {
+  verifyHash(recalculate = true) {
     assert(this.getTransactionCount() > 0);
+
+    if (recalculate && !this.header.getHash().equals(this.header.computeHash())) {
+      return false;
+    }
 
     const hashNum = BigInt(serializeBuffer(this.header.getHash()));
     return hashNum < this.header.getTarget();

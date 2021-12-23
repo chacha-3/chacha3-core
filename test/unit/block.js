@@ -469,7 +469,7 @@ test('block is invalid when hash does not meet target (mining difficult)', async
 
   block.header.setHash(deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'));
 
-  t.equal(block.verifyHash(), false, 'block with invalid hash fails coinbase verification');
+  t.equal(block.verifyHash(false), false, 'block with invalid hash fails coinbase verification');
   t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false);
 
   t.end();
