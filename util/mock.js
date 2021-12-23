@@ -322,8 +322,8 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
 mock.randomPassword = () => {
   // At least one lowercase, uppercase, and number
   const options = {
-    length: 10,
-    characters: password.lower + password.upper + password.digits,
+    length: randomNumberBetween(8, 16),
+    characters: [password.lower, password.upper, password.digits],
   };
 
   return password.randomPassword(options);

@@ -87,11 +87,11 @@ class Header {
     assert(this.checksum !== null && this.time != null);
 
     const data = {
-      version: this.version,
-      previous: this.previous,
-      time: this.time,
-      difficulty: this.difficulty,
-      nonce: this.nonce,
+      version: this.getVersion(),
+      previous: this.getPrevious(),
+      time: this.getTime(),
+      difficulty: this.getDifficulty(),
+      nonce: this.getNonce(),
       checksum: this.getChecksum(),
     };
 
@@ -139,7 +139,7 @@ class Header {
   }
 
   computeHash() {
-    const hashResult = crypto.createHash('sha3-256').update(this.hashData(), 'utf-8').digest();
+    const hashResult = blake3.hash(this.hashData());
     assert(hashResult.length === 32);
 
     this.hash = hashResult;

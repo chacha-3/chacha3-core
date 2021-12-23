@@ -29,10 +29,12 @@ test('list all wallet', async (t) => {
 });
 
 test('create wallet', async (t) => {
+  const password = mock.randomPassword();
+
   const { code, data } = await runAction({
     action: 'createWallet',
     label: 'MyWalletLabel',
-    password: mock.randomPassword(),
+    password,
   });
 
   t.equal(code, SuccessCode);
