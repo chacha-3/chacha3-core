@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const assert = require('assert');
+const debug = require('debug')('wallet:model');
 
 const argon2 = require('argon2');
 const XXHash = require('xxhash');
@@ -119,6 +120,59 @@ class Wallet {
       cipher: 'aes-256-cbc',
       passphrase,
     };
+  }
+
+  static async deriveEncryptionKey(password, salt) {
+    const key = await argon2.hash(password, {
+      parallelism: 8,
+      timeCost: process.env.NODE_ENV === 'test' ? 2 : 40,
+      memoryCost: 2 ** 16,
+      salt,
+      hashLength: 32,
+      raw: true,
+    });
+
+    return key;
+  }
+
+  static async encryptPrivateKey(privateKey, password) {
+    const version = Buffer.from([0x01]);
+
+    const iv = crypto.randomBytes(12);
+    const salt = crypto.randomBytes(16);
+
+    const key = await this.deriveEncryptionKey(password, salt);
+
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    let encrypted = Buffer.concat([cipher.update(privateKey), cipher.final()]);
+    const authTag = cipher.getAuthTag(); // 16 bytes for GCM
+
+    return Buffer.concat([version, salt, iv, authTag, Buffer.from(encrypted, 'hex')]);
+  }
+
+  static async decryptPrivateKey(encryptedBuffer, password) {
+    const version = encryptedBuffer[0];
+
+    if (version !== 0x01) {
+      throw Error('Wallet version not supported');
+    }
+
+    const salt = encryptedBuffer.slice(1, 17);
+
+    const key = await this.deriveEncryptionKey(password, salt);
+    const iv = encryptedBuffer.slice(17, 29);
+    const authTag = encryptedBuffer.slice(29, 45);
+
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+
+    const data = encryptedBuffer.slice(45);
+
+    // let decrypted = decipher.update(data, 'buffer', 'buffer');
+    // decrypted += decipher.final('buffer');
+
+    const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
+    return decrypted;
   }
 
   generate(password) {
@@ -248,36 +302,17 @@ class Wallet {
     await WalletDB.del(address);
   }
 
-  static hashOptions(version = 0x01, salt) {
-    return {
-      raw: true,
-      salt,
-      hashLength: 32,
-      saltLength: 16,
-      timeCost: 42,
-      memoryCost: 2 ** 16,
-      parallelism: 8,
-    };
-  }
-
-  static async decryptPrivateKey(privateKey, password) {
-    let privateKeyObject;
-
-    const secretKey = await argon2.hash(
-      password,
-      Wallet.hashOptions(0x01, Buffer.from('ab6fc957cf809e349a31b735fd8fcd53', 'hex'))
-    );
-
-    try {
-      privateKeyObject = crypto.createPrivateKey({
-        key: privateKey, format: 'der', type: 'pkcs8', secretKey,
-      });
-    } catch (e) {
-      return null;
-    }
-
-    return privateKeyObject;
-  }
+  // static hashOptions(version = 0x01, salt) {
+  //   return {
+  //     raw: true,
+  //     salt,
+  //     hashLength: 32,
+  //     saltLength: 16,
+  //     timeCost: 42,
+  //     memoryCost: 2 ** 16,
+  //     parallelism: 8,
+  //   };
+  // }
 
   // TODO: Remove default blank pass
   changePassword(currentPassword = '', newPassword) {

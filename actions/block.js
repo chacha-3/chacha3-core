@@ -1,4 +1,4 @@
-const debug = require('debug')('transaction:model');
+const debug = require('debug')('transaction:action');
 const assert = require('assert');
 
 const Block = require('../models/block');

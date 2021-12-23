@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { test } = require('tap');
 // const chai = require('chai');
 
@@ -324,5 +325,32 @@ test('verify address by length', async (t) => {
   t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf')), false, 'Address too short');
   t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcFee')), false, 'Address too long');
 
+  t.end();
+});
+
+test('encrypt and decrypt private key', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
+
+  const password = '3zCLhatfebKoG5Mm';
+
+  const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), password);
+  t.equal(encrypted[0], 0x01);
+  // console.log(encrypted)
+
+  const decrypted = await Wallet.decryptPrivateKey(encrypted, password);
+  t.ok(wallet.getPrivateKey().equals(decrypted));
+
+  t.end();
+});
+
+test('derived encryption key is always equal with same salt', async (t) => {
+  const password = '2BcDWppjCcoFnzj4';
+  const salt = crypto.randomBytes(12);
+
+  const key1 = await Wallet.deriveEncryptionKey(password, salt);
+  const key2 = await Wallet.deriveEncryptionKey(password, salt);
+
+  t.ok(key1.equals(key2));
   t.end();
 });
