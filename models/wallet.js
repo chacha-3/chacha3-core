@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const assert = require('assert');
 
+const argon2 = require('argon2');
 const XXHash = require('xxhash');
 
 // const DB = require('../util/database');
@@ -245,6 +246,37 @@ class Wallet {
     }
 
     await WalletDB.del(address);
+  }
+
+  static hashOptions(version = 0x01, salt) {
+    return {
+      raw: true,
+      salt,
+      hashLength: 32,
+      saltLength: 16,
+      timeCost: 42,
+      memoryCost: 2 ** 16,
+      parallelism: 8,
+    };
+  }
+
+  static async decryptPrivateKey(privateKey, password) {
+    let privateKeyObject;
+
+    const secretKey = await argon2.hash(
+      password,
+      Wallet.hashOptions(0x01, Buffer.from('ab6fc957cf809e349a31b735fd8fcd53', 'hex'))
+    );
+
+    try {
+      privateKeyObject = crypto.createPrivateKey({
+        key: privateKey, format: 'der', type: 'pkcs8', secretKey,
+      });
+    } catch (e) {
+      return null;
+    }
+
+    return privateKeyObject;
   }
 
   // TODO: Remove default blank pass
