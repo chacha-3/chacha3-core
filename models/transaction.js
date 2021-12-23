@@ -92,7 +92,7 @@ class Transaction {
       key: decrypted, format: 'der', type: 'pkcs8',
     });
 
-    this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), keyObject);
+    this.signature = crypto.sign('SHA256', this.getId(), keyObject);
   }
 
   getSenderKey() {
@@ -163,7 +163,7 @@ class Transaction {
     });
 
     try {
-      return crypto.verify('SHA256', Buffer.from(this.hashData()), senderKeyObject, this.getSignature());
+      return crypto.verify('SHA256', this.getId(), senderKeyObject, this.getSignature());
     } catch {
       debug('Failed transaction signature verification');
       return false;
