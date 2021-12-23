@@ -14,12 +14,12 @@ actions.createTransaction = {
   schema: {
     properties: {
       key: { type: 'string', buffer: 'hex' },
-      address: { type: 'string', buffer: 'hex' },
+      receiverAddress: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       password: { type: 'string' },
       type: { type: 'string' },
     },
-    required: ['key', 'address', 'amount', 'password'],
+    required: ['key', 'receiverAddress', 'amount', 'password'],
   },
   preValidation: async (options) => {
     let selectedWallet;
@@ -48,7 +48,7 @@ actions.createTransaction = {
 
     const transaction = new Transaction(
       senderWallet.getPublicKey(),
-      options.address,
+      options.receiverAddress,
       amount,
       options.type,
     );
@@ -74,18 +74,18 @@ actions.pushTransaction = {
   schema: {
     properties: {
       key: { type: 'string', buffer: 'hex' },
-      address: { type: 'string', buffer: 'hex' },
+      receiverAddress: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       signature: { type: 'string', buffer: 'hex' },
       time: { type: 'integer' },
       version: { type: 'integer' },
     },
-    required: ['key', 'address', 'amount', 'signature', 'time', 'version'],
+    required: ['key', 'receiverAddress', 'amount', 'signature', 'time', 'version'],
   },
   handler: async (options) => {
     const transaction = new Transaction(
       options.key,
-      options.address,
+      options.receiverAddress,
       Number.parseInt(options.amount, 10),
     );
 

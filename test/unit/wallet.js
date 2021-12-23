@@ -99,12 +99,13 @@ test('should recover a wallet with correct password', async (t) => {
 });
 
 test('should not recover a wallet with incorrect password', async (t) => {
-  const password = randomPassword();
+  const correctPassword = randomPassword();
+  const incorrectPassword = randomPassword();
 
   const oldWallet = new Wallet();
-  await oldWallet.generate(password);
+  await oldWallet.generate(correctPassword);
 
-  const result = await Wallet.recover(oldWallet.getPrivateKey(), 'spP9PjjwwL8X');
+  const result = await Wallet.recover(oldWallet.getPrivateKey(), incorrectPassword);
   t.equal(result, null);
 
   t.end();

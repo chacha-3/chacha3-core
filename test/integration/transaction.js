@@ -29,7 +29,7 @@ test('create a transaction with sufficient balance', async (t) => {
   const { code, data } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
-    address: receiver.getAddressEncoded(),
+    receiverAddress: receiver.getAddressEncoded(),
     amount: 20,
     password,
   });
@@ -59,7 +59,7 @@ test('create a transaction with selected wallet', async (t) => {
 
   const { code, data } = await runAction({
     action: 'createTransaction',
-    address: receiver.getAddressEncoded(),
+    receiverAddress: receiver.getAddressEncoded(),
     amount: 20,
     password,
   });
@@ -139,7 +139,7 @@ test('create show error for invalid transaction', async (t) => {
   const { code } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
-    address: sender.getAddressEncoded(),
+    receiverAddress: sender.getAddressEncoded(),
     amount: 20,
     password,
   });
@@ -165,7 +165,7 @@ test('unable to create a transaction with insufficient balance', async (t) => {
   const { code, data, message } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
-    address: receiver.getAddressEncoded(),
+    receiverAddress: receiver.getAddressEncoded(),
     amount: 20,
     password,
   });
@@ -192,7 +192,7 @@ test('unable to create a transaction with incorrect password', async (t) => {
   const { code } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
-    address: receiver.getAddressEncoded(),
+    receiverAddress: receiver.getAddressEncoded(),
     amount: 20,
     password: incorrectPassword,
   });
@@ -216,7 +216,7 @@ test('should push valid transaction', async (t) => {
   const { code } = await runAction({
     action: 'pushTransaction',
     key: serializeBuffer(transaction.getSenderKey()),
-    address: serializeBuffer(transaction.getReceiverAddress()),
+    receiverAddress: serializeBuffer(transaction.getReceiverAddress()),
     amount: transaction.getAmount().toString(),
     signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),
@@ -244,7 +244,7 @@ test('should fail to push invalid transaction', async (t) => {
   const { code } = await runAction({
     action: 'pushTransaction',
     key: serializeBuffer(transaction.getSenderKey()),
-    address: serializeBuffer(transaction.getReceiverAddress()),
+    receiverAddress: serializeBuffer(transaction.getReceiverAddress()),
     amount: transaction.getAmount().toString(),
     signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),
@@ -274,7 +274,7 @@ test('should fail to push unverified transaction', async (t) => {
   const { code } = await runAction({
     action: 'pushTransaction',
     key: serializeBuffer(transaction.getSenderKey()),
-    address: serializeBuffer(transaction.getReceiverAddress()),
+    receiverAddress: serializeBuffer(transaction.getReceiverAddress()),
     amount: transaction.getAmount().toString(),
     signature: serializeBuffer(transaction.getSignature()),
     time: transaction.getTime(),

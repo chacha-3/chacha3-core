@@ -15,7 +15,7 @@ class Wallet {
   constructor() {
     this.label = '';
 
-    this.privateKey = null;
+    this.privateKey = null; // Encrypted
     this.publicKey = null;
   }
 
@@ -123,14 +123,26 @@ class Wallet {
   // }
 
   static async deriveEncryptionKey(password, salt) {
-    const key = await argon2.hash(password, {
+    const testOptions = {
+      parallelism: 1,
+      timeCost: 2,
+      memoryCost: 1024,
+    };
+
+    const options = {
       parallelism: 8,
-      timeCost: process.env.NODE_ENV === 'test' ? 2 : 40,
+      timeCost: 40,
       memoryCost: 2 ** 16,
       salt,
       hashLength: 32,
       raw: true,
-    });
+    };
+
+    if (process.env.NODE_ENV === 'test') {
+      Object.assign(options, testOptions);
+    }
+
+    const key = await argon2.hash(password, options);
 
     return key;
   }
