@@ -40,10 +40,6 @@ class Transaction {
     assert(typeof (data.amount) === 'bigint');
     assert(this.senderKey !== undefined);
 
-    // if (this.senderKey !== null) {
-    //   data.senderKey = this.senderKey;
-    // }
-
     return JSON.stringify(serializeObject(data));
   }
 

@@ -162,7 +162,7 @@ test('have correct hash data for transaction', async (t) => {
     { key: 'receiverAddress', value: serializeBuffer(receiver.getAddress()) },
     { key: 'amount', value: '20n' },
     { key: 'time', value: transaction.getTime() },
-    { key: 'type', value: Transaction.Type.Send} ,
+    { key: 'type', value: Transaction.Type.Send },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -220,8 +220,6 @@ test('have correct hash data for coinbase transaction', async (t) => {
   await receiver.generate();
 
   const transaction = new Transaction(null, receiver.getAddress(), 50);
-
-  // const hashData = JSON.parse(transaction.hashData());
   const data = JSON.parse(transaction.hashData());
 
   const results = [
