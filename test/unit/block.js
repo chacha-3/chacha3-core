@@ -19,7 +19,7 @@ test('should validate coinbase', async (t) => {
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -37,7 +37,7 @@ test('should validate coinbase', async (t) => {
 
 test('should have invalid coinbase when invalid address', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -58,7 +58,7 @@ test('should be not have verified block when invalid coinbase amount', async (t)
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -80,7 +80,7 @@ test('should be not have verified block when invalid coinbase amount', async (t)
 
 test('should have invalid coinbase when invalid transaction type', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -101,7 +101,7 @@ test('should be not have verified block when fail coinbase validation', async (t
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -123,10 +123,10 @@ test('should be not have verified block when fail coinbase validation', async (t
 
 test('coinbase should not have signature and sender', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
 
@@ -136,7 +136,7 @@ test('coinbase should not have signature and sender', async (t) => {
     100,
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   block.addCoinbase(receiver.getAddress());
   block.addTransaction(transaction);
@@ -156,10 +156,10 @@ test('coinbase should not have signature and sender', async (t) => {
 
 test('cannot add unsigned transaction to block', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
 
@@ -178,10 +178,10 @@ test('cannot add unsigned transaction to block', async (t) => {
 
 test('does not add same transaction twice', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
   block.addCoinbase(receiver.getAddress());
@@ -192,7 +192,7 @@ test('does not add same transaction twice', async (t) => {
     200,
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   const resultFirst = block.addTransaction(transaction);
   const resultSecond = block.addTransaction(transaction);
@@ -207,10 +207,10 @@ test('does not add same transaction twice', async (t) => {
 
 test('get object representation of a block', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
   block.addCoinbase(receiver.getAddress());
@@ -221,7 +221,7 @@ test('get object representation of a block', async (t) => {
     200,
   );
 
-  transaction1.sign(sender.getPrivateKey());
+  await transaction1.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction1);
   await block.mine();
@@ -231,10 +231,10 @@ test('get object representation of a block', async (t) => {
 
 test('verify that a block with only a coinbase has checksum', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
   block.addCoinbase(receiver.getAddress());
@@ -250,7 +250,7 @@ test('verify block with checksum', async (t) => {
   const numOfBlocks = 3;
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const chain = await mock.chainWithBlocks(numOfBlocks, 5, wallet);
   const previousHeader = chain.lastBlockHeader();
@@ -277,10 +277,10 @@ test('verify block with checksum', async (t) => {
 
 test('checksum is updated when adding transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const block = new Block();
   block.addCoinbase(receiver.getAddress());
@@ -294,7 +294,7 @@ test('checksum is updated when adding transaction', async (t) => {
       200,
     );
 
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
 
     block.addTransaction(transaction);
     await block.mine();
@@ -311,7 +311,7 @@ test('checksum is updated when adding transaction', async (t) => {
 
 test('unable to add transaction with invalid signature to block', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
@@ -319,10 +319,10 @@ test('unable to add transaction with invalid signature to block', async (t) => {
   await block.mine();
 
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(),
@@ -345,7 +345,7 @@ test('block is invalid when timestamp is before previous block timestamp', async
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -368,7 +368,7 @@ test('block is valid only when previous hash matches', async (t) => {
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -390,7 +390,7 @@ test('block is invalid it does not match previous hash', async (t) => {
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -412,7 +412,7 @@ test('block is invalid when timestamp is in the future', async (t) => {
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -435,7 +435,7 @@ test('block is invalid when coinbase reward is incorrect', async (t) => {
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -460,7 +460,7 @@ test('block is invalid when hash does not meet target (mining difficult)', async
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks));
@@ -482,7 +482,7 @@ test('block is valid when does not have previously saved transaction', async (t)
   const previousHeader = chain.lastBlockHeader();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
@@ -510,7 +510,7 @@ test('block is invalid when has previously saved transaction', async (t) => {
   const randomSavedTransaction = savedBlock.getTransaction(4);
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
@@ -546,10 +546,10 @@ test('block is invalid when has invalid transaction', async (t) => {
 });
 
 test('add pending transaction to block', async (t) => {
-  const transactions = mock.pendingTransactions(4);
+  const transactions = await mock.pendingTransactions(4);
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());
@@ -563,12 +563,12 @@ test('add pending transaction to block', async (t) => {
 });
 
 test('reject pending transaction if already saved', async (t) => {
-  const transactions = mock.pendingTransactions(4);
+  const transactions = await mock.pendingTransactions(4);
 
   const addedTransaction = transactions[2];
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
   block.addCoinbase(wallet.getAddress());

@@ -30,8 +30,8 @@ actions.createWallet = {
   },
   handler: async (options) => {
     const wallet = new Wallet();
-    wallet.generate(options.password);
-    wallet.setLabel(options.label);
+    await wallet.generate(options.password);
+    await wallet.setLabel(options.label);
 
     Wallet.save(wallet);
 
@@ -49,7 +49,7 @@ actions.generateWallet = {
   },
   handler: async (options) => {
     const wallet = new Wallet();
-    wallet.generate(options.password);
+    await wallet.generate(options.password);
 
     const data = {
       address: wallet.getAddress(),
@@ -75,7 +75,7 @@ actions.recoverWallet = {
     let wallet;
 
     try {
-      wallet = Wallet.recover(options.privateKey, options.password);
+      wallet = await Wallet.recover(options.privateKey, options.password);
       wallet.setLabel(options.label);
 
       await Wallet.save(wallet);
@@ -120,7 +120,7 @@ actions.changeWalletPassword = {
       return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
-    const changed = wallet.changePassword(options.currentPassword, options.newPassword);
+    const changed = await wallet.changePassword(options.currentPassword, options.newPassword);
 
     if (!changed) {
       return errorResponse(ErrorCode.InvalidArgument, 'Unable to change wallet password');
@@ -147,7 +147,7 @@ actions.verifyWallet = {
       return errorResponse(ErrorCode.NotFound, 'Wallet not found');
     }
 
-    const loaded = Wallet.recover(wallet.getPrivateKey(), options.password);
+    const loaded = await Wallet.recover(wallet.getPrivateKey(), options.password);
 
     const data = {
       password: loaded !== null,

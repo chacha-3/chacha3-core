@@ -8,7 +8,7 @@ const transactionsPerBlock = 5;
 
 // Coinbase receiver to send out
 const sender = new Wallet();
-sender.generate();
+// sender.generate();
 
 const generateBlocks = async () => {
   const blocksData = [Block.Genesis.toObject()];
@@ -16,7 +16,7 @@ const generateBlocks = async () => {
 
   for (let i = 0; i < numOfBlocks; i += 1) {
     const receiver = new Wallet();
-    receiver.generate();
+    await receiver.generate();
 
     const block = new Block();
     block.addCoinbase(sender.getAddressEncoded());
@@ -30,7 +30,7 @@ const generateBlocks = async () => {
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
-      transaction.sign(sender.getPrivateKey());
+      await transaction.sign(sender.getPrivateKey());
       block.addTransaction(transaction);
     }
 
@@ -43,6 +43,8 @@ const generateBlocks = async () => {
 };
 
 const main = async () => {
+  await sender.generate();
+
   const blocks = await generateBlocks();
   const data = JSON.stringify(blocks, null, 2);
 

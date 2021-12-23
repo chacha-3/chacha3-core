@@ -258,7 +258,7 @@ test('update and reverts block balances', async (t) => {
 
   // Coinbase wallet to send to
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const blocks = await mock.blockList(numOfBlocks, 2, wallet);
   const receiverAddresses = new Array(numOfBlocks);
@@ -352,18 +352,18 @@ test('unable to update block balance when account has no balance', async (t) => 
 
   // Coinbase wallet to send to
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   // const blocks = await mock.blockList(numOfBlocks, 2, wallet);
 
   const noBalanceWallet = new Wallet();
-  noBalanceWallet.generate();
+  await noBalanceWallet.generate();
 
   const noBalanceBlock = new Block();
   noBalanceBlock.addCoinbase(wallet.getAddress());
 
   const transaction = new Transaction(noBalanceWallet.getPublicKey(), wallet.getAddress(), 10);
-  transaction.sign(noBalanceWallet.getPrivateKey());
+  await transaction.sign(noBalanceWallet.getPrivateKey());
 
   noBalanceBlock.addTransaction(transaction);
   await noBalanceBlock.mine();
@@ -456,7 +456,7 @@ test('have zero balance for account without transaction', async (t) => {
   chain.updateBlockBalances(block1);
 
   const randomWallet = new Wallet();
-  randomWallet.generate();
+  await randomWallet.generate();
 
   t.equal(chain.getAccountBalance(randomWallet.getAddressEncoded()), 0n);
   const transactions = chain.getAccountTransactions(randomWallet.getAddress());
@@ -475,7 +475,7 @@ test('list correct account transactions from chain', async (t) => {
 
   // Coinbase wallet to send to
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const blocks = await mock.blockList(numOfBlocks, transactionsPerBlock, wallet);
 
@@ -579,7 +579,7 @@ test('confirm new valid block', async (t) => {
   t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -604,7 +604,7 @@ test('fail to confirm new block if previous hash does not match', async (t) => {
   t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 

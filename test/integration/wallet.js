@@ -89,7 +89,7 @@ test('unable to verify unsaved wallet', async (t) => {
   const password = randomPassword();
 
   const unsavedWallet = new Wallet();
-  unsavedWallet.generate(password);
+  await unsavedWallet.generate(password);
 
   const { code } = await runAction({
     action: 'verifyWallet',
@@ -160,7 +160,7 @@ test('should select a default wallet', async (t) => {
 
 test('should not be able to select an unsaved wallet', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const { code } = await runAction({
     action: 'selectWallet',
@@ -268,7 +268,7 @@ test('should recover a wallet', async (t) => {
   const password = randomPassword();
 
   const wallet = new Wallet();
-  wallet.generate(password);
+  await wallet.generate(password);
 
   const { code, data } = await runAction({
     action: 'recoverWallet',
@@ -353,7 +353,7 @@ test('should be unable to recover wallet with incorrect password', async (t) => 
   const password = randomPassword();
 
   const wallet = new Wallet();
-  wallet.generate(password);
+  await wallet.generate(password);
 
   const { code } = await runAction({
     action: 'recoverWallet',
@@ -385,7 +385,7 @@ test('should have correct wallet account balance', async (t) => {
   const minusGenesis = blockCount - 1;
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
 
@@ -437,7 +437,7 @@ test('should list account transactions', async (t) => {
   const minusGenesis = blockCount - 1;
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, wallet);
 

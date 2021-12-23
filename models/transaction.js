@@ -83,12 +83,17 @@ class Transaction {
     this.version = version;
   }
 
-  sign(privateKey, password) {
+  async sign(privateKey, password = '') {
     assert(this.senderKey != null);
 
-    const passphrase = password || '';
+    const decrypted = await Wallet.decryptPrivateKey(privateKey, password);
+
+    if (decrypted === null) {
+      throw Error('Cannot sign transaction, incorrect wallet password');
+    }
+
     const keyObject = crypto.createPrivateKey({
-      key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+      key: decrypted, format: 'der', type: 'pkcs8',
     });
 
     this.signature = crypto.sign('SHA256', Buffer.from(this.hashData()), keyObject);

@@ -11,7 +11,7 @@ const { runAction } = require('../../actions');
 
 test('start and stop miner with address with status check', async (t) => {
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
@@ -71,7 +71,7 @@ test('start and stop miner with address of selected wallet', async (t) => {
 
 test('correct miner status when miner not running', async (t) => {
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
@@ -88,7 +88,7 @@ test('correct miner status when miner not running', async (t) => {
 
 test('should not start a miner that is already running', async (t) => {
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);;
 
@@ -116,7 +116,7 @@ test('should not start a miner that is already running', async (t) => {
 
 test('should not stop a miner when it is not running', async (t) => {
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 

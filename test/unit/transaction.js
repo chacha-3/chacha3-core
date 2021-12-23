@@ -8,18 +8,18 @@ const mock = require('../../util/mock');
 const Block = require('../../models/block');
 const { deserializeBuffer, serializeBuffer } = require('../../util/serialize');
 
-test('should create a verified transaction', (t) => {
+test('should create a verified transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await  transaction.sign(sender.getPrivateKey());
 
   const { length } = transaction.getSignature();
 
@@ -28,15 +28,15 @@ test('should create a verified transaction', (t) => {
   t.end();
 });
 
-test('transaction with same sender and receiver is invalid', (t) => {
+test('transaction with same sender and receiver is invalid', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(), sender.getAddress(), 10,
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   const errors = transaction.validate();
   t.ok(errors.length > 0);
@@ -45,22 +45,22 @@ test('transaction with same sender and receiver is invalid', (t) => {
   t.end();
 });
 
-test('transaction with amount 0 or smaller is invalid', (t) => {
+test('transaction with amount 0 or smaller is invalid', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transactionZero = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-  transactionZero.sign(sender.getPrivateKey());
+  await transactionZero.sign(sender.getPrivateKey());
 
   const zeroErrors = transactionZero.validate();
   t.ok(zeroErrors.length > 0, 'error when transaction amount is zero');
   t.not(transactionZero.verify());
 
   const transactionNegative = new Transaction(sender.getPublicKey(), receiver.getAddress(), 0);
-  transactionNegative.sign(sender.getPrivateKey());
+  await transactionNegative.sign(sender.getPrivateKey());
 
   const negativeErrors = transactionNegative.validate();
   t.ok(negativeErrors.length > 0, 'error when transaction amount less than zero');
@@ -69,12 +69,12 @@ test('transaction with amount 0 or smaller is invalid', (t) => {
   t.end();
 });
 
-test('should have ID for transaction', (t) => {
+test('should have ID for transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
   t.equal(transaction.getId().length, 32);
@@ -82,12 +82,12 @@ test('should have ID for transaction', (t) => {
   t.end();
 });
 
-test('should fail verification with none or invalid transaction signature', (t) => {
+test('should fail verification with none or invalid transaction signature', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(), receiver.getAddress(), 10,
@@ -96,7 +96,7 @@ test('should fail verification with none or invalid transaction signature', (t) 
   // const { privateKey } = sender.getKeys();
   t.equal(transaction.verify(), false, 'transaction unverified before signing');
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   t.equal(transaction.verify(), true, 'transaction verified after signing');
 
@@ -107,45 +107,45 @@ test('should fail verification with none or invalid transaction signature', (t) 
   t.end();
 });
 
-test('should not be valid when signed with incorrect private key', (t) => {
+test('should not be valid when signed with incorrect private key', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const otherWallet = new Wallet();
-  otherWallet.generate();
+  await otherWallet.generate();
 
   const invalidAddress = deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafc');
   const transaction = new Transaction(
     wallet.getPublicKey(), invalidAddress, 55,
   );
 
-  transaction.sign(otherWallet.getPrivateKey());
+  await transaction.sign(otherWallet.getPrivateKey());
 
   t.equal(transaction.verify(), false, 'invalid sign key');
   t.end();
 });
 
-test('should fail verification with invalid wallet address', (t) => {
+test('should fail verification with invalid wallet address', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const invalidAddress = deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf0');
 
   const transaction = new Transaction(
     sender.getPublicKey(), invalidAddress, 10,
   );
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   t.equal(transaction.verify(), false, 'invalid address to send');
   t.end();
 });
 
-test('have correct hash data for transaction', (t) => {
+test('have correct hash data for transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(),
@@ -169,12 +169,12 @@ test('have correct hash data for transaction', (t) => {
   t.end();
 });
 
-test('have correct hash data for transaction with no sender', (t) => {
+test('have correct hash data for transaction with no sender', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(null, receiver.getAddress(), 20);
 
@@ -184,12 +184,12 @@ test('have correct hash data for transaction with no sender', (t) => {
   t.end();
 });
 
-test('have correct hash data for coinbase transaction', (t) => {
+test('have correct hash data for coinbase transaction',async  (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(null, receiver.getAddress(), 50);
 
@@ -206,15 +206,15 @@ test('have correct hash data for coinbase transaction', (t) => {
 test('save and load transaction', async (t) => {
   // const block = mock.blockWithTransactions(3);
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const coinbase = new Transaction(null, receiver.getAddress(), 10);
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   await coinbase.save();
   const result = await transaction.save();
@@ -245,10 +245,10 @@ test('save and load transaction', async (t) => {
 test('unable to load unsaved transaction', async (t) => {
   // const block = mock.blockWithTransactions(3);
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
 
@@ -260,15 +260,15 @@ test('unable to load unsaved transaction', async (t) => {
 
 test('save pending transactions', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const numOfTransactions = 3;
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -286,13 +286,13 @@ test('save pending transactions', async (t) => {
 
 test('check confirmed transaction is saved', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 665);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   let isSaved = await transaction.isSaved();
   t.equal(isSaved, false);
@@ -331,13 +331,13 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
 
 test('correct push data', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 20);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   const pushData = transaction.toPushData();
 
@@ -350,7 +350,7 @@ test('correct push data', async (t) => {
 });
 
 test('to and from transaction object', async (t) => {
-  const transaction = mock.transaction();
+  const transaction = await mock.transaction();
 
   const data = transaction.toObject();
 
@@ -372,7 +372,10 @@ test('to and from transaction object', async (t) => {
 test('to and from transaction array', async (t) => {
   const numOfTransactions = 4;
 
-  const transactions = Array(numOfTransactions).fill(null).map(() => mock.transaction());
+  const transactions = Array(numOfTransactions).fill(null);
+  for (let i = 0; i < numOfTransactions; i += 1) {
+    transactions[i] = await mock.transaction();
+  }
 
   const data = Transaction.toArray(transactions);
   t.equal(data.length, numOfTransactions);
@@ -386,16 +389,16 @@ test('to and from transaction array', async (t) => {
 
 test('load pending transactions', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const numOfTransactions = 4;
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -410,16 +413,16 @@ test('load pending transactions', async (t) => {
 
 test('check if transaction is existing saved transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   t.equal(await transaction.isSaved(), false);
 

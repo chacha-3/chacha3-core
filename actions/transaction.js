@@ -33,7 +33,7 @@ actions.createTransaction = {
     }
   },
   handler: async (options) => {
-    const senderWallet = Wallet.recover(options.key, options.password);
+    const senderWallet = await Wallet.recover(options.key, options.password);
 
     if (!senderWallet) {
       return errorResponse(ErrorCode.PermissionDenied, 'Incorrect password');
@@ -53,7 +53,7 @@ actions.createTransaction = {
       options.type,
     );
 
-    transaction.sign(senderWallet.getPrivateKey(), options.password);
+    await transaction.sign(senderWallet.getPrivateKey(), options.password);
 
     // TODO: Validate before verify
     const errors = transaction.validate();

@@ -18,18 +18,18 @@ test('push new block', async (t) => {
   const initialBlockCount = 2;
 
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(initialBlockCount, 1, sender);
 
   const transactionInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
-  transactionInBlock.sign(sender.getPrivateKey());
+  await transactionInBlock.sign(sender.getPrivateKey());
 
   const transactionNotInBlock = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10);
-  transactionNotInBlock.sign(sender.getPrivateKey());
+  await transactionNotInBlock.sign(sender.getPrivateKey());
 
   // Save to pending transaction list
   await transactionInBlock.saveAsPending();
@@ -39,7 +39,7 @@ test('push new block', async (t) => {
   t.equal(pendingBefore.length, 2);
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const block = new Block();
 
@@ -90,7 +90,7 @@ test('unable to push invalid block', async (t) => {
   const blockCount = 3;
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
 
@@ -118,10 +118,10 @@ test('unable to push block with transaction exceeding balance', async (t) => {
   const blockCount = 3;
 
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(blockCount, 1, sender);
 
@@ -132,7 +132,7 @@ test('unable to push block with transaction exceeding balance', async (t) => {
 
   const exceedAmount = Block.InitialReward * BigInt(blockCount + 4);
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), exceedAmount);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction);
   await block.mine();

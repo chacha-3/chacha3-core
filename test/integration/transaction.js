@@ -19,10 +19,10 @@ test('create a transaction with sufficient balance', async (t) => {
   const password = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(password);
+  await sender.generate(password);
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
 
@@ -53,7 +53,7 @@ test('create a transaction with selected wallet', async (t) => {
   await Wallet.setSelected(sender.getAddress());
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
 
@@ -82,10 +82,10 @@ test('show info for transaction', async (t) => {
   const password = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(password);
+  await sender.generate(password);
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 3);
 
@@ -109,10 +109,10 @@ test('show info for transaction', async (t) => {
 
 test('should not have info for unsaved transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPrivateKey(), receiver.getAddress(), 10000);
 
@@ -131,7 +131,7 @@ test('create show error for invalid transaction', async (t) => {
   const password = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(password);
+  await sender.generate(password);
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
 
@@ -155,10 +155,10 @@ test('unable to create a transaction with insufficient balance', async (t) => {
   const password = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(password);
+  await sender.generate(password);
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
@@ -182,10 +182,10 @@ test('unable to create a transaction with incorrect password', async (t) => {
   const incorrectPassword = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(correctPassword);
+  await sender.generate(correctPassword);
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
@@ -205,13 +205,13 @@ test('unable to create a transaction with incorrect password', async (t) => {
 
 test('should push valid transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 38);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   const { code } = await runAction({
     action: 'pushTransaction',
@@ -235,10 +235,10 @@ test('should push valid transaction', async (t) => {
 
 test('should fail to push invalid transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const transaction = new Transaction(sender.getPublicKey(), sender.getAddress(), 10000);
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   /// Same sender and receiver
   const { code } = await runAction({
@@ -263,10 +263,10 @@ test('should fail to push invalid transaction', async (t) => {
 
 test('should fail to push unverified transaction', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   // Not signed
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10000);
@@ -293,16 +293,16 @@ test('should fail to push unverified transaction', async (t) => {
 
 test('get pending transactions', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const numOfTransactions = 3;
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }
@@ -322,16 +322,16 @@ test('get pending transactions', async (t) => {
 
 test('clear pending transactions', async (t) => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const numOfTransactions = 3;
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
 
     await transaction.saveAsPending();
   }

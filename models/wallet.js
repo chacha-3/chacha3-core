@@ -113,14 +113,14 @@ class Wallet {
     return deserializeBuffer(selected);
   }
 
-  static privateKeyEncodingOptions(passphrase) {
-    return {
-      type: 'pkcs8',
-      format: 'der',
-      cipher: 'aes-256-cbc',
-      passphrase,
-    };
-  }
+  // static privateKeyEncodingOptions(passphrase) {
+  //   return {
+  //     type: 'pkcs8',
+  //     format: 'der',
+  //     cipher: 'aes-256-cbc',
+  //     passphrase,
+  //   };
+  // }
 
   static async deriveEncryptionKey(password, salt) {
     const key = await argon2.hash(password, {
@@ -176,11 +176,9 @@ class Wallet {
     }
   }
 
-  generate(password) {
+  async generate(password = '') {
     assert(this.privateKey === null);
     assert(this.publicKey === null);
-
-    const passphrase = password || '';
 
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
       namedCurve: 'secp384r1',
@@ -188,10 +186,13 @@ class Wallet {
         type: 'spki',
         format: 'der',
       },
-      privateKeyEncoding: Wallet.privateKeyEncodingOptions(passphrase),
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'der',
+      },
     });
 
-    this.privateKey = privateKey;
+    this.privateKey = await Wallet.encryptPrivateKey(privateKey, password);
     this.publicKey = publicKey;
   }
 
@@ -316,33 +317,51 @@ class Wallet {
   // }
 
   // TODO: Remove default blank pass
-  changePassword(currentPassword = '', newPassword) {
+  async changePassword(currentPassword = '', newPassword) {
     let privateKeyObject;
 
+    const decrypted = await Wallet.decryptPrivateKey(this.getPrivateKey(), currentPassword);
+
+    if (decrypted == null) {
+      return false;
+    }
+
+    // TODO: Remove try catch as using custom decryption now
     try {
       privateKeyObject = crypto.createPrivateKey({
-        key: this.getPrivateKey(), format: 'der', type: 'pkcs8', passphrase: currentPassword,
+        key: decrypted, format: 'der', type: 'pkcs8',
       });
     } catch (e) {
       return false;
     }
 
-    this.setPrivateKey(privateKeyObject.export(Wallet.privateKeyEncodingOptions(newPassword)));
+    const newPrivateKey = privateKeyObject.export({
+      type: 'pkcs8',
+      format: 'der',
+    });
+
+    const encrypted = await Wallet.encryptPrivateKey(newPrivateKey, newPassword);
+    this.setPrivateKey(encrypted);
 
     return true;
   }
 
-  static recover(privateKey, password) {
-    const passphrase = password || '';
-
+  static async recover(encryptedPrivateKey, password = '') {
     const wallet = new Wallet();
-    wallet.setPrivateKey(privateKey);
+    wallet.setPrivateKey(encryptedPrivateKey);
 
     let privateKeyObject;
 
+    const decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password);
+
+    if (decrypted == null) {
+      return null;
+    }
+
+    // Remove try catch as using custom encryption
     try {
       privateKeyObject = crypto.createPrivateKey({
-        key: privateKey, format: 'der', type: 'pkcs8', passphrase,
+        key: decrypted, format: 'der', type: 'pkcs8',
       });
     } catch (e) {
       return null;

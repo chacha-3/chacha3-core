@@ -14,9 +14,9 @@ mock.createWallets = async (count, password) => {
   const createWallet = (i) => new Promise((resolve) => {
     const wallet = new Wallet();
     wallet.setLabel(`addWallet${i}`);
-    wallet.generate(password);
-
-    Wallet.save(wallet).then(() => resolve(wallet));
+    wallet.generate(password).then(() => {
+      Wallet.save(wallet).then(() => resolve(wallet));
+    });
   });
 
   const promises = [];
@@ -78,11 +78,11 @@ mock.blockWithTransactions = async (
 
   if (!sender) {
     sender = new Wallet();
-    sender.generate();
+    await sender.generate();
   }
 
   const randomWallet = new Wallet();
-  randomWallet.generate();
+  await randomWallet.generate();
 
   const block = new Block();
   block.addCoinbase(sender.getAddress(), reward);
@@ -98,7 +98,7 @@ mock.blockWithTransactions = async (
       Math.floor(Math.random() * (100 - 1) + 1),
     );
 
-    transaction.sign(sender.getPrivateKey());
+    await transaction.sign(sender.getPrivateKey());
     assert(transaction.verify() === true);
     // await transaction.save();
 
@@ -120,7 +120,7 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   // chain.addBlockHeader(Block.Genesis.getHeader());
 
   const receiverWallet = new Wallet();
-  receiverWallet.generate();
+  await receiverWallet.generate();
 
   let previousBlock = Block.Genesis;
 
@@ -149,7 +149,7 @@ mock.altChainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
   const minusGenesis = numOfBlocks - 1;
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const altGenesis = new Block();
   altGenesis.addCoinbase(wallet.getAddress());
@@ -219,7 +219,7 @@ mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWall
   const altGenesis = new Block();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   altGenesis.addCoinbase(wallet.getAddress());
 
@@ -250,12 +250,12 @@ mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWall
   return chain;
 };
 
-mock.transaction = () => {
+mock.transaction = async () => {
   const sender = new Wallet();
-  sender.generate();
+  await sender.generate();
 
   const receiver = new Wallet();
-  receiver.generate();
+  await receiver.generate();
 
   const transaction = new Transaction(
     sender.getPublicKey(),
@@ -263,17 +263,17 @@ mock.transaction = () => {
     Math.floor(Math.random() * (100 - 1) + 1),
   );
 
-  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   return transaction;
 };
 
-mock.pendingTransactions = (numOfTransactions) => {
+mock.pendingTransactions = async (numOfTransactions) => {
   assert(numOfTransactions > 0);
 
   const transactions = [];
   for (let i = 0; i < numOfTransactions; i += 1) {
-    transactions.push(mock.transaction());
+    transactions.push(await mock.transaction());
   }
 
   return transactions;
@@ -287,12 +287,12 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
 
   if (!wallet) {
     wallet = new Wallet();
-    wallet.generate();
+    await wallet.generate();
   }
 
   for (let i = 0; i < numberOfBlocks; i += 1) {
     const receiver = new Wallet();
-    receiver.generate();
+    await receiver.generate();
 
     const block = new Block();
     block.addCoinbase(wallet.getAddress());
@@ -306,7 +306,7 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
         Math.floor(Math.random() * (100 - 1) + 1),
       );
 
-      transaction.sign(wallet.getPrivateKey());
+      await transaction.sign(wallet.getPrivateKey());
       block.addTransaction(transaction);
     }
 

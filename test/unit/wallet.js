@@ -11,9 +11,9 @@ const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
 
 // const { expect } = chai;
 
-test('should create a wallet key', (t) => {
+test('should create a wallet key', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   // TODO:
 
@@ -75,9 +75,9 @@ test('set and get wallet label', (t) => {
   t.end();
 });
 
-test('should get encoded wallet address', (t) => {
+test('should get encoded wallet address',async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const encoded = wallet.getAddressEncoded();
   t.equal(encoded.slice(0, 4), '0x00');
@@ -85,42 +85,42 @@ test('should get encoded wallet address', (t) => {
   t.end();
 });
 
-test('should recover a wallet with correct password', (t) => {
+test('should recover a wallet with correct password', async (t) => {
   const password = randomPassword();
 
   const oldWallet = new Wallet();
-  oldWallet.generate(password);
+  await oldWallet.generate(password);
 
-  const recoverWallet = Wallet.recover(oldWallet.getPrivateKey(), password);
+  const recoverWallet = await Wallet.recover(oldWallet.getPrivateKey(), password);
 
   t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
   t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
   t.end();
 });
 
-test('should not recover a wallet with incorrect password', (t) => {
+test('should not recover a wallet with incorrect password', async (t) => {
   const password = randomPassword();
 
   const oldWallet = new Wallet();
-  oldWallet.generate(password);
+  await oldWallet.generate(password);
 
-  const result = Wallet.recover(oldWallet.getPrivateKey(), 'spP9PjjwwL8X');
+  const result = await Wallet.recover(oldWallet.getPrivateKey(), 'spP9PjjwwL8X');
   t.equal(result, null);
 
   t.end();
 });
 
-test('should change the wallet password', (t) => {
+test('should change the wallet password', async (t) => {
   const oldPassword = randomPassword();
   const newPassword = randomPassword();
 
   const wallet = new Wallet();
-  wallet.generate(oldPassword);
+  await wallet.generate(oldPassword);
 
   const privateKeyBefore = wallet.getPrivateKey();
   const publicKeyBefore = wallet.getPublicKey();
 
-  const changed = wallet.changePassword(oldPassword, newPassword);
+  const changed = await wallet.changePassword(oldPassword, newPassword);
   t.equal(changed, true);
 
   const privateKeyAfter = wallet.getPrivateKey();
@@ -129,18 +129,18 @@ test('should change the wallet password', (t) => {
   t.notOk(privateKeyBefore.equals(privateKeyAfter), 'encrypted private key is different');
   t.ok(publicKeyBefore.equals(publicKeyAfter), 'public key remains same');
 
-  t.equal(Wallet.recover(wallet.getPrivateKey(), oldPassword), null);
-  t.not(Wallet.recover(wallet.getPrivateKey(), newPassword), null);
+  t.equal(await Wallet.recover(wallet.getPrivateKey(), oldPassword), null);
+  t.not(await Wallet.recover(wallet.getPrivateKey(), newPassword), null);
 
   t.end();
 });
 
-test('should not recover a wallet with invalid key', (t) => {
+test('should not recover a wallet with invalid key', async (t) => {
   const oldWallet = new Wallet();
-  oldWallet.generate();
+  await oldWallet.generate();
 
   try {
-    const recoverWallet = Wallet.recover('not_a_key', '');
+    const recoverWallet = await Wallet.recover('not_a_key', '');
     t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
     t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
   } catch (e) {
@@ -151,9 +151,9 @@ test('should not recover a wallet with invalid key', (t) => {
   t.end();
 });
 
-test('get keys in hex format', (t) => {
+test('get keys in hex format', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   t.equal(wallet.getPublicKeyHex(), serializeBuffer(wallet.getPublicKey()));
   t.equal(wallet.getPrivateKeyHex(), serializeBuffer(wallet.getPrivateKey()));
@@ -164,7 +164,7 @@ test('get keys in hex format', (t) => {
 test('save and load wallet', async (t) => {
   const saveWallet = new Wallet();
   saveWallet.setLabel('myLabel');
-  saveWallet.generate();
+  await saveWallet.generate();
   await Wallet.save(saveWallet);
 
   const list = await Wallet.all();
@@ -190,7 +190,7 @@ test('does not load unsaved wallet', async (t) => {
 test('delete wallet', async (t) => {
   const wallet = new Wallet();
   wallet.setLabel('myLabel');
-  wallet.generate();
+  await wallet.generate();
   await Wallet.save(wallet);
 
   const before = await Wallet.all();
@@ -254,7 +254,7 @@ test('set a selected wallet', async (t) => {
 
 test('cannot select an unsaved wallet', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const result = await Wallet.setSelected(wallet.getAddress());
   t.equal(result, false);
@@ -266,7 +266,7 @@ test('cannot select an unsaved wallet', async (t) => {
 
 test('unselect a selected wallet', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
   await Wallet.save(wallet);
 
   await Wallet.setSelected(wallet.getAddress());
@@ -288,7 +288,7 @@ test('unselect a selected wallet', async (t) => {
 
 test('unselect a deleted wallet', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
   await Wallet.save(wallet);
 
   await Wallet.setSelected(wallet.getAddress());
@@ -309,7 +309,7 @@ test('unselect a deleted wallet', async (t) => {
 
 test('verify generated  wallet address checksum', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   t.equal(Wallet.verifyAddress(wallet.getAddress()), true, 'Valid address');
 
@@ -343,7 +343,7 @@ test('derived encryption key is always equal with same salt', async (t) => {
 
 test('encrypt and decrypt private key', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const password = randomPassword();
 
@@ -359,7 +359,7 @@ test('encrypt and decrypt private key', async (t) => {
 
 test('unable to decrypt private key with incorrect password', async (t) => {
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const correctPassword = randomPassword();
   const incorrectPassword = randomPassword();

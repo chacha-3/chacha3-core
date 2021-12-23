@@ -33,7 +33,7 @@ test('start and stop miner', async (t) => {
   Chain.mainChain = await Chain.load();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const miner = new Miner();
   miner.setReceiverAddress(wallet.getAddress());
@@ -56,7 +56,7 @@ test('does not start miner when already running', async (t) => {
   Chain.mainChain = await Chain.load();
 
   const wallet = new Wallet();
-  wallet.generate();
+  await wallet.generate();
 
   const miner = new Miner();
   miner.setReceiverAddress(wallet.getAddress());
