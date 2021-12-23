@@ -113,16 +113,8 @@ class Wallet {
     return deserializeBuffer(selected);
   }
 
-  // static privateKeyEncodingOptions(passphrase) {
-  //   return {
-  //     type: 'pkcs8',
-  //     format: 'der',
-  //     cipher: 'aes-256-cbc',
-  //     passphrase,
-  //   };
-  // }
-
   static async deriveEncryptionKey(password, salt) {
+    // Lower rounds to speed up test
     const testOptions = {
       parallelism: 1,
       timeCost: 2,
@@ -136,6 +128,7 @@ class Wallet {
       salt,
       hashLength: 32,
       raw: true,
+      type: argon2.argon2i,
     };
 
     if (process.env.NODE_ENV === 'test') {
@@ -148,7 +141,7 @@ class Wallet {
   }
 
   static async encryptPrivateKey(privateKey, password) {
-    const version = Buffer.from([0x01]);
+    const version = Buffer.from([0x00]);
 
     const iv = crypto.randomBytes(12);
     const salt = crypto.randomBytes(16);
@@ -165,7 +158,7 @@ class Wallet {
   static async decryptPrivateKey(encryptedBuffer, password) {
     const version = encryptedBuffer[0];
 
-    if (version !== 0x01) {
+    if (version !== 0x00) {
       throw Error('Wallet version not supported');
     }
 
@@ -315,18 +308,6 @@ class Wallet {
 
     await WalletDB.del(address);
   }
-
-  // static hashOptions(version = 0x01, salt) {
-  //   return {
-  //     raw: true,
-  //     salt,
-  //     hashLength: 32,
-  //     saltLength: 16,
-  //     timeCost: 42,
-  //     memoryCost: 2 ** 16,
-  //     parallelism: 8,
-  //   };
-  // }
 
   // TODO: Remove default blank pass
   async changePassword(currentPassword = '', newPassword) {

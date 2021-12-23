@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { test } = require('tap');
 
-const { randomPassword } = require('secure-random-password');
+
 // const chai = require('chai');
 
 const Wallet = require('../../models/wallet');
@@ -86,7 +86,7 @@ test('should get encoded wallet address',async (t) => {
 });
 
 test('should recover a wallet with correct password', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const oldWallet = new Wallet();
   await oldWallet.generate(password);
@@ -99,8 +99,8 @@ test('should recover a wallet with correct password', async (t) => {
 });
 
 test('should not recover a wallet with incorrect password', async (t) => {
-  const correctPassword = randomPassword();
-  const incorrectPassword = randomPassword();
+  const correctPassword = mock.randomPassword();
+  const incorrectPassword = mock.randomPassword();
 
   const oldWallet = new Wallet();
   await oldWallet.generate(correctPassword);
@@ -112,8 +112,8 @@ test('should not recover a wallet with incorrect password', async (t) => {
 });
 
 test('should change the wallet password', async (t) => {
-  const oldPassword = randomPassword();
-  const newPassword = randomPassword();
+  const oldPassword = mock.randomPassword();
+  const newPassword = mock.randomPassword();
 
   const wallet = new Wallet();
   await wallet.generate(oldPassword);
@@ -332,7 +332,7 @@ test('verify address by length', async (t) => {
 });
 
 test('derived encryption key is always equal with same salt', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
   const salt = crypto.randomBytes(12);
 
   const key1 = await Wallet.deriveEncryptionKey(password, salt);
@@ -346,10 +346,10 @@ test('encrypt and decrypt private key', async (t) => {
   const wallet = new Wallet();
   await wallet.generate();
 
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), password);
-  t.equal(encrypted[0], 0x01);
+  t.equal(encrypted[0], 0x00);
   // console.log(encrypted)
 
   const decrypted = await Wallet.decryptPrivateKey(encrypted, password);
@@ -362,11 +362,11 @@ test('unable to decrypt private key with incorrect password', async (t) => {
   const wallet = new Wallet();
   await wallet.generate();
 
-  const correctPassword = randomPassword();
-  const incorrectPassword = randomPassword();
+  const correctPassword = mock.randomPassword();
+  const incorrectPassword = mock.randomPassword();
 
   const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), correctPassword);
-  t.equal(encrypted[0], 0x01);
+  t.equal(encrypted[0], 0x00);
   // console.log(encrypted)
 
   const decrypted = await Wallet.decryptPrivateKey(encrypted, incorrectPassword);

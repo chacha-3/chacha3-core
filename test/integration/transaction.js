@@ -1,5 +1,3 @@
-const { randomPassword } = require('secure-random-password');
-
 const { test } = require('tap');
 
 const mock = require('../../util/mock');
@@ -11,12 +9,11 @@ const Chain = require('../../models/chain');
 const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const { runAction } = require('../../actions');
-const { options } = require('yargs');
 const { serializeBuffer } = require('../../util/serialize');
 const Block = require('../../models/block');
 
 test('create a transaction with sufficient balance', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const sender = new Wallet();
   await sender.generate(password);
@@ -47,7 +44,7 @@ test('create a transaction with sufficient balance', async (t) => {
 });
 
 test('create a transaction with selected wallet', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const [sender] = await mock.createWallets(1, password);
   await Wallet.setSelected(sender.getAddress());
@@ -79,7 +76,7 @@ test('create a transaction with selected wallet', async (t) => {
 });
 
 test('show info for transaction', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const sender = new Wallet();
   await sender.generate(password);
@@ -128,7 +125,7 @@ test('should not have info for unsaved transaction', async (t) => {
 });
 
 test('create show error for invalid transaction', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const sender = new Wallet();
   await sender.generate(password);
@@ -152,7 +149,7 @@ test('create show error for invalid transaction', async (t) => {
 });
 
 test('unable to create a transaction with insufficient balance', async (t) => {
-  const password = randomPassword();
+  const password = mock.randomPassword();
 
   const sender = new Wallet();
   await sender.generate(password);
@@ -178,8 +175,8 @@ test('unable to create a transaction with insufficient balance', async (t) => {
 });
 
 test('unable to create a transaction with incorrect password', async (t) => {
-  const correctPassword = randomPassword();
-  const incorrectPassword = randomPassword();
+  const correctPassword = mock.randomPassword();
+  const incorrectPassword = mock.randomPassword();
 
   const sender = new Wallet();
   await sender.generate(correctPassword);

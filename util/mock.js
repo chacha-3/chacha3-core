@@ -1,4 +1,5 @@
 const assert = require('assert');
+const password = require('secure-random-password');
 
 const Block = require('../models/block');
 const Chain = require('../models/chain');
@@ -316,6 +317,15 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
   }
 
   return blocks;
+};
+
+mock.randomPassword = () => {
+  // At least one lowercase, uppercase, and number
+  const options = {
+    characters: password.lower + password.upper + password.digits,
+  };
+
+  return password.randomPassword(options);
 };
 
 module.exports = mock;

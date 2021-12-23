@@ -1,7 +1,8 @@
 const Ajv = require('ajv');
-const addFormats = require('ajv-formats');
+const PasswordValidator = require('password-validator');
 
 const ajv = new Ajv({ coerceTypes: true, logger: false }); // No coerce for server
+const passwordSchema = new PasswordValidator();
 
 const wallet = require('./wallet');
 const transaction = require('./transaction');
@@ -13,6 +14,13 @@ const block = require('./block');
 
 const { SuccessCode, ErrorCode, errorResponse } = require('../util/rpc');
 const { serializeObject, deserializeBuffer } = require('../util/serialize');
+
+/* eslint-disable newline-per-chained-call */
+passwordSchema
+  .is().min(8)
+  .has().uppercase()
+  .has().lowercase()
+  .has().digits(1);
 
 ajv.addKeyword('buffer', {
   compile(schema) {
@@ -28,13 +36,25 @@ ajv.addKeyword('buffer', {
   },
 });
 
-ajv.addKeyword('auth', {
-  validate: function validate (schema, data) {
-    console.log(schema)
-    validate.errors = [{keyword: 'auth', message: 'shoud be authenticated.', params: {keyword: 'auth'}}];
-    return false;
+ajv.addKeyword('validator', {
+  validate: function validate(schema, data) {
+    let valid = true;
+
+    if (schema === 'passwordStrength' && !passwordSchema.validate(data)) {
+      valid = false;
+      validate.errors = [
+        {
+          keyword: 'passwordStrength',
+          message: 'Password should have at least 8 characters, one uppercase, one lowercase and 1 digit',
+          params: {
+            keyword: 'passwordStrength',
+          },
+        }];
+    }
+
+    return valid;
   },
-  errors: true
+  errors: true,
 });
 
 const actions = {

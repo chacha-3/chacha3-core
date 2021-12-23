@@ -26,7 +26,7 @@ actions.createWallet = {
       label: { type: 'string' },
       password: {
         type: 'string',
-        auth: true,
+        validator: 'passwordStrength',
       },
     },
     required: ['label', 'password'],
@@ -42,11 +42,15 @@ actions.createWallet = {
   },
 };
 
+// For utility only
 actions.generateWallet = {
   permission: 'public',
   schema: {
     properties: {
-      password: { type: 'string' },
+      password: {
+        type: 'string',
+        validator: 'passwordStrength',
+      },
     },
     required: ['password'],
   },
