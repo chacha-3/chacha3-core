@@ -58,7 +58,7 @@ function build(opts = {}) {
 
       const syncActions = ['nodeInfo', 'pushBlock'];
 
-      if (syncActions.includes(actionList) && peer.isSignificantlyAhead()) {
+      if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
         debug('Sync with chain significantly ahead');
 
         peer.syncChain();
