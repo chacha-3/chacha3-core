@@ -24,23 +24,23 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x002ed2b2660cd65529d69fa8a49bd43d9ab31964e604e2c86924bbc84dc272a4',
+        hash: '0x3e665e3c690c2dd849b6b9e2acb3cccbbb389fad82e4c2651ffd31fa867417c2',
         previous: null,
-        time: 1640089356037,
+        time: 1640253775347,
         difficulty: 1,
-        nonce: 842169246139465,
-        checksum: '0x06655e29e6aedb0f263b3651145e3f92713d0c00608cd042d884dc5162c80b91',
+        nonce: 5759856986198599,
+        checksum: '0x55e4adb5455ba11dcae9489590480d80150450b6691f1d12302750029549470b',
         version: 1,
       },
       transactions: [
         {
-          id: '0x7cd22c093e148a02db000df5f2b58adea9aa6dfa858b30b652518b42138d5307',
+          id: '0x7a0d253b8b97b8aaa7988cff3c5f3eb415c3e930313a5e3d51e297f85e3665a4',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x00076999a3d399bfabc2d0ac61b0ecd59ad212848cb3695517',
+          receiverAddress: '0x00defade294c7e35b3d0f374872e5ded459affb16aff9b9e7d',
           amount: '5000000n',
           signature: null,
-          time: 1640089356038,
+          time: 1640253775348,
           type: 'mine',
         },
       ],
@@ -265,7 +265,7 @@ class Block {
     }
 
     if (!(await this.verifyTransactions())) {
-      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification`);
+      debug(`Block: ${this.getHeader().getHash().toString('hex')}. Failed transaction verification (exist)`);
       return false;
     }
 

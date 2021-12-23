@@ -14,6 +14,7 @@ const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
 const { sendTestRequest } = require('../util/peer-response');
+const Transaction = require('./transaction');
 
 class Peer {
   constructor(host, port = 0) {

@@ -17,6 +17,7 @@ const {
 } = require('../../util/peer-response');
 
 const blockData = require('../../util/mock/data/blocks.json');
+const Transaction = require('../../models/transaction');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);

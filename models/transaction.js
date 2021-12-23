@@ -148,12 +148,13 @@ class Transaction {
   verify() {
     const errors = this.validate();
 
-    if (!this.senderKey) {
+    if (this.getSenderKey() === null) {
+      debug('Skip transaction verification');
       return true;
     }
 
     if (errors.length > 0) {
-      debug(`Failed transaction verification: ${JSON.stringify(errors.length)}`);
+      debug(`Failed transaction validation: ${JSON.stringify(errors)}`);
       return false;
     }
 
@@ -164,6 +165,7 @@ class Transaction {
     try {
       return crypto.verify('SHA256', Buffer.from(this.hashData()), senderKeyObject, this.getSignature());
     } catch {
+      debug('Failed transaction signature verification');
       return false;
     }
   }

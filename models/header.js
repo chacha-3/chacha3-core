@@ -85,7 +85,6 @@ class Header {
 
   hashData() {
     assert(this.checksum !== null && this.time != null);
-    // assert(this.previous !== null && this.previous.length === 32);
 
     const data = {
       version: this.version,
