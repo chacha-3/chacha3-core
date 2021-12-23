@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const { test } = require('tap');
+
+const { randomPassword } = require('secure-random-password');
 // const chai = require('chai');
 
 const Wallet = require('../../models/wallet');
@@ -84,7 +86,7 @@ test('should get encoded wallet address', (t) => {
 });
 
 test('should recover a wallet with correct password', (t) => {
-  const password = 'fXYpgaV5rFp6';
+  const password = randomPassword();
 
   const oldWallet = new Wallet();
   oldWallet.generate(password);
@@ -97,7 +99,7 @@ test('should recover a wallet with correct password', (t) => {
 });
 
 test('should not recover a wallet with incorrect password', (t) => {
-  const password = '2AUJZjwDPe88';
+  const password = randomPassword();
 
   const oldWallet = new Wallet();
   oldWallet.generate(password);
@@ -109,8 +111,8 @@ test('should not recover a wallet with incorrect password', (t) => {
 });
 
 test('should change the wallet password', (t) => {
-  const oldPassword = 'YVB3brq4';
-  const newPassword = 'fEBvGD9i';
+  const oldPassword = randomPassword();
+  const newPassword = randomPassword();
 
   const wallet = new Wallet();
   wallet.generate(oldPassword);
@@ -328,11 +330,22 @@ test('verify address by length', async (t) => {
   t.end();
 });
 
+test('derived encryption key is always equal with same salt', async (t) => {
+  const password = randomPassword();
+  const salt = crypto.randomBytes(12);
+
+  const key1 = await Wallet.deriveEncryptionKey(password, salt);
+  const key2 = await Wallet.deriveEncryptionKey(password, salt);
+
+  t.ok(key1.equals(key2));
+  t.end();
+});
+
 test('encrypt and decrypt private key', async (t) => {
   const wallet = new Wallet();
   wallet.generate();
 
-  const password = '3zCLhatfebKoG5Mm';
+  const password = randomPassword();
 
   const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), password);
   t.equal(encrypted[0], 0x01);
@@ -344,13 +357,19 @@ test('encrypt and decrypt private key', async (t) => {
   t.end();
 });
 
-test('derived encryption key is always equal with same salt', async (t) => {
-  const password = '2BcDWppjCcoFnzj4';
-  const salt = crypto.randomBytes(12);
+test('unable to decrypt private key with incorrect password', async (t) => {
+  const wallet = new Wallet();
+  wallet.generate();
 
-  const key1 = await Wallet.deriveEncryptionKey(password, salt);
-  const key2 = await Wallet.deriveEncryptionKey(password, salt);
+  const correctPassword = randomPassword();
+  const incorrectPassword = randomPassword();
 
-  t.ok(key1.equals(key2));
+  const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), correctPassword);
+  t.equal(encrypted[0], 0x01);
+  // console.log(encrypted)
+
+  const decrypted = await Wallet.decryptPrivateKey(encrypted, incorrectPassword);
+  t.equal(decrypted, null);
+
   t.end();
 });

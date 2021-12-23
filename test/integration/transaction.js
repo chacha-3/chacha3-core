@@ -1,3 +1,5 @@
+const { randomPassword } = require('secure-random-password');
+
 const { test } = require('tap');
 
 const mock = require('../../util/mock');
@@ -14,7 +16,7 @@ const { serializeBuffer } = require('../../util/serialize');
 const Block = require('../../models/block');
 
 test('create a transaction with sufficient balance', async (t) => {
-  const password = 'qf2G3ZGW5afX';
+  const password = randomPassword();
 
   const sender = new Wallet();
   sender.generate(password);
@@ -45,7 +47,7 @@ test('create a transaction with sufficient balance', async (t) => {
 });
 
 test('create a transaction with selected wallet', async (t) => {
-  const password = 'TkeA2sqWbPdY';
+  const password = randomPassword();
 
   const [sender] = await mock.createWallets(1, password);
   await Wallet.setSelected(sender.getAddress());
@@ -77,7 +79,7 @@ test('create a transaction with selected wallet', async (t) => {
 });
 
 test('show info for transaction', async (t) => {
-  const password = 'n7TnTBYB4J7G';
+  const password = randomPassword();
 
   const sender = new Wallet();
   sender.generate(password);
@@ -126,7 +128,7 @@ test('should not have info for unsaved transaction', async (t) => {
 });
 
 test('create show error for invalid transaction', async (t) => {
-  const password = '7ve375VznUSa';
+  const password = randomPassword();
 
   const sender = new Wallet();
   sender.generate(password);
@@ -150,7 +152,7 @@ test('create show error for invalid transaction', async (t) => {
 });
 
 test('unable to create a transaction with insufficient balance', async (t) => {
-  const password = '6YGgZt4zFU9m';
+  const password = randomPassword();
 
   const sender = new Wallet();
   sender.generate(password);
@@ -176,10 +178,11 @@ test('unable to create a transaction with insufficient balance', async (t) => {
 });
 
 test('unable to create a transaction with incorrect password', async (t) => {
-  const password = 'n7TnTBYB4J7G';
+  const correctPassword = randomPassword();
+  const incorrectPassword = randomPassword();
 
   const sender = new Wallet();
-  sender.generate(password);
+  sender.generate(correctPassword);
 
   const receiver = new Wallet();
   receiver.generate();
@@ -191,7 +194,7 @@ test('unable to create a transaction with incorrect password', async (t) => {
     key: sender.getPrivateKeyHex(),
     address: receiver.getAddressEncoded(),
     amount: 20,
-    password: 'kYrJ6P6ruWQa',
+    password: incorrectPassword,
   });
 
   t.equal(code, ErrorCode.PermissionDenied);

@@ -1,4 +1,5 @@
 const { test } = require('tap');
+const { randomPassword } = require('secure-random-password');
 
 const mock = require('../../util/mock');
 const Wallet = require('../../models/wallet');
@@ -49,7 +50,7 @@ test('create wallet', async (t) => {
 });
 
 test('verify wallet password access with correct password', async (t) => {
-  const password = '8huY2j9yhSS6';
+  const password = randomPassword();
   const [wallet] = await mock.createWallets(1, password);
 
   const { code, data } = await runAction({
@@ -67,7 +68,7 @@ test('verify wallet password access with correct password', async (t) => {
 });
 
 test('verify wallet password access with correct password', async (t) => {
-  const password = '8huY2j9yhSS6';
+  const password = randomPassword();
   const [wallet] = await mock.createWallets(1, password);
 
   const { code, data } = await runAction({
@@ -85,7 +86,7 @@ test('verify wallet password access with correct password', async (t) => {
 });
 
 test('unable to verify unsaved wallet', async (t) => {
-  const password = 'FGhbYwe4U952';
+  const password = randomPassword();
 
   const unsavedWallet = new Wallet();
   unsavedWallet.generate(password);
@@ -125,9 +126,11 @@ test('unable to create wallet without password and prompts password', async (t) 
 });
 
 test('generate wallet', async (t) => {
+  const password = randomPassword();
+
   const { code, data } = await runAction({
     action: 'generateWallet',
-    password: 'HHcSAGg3Yx6D',
+    password,
   });
 
   t.equal(code, SuccessCode);
@@ -262,7 +265,7 @@ test('should fail to remove unsaved wallet', async (t) => {
 });
 
 test('should recover a wallet', async (t) => {
-  const password = '5UK7vbKS3uG7';
+  const password = randomPassword();
 
   const wallet = new Wallet();
   wallet.generate(password);
@@ -284,8 +287,8 @@ test('should recover a wallet', async (t) => {
 });
 
 test('should change a wallet password', async (t) => {
-  const currentPassword = 'S7eKL77H';
-  const newPassword = 'em3rLpgM';
+  const currentPassword = randomPassword();
+  const newPassword = randomPassword();
 
   const [wallet] = await mock.createWallets(1, currentPassword);
 
@@ -308,9 +311,9 @@ test('should change a wallet password', async (t) => {
 });
 
 test('should not change a wallet password with incorrect password', async (t) => {
-  const currentPassword = 'S7eKL77H';
-  const newPassword = 'em3rLpgM';
-  const incorrectPassword = 'yM8ZLgRG';
+  const currentPassword = randomPassword();
+  const newPassword = randomPassword();
+  const incorrectPassword = randomPassword();
 
   const [wallet] = await mock.createWallets(1, currentPassword);
 
@@ -328,7 +331,7 @@ test('should not change a wallet password with incorrect password', async (t) =>
 });
 
 test('should prompt current and new password to change password if not provided', async (t) => {
-  const currentPassword = 'S7eKL77H';
+  const currentPassword = randomPassword();
 
   const [wallet] = await mock.createWallets(1, currentPassword);
 
@@ -347,7 +350,7 @@ test('should prompt current and new password to change password if not provided'
 });
 
 test('should be unable to recover wallet with incorrect password', async (t) => {
-  const password = 'u4J0fZ31j9mx';
+  const password = randomPassword();
 
   const wallet = new Wallet();
   wallet.generate(password);

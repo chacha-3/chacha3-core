@@ -144,7 +144,7 @@ class Wallet {
     const key = await this.deriveEncryptionKey(password, salt);
 
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    let encrypted = Buffer.concat([cipher.update(privateKey), cipher.final()]);
+    const encrypted = Buffer.concat([cipher.update(privateKey), cipher.final()]);
     const authTag = cipher.getAuthTag(); // 16 bytes for GCM
 
     return Buffer.concat([version, salt, iv, authTag, Buffer.from(encrypted, 'hex')]);
@@ -168,11 +168,12 @@ class Wallet {
 
     const data = encryptedBuffer.slice(45);
 
-    // let decrypted = decipher.update(data, 'buffer', 'buffer');
-    // decrypted += decipher.final('buffer');
-
-    const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
-    return decrypted;
+    try {
+      const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
+      return decrypted;
+    } catch (e) {
+      return null;
+    }
   }
 
   generate(password) {
