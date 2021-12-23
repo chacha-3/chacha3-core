@@ -18,6 +18,7 @@ actions.createTransaction = {
       amount: { type: 'string' },
       password: { type: 'string' },
       type: { type: 'string' },
+      fee: { type: 'string' },
     },
     required: ['key', 'receiverAddress', 'amount', 'password'],
   },
@@ -52,6 +53,8 @@ actions.createTransaction = {
       amount,
       options.type,
     );
+
+    transaction.setFee(options.fee || 0n);
 
     await transaction.sign(senderWallet.getPrivateKey(), options.password);
 
