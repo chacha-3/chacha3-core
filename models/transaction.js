@@ -20,6 +20,7 @@ class Transaction {
 
     // assert.strictEqual(amount > 0, true);
     this.amount = (typeof (amount) === 'bigint') ? amount : BigInt(amount);
+    this.fee = 0n;
 
     this.signature = null;
     this.time = Date.now();
@@ -35,6 +36,7 @@ class Transaction {
       amount: this.amount,
       time: this.time,
       type: this.getType(),
+      fee: this.getFee(),
     };
 
     assert(typeof (data.amount) === 'bigint');
@@ -115,6 +117,14 @@ class Transaction {
     return this.amount;
   }
 
+  getFee() {
+    return this.fee;
+  }
+
+  setFee(fee) {
+    this.fee = (typeof (fee) === 'bigint') ? fee : BigInt(fee);
+  }
+
   getSignature() {
     return this.signature;
   }
@@ -140,6 +150,10 @@ class Transaction {
 
     if (this.amount <= 0n) {
       errors.push('Amount has to be more than 0');
+    }
+
+    if (this.fee < 0n) {
+      errors.push('Fee has to be a positive number');
     }
 
     return errors;
@@ -181,6 +195,7 @@ class Transaction {
     transaction.setTime(data.time);
     transaction.setSignature(deserializeBuffer(data.signature));
     transaction.setType(data.type);
+    transaction.setFee(deserializeBigInt(data.fee));
 
     return transaction;
   }
@@ -195,6 +210,7 @@ class Transaction {
       signature: this.getSignature(),
       time: this.getTime(),
       type: this.getType(),
+      fee: this.getFee(),
     };
 
     return serializeObject(data);

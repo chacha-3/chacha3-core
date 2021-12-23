@@ -154,6 +154,8 @@ test('have correct hash data for transaction', async (t) => {
     Transaction.Type.Send,
   );
 
+  transaction.setFee(5n);
+
   const data = JSON.parse(transaction.hashData());
 
   const results = [
@@ -163,6 +165,7 @@ test('have correct hash data for transaction', async (t) => {
     { key: 'amount', value: '20n' },
     { key: 'time', value: transaction.getTime() },
     { key: 'type', value: Transaction.Type.Send },
+    { key: 'fee', value: '5n' },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -198,7 +201,8 @@ test('have correct hash data for transaction with no sender', async (t) => {
     { key: 'receiverAddress', value: serializeBuffer(receiver.getAddress()) },
     { key: 'amount', value: '20n' },
     { key: 'time', value: transaction.getTime() },
-    { key: 'type', value: Transaction.Type.Send} ,
+    { key: 'type', value: Transaction.Type.Send },
+    { key: 'fee', value: '0n' },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -229,6 +233,7 @@ test('have correct hash data for coinbase transaction', async (t) => {
     { key: 'amount', value: '50n' },
     { key: 'time', value: transaction.getTime() },
     { key: 'type', value: Transaction.Type.Send },
+    { key: 'fee', value: '0n' },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -401,6 +406,7 @@ test('to and from transaction object', async (t) => {
   t.equal(loaded.getTime(), transaction.getTime());
   t.equal(loaded.getAmount(), transaction.getAmount());
   t.equal(loaded.hashData(), transaction.hashData());
+  t.equal(loaded.getFee(), transaction.getFee());
 
   t.end();
 });

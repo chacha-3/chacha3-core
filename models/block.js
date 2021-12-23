@@ -24,24 +24,25 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0xea77280a1edd88cb817d873b0e412c647f5ad83dd82d854bd3aa344036fd5ed6',
+        hash: '0x6ef055168d5a7c4d3a58aa84c5a9878400e6123b7167015fe401b4e4c477b21a',
         previous: null,
-        time: 1640256849509,
+        time: 1640259520638,
         difficulty: 1,
-        nonce: 3366597111359845,
-        checksum: '0x30f2be38f27727a01f5488346f6628924ba21cb703b6f220553d8696f07c28df',
+        nonce: 5163592401801565,
+        checksum: '0xfddadeeaeafcfcbfdf394b06695a0380e1bbf49fabfe474b6a20499778600958',
         version: 1,
       },
       transactions: [
         {
-          id: '0x9f77b917a978c95c0384efe5def1d2e7e6d74a1bface0dd088652a06fbefa694',
+          id: '0x5f6d038c77d64a6c4857639b785b10b799af3963e94b75a7c26261ac403e4ec1',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x0097aaec5857862386024ece34ab7bd1871b1185d792b46145',
+          receiverAddress: '0x00818bf5f5f012a1f1fc664257fe4317e64c5c72622b323bd9',
           amount: '5000000n',
           signature: null,
-          time: 1640256849509,
+          time: 1640259520638,
           type: 'mine',
+          fee: '0n',
         },
       ],
     };
@@ -206,6 +207,10 @@ class Block {
     }
 
     if (coinbase.getType() !== Transaction.Type.Mine) {
+      return false;
+    }
+
+    if (coinbase.getFee() !== 0n) {
       return false;
     }
 
