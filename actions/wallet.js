@@ -308,18 +308,22 @@ actions.accountTransactions = {
   handler: async (options) => {
     const chain = Chain.mainChain;
 
-    const ids = chain.getAccountTransactions(options.address);
+    const txMapList = chain.getAccountTransactions(options.address);
     // const data = [];
 
-    const loadTransaction = (id) => new Promise((resolve) => {
-      resolve(Transaction.load(id));
+    const loadTransaction = (txMap) => new Promise((resolve) => {
+      const key = deserializeBuffer(txMap.id);
+
+      Transaction.load(key).then((transaction) => {
+        resolve(Object.assign(txMap, transaction.toObject()));
+      });
     });
 
-    const promises = ids.map((id) => loadTransaction(deserializeBuffer(id)));
+    const promises = txMapList.map((txMap) => loadTransaction(txMap));
     const transactions = await Promise.all(promises);
 
-    const data = transactions.map((t) => t.toObject());
-    return okResponse(data, 'Account transactions');
+    // const data = transactions.map((t) => t.toObject());
+    return okResponse(transactions, 'Account transactions');
   },
 };
 

@@ -467,7 +467,7 @@ test('have zero balance for account without transaction', async (t) => {
   t.end();
 });
 
-test('list correct account transactions from chain', async (t) => {
+test('list correct account transactions from chain (no fee)', async (t) => {
   const chain = new Chain();
 
   const numOfBlocks = 2;
@@ -505,8 +505,41 @@ test('list correct account transactions from chain', async (t) => {
 
   const senderTransactions = chain.getAccountTransactions(wallet.getAddress());
 
-  t.equal(senderTransactions.length, 4);
-  t.equal(typeof (senderTransactions[0]), 'string');
+  t.equal(senderTransactions.filter((transaction) => transaction.action === 'mine').length, 2);
+  t.equal(senderTransactions.filter((transaction) => transaction.action === 'send').length, 2);
+});
+
+test('list correct account transactions from chain (with fee)', async (t) => {
+  const chain = new Chain();
+
+  const numOfBlocks = 2;
+  const transactionsPerBlock = 2;
+
+  // Coinbase wallet to send to
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const blocks = await mock.blockList(numOfBlocks, transactionsPerBlock, wallet, 5n);
+  const receiverAddresses = new Array(numOfBlocks);
+
+  for (let i = 0; i < numOfBlocks; i += 1) {
+    chain.updateBlockBalances(blocks[i]);
+
+    // Post coinbase transaction
+    const transaction = blocks[i].getTransaction(1);
+
+    receiverAddresses[i] = transaction.getReceiverAddress();
+  }
+
+  for (let j = 0; j < numOfBlocks; j += 1) {
+    t.equal(chain.getAccountTransactions(receiverAddresses[j]).length, 1);
+  }
+
+  const senderTransactions = chain.getAccountTransactions(wallet.getAddress());
+
+  t.equal(senderTransactions.filter((transaction) => transaction.action === 'mine').length, 2);
+  t.equal(senderTransactions.filter((transaction) => transaction.action === 'send').length, 2);
+  t.equal(senderTransactions.filter((transaction) => transaction.action === 'fee').length, 2);
 });
 
 test('to and from object', async (t) => {

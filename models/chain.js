@@ -94,7 +94,7 @@ class Chain {
     return account.transactions;
   }
 
-  transactionUpdate(transaction) {
+  transactionUpdate(transaction, feeRewardAddress) {
     if (transaction.getSenderKey()) {
       const senderAddress = generateAddressEncoded(transaction.getSenderKey());
 
@@ -105,13 +105,13 @@ class Chain {
       }
 
       const remainingBalance = this.accounts[senderAddress].balance - transaction.getAmount();
-      const sufficientBalance = remainingBalance >= 0n;
+      const sufficientBalance = remainingBalance + transaction.getFee() >= 0n;
 
       if (!sufficientBalance) {
         return false;
       }
 
-      this.accounts[senderAddress].transactions.push(transaction.getIdHex());
+      this.accounts[senderAddress].transactions.push({ id: transaction.getIdHex(), action: 'send' });
       this.accounts[senderAddress].balance -= transaction.getAmount();
     }
 
@@ -124,24 +124,44 @@ class Chain {
       };
     }
 
-    this.accounts[receiverAddress].transactions.push(transaction.getIdHex());
+    const receiveAction = feeRewardAddress === null ? 'mine' : 'receive';
+
+    this.accounts[receiverAddress].transactions.push({
+      id: transaction.getIdHex(),
+      action: receiveAction,
+    });
+
     this.accounts[receiverAddress].balance += transaction.getAmount();
+
+    if (feeRewardAddress !== null && transaction.getFee() > 0n) {
+      const key = serializeBuffer(feeRewardAddress);
+
+      this.accounts[key].transactions.push({ id: transaction.getIdHex(), action: 'fee' });
+      this.accounts[key].balance += transaction.getFee();
+    }
 
     return true;
   }
 
-  transactionRevert(transaction) {
+  transactionRevert(transaction, feeRewardAddress) {
     if (transaction.getSenderKey()) {
       const senderAddress = generateAddressEncoded(transaction.getSenderKey());
 
       this.accounts[senderAddress].transactions.pop();
-      this.accounts[senderAddress].balance += transaction.getAmount();
+      this.accounts[senderAddress].balance += transaction.getAmount() + transaction.getFee();
     }
 
     const receiverAddress = serializeBuffer(transaction.getReceiverAddress());
 
     this.accounts[receiverAddress].transactions.pop();
     this.accounts[receiverAddress].balance -= transaction.getAmount();
+
+    if (feeRewardAddress !== null && transaction.getFee() > 0n) {
+      const key = serializeBuffer(feeRewardAddress);
+
+      this.accounts[key].transactions.pop();
+      this.accounts[key].balance -= transaction.getAmount();
+    }
 
     if (this.accounts[receiverAddress].transactions.length === 0) {
       delete this.accounts[receiverAddress];
@@ -153,8 +173,17 @@ class Chain {
     let valid = true;
     let i = 0;
 
+    // let totalFee = 0n;
+
+    const coinbase = block.getCoinbaseTransaction();
+
     for (; i < block.getTransactionCount(); i += 1) {
-      valid = this.transactionUpdate(block.getTransaction(i));
+      const transaction = block.getTransaction(i);
+
+      valid = this.transactionUpdate(
+        transaction,
+        (i > 0) ? coinbase.getReceiverAddress() : null,
+      );
 
       if (!valid) {
         break;
@@ -166,7 +195,10 @@ class Chain {
     }
 
     for (i -= 1; i >= 0; i -= 1) {
-      this.transactionRevert(block.getTransaction(i));
+      this.transactionRevert(
+        block.getTransaction(i),
+        (i > 0) ? coinbase.getReceiverAddress() : null,
+      );
     }
 
     return false;

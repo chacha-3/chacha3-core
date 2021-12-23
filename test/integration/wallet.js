@@ -464,6 +464,9 @@ test('should list account transactions', async (t) => {
   t.equal(data.length, minusGenesis);
 
   t.ok(Object.prototype.hasOwnProperty.call(data[0], 'id'));
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'action'));
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'version'));
+  t.ok(Object.prototype.hasOwnProperty.call(data[0], 'senderKey'));
 
   await Chain.clearMain();
 

@@ -280,7 +280,7 @@ mock.pendingTransactions = async (numOfTransactions) => {
   return transactions;
 };
 
-mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
+mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet, transactionFee = 0n) => {
   const blocks = [];
   let previousHash = null;
 
@@ -306,6 +306,10 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet) => {
         receiver.getAddress(),
         Math.floor(Math.random() * (100 - 1) + 1),
       );
+
+      if (transactionFee > 0n) {
+        transaction.setFee(transactionFee);
+      }
 
       await transaction.sign(wallet.getPrivateKey());
       block.addTransaction(transaction);
