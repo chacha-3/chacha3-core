@@ -104,15 +104,17 @@ class Chain {
         return false;
       }
 
-      const remainingBalance = this.accounts[senderAddress].balance - transaction.getAmount();
-      const sufficientBalance = remainingBalance + transaction.getFee() >= 0n;
+      const amountWithFee = transaction.getAmount() + transaction.getFee();
+
+      const remainingBalance = this.accounts[senderAddress].balance - amountWithFee;
+      const sufficientBalance = remainingBalance >= 0n;
 
       if (!sufficientBalance) {
         return false;
       }
 
       this.accounts[senderAddress].transactions.push({ id: transaction.getIdHex(), action: 'send' });
-      this.accounts[senderAddress].balance -= transaction.getAmount();
+      this.accounts[senderAddress].balance -= amountWithFee;
     }
 
     const receiverAddress = serializeBuffer(transaction.getReceiverAddress());

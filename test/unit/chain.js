@@ -260,7 +260,7 @@ test('update and reverts block balances', async (t) => {
   const wallet = new Wallet();
   await wallet.generate();
 
-  const blocks = await mock.blockList(numOfBlocks, 2, wallet);
+  const blocks = await mock.blockList(numOfBlocks, 2, wallet, 5n);
   const receiverAddresses = new Array(numOfBlocks);
 
   for (let i = 0; i < numOfBlocks; i += 1) {
@@ -277,6 +277,8 @@ test('update and reverts block balances', async (t) => {
 
     const updatedBlocks = i + 1;
 
+    // FIXME: Mining own transaction. Sender fee goes back to miner.
+    // Write test with separate miner and sender
     t.ok(senderBalance < Block.InitialReward * BigInt(updatedBlocks));
     t.ok(receiverBalance > 0);
   }
