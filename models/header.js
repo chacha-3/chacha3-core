@@ -1,9 +1,9 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const blake3 = require('blake3');
+const blake3 = require('blake3-wasm');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
-const { serializeObject, deserializeBuffer } = require('../util/serialize');
+const { serializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
 
 // TODO: Cleaner way for this. Add generic environment check
 
@@ -178,6 +178,15 @@ class Header {
 
   incrementNonce() {
     this.nonce += 1;
+  }
+
+  verifyHash(recalculate = true) {
+    if (recalculate && !this.getHash().equals(this.computeHash())) {
+      return false;
+    }
+
+    const hashNum = BigInt(serializeBuffer(this.getHash()));
+    return hashNum < this.getTarget();
   }
 
   static fromObject(obj) {

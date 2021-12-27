@@ -1,7 +1,7 @@
-const debug = require('debug')('miner:model');
 const assert = require('assert');
+const debug = require('debug')('miner:model');
+const { Worker, isMainThread, parentPort } = require('worker_threads');
 
-// const db = level('wallets');
 const Block = require('./block');
 const Chain = require('./chain');
 const Transaction = require('./transaction');
@@ -13,6 +13,8 @@ const { waitUntil } = require('../util/sync');
 
 class Miner {
   constructor() {
+    this.worker = null;
+
     this.receiverAddress = null;
     this.mining = false;
 
@@ -22,6 +24,9 @@ class Miner {
 
   static async foundBlock(block) {
     debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
+
+    assert(block.header.getPrevious() !== null);
+    console.log('prev:', Chain.mainChain)
 
     const result = await Chain.mainChain.confirmNewBlock(block);
     assert(result === true);
@@ -44,6 +49,29 @@ class Miner {
     return block;
   }
 
+  // static miningWorker(header, timeout) {
+  //   return new Promise((resolve, reject) => {
+  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
+  //     this.worker.on('message', (nonce) => {
+  //       console.log(`Receive nonce: ${nonce}`);
+  //       resolve(nonce);
+  //     });
+  //     this.worker.on('error', (error) => {
+  //       reject(error);
+  //     });
+  //     this.worker.on('exit', (code) => {
+  //       // console.log('error code ' + code);
+  //       // resolve(-1);
+
+  //       if (code !== 1) {
+  //         reject('exit code: ' + code);
+  //       } else {
+  //         resolve(-1);
+  //       }
+  //     });
+  //   });
+  // }
+
   async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
@@ -54,10 +82,8 @@ class Miner {
 
     this.mining = true;
 
-    let block = this.initMiningBlock();
-
     while (this.mining) {
-      const chain = Chain.mainChain; // TODO: Move this to after synching
+      // const chain = Chain.mainChain; // TODO: Move this to after synching
 
       if (Chain.mainChain.isSynching()) {
         debug('Mining paused. Chain out of sync');
@@ -65,22 +91,58 @@ class Miner {
       }
 
       // const pendingList = await Transaction.loadPending();
+      const block = this.initMiningBlock();
       const rejected = block.addPendingTransactions(this.pendingTransactions);
 
       block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
-      block.header.incrementNonce();
 
-      const latestBlock = chain.lastBlockHeader();
+      const latestBlock = Chain.mainChain.lastBlockHeader();
       block.setPreviousHash(latestBlock.getHash());
 
       block.header.hash = block.header.computeHash();
+      
+      let foundNonce = -1;
 
-      // const transactionsVerified = await block.verifyTransactions();
-      if (block.verifyHash()) {
+      try {
+        foundNonce = await new Promise((resolve, reject) => {
+          this.worker = new Worker('./workers/miner.js', { workerData: { headerData: block.getHeader().toObject(), timeout: 10000 } });
+          this.worker.on('message', (nonce) => {
+            console.log(`Receive nonce: ${nonce}`);
+            resolve(nonce);
+          });
+          this.worker.on('error', (error) => {
+            // reject(error);
+          });
+          this.worker.on('exit', (code) => {
+            // console.log('error code ' + code);
+            // resolve(-1);
+            console.log('exit ' + code);
+            if (code === 1) {
+              resolve(-1);
+            }
+            // if (code !== 1) {
+            //   reject('exit code: ' + code);
+            // } else {
+              // resolve(-1);
+            // }
+          });
+        });
+
+        console.log('find after ' + foundNonce);
+        // console.log('debug2', Chain.mainChain);
+        
+      } catch (err) {
+        console.log(err);
+      }
+
+      console.log(foundNonce, foundNonce > 0);
+     
+      if (foundNonce > 0) {
+        console.log('found block');
+        block.header.setNonce(foundNonce);
+        block.header.hash = block.header.computeHash();
+        
         await Miner.foundBlock(block);
-
-        // Init new block for mining
-        block = this.initMiningBlock();
       }
     }
 
@@ -143,6 +205,7 @@ class Miner {
   }
 
   stop() {
+    this.worker.terminate();
     this.stopTransactionPoll();
     this.mining = false;
   }
