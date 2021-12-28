@@ -4,7 +4,7 @@ const assert = require('assert');
 const Header = require('./header');
 
 const {
-  DB, BlockDB, HeaderDB, runningManualTest, PendingTransactionDB,
+  DB, runningManualTest,
 } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
@@ -12,7 +12,6 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
-const Transaction = require('./transaction');
 
 if (runningManualTest(process.argv)) {
   process.env.NODE_ENV = 'test';

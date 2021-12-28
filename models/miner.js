@@ -114,34 +114,17 @@ class Miner {
             // reject(error);
           });
           this.worker.on('exit', (code) => {
-            // console.log('error code ' + code);
-            // resolve(-1);
-            console.log('exit ' + code);
-            if (code === 1) {
-              resolve(-1);
-            }
-            // if (code !== 1) {
-            //   reject('exit code: ' + code);
-            // } else {
-              // resolve(-1);
-            // }
+            resolve(-1);
           });
         });
-
-        console.log('find after ' + foundNonce);
-        // console.log('debug2', Chain.mainChain);
-        
       } catch (err) {
         console.log(err);
       }
-
-      console.log(foundNonce, foundNonce > 0);
      
       if (foundNonce > 0) {
-        console.log('found block');
         block.header.setNonce(foundNonce);
         block.header.hash = block.header.computeHash();
-        
+
         await Miner.foundBlock(block);
       }
     }
