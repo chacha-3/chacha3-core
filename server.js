@@ -3,7 +3,7 @@ const selfsigned = require('selfsigned');
 
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-const attrs = [{ name: 'commonName', value: 'bong' }];
+const attrs = [{ name: 'commonName', value: 'chacha3' }];
 
 const pems = selfsigned.generate(attrs, {
   keySize: 2048,

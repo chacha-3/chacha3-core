@@ -16,12 +16,12 @@ const Chain = require('../../models/chain');
 test('detect running unit test', (t) => {
   const argvTest = [
     'C:\\Program Files\\nodejs\\node.exe',
-    'C:\\Users\\user21\\Projects\\bong\\test\\unit\\util.js',
+    'C:\\Users\\user21\\Projects\\chacha3\\test\\unit\\util.js',
   ];
 
   const argvNonTest = [
     'C:\\Program Files\\nodejs\\node.exe',
-    'C:\\Users\\user21\\Projects\\bong\\shell.js',
+    'C:\\Users\\user21\\Projects\\chacha3\\shell.js',
   ];
 
   t.equal(runningManualTest(argvTest), true);

@@ -34,7 +34,7 @@ let promptFields = [];
 let prompt = null;
 
 const rl = readline.createInterface(process.stdin, process.stdout, completer);
-const ipcId = `bong${process.env.PORT || '3000'}`;
+const ipcId = `chacha3${process.env.PORT || '3000'}`;
 
 ipc.config.id = ipcId;
 ipc.config.retry = 1500;
@@ -137,7 +137,7 @@ function promptPendingField() {
 }
 function start() {
   console.clear();
-  console.log(`${chalk.bold.blueBright('Bong shell')} ${chalk.bold.gray(`(${version})`)}`);
+  console.log(`${chalk.bold.blueBright('ChaCha3 shell')} ${chalk.bold.gray(`(${version})`)}`);
 
   rl.prompt();
 }

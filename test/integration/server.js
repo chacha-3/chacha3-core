@@ -19,9 +19,9 @@ test('should be able to call public actions', async (t) => {
       action: 'nodeInfo',
     },
     // headers: {
-    //   'bong-port': 4002,
-    //   'bong-chain-work': 5,
-    //   'bong-chain-length': 5,
+    //   'chacha3-port': 4002,
+    //   'chacha3-chain-work': 5,
+    //   'chacha3-chain-length': 5,
     // },
   });
 

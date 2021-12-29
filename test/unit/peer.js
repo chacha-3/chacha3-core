@@ -473,9 +473,9 @@ test('does not sync with unverified forward block', async (t) => {
 // test('parse peer request headers', async (t) => {
 //   const request = {
 //     headers: {
-//       'bong-port': '3000',
-//       'bong-chain-work': '200',
-//       'bong-chain-length': '20',
+//       'chacha3-port': '3000',
+//       'chacha3-chain-work': '200',
+//       'chacha3-chain-length': '20',
 //     },
 //   };
 

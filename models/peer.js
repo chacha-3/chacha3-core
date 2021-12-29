@@ -293,10 +293,10 @@ class Peer {
 
   static requestHeaders() {
     return {
-      'bong-port': process.env.PORT || 3000,
-      'bong-chain-length': Chain.mainChain.getLength(),
-      'bong-chain-work': Chain.mainChain.getTotalWork(),
-      'bong-version': version,
+      'chacha3-port': process.env.PORT || 3000,
+      'chacha3-chain-length': Chain.mainChain.getLength(),
+      'chacha3-chain-work': Chain.mainChain.getTotalWork(),
+      'chacha3-version': version,
     };
   }
 
@@ -304,15 +304,15 @@ class Peer {
     const { headers } = request;
 
     return {
-      chainWork: Number.parseInt(headers['bong-chain-work'], 10),
-      chainLength: Number.parseInt(headers['bong-chain-length'], 10),
-      port: Number.parseInt(headers['bong-port'], 10),
+      chainWork: Number.parseInt(headers['chacha3-chain-work'], 10),
+      chainLength: Number.parseInt(headers['chacha3-chain-length'], 10),
+      port: Number.parseInt(headers['chacha3-port'], 10),
     };
   }
 
   // static validRequestHeaders(request) {
   //   const { headers } = request;
-  //   const required = ['bong-port', 'bong-chain-work', 'bong-chain-length'];
+  //   const required = ['chacha3-port', 'chacha3-chain-work', 'chacha3-chain-length'];
 
   //   for (let i = 0; i < required.length; i += 1) {
   //     if (!Object.prototype.hasOwnProperty.call(headers, required[i])) {
@@ -324,9 +324,9 @@ class Peer {
   // }
 
   // setFromHeaders(headers) {
-  //   this.setPort(Number.parseInt(headers['bong-port'], 10));
-  //   this.setTotalWork(Number.parseInt(headers['bong-chain-work'], 10));
-  //   this.setChainLength(Number.parseInt(headers['bong-chain-length'], 10));
+  //   this.setPort(Number.parseInt(headers['chacha3-port'], 10));
+  //   this.setTotalWork(Number.parseInt(headers['chacha3-chain-work'], 10));
+  //   this.setChainLength(Number.parseInt(headers['chacha3-chain-length'], 10));
 
     
   // }

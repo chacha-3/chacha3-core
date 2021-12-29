@@ -50,7 +50,7 @@ test('should ping a node address', (t) => {
 
     const { code, message } = await runAction({
       action: 'pingNode',
-      address: '127.0.0.1',
+      host: '127.0.0.1',
       port: app.server.address().port,
     });
 
@@ -66,7 +66,7 @@ test('should ping a node address', (t) => {
 test('ping an unavailable node', async (t) => {
   const { code } = await runAction({
     action: 'pingNode',
-    address: '127.0.0.1',
+    host: '127.0.0.1',
     port: 48957,
   });
 

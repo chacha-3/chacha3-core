@@ -2,7 +2,7 @@ const debug = require('debug')('ipc');
 const ipc = require('node-ipc');
 const { runAction } = require('./actions');
 
-const ipcId = `bong${process.env.PORT || 3000}`;
+const ipcId = `chacha3${process.env.PORT || 3000}`;
 ipc.config.id = ipcId;
 
 debug(`Config IPC ID: ${ipcId}`);
