@@ -6,6 +6,8 @@ const Wallet = require('../models/wallet');
 const numOfBlocks = 10;
 const transactionsPerBlock = 5;
 
+process.env.NODE_ENV = 'test';
+
 // Coinbase receiver to send out
 const sender = new Wallet();
 // sender.generate();

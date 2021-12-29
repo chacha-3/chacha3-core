@@ -18,33 +18,34 @@ class Block {
   }
 
   static get InitialReward() {
-    return 5000000n;
+    // 1 quintillion
+    return 1000000000000000000n;
   }
 
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x6ef055168d5a7c4d3a58aa84c5a9878400e6123b7167015fe401b4e4c477b21a',
+        hash: '0x000004bcdf196045c68810b14189c5adb092dcb61186d5054f6aa110e524d009',
         previous: null,
-        time: 1640259520638,
+        time: 1640786128357,
         difficulty: 1,
-        nonce: 5163592401801565,
-        checksum: '0xfddadeeaeafcfcbfdf394b06695a0380e1bbf49fabfe474b6a20499778600958',
+        nonce: 5313587008844815,
+        checksum: '0x892851747fca845581ad08b5ced673916fb4f32fc12425e95c750b8d54dd7cbe',
         version: 1,
       },
       transactions: [
         {
-          id: '0x5f6d038c77d64a6c4857639b785b10b799af3963e94b75a7c26261ac403e4ec1',
+          id: '0x6df4aba09defe90421f0e8064ab22b57c45e2b44187f1b35584a213c8d4696b2',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x00818bf5f5f012a1f1fc664257fe4317e64c5c72622b323bd9',
-          amount: '5000000n',
+          receiverAddress: '0x00b406f8c3746762361103d8b0f992bcc6480ce5d33956ec18',
+          amount: '1000000000000000000n',
           signature: null,
-          time: 1640259520638,
+          time: 1640786128358,
           type: 'mine',
           fee: '0n',
         },
-      ],
+      ]
     };
 
     return Block.fromObject(data);

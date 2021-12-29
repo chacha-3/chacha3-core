@@ -30,6 +30,7 @@ class Chain {
     this.verified = false;
   }
 
+  // Interval in which difficulty is adjusted
   static getAdjustInterval() {
     const adjustInterval = {
       production: 2000,
@@ -54,7 +55,7 @@ class Chain {
   static getExpectedTimePerBlock() {
     const expectedTime = {
       production: 200000,
-      development: 5000,
+      development: 30000,
       test: 1000,
     };
 
