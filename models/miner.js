@@ -100,7 +100,7 @@ class Miner {
       block.setPreviousHash(latestBlock.getHash());
 
       block.header.hash = block.header.computeHash();
-      
+
       let foundNonce = -1;
 
       try {
