@@ -1,6 +1,7 @@
 const debug = require('debug')('ipc');
 const ipc = require('node-ipc');
 const { runAction } = require('./actions');
+const { errorResponse, ErrorCode } = require('./util/rpc');
 
 const ipcId = `chacha3${process.env.PORT || 3000}`;
 ipc.config.id = ipcId;
@@ -17,7 +18,13 @@ ipc.serve(
       async (request, socket) => {
         const options = JSON.parse(request);
 
-        const response = await runAction(options, 'full');
+        let response;
+
+        try {
+          response = await runAction(options, 'full');
+        } catch (error) {
+          response = errorResponse(ErrorCode.Internal, error.message);
+        }
 
         ipc.server.emit(
           socket,

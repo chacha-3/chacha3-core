@@ -13,7 +13,7 @@ require('fs').readdirSync(normalizedPath).forEach((file) => {
     schemas.push({ actionName: key, schema: actions[key].schema });
   });
 
-  if (file === 'info.js') {
+  if (file === 'miner.js') {
     console.log(JSON.stringify(schemas, null, 2));
   }
 });
