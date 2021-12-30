@@ -68,7 +68,7 @@ test('add a peer', async (t) => {
   const { code, data } = await runAction({
     action: 'addPeer',
     host: '127.0.0.1',
-    port: 3000,
+    port: 5438,
   });
 
   t.equal(code, SuccessCode);

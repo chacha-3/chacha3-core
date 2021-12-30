@@ -4,6 +4,8 @@ const { version } = require('../package.json');
 const Chain = require('../models/chain');
 const Peer = require('../models/peer');
 
+const { config } = require('../util/env');
+
 const {
   errorResponse, ErrorCode, SuccessCode, okResponse,
 } = require('../util/rpc');
@@ -58,10 +60,12 @@ actions.nodeInfo = {
       Peer.randomizeLocalNonce();
     }
 
+    const { port } = config;
+
     const data = {
       version,
       time: Date.now(),
-      port: process.env.PORT || 3000,
+      port,
       chainLength: chain.getLength(),
       chainWork: chain.getTotalWork(),
       nonce: Peer.localNonce,

@@ -8,30 +8,34 @@ const Peer = require('./models/peer');
 const Chain = require('./models/chain');
 const Block = require('./models/block');
 
+const { port } = require('./util/env').config;
+
 /**
  * Normalize a port into a number, string, or false.
  */
-function normalizePort(val) {
-  const port = parseInt(val, 10);
+// function normalizePort(val) {
+//   const port = parseInt(val, 10);
 
-  if (Number.isNaN(port)) {
-    // named pipe
-    return val;
-  }
+//   if (Number.isNaN(port)) {
+//     // named pipe
+//     return val;
+//   }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+//   if (port >= 0) {
+//     // port number
+//     return port;
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
-const port = normalizePort(process.env.PORT || '3000');
+// const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, async (err) => {
-  debug(`Server listening on port ${port}`);
+  // eslint-disable-next-line no-console
+  console.log(`Server listening on port ${port}`);
   if (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     process.exit(1);
   }
@@ -54,7 +58,6 @@ server.listen(port, async (err) => {
   }
 
   debug('Done loading blocks');
-
 
   // Sync with longest chain
   const peerPriority = await Peer.withLongestActiveChains();

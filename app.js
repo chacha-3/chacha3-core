@@ -4,12 +4,10 @@ const fastifyWebsocket = require('fastify-websocket');
 
 const Peer = require('./models/peer');
 
-const { runAction, checkPermission, actionList } = require('./actions');
+const { runAction } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
 const { isTestEnvironment } = require('./util/env');
-
-const Chain = require('./models/chain');
 
 const errorHandler = (error, request, reply) => {
   reply.send(errorResponse(ErrorCode.Internal, error.message));
@@ -34,15 +32,17 @@ function build(opts = {}) {
 
   // RPC endpoint
   app.post('/', {
-    preHandler: async (request, reply, done) => {
+    preHandler: async (request) => {
       if (isTestEnvironment()) {
         return;
       }
 
+      // TODO: Check if version header is required
       const {
         host, port, chainWork, chainLength,
       } = Peer.parseRequestHeaders(request);
 
+      // TODO: More throughout check if request is from ChaCha client
       if (!port) {
         return;
       }

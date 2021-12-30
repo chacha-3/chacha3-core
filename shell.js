@@ -11,7 +11,7 @@ const debug = require('debug')('shell');
 
 const { version } = require('./package.json');
 const { SuccessCode } = require('./util/rpc');
-// const { ShellDB } = require('./util/db');
+const { port } = require('./util/env').config;
 
 const { isBigIntString, deserializeBigInt } = require('./util/serialize');
 
@@ -34,7 +34,7 @@ let promptFields = [];
 let prompt = null;
 
 const rl = readline.createInterface(process.stdin, process.stdout, completer);
-const ipcId = `chacha3${process.env.PORT || '3000'}`;
+const ipcId = `chacha3_${port}`;
 
 ipc.config.id = ipcId;
 ipc.config.retry = 1500;

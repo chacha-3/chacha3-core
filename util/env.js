@@ -8,7 +8,7 @@ const Env = {
 };
 
 const config = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 5438,
   host: process.env.HOST || '',
   environment: process.env.NODE_ENV || Env.Development,
   // chainId: (environment === 'production') ? 'chacha3_main_v1' : 'chacha3_dev_v1',

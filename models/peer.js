@@ -19,14 +19,16 @@ const { sendTestRequest } = require('../util/peer-response');
 
 class Peer {
   constructor(host, port = 0) {
+    assert(host !== null);
     assert(port !== 0);
+
     this.connection = null;
 
     this.version = null;
     this.chainLength = null;
     this.chainWork = 0;
 
-    this.host = host || null;
+    this.host = host;
     this.port = port;
 
     this.status = Peer.Status.Idle;
@@ -35,7 +37,7 @@ class Peer {
 
   static get SeedList() {
     const seedPeers = [
-      { host: '127.0.0.1', port: 3000 },
+      { host: '127.0.0.1', port: 5438 },
     ];
 
     return seedPeers;
@@ -312,6 +314,7 @@ class Peer {
       chainLength: Number.parseInt(headers['chacha3-chain-length'], 10),
       host: headers['chacha3-host'],
       port: Number.parseInt(headers['chacha3-port'], 10),
+      version: headers['chacha3-version'],
     };
   }
 

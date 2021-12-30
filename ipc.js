@@ -1,9 +1,11 @@
 const debug = require('debug')('ipc');
 const ipc = require('node-ipc');
 const { runAction } = require('./actions');
-const { errorResponse, ErrorCode } = require('./util/rpc');
 
-const ipcId = `chacha3${process.env.PORT || 3000}`;
+const { errorResponse, ErrorCode } = require('./util/rpc');
+const { port } = require('./util/env').config;
+
+const ipcId = `chacha3_${port}`;
 ipc.config.id = ipcId;
 
 debug(`Config IPC ID: ${ipcId}`);
