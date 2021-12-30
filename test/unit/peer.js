@@ -470,28 +470,32 @@ test('does not sync with unverified forward block', async (t) => {
 //   t.end();
 // });
 
-// test('parse peer request headers', async (t) => {
-//   const request = {
-//     headers: {
-//       'chacha3-port': '3000',
-//       'chacha3-chain-work': '200',
-//       'chacha3-chain-length': '20',
-//     },
-//   };
+test('set and parse peer request headers defaults', async (t) => {
+  const request = {
+    headers: Peer.requestHeaders(),
+  };
 
-//   const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
+  const {
+    host, port, chainWork, chainLength, version,
+  } = Peer.parseRequestHeaders(request);
 
-//   t.equal(port, 3000);
-//   t.equal(typeof (port), 'number');
+  t.equal(host, '');
+  t.equal(typeof (host), 'string');
 
-//   t.equal(chainWork, 200);
-//   t.equal(typeof (chainWork), 'number');
+  t.equal(port, 5438);
+  t.equal(typeof (port), 'number');
 
-//   t.equal(chainLength, 20);
-//   t.equal(typeof (chainLength), 'number');
+  t.equal(chainWork, 1);
+  t.equal(typeof (chainWork), 'number');
 
-//   t.end();
-// });
+  t.equal(chainLength, 1);
+  t.equal(typeof (chainLength), 'number');
+
+  t.equal(version, '0.0.1');
+  t.equal(typeof (version), 'string');
+
+  t.end();
+});
 
 test('check if peer block work is significantly ahead', async (t) => {
   const numOfBlock = 3;
@@ -531,4 +535,3 @@ test('check if peer block work is significantly ahead', async (t) => {
 //   // await Peer.clearAll();
 //   t.end();
 // });
-
