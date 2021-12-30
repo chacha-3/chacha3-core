@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const assert = require('assert');
 
 const Env = {
@@ -18,7 +20,9 @@ const envShortCode = (env) => {
   return map[env];
 };
 
-const environment = process.env.NODE_ENV || Env.Development;
+const runningManualTest = process.argv.length > 0 && process.argv[0].includes('node') && process.argv[1].includes('test');
+
+const environment = process.env.NODE_ENV || (runningManualTest ? Env.Testing : Env.Development);
 
 assert(Object.values(Env).includes(environment));
 
@@ -35,4 +39,5 @@ module.exports = {
   Env,
   isTestEnvironment,
   config,
+  runningManualTest,
 };

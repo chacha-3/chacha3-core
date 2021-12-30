@@ -1,6 +1,7 @@
 const { test } = require('tap');
 
-const { runningManualTest } = require('../../util/db');
+const { runningManualTest } = require('../../util/env');
+
 const {
   serializeObject,
   deserializeBuffer,
@@ -8,28 +9,30 @@ const {
   serializeBigInt,
   deserializeBigInt,
 } = require('../../util/serialize');
+
+const mock = require('../../util/mock');
+const { config, Env } = require('../../util/env');
+
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
-const mock = require('../../util/mock');
-const Chain = require('../../models/chain');
 
-test('detect running unit test', (t) => {
-  const argvTest = [
-    'C:\\Program Files\\nodejs\\node.exe',
-    'C:\\Users\\user21\\Projects\\chacha3\\test\\unit\\util.js',
-  ];
+// test('detect running unit test', (t) => {
+//   const argvTest = [
+//     'C:\\Program Files\\nodejs\\node.exe',
+//     'C:\\Users\\user21\\Projects\\chacha3\\test\\unit\\util.js',
+//   ];
 
-  const argvNonTest = [
-    'C:\\Program Files\\nodejs\\node.exe',
-    'C:\\Users\\user21\\Projects\\chacha3\\shell.js',
-  ];
+//   const argvNonTest = [
+//     'C:\\Program Files\\nodejs\\node.exe',
+//     'C:\\Users\\user21\\Projects\\chacha3\\shell.js',
+//   ];
 
-  t.equal(runningManualTest(argvTest), true);
-  t.equal(runningManualTest(argvNonTest), false);
-  t.equal(runningManualTest([]), false);
+//   t.equal(runningManualTest(argvTest), true);
+//   t.equal(runningManualTest(argvNonTest), false);
+//   t.equal(runningManualTest([]), false);
 
-  t.end();
-});
+//   t.end();
+// });
 
 test('serialize and deserialize BigInt', (t) => {
   const numbers = [1n, 100000000n, 0n, -220n];
@@ -172,11 +175,20 @@ test('mock chain with blocks', async (t) => {
   t.end();
 });
 
-test('mock a block with transactions', async (t) => {
-  const numOfTransactions = 3;
-  const block = await mock.blockWithTransactions(numOfTransactions);
+// test('mock a block with transactions', async (t) => {
+//   const numOfTransactions = 3;
+//   const block = await mock.blockWithTransactions(numOfTransactions);
 
-  t.equal(block.getTransactionCount(), numOfTransactions);
-  t.equal(await block.verify(null, Chain.blockRewardAtIndex(0)), true);
+//   t.equal(block.getTransactionCount(), numOfTransactions);
+//   t.equal(await block.verify(null, Chain.blockRewardAtIndex(0)), true);
+//   t.end();
+// });
+
+test('load environment config defaults', async (t) => {
+  t.equal(config.chainId, 'chacha3_local');
+  t.equal(config.environment, Env.Testing);
+
+  // TODO: Host and port
+
   t.end();
 });

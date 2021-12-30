@@ -1,22 +1,23 @@
 const level = require('level');
 const sub = require('subleveldown');
-const { isTestEnvironment } = require('./env');
+const { isTestEnvironment, runningManualTest } = require('./env');
 
 // Probably and underfit solution. But no issues
-function runningManualTest(argv) {
-  if (argv.length === 0) {
-    return false;
-  }
+// TODO: Migrate to env util
+// function runningManualTest(argv) {
+//   if (argv.length === 0) {
+//     return false;
+//   }
 
-  return argv[0].includes('node') && argv[1].includes('test');
-}
+//   return argv[0].includes('node') && argv[1].includes('test');
+// }
 
 // const dataDir = '../data';
 // if (!fs.existsSync(dataDir)) {
 //   fs.mkdirSync(dataDir);
 // }
 
-const dbName = (isTestEnvironment || runningManualTest(process.argv)) ? '.testdb' : 'data';
+const dbName = (isTestEnvironment) ? '.testdb' : 'data';
 
 const DB = level(dbName);
 
@@ -38,5 +39,5 @@ module.exports = {
   TransactionDB,
   PendingTransactionDB,
   PeerDB,
-  runningManualTest, // Export to use for unit test
+  // runningManualTest, // Export to use for unit test
 };

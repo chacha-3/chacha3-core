@@ -6,10 +6,17 @@ const Chain = require('../models/chain');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 const Peer = require('../models/peer');
+
 const { randomNumberBetween } = require('./math');
 const { deserializeBuffer } = require('./serialize');
 
+const { Testing } = require('./env');
+
 const mock = {};
+
+// if (runningManualTest(process.argv)) {
+//   process.env.NODE_ENV = Testing;
+// }
 
 mock.createWallets = async (count, password) => {
   const createWallet = (i) => new Promise((resolve) => {

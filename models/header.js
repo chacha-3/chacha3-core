@@ -2,15 +2,13 @@ const assert = require('assert');
 const crypto = require('crypto');
 const blake3 = require('blake3-wasm');
 
-const { HeaderDB, runningManualTest } = require('../util/db');
+const { HeaderDB } = require('../util/db');
 const { serializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
-const { Production, Development, Testing } = require('../util/env').Env;
+
+const { config, Env } = require('../util/env');
+const { Production, Development, Testing } = Env;
 
 // TODO: Cleaner way for this. Add generic environment check
-
-if (runningManualTest(process.argv)) {
-  process.env.NODE_ENV = Testing;
-}
 
 const minTarget = {
   [Production]: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
@@ -37,8 +35,8 @@ class Header {
   }
 
   static get MinTarget() {
-    const env = process.env.NODE_ENV || 'development';
-    return minTarget[env];
+    const { environment } = config;
+    return minTarget[environment];
   }
 
   async save() {

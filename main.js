@@ -1,4 +1,5 @@
-require('dotenv').config();
+/* eslint-disable no-console */
+// require('dotenv').config();
 
 const debug = require('debug')('main');
 const server = require('./server');
@@ -32,10 +33,8 @@ const { port } = require('./util/env').config;
 // const port = normalizePort(process.env.PORT || '3000');
 
 server.listen(port, async (err) => {
-  // eslint-disable-next-line no-console
   console.log(`Server listening on port ${port}`);
   if (err) {
-    // eslint-disable-next-line no-console
     console.log(err);
     process.exit(1);
   }

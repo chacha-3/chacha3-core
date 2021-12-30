@@ -7,7 +7,7 @@ const { config, Env } = require('../util/env');
 const { Testing, Development, Production } = Env;
 
 const {
-  DB, runningManualTest,
+  DB,
 } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
 
@@ -15,10 +15,6 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
-
-if (runningManualTest(process.argv)) {
-  process.env.NODE_ENV = Testing;
-}
 
 class Chain {
   constructor() {
