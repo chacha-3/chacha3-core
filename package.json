@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./main.js",
-    "test": "cross-env NODE_ENV=test tap --jobs=1 --before=test/before-tests.js --after=test/after-tests.js",
+    "test": "cross-env NODE_ENV=testing tap --jobs=1 --before=test/before-tests.js --after=test/after-tests.js",
     "dev": "cross-env NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./main.js",
     "shell": "node ./shell"
   },

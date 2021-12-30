@@ -10,11 +10,12 @@ const Block = require('./block');
 const { version } = require('../package.json');
 
 const { PeerDB } = require('../util/db');
+const { config, isTestEnvironment } = require('../util/env');
+
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
 const { sendTestRequest } = require('../util/peer-response');
-const Transaction = require('./transaction');
 
 class Peer {
   constructor(host, port = 0) {
@@ -281,7 +282,7 @@ class Peer {
   }
 
   retryReachOut() {
-    if (process.env.NODE_ENV === 'test') {
+    if (isTestEnvironment()) {
       return;
     }
 
@@ -292,8 +293,11 @@ class Peer {
   }
 
   static requestHeaders() {
+    const { host, port } = config;
+
     return {
-      'chacha3-port': process.env.PORT || 3000,
+      // 'chacha3-host': host,
+      'chacha3-port': port,
       'chacha3-chain-length': Chain.mainChain.getLength(),
       'chacha3-chain-work': Chain.mainChain.getTotalWork(),
       'chacha3-version': version,
@@ -306,6 +310,7 @@ class Peer {
     return {
       chainWork: Number.parseInt(headers['chacha3-chain-work'], 10),
       chainLength: Number.parseInt(headers['chacha3-chain-length'], 10),
+      // host: headers['chacha3-host'],
       port: Number.parseInt(headers['chacha3-port'], 10),
     };
   }
@@ -375,7 +380,8 @@ class Peer {
   async sendRequest(options) {
     const testWhitelist = ['ping'];
 
-    if (process.env.NODE_ENV === 'test') {
+    // FIXME: Double check for isTestEnvironment
+    if (isTestEnvironment()) {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
 
       if (response !== null) {
@@ -386,13 +392,14 @@ class Peer {
     // FIXME:
     // Ping node test causing block integration test for fail because of a background peer call
     // Probably is caused by peer chain synching when adding a peer from ping
-    if (process.env.NODE_ENV === 'test' && !testWhitelist.includes(options.action)) {
+    if (isTestEnvironment() && !testWhitelist.includes(options.action)) {
       return null;
     }
 
     const post = bent(`http://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
     try {
+      console.log(`http://${this.formattedAddress()}`)
       const response = await post('', options);
       return response;
     } catch (e) {

@@ -3,6 +3,9 @@ const assert = require('assert');
 
 const Header = require('./header');
 
+const { config, Env } = require('../util/env');
+const { Testing, Development, Production } = Env;
+
 const {
   DB, runningManualTest,
 } = require('../util/db');
@@ -14,7 +17,7 @@ const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
 
 if (runningManualTest(process.argv)) {
-  process.env.NODE_ENV = 'test';
+  process.env.NODE_ENV = Testing;
 }
 
 class Chain {
@@ -32,34 +35,40 @@ class Chain {
 
   // Interval in which difficulty is adjusted
   static getAdjustInterval() {
+    const { environment } = config;
+
     const adjustInterval = {
-      production: 2000,
-      development: 20,
-      test: 8,
+      [Production]: 2000,
+      [Development]: 20,
+      [Testing]: 8,
     };
 
-    return adjustInterval[process.env.NODE_ENV || 'development'];
+    return adjustInterval[environment];
   }
 
   // TODO: Change to static get
   static getHalvingInterval() {
+    const { environment } = config;
+
     const halvingInterval = {
-      production: 1000000,
-      development: 500000,
-      test: 10,
+      [Production]: 1000000,
+      [Development]: 500000,
+      [Testing]: 10,
     };
 
-    return halvingInterval[process.env.NODE_ENV || 'development'];
+    return halvingInterval[environment];
   }
 
   static getExpectedTimePerBlock() {
+    const { environment } = config;
+
     const expectedTime = {
-      production: 200000,
-      development: 30000,
-      test: 1000,
+      [Production]: 200000,
+      [Development]: 30000,
+      [Testing]: 1000,
     };
 
-    return expectedTime[process.env.NODE_ENV || 'development'];
+    return expectedTime[environment];
   }
 
   // TODO: expectedTimePerBlock is fixed and should not need to be required as a parameter

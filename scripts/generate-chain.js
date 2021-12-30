@@ -3,10 +3,12 @@ const Block = require('../models/block');
 const Transaction = require('../models/transaction');
 const Wallet = require('../models/wallet');
 
+const { Testing } = require('../util/env').Env;
+
 const numOfBlocks = 10;
 const transactionsPerBlock = 5;
 
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = Testing;
 
 // Coinbase receiver to send out
 const sender = new Wallet();

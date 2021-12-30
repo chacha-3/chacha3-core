@@ -8,6 +8,7 @@ const XXHash = require('xxhash');
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { isTestEnvironment } = require('../util/env');
 
 // const addressPrefix = '420_';
 
@@ -131,7 +132,7 @@ class Wallet {
       type: argon2.argon2i,
     };
 
-    if (process.env.NODE_ENV === 'test') {
+    if (isTestEnvironment()) {
       Object.assign(options, testOptions);
     }
 

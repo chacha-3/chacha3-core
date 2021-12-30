@@ -7,6 +7,8 @@ const Peer = require('./models/peer');
 const { runAction, checkPermission, actionList } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
+const { isTestEnvironment } = require('./util/env');
+
 const Chain = require('./models/chain');
 
 const errorHandler = (error, request, reply) => {
@@ -33,7 +35,7 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request, reply, done) => {
-      if (process.env.NODE_ENV === 'test') {
+      if (isTestEnvironment()) {
         return;
       }
 

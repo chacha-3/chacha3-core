@@ -1,7 +1,9 @@
+const { isTestEnvironment } = require('./env');
+
 const waitUntil = (condition) => new Promise((resolve) => {
   // Lower for testing to speed up
   // TODO: Testing
-  const pollInterval = process.env.NODE_ENV === 'test' ? 5 : 100;
+  const pollInterval = isTestEnvironment() ? 5 : 100;
 
   const interval = setInterval(() => {
     if (!condition()) {

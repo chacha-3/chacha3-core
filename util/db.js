@@ -1,5 +1,6 @@
 const level = require('level');
 const sub = require('subleveldown');
+const { isTestEnvironment } = require('./env');
 
 // Probably and underfit solution. But no issues
 function runningManualTest(argv) {
@@ -15,7 +16,7 @@ function runningManualTest(argv) {
 //   fs.mkdirSync(dataDir);
 // }
 
-const dbName = (process.env.NODE_ENV === 'test' || runningManualTest(process.argv)) ? '.testdb' : 'data';
+const dbName = (isTestEnvironment() || runningManualTest(process.argv)) ? '.testdb' : 'data';
 
 const DB = level(dbName);
 

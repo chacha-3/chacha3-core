@@ -4,17 +4,18 @@ const blake3 = require('blake3-wasm');
 
 const { HeaderDB, runningManualTest } = require('../util/db');
 const { serializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
+const { Production, Development, Testing } = require('../util/env').Env;
 
 // TODO: Cleaner way for this. Add generic environment check
 
 if (runningManualTest(process.argv)) {
-  process.env.NODE_ENV = 'test';
+  process.env.NODE_ENV = Testing;
 }
 
 const minTarget = {
-  production: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
-  development: '0x000007f800000000000000000000000000000000000000000000000000000000',
-  test: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
+  [Production]: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
+  [Development]: '0x000007f800000000000000000000000000000000000000000000000000000000',
+  [Testing]: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
 };
 
 // 0000ff0000000000000000000000000000000000000000000000000000000000
