@@ -39,13 +39,13 @@ function build(opts = {}) {
         return;
       }
 
-      const { port, chainWork, chainLength } = Peer.parseRequestHeaders(request);
+      const {
+        host, port, chainWork, chainLength,
+      } = Peer.parseRequestHeaders(request);
 
       if (!port) {
         return;
       }
-
-      const { ip } = request;
 
       const { action, nonce } = request.body;
       const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
@@ -54,7 +54,7 @@ function build(opts = {}) {
         return;
       }
 
-      const peer = await Peer.discoverNewOrExisting(ip, port);
+      const peer = await Peer.discoverNewOrExisting(host || request.ip, port);
       peer.setTotalWork(chainWork);
       peer.setChainLength(chainLength);
 

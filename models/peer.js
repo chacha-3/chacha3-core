@@ -296,7 +296,7 @@ class Peer {
     const { host, port } = config;
 
     return {
-      // 'chacha3-host': host,
+      'chacha3-host': host,
       'chacha3-port': port,
       'chacha3-chain-length': Chain.mainChain.getLength(),
       'chacha3-chain-work': Chain.mainChain.getTotalWork(),
@@ -310,7 +310,7 @@ class Peer {
     return {
       chainWork: Number.parseInt(headers['chacha3-chain-work'], 10),
       chainLength: Number.parseInt(headers['chacha3-chain-length'], 10),
-      // host: headers['chacha3-host'],
+      host: headers['chacha3-host'],
       port: Number.parseInt(headers['chacha3-port'], 10),
     };
   }
@@ -399,7 +399,6 @@ class Peer {
     const post = bent(`http://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
 
     try {
-      console.log(`http://${this.formattedAddress()}`)
       const response = await post('', options);
       return response;
     } catch (e) {

@@ -13,14 +13,12 @@ function findNonce(data) {
     header.setHash(header.computeHash());
 
     if (header.verifyHash(false)) {
-      console.log('found nonce ' + header.getNonce())
       return header.getNonce();
     }
 
     header.incrementNonce();
   }
 
-  console.log('done finding');
   return -1;
 }
 
