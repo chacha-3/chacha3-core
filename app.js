@@ -33,7 +33,7 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request) => {
-      if (isTestEnvironment()) {
+      if (isTestEnvironment) {
         return;
       }
 

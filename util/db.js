@@ -16,7 +16,7 @@ function runningManualTest(argv) {
 //   fs.mkdirSync(dataDir);
 // }
 
-const dbName = (isTestEnvironment() || runningManualTest(process.argv)) ? '.testdb' : 'data';
+const dbName = (isTestEnvironment || runningManualTest(process.argv)) ? '.testdb' : 'data';
 
 const DB = level(dbName);
 

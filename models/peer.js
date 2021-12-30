@@ -284,7 +284,7 @@ class Peer {
   }
 
   retryReachOut() {
-    if (isTestEnvironment()) {
+    if (isTestEnvironment) {
       return;
     }
 
@@ -384,7 +384,7 @@ class Peer {
     const testWhitelist = ['ping'];
 
     // FIXME: Double check for isTestEnvironment
-    if (isTestEnvironment()) {
+    if (isTestEnvironment) {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
 
       if (response !== null) {
@@ -395,7 +395,7 @@ class Peer {
     // FIXME:
     // Ping node test causing block integration test for fail because of a background peer call
     // Probably is caused by peer chain synching when adding a peer from ping
-    if (isTestEnvironment() && !testWhitelist.includes(options.action)) {
+    if (isTestEnvironment && !testWhitelist.includes(options.action)) {
       return null;
     }
 

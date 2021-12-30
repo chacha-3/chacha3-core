@@ -132,7 +132,7 @@ class Wallet {
       type: argon2.argon2i,
     };
 
-    if (isTestEnvironment()) {
+    if (isTestEnvironment) {
       Object.assign(options, testOptions);
     }
 

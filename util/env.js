@@ -14,10 +14,7 @@ const config = {
   // chainId: (environment === 'production') ? 'chacha3_main_v1' : 'chacha3_dev_v1',
 };
 
-const isTestEnvironment = () => {
-  const { Testing } = Env;
-  return process.env.NODE_ENV === Testing;
-};
+const isTestEnvironment = process.env.NODE_ENV === Env.Testing;
 
 module.exports = {
   Env,
