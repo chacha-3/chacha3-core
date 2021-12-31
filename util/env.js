@@ -21,8 +21,13 @@ const envShortCode = (env) => {
 };
 
 const runningManualTest = process.argv.length > 0 && process.argv[0].includes('node') && process.argv[1].includes('test');
+const environment = (runningManualTest) ? Env.Testing : (process.env.NODE_ENV || Env.Development);
 
-const environment = process.env.NODE_ENV || (runningManualTest ? Env.Testing : Env.Development);
+// const setTestEnv = () => {
+//   if (runningManualTest) {
+//     process.env.NODE_ENV = Env.Testing;
+//   }
+// };
 
 assert(Object.values(Env).includes(environment));
 
@@ -40,4 +45,5 @@ module.exports = {
   isTestEnvironment,
   config,
   runningManualTest,
+  // setTestEnv,
 };

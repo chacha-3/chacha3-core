@@ -155,16 +155,26 @@ class Block {
     return end - start;
   }
 
-  // FIXME: Move this to header
+  async unmine() {
+    while (this.verifyHash()) {
+      this.header.incrementNonce();
+
+      // eslint-disable-next-line no-await-in-loop
+      this.header.hash = this.header.computeHash();
+    }
+  }
+
+  // TODO: Moved this to header. Remove this
   verifyHash(recalculate = true) {
     assert(this.getTransactionCount() > 0);
 
-    if (recalculate && !this.header.getHash().equals(this.header.computeHash())) {
-      return false;
-    }
+    return this.header.verifyHash(recalculate);
+    // if (recalculate && !this.header.getHash().equals(this.header.computeHash())) {
+    //   return false;
+    // }
 
-    const hashNum = BigInt(serializeBuffer(this.header.getHash()));
-    return hashNum < this.header.getTarget();
+    // const hashNum = BigInt(serializeBuffer(this.header.getHash()));
+    // return hashNum < this.header.getTarget();
   }
 
   async verifyTransactions() {
@@ -309,28 +319,6 @@ class Block {
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
     const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
     this.header.setChecksum(newChecksum);
-  }
-
-  // TODO: Remove. Unused
-  async hasNoExistingTransactions() {
-    const checkNotSaved = (transaction) => new Promise((resolve, reject) => {
-      transaction.isSaved().then((saved) => (saved ? reject() : resolve()));
-    });
-
-    const promises = [];
-
-    for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      const transaction = this.getTransaction(i);
-      promises.push(checkNotSaved(transaction));
-    }
-
-    try {
-      await Promise.all(promises);
-    } catch (e) {
-      return false;
-    }
-
-    return true;
   }
 
   verifyChecksum() {

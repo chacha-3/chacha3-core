@@ -183,6 +183,8 @@ class Header {
   }
 
   verifyHash(recalculate = true) {
+    assert(this.getHash() !== null);
+
     if (recalculate && !this.getHash().equals(this.computeHash())) {
       return false;
     }

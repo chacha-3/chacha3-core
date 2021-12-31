@@ -179,3 +179,22 @@ test('unable to load unsaved header', async (t) => {
   t.equal(loaded, null, 'unsaved header load with value null');
   t.end();
 });
+
+test('verify hash is valid', async (t) => {
+  const block = await mock.blockWithTransactions(1);
+
+  t.equal(await block.header.verifyHash(true), true);
+  t.equal(await block.header.verifyHash(false), true);
+
+  // Tamper block invalid hash that meets difficulty
+  block.header.hash = deserializeBuffer('0x0000000000000000ffffffffffffffffffffffffffffffffffffffffffffff00');
+  t.equal(await block.header.verifyHash(true), false);
+  t.equal(await block.header.verifyHash(false), true);
+
+  // Tamper block invalid hash that does not meet difficulty
+  block.header.hash = deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00');
+  t.equal(await block.header.verifyHash(true), false);
+  t.equal(await block.header.verifyHash(false), false);
+
+  t.end();
+});

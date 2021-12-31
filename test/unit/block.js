@@ -1,5 +1,6 @@
+// require('../../util/env').setTestEnv();
+
 const { test } = require('tap');
-const assert = require('assert');
 const crypto = require('crypto');
 
 const Wallet = require('../../models/wallet');
@@ -7,6 +8,7 @@ const Block = require('../../models/block');
 const Transaction = require('../../models/transaction');
 
 const mock = require('../../util/mock');
+
 const Chain = require('../../models/chain');
 const { deserializeBuffer } = require('../../util/serialize');
 const { randomNumberBetween } = require('../../util/math');
@@ -48,6 +50,33 @@ test('should have invalid coinbase when invalid address', async (t) => {
   await block.mine();
 
   t.equal(await block.validateCoinbase(), false, 'mined block has invalid coinbase');
+  t.end();
+});
+
+test('should have invalid coinbase when has fee', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+
+  block.addCoinbase(wallet.getAddress());
+  block.setPreviousHash(previousHeader.getHash());
+  block.header.setTime(previousHeader.getTime() - 50);
+
+  block.transactions[0].fee = 22n;
+
+  await block.mine();
+
+  t.equal(await block.verifyCoinbase(), false, 'mined block has invalid coinbase');
+  t.equal(await block.verify(previousHeader, Chain.blockRewardAtIndex(numOfBlocks)), false, 'mined block has invalid coinbase');
+
+  await Chain.clearMain();
+
   t.end();
 });
 
