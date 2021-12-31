@@ -43,6 +43,34 @@ test('create a transaction with sufficient balance', async (t) => {
   t.end();
 });
 
+test('unable to create a transaction with incorrect password', async (t) => {
+  const correctPassord = mock.randomPassword();
+  const incorrectPassword = mock.randomPassword();
+
+  const sender = new Wallet();
+  await sender.generate(correctPassord);
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
+
+  const { code } = await runAction({
+    action: 'createTransaction',
+    key: sender.getPrivateKeyHex(),
+    receiverAddress: receiver.getAddressEncoded(),
+    amount: 20,
+    password: incorrectPassword,
+  });
+
+  t.equal(code, ErrorCode.PermissionDenied);
+
+  await Chain.clearMain();
+  await Transaction.clearAllPending();
+
+  t.end();
+});
+
 test('create a transaction with selected wallet', async (t) => {
   const password = mock.randomPassword();
 

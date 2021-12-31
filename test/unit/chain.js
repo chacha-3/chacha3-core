@@ -368,7 +368,7 @@ test('unable to update block balance when account has no balance', async (t) => 
   await transaction.sign(noBalanceWallet.getPrivateKey());
 
   noBalanceBlock.addTransaction(transaction);
-  await noBalanceBlock.mine();
+  await noBalanceBlock.mine(1);
 
   const result = chain.updateBlockBalances(noBalanceBlock);
   t.equal(result, false);
@@ -621,7 +621,7 @@ test('confirm new valid block', async (t) => {
   block.addCoinbase(wallet.getAddress());
   block.setPreviousHash(Chain.mainChain.lastBlockHeader().getHash());
 
-  await block.mine();
+  await block.mine(Chain.mainChain.getCurrentDifficulty());
 
   const confirm = await Chain.mainChain.confirmNewBlock(block);
   t.equal(confirm, true);
@@ -646,7 +646,7 @@ test('fail to confirm new block if previous hash does not match', async (t) => {
   block.addCoinbase(wallet.getAddress(), Chain.blockRewardAtIndex(numOfBlocks - 1));
   block.setPreviousHash(crypto.randomBytes(32));
 
-  await block.mine();
+  await block.mine(Chain.mainChain.getCurrentDifficulty());
 
   const confirm = await Chain.mainChain.confirmNewBlock(block);
   t.equal(confirm, false);

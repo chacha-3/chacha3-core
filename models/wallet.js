@@ -312,22 +312,16 @@ class Wallet {
 
   // TODO: Remove default blank pass
   async changePassword(currentPassword = '', newPassword) {
-    let privateKeyObject;
-
     const decrypted = await Wallet.decryptPrivateKey(this.getPrivateKey(), currentPassword);
 
     if (decrypted == null) {
       return false;
     }
 
-    // TODO: Remove try catch as using custom decryption now
-    try {
-      privateKeyObject = crypto.createPrivateKey({
-        key: decrypted, format: 'der', type: 'pkcs8',
-      });
-    } catch (e) {
-      return false;
-    }
+    // TODO: Handle error for possibly corrupted/invalid decrypted key. Edge case.
+    const privateKeyObject = crypto.createPrivateKey({
+      key: decrypted, format: 'der', type: 'pkcs8',
+    });
 
     const newPrivateKey = privateKeyObject.export({
       type: 'pkcs8',
@@ -344,22 +338,16 @@ class Wallet {
     const wallet = new Wallet();
     wallet.setPrivateKey(encryptedPrivateKey);
 
-    let privateKeyObject;
-
     const decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password);
 
     if (decrypted == null) {
       return null;
     }
 
-    // Remove try catch as using custom encryption
-    try {
-      privateKeyObject = crypto.createPrivateKey({
-        key: decrypted, format: 'der', type: 'pkcs8',
-      });
-    } catch (e) {
-      return null;
-    }
+    // TODO: Handle error for possibly corrupted/invalid decrypted key. Edge case.
+    const privateKeyObject = crypto.createPrivateKey({
+      key: decrypted, format: 'der', type: 'pkcs8',
+    });
 
     const publicKey = crypto.createPublicKey(privateKeyObject).export(
       { format: 'der', type: 'spki' },

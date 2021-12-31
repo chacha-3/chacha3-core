@@ -155,15 +155,6 @@ class Block {
     return end - start;
   }
 
-  async unmine() {
-    while (this.verifyHash()) {
-      this.header.incrementNonce();
-
-      // eslint-disable-next-line no-await-in-loop
-      this.header.hash = this.header.computeHash();
-    }
-  }
-
   // TODO: Moved this to header. Remove this
   verifyHash(recalculate = true) {
     assert(this.getTransactionCount() > 0);

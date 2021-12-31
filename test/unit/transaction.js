@@ -7,6 +7,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 const Block = require('../../models/block');
 const { deserializeBuffer, serializeBuffer } = require('../../util/serialize');
+const { randomPassword } = require('../../util/mock');
 
 test('should create a verified transaction', async (t) => {
   const sender = new Wallet();
@@ -19,7 +20,7 @@ test('should create a verified transaction', async (t) => {
     sender.getPublicKey(), receiver.getAddress(), 10,
   );
 
-  await  transaction.sign(sender.getPrivateKey());
+  await transaction.sign(sender.getPrivateKey());
 
   const { length } = transaction.getSignature();
 
@@ -494,6 +495,26 @@ test('coinbase only valid when correct transaction type', async (t) => {
 
   block.transactions[0].setType(Transaction.Type.Send);
   t.equal(block.getTransaction(0).isCoinbase(), false);
+
+  t.end();
+});
+
+test('sign transaction only when wallet password is correct', async (t) => {
+  const correctPassword = randomPassword();
+  const incorrectPassword = randomPassword();
+
+  const sender = new Wallet();
+  await sender.generate(correctPassword);
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), receiver.getAddress(), 10,
+  );
+
+  t.equal(await transaction.sign(sender.getPrivateKey(), incorrectPassword), false);
+  t.equal(await transaction.sign(sender.getPrivateKey(), correctPassword), true);
 
   t.end();
 });

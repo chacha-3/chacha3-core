@@ -55,7 +55,6 @@ actions.createTransaction = {
     );
 
     transaction.setFee(options.fee || 0n);
-
     await transaction.sign(senderWallet.getPrivateKey(), options.password);
 
     // TODO: Validate before verify

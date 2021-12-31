@@ -87,7 +87,7 @@ class Transaction {
     const decrypted = await Wallet.decryptPrivateKey(privateKey, password);
 
     if (decrypted === null) {
-      throw Error('Cannot sign transaction, incorrect wallet password');
+      return false;
     }
 
     const keyObject = crypto.createPrivateKey({
@@ -95,6 +95,8 @@ class Transaction {
     });
 
     this.signature = crypto.sign('SHA256', this.getId(), keyObject);
+
+    return true;
   }
 
   getSenderKey() {

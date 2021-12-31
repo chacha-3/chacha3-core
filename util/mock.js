@@ -215,6 +215,7 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
   return chain;
 };
 
+// TODO:
 mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
   assert(numOfBlocks > 0);
   assert(transactionsPerBlock > 0);
@@ -322,6 +323,7 @@ mock.blockList = async (numberOfBlocks, transactionsPerBlock, minerWallet, trans
       block.addTransaction(transaction);
     }
 
+    // Add difficulty
     await block.mine();
     previousHash = block.getHeader().getHash();
     blocks.push(block);

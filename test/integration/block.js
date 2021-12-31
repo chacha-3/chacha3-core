@@ -47,7 +47,7 @@ test('push new block', async (t) => {
   block.addCoinbase(wallet.getAddress());
   block.addTransaction(transactionInBlock);
 
-  await block.mine();
+  await block.mine(Chain.mainChain.getCurrentDifficulty());
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
@@ -102,7 +102,7 @@ test('unable to push invalid block', async (t) => {
   // Tamper checksum
   block.header.checksum[3] += 100;
 
-  await block.mine();
+  await block.mine(Chain.mainChain.getCurrentDifficulty());
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
@@ -135,7 +135,7 @@ test('unable to push block with transaction exceeding balance', async (t) => {
   await transaction.sign(sender.getPrivateKey());
 
   block.addTransaction(transaction);
-  await block.mine();
+  await block.mine(Chain.mainChain.getCurrentDifficulty());
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
