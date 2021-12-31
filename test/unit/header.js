@@ -183,6 +183,7 @@ test('unable to load unsaved header', async (t) => {
 test('verify hash is valid', async (t) => {
   const block = await mock.blockWithTransactions(1);
 
+  t.equal(await block.header.verifyHash(), true);
   t.equal(await block.header.verifyHash(true), true);
   t.equal(await block.header.verifyHash(false), true);
 
