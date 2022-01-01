@@ -489,9 +489,11 @@ test('delete peer after fail to connect four times', async (t) => {
   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
   await peer.save();
 
-  for (let i = 0; i < 3; i += 1) {
-    await peer.failConnect();
-  }
+  Promise.all([
+    peer.failConnect(),
+    peer.failConnect(),
+    peer.failConnect(),
+  ]);
 
   t.equal((await Peer.all()).length, 1);
 
@@ -601,7 +603,7 @@ test('request header keys have correct prefix', async (t) => {
   const values = Object.values(Peer.RequestHeader);
 
   for (let i = 0; i < values; i += 1) {
-    t.ok(values[i].startsWith('chacha3'));
+    t.ok(values[i].startsWith('chacha3-'));
   }
 
   t.end();
