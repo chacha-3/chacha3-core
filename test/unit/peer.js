@@ -98,7 +98,7 @@ test('save and load peer', async (t) => {
   const peer = mock.nodePeer();
   await peer.save();
 
-  const loaded = await Peer.load(peer.getId());
+  const loaded = await Peer.load(peer.getHost(), peer.getPort());
 
   t.equal(peer.getVersion(), loaded.getVersion());
   t.equal(peer.getChainLength(), loaded.getChainLength());

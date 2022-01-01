@@ -33,7 +33,7 @@ actions.pingNode = {
   handler: async (options) => {
     // Check if existing peer, otherwise create new
     // The reason is to maintain peers state such as peer status
-    const existingPeer = await Peer.load(Peer.generateKey(options.host, options.port));
+    const existingPeer = await Peer.load(options.host, options.port);
     const peer = existingPeer || new Peer(options.host, options.port);
 
     const result = await peer.callAction('ping');

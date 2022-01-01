@@ -603,8 +603,8 @@ class Peer {
     return true;
   }
 
-  static async discoverNewOrExisting(host, port) {
-    let peer = await Peer.load(Peer.generateKey(host, port));
+  static async loadOrDiscover(host, port) {
+    let peer = await Peer.load(host, port);
     let created = false;
 
     if (!peer) {
@@ -619,10 +619,11 @@ class Peer {
     return [peer, created];
   }
 
-  static async load(key) {
+  static async load(host, port) {
     let data;
 
     try {
+      const key = Peer.generateKey(host, port);
       data = await PeerDB.get(key, { valueEncoding: 'json' });
     } catch (e) {
       return null;

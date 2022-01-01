@@ -54,7 +54,7 @@ function build(opts = {}) {
         return;
       }
 
-      const [peer] = await Peer.discoverNewOrExisting(host || request.ip, port);
+      const [peer] = await Peer.loadOrDiscover(host || request.ip, port);
       peer.setTotalWork(chainWork);
       peer.setChainLength(chainLength);
 
@@ -65,7 +65,6 @@ function build(opts = {}) {
 
         peer.syncChain();
         // TODO: Add claimed work to verify is correct
-        // TODO: If sync fail. Find next best
       }
     },
     handler: async (request, reply) => {
