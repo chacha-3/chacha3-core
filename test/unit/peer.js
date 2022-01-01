@@ -517,24 +517,21 @@ test('check if peer block work is significantly ahead', async (t) => {
   t.end();
 });
 
-// TODO:
-test('create or get peer instance and reach out if inactive or is a new peer', async (t) => {
-  // const numOfBlock = 3;
-  // Chain.mainChain = await mock.chainWithBlocks(numOfBlock, 5);
+test('reach out peer if inactive', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
-  // const currentDifficulty = Chain.mainChain.getCurrentDifficulty();
+  peer.setStatus(Peer.Status.Active);
+  t.equal(peer.reachOutIfInactive(), false);
 
-  // const aboveThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 6);
-  // const belowThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 2);
+  peer.setStatus(Peer.Status.Incompatible);
+  t.equal(peer.reachOutIfInactive(), false);
 
-  // const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-  // peer.setTotalWork((numOfBlock * currentDifficulty) + aboveThreshold);
-  // t.equal(peer.isSignificantlyAhead(), true);
+  peer.setStatus(Peer.Status.Idle);
+  t.equal(peer.reachOutIfInactive(), true);
 
-  // peer.setTotalWork((numOfBlock * currentDifficulty) + belowThreshold);
-  // t.equal(peer.isSignificantlyAhead(), false);
+  peer.setStatus(Peer.Status.Inactive);
+  t.equal(peer.reachOutIfInactive(), true);
 
-  // await Chain.clearMain();
   t.end();
 });
 

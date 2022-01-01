@@ -592,6 +592,17 @@ class Peer {
     return peer;
   }
 
+  reachOutIfInactive() {
+    const activeStatus = [Peer.Status.Active, Peer.Status.Incompatible];
+
+    if (activeStatus.includes(this.getStatus())) {
+      return false;
+    }
+
+    this.reachOut();
+    return true;
+  }
+
   static async discoverNewOrExisting(host, port) {
     let peer = await Peer.load(Peer.generateKey(host, port));
 
@@ -607,10 +618,7 @@ class Peer {
 
     result.existing = true;
 
-    if (peer.getStatus() !== Peer.Status.Active) {
-      peer.reachOut();
-      result.reachOut = true;
-    }
+    this.reachOutIfInactive();
 
     return result;
   }
