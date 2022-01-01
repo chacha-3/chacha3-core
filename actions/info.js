@@ -60,7 +60,7 @@ actions.nodeInfo = {
       Peer.randomizeLocalNonce();
     }
 
-    const { port } = config;
+    const { port, networkId } = config;
 
     const data = {
       version,
@@ -69,6 +69,7 @@ actions.nodeInfo = {
       chainLength: chain.getLength(),
       chainWork: chain.getTotalWork(),
       nonce: Peer.localNonce,
+      networkId,
     };
 
     return okResponse(data, 'Info');

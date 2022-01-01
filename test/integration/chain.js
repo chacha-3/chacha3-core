@@ -5,6 +5,7 @@ const mock = require('../../util/mock');
 const Chain = require('../../models/chain');
 
 const { runAction } = require('../../actions');
+
 const { SuccessCode } = require('../../util/rpc');
 
 test('display chain info', async (t) => {
@@ -19,6 +20,7 @@ test('display chain info', async (t) => {
   t.equal(data.length, chain.getLength());
   t.equal(data.currentDifficulty, chain.getCurrentDifficulty());
   t.equal(data.totalWork, chain.getTotalWork());
+  t.equal(data.chainId, 'chacha3-localchain');
 
   await Chain.clearMain();
   t.end();

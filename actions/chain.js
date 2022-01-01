@@ -2,6 +2,7 @@
 const Chain = require('../models/chain');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+const { chainId } = require('../util/env').config;
 
 const actions = {};
 
@@ -15,6 +16,7 @@ actions.chainInfo = {
       currentDifficulty: chain.getCurrentDifficulty(),
       totalWork: chain.getTotalWork(),
       synching: chain.isSynching(),
+      chainId,
     };
 
     return okResponse(data, 'Chain Info');

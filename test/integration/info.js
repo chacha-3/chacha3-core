@@ -7,7 +7,6 @@ const { runAction } = require('../../actions');
 const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const build = require('../../app');
-const { randomNumberBetween } = require('../../util/math');
 const Peer = require('../../models/peer');
 
 test('should get node info', async (t) => {
@@ -23,6 +22,9 @@ test('should get node info', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(data, 'chainLength'));
   t.ok(Object.prototype.hasOwnProperty.call(data, 'chainWork'));
   t.ok(Object.prototype.hasOwnProperty.call(data, 'nonce'));
+  t.ok(Object.prototype.hasOwnProperty.call(data, 'networkId'));
+
+  t.equal(data.networkId, 'chacha3-localnet');
 
   await Wallet.clearAll();
 

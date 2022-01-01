@@ -35,7 +35,8 @@ const config = {
   port: process.env.PORT || 5438,
   host: process.env.HOST || '',
   environment,
-  chainId: `chacha3_${envShortCode(environment)}`,
+  chainId: `chacha3-${envShortCode(environment)}chain`,
+  networkId: `chacha3-${envShortCode(environment)}net`,
 };
 
 const isTestEnvironment = process.env.NODE_ENV === Env.Testing;

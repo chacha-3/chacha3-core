@@ -185,7 +185,8 @@ test('mock chain with blocks', async (t) => {
 // });
 
 test('load environment config defaults', async (t) => {
-  t.equal(config.chainId, 'chacha3_local');
+  t.equal(config.chainId, 'chacha3-localchain');
+  t.equal(config.networkId, 'chacha3-localnet');
   t.equal(config.environment, Env.Testing);
 
   // TODO: Host and port
