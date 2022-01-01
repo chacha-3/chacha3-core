@@ -135,6 +135,27 @@ test('load peer list', async (t) => {
   t.end();
 });
 
+test('load active peers', async (t) => {
+  const activePeer1 = new Peer(HOST_127_0_0_100, PORT_7000);
+  activePeer1.setStatus(Peer.Status.Active);
+
+  const activePeer2 = new Peer(HOST_127_0_0_99, PORT_7000);
+  activePeer2.setStatus(Peer.Status.Active);
+
+  const inactivePeer = new Peer(HOST_127_0_0_101, PORT_7000);
+  inactivePeer.setStatus(Peer.Status.Inactive);
+
+  await activePeer1.save();
+  await activePeer2.save();
+  await inactivePeer.save();
+
+  const activePeers = await Peer.activeList();
+  t.equal(activePeers.length, 2);
+
+  await Peer.clearAll();
+  t.end();
+});
+
 test('get peer with most total work', async (t) => {
   const work = [2, 8, 3, 10, 4];
 

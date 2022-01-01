@@ -26,7 +26,6 @@ class Miner {
     debug(`Found new block. ${serializeBuffer(block.header.getPrevious())} <- ${serializeBuffer(block.header.getHash())}`);
 
     assert(block.header.getPrevious() !== null);
-    console.log('prev:', Chain.mainChain)
 
     const result = await Chain.mainChain.confirmNewBlock(block);
     assert(result === true);
@@ -129,9 +128,7 @@ class Miner {
     debug('Call start poll');
 
     this.transactionInterval = setInterval(async () => {
-      // TODO: Method to get active peers
-      const peers = await Peer.all();
-      const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+      const activePeers = await Peer.activeList();
 
       debug('Run poll function');
       for (let i = 0; i < activePeers.length; i += 1) {

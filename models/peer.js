@@ -79,9 +79,13 @@ class Peer {
     return Promise.all(promises);
   }
 
-  static async broadcastAction(actionName, options) {
+  static async activeList() {
     const peers = await Peer.all();
-    const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+    return peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+  }
+
+  static async broadcastAction(actionName, options) {
+    const activePeers = await Peer.activeList();
 
     const merged = Object.assign(options || {}, { action: actionName });
 
@@ -148,8 +152,7 @@ class Peer {
   }
 
   static async withLongestActiveChains() {
-    const peers = await Peer.all();
-    const activePeers = peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
+    const activePeers = await Peer.activeList();
 
     // Sort by total work in descending order
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
@@ -329,14 +332,6 @@ class Peer {
   //   }
 
   //   return true;
-  // }
-
-  // setFromHeaders(headers) {
-  //   this.setPort(Number.parseInt(headers['chacha3-port'], 10));
-  //   this.setTotalWork(Number.parseInt(headers['chacha3-chain-work'], 10));
-  //   this.setChainLength(Number.parseInt(headers['chacha3-chain-length'], 10));
-
-    
   // }
 
   static areSame(peer1, peer2) {
