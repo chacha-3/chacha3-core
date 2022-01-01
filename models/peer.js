@@ -84,6 +84,23 @@ class Peer {
     return peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
   }
 
+  static sendToListeners(data) {
+    const socketIds = Object.keys(Peer.socketListeners);
+
+    for (let i = 0; i < socketIds.length; i += 1) {
+      const listenerInfo = Peer.socketListeners[socketIds];
+
+      const { connection, listenActions } = listenerInfo;
+
+      const { action } = data;
+      assert(action !== null);
+
+      if (listenActions.includes(action)) {
+        connection.socket.send(JSON.stringify(data));
+      }
+    }
+  }
+
   static async broadcastAction(actionName, options) {
     const activePeers = await Peer.activeList();
 
@@ -99,6 +116,8 @@ class Peer {
     for (let i = 0; i < activePeers.length; i += 1) {
       promises.push(request(activePeers[i]));
     }
+  
+    Peer.sendToListeners(merged);
 
     // TODO: Map response to peer
     return Promise.all(promises);
@@ -490,7 +509,6 @@ class Peer {
     data.blockHeaders = data.blockHeaders.slice(0, startIndex);
     const tempChain = Chain.fromObject(data);
 
-    // tempChain.blockHeaders = tempChain.blockHeaders.slice(0, startIndex);
     await tempChain.loadBalances();
 
     // Copy and slice main chain
@@ -515,8 +533,6 @@ class Peer {
 
     // Override main chain
     await pulledChain.save();
-
-    // Chain.mainChain = pulledChain;
 
     return true;
   }
@@ -651,6 +667,20 @@ class Peer {
 
     await PeerDB.put(key, data, { valueEncoding: 'json' });
   }
+
+  static addSocketListener(id, connection) {
+    Peer.socketListeners[id] = {
+      connection,
+      listenActions: [],
+    };
+
+    console.log('add socket listener', Peer.socketListeners);
+  }
+
+  static setSocketListenActions(id, listenActions = []) {
+    console.log('set socket listener', id, Peer.socketListeners);
+    Peer.socketListeners[id].listenActions = listenActions;
+  }
 }
 
 Peer.localNonce = 0;
@@ -663,5 +693,7 @@ Peer.Status = {
   Active: 'active',
   Incompatible: 'incompatible',
 };
+
+Peer.socketListeners = [];
 
 module.exports = Peer;

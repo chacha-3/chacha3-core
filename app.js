@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const debug = require('debug')('app');
 const fastify = require('fastify');
 const fastifyWebsocket = require('fastify-websocket');
@@ -19,16 +20,35 @@ function build(opts = {}) {
   app.register(fastifyWebsocket);
   app.setErrorHandler(errorHandler);
 
-  // Websocket endpoint
-  // app.get('/', {
-  //   websocket: true,
-  //   // schema,
-  // }, (connection, req) => {
-  //   connection.socket.on('message', (message) => {
-  //     const requestData = JSON.parse(message);
-  //     connection.socket.send(requestData);
-  //   });
-  // });
+  app.route({
+    method: 'GET',
+    url: '/',
+    handler: (req, reply) => {
+      // this will handle http requests
+      reply.send({ hello: 'world' });
+    },
+    wsHandler: async (connection) => {
+      const id = crypto.randomBytes(4).toString('hex');
+      Peer.addSocketListener(id, connection);
+
+      const response = await runAction({ action: 'nodeInfo' }, 'none');
+      connection.socket.send(JSON.stringify(response));
+
+      connection.socket.on('message', (message) => {
+        let data;
+
+        try {
+          data = JSON.parse(message);
+        } catch (e) {
+          return;
+        }
+
+        const { listenActions } = data;
+
+        Peer.setSocketListenActions(id, listenActions);
+      });
+    },
+  });
 
   // RPC endpoint
   app.post('/', {
