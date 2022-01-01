@@ -51,25 +51,18 @@ class Miner {
 
   // static miningWorker(header, timeout) {
   //   return new Promise((resolve, reject) => {
-  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
+  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout, } });
   //     this.worker.on('message', (nonce) => {
   //       console.log(`Receive nonce: ${nonce}`);
   //       resolve(nonce);
   //     });
   //     this.worker.on('error', (error) => {
-  //       reject(error);
+  //       // reject(error);
   //     });
   //     this.worker.on('exit', (code) => {
-  //       // console.log('error code ' + code);
-  //       // resolve(-1);
-
-  //       if (code !== 1) {
-  //         reject('exit code: ' + code);
-  //       } else {
-  //         resolve(-1);
-  //       }
+  //       resolve(-1);
   //     });
-  //   });
+  //   })
   // }
 
   async start() {
