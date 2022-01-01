@@ -323,7 +323,6 @@ class Peer {
       return;
     }
 
-    // Retry in one minute
     setTimeout(() => this.reachOut(), inMillis);
   }
 
@@ -331,11 +330,11 @@ class Peer {
     const { host, port } = config;
 
     return {
-      'chacha3-host': host,
-      'chacha3-port': port,
-      'chacha3-chain-length': Chain.mainChain.getLength(),
-      'chacha3-chain-work': Chain.mainChain.getTotalWork(),
-      'chacha3-version': version,
+      [Peer.RequestHeader.Host]: host,
+      [Peer.RequestHeader.Port]: port,
+      [Peer.RequestHeader.ChainLength]: Chain.mainChain.getLength(),
+      [Peer.RequestHeader.ChainWork]: Chain.mainChain.getTotalWork(),
+      [Peer.RequestHeader.Version]: version,
     };
   }
 
@@ -343,11 +342,11 @@ class Peer {
     const { headers } = request;
 
     return {
-      chainWork: Number.parseInt(headers['chacha3-chain-work'], 10),
-      chainLength: Number.parseInt(headers['chacha3-chain-length'], 10),
-      host: headers['chacha3-host'],
-      port: Number.parseInt(headers['chacha3-port'], 10),
-      version: headers['chacha3-version'],
+      chainWork: Number.parseInt(headers[Peer.RequestHeader.ChainWork], 10),
+      chainLength: Number.parseInt(headers[Peer.RequestHeader.ChainLength], 10),
+      host: headers[Peer.RequestHeader.Host],
+      port: Number.parseInt(headers[Peer.RequestHeader.Port], 10),
+      version: headers[Peer.RequestHeader.Version],
     };
   }
 
@@ -698,5 +697,13 @@ Peer.Status = {
 };
 
 Peer.socketListeners = [];
+
+Peer.RequestHeader = {
+  Host: 'chacha3-host',
+  Port: 'chacha3-port',
+  ChainLength: 'chacha3-chain-length',
+  ChainWork: 'chacha3-chain-work',
+  Version: 'chacha3-version',
+};
 
 module.exports = Peer;

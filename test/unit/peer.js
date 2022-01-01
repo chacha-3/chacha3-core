@@ -597,6 +597,16 @@ test('discover non-existing peer', async (t) => {
   t.end();
 });
 
+test('request header keys have correct prefix', async (t) => {
+  const values = Object.values(Peer.RequestHeader);
+
+  for (let i = 0; i < values; i += 1) {
+    t.ok(values[i].startsWith('chacha3'));
+  }
+
+  t.end();
+});
+
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
 //   // compatiblePeer.setVersion('0.0.2');
