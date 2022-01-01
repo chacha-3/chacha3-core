@@ -595,18 +595,24 @@ class Peer {
   static async discoverNewOrExisting(host, port) {
     let peer = await Peer.load(Peer.generateKey(host, port));
 
+    const result = { peer, existing: false, reachOut: false };
+
     if (!peer) {
       peer = new Peer(host, port);
       peer.reachOut();
+      result.reachOut = true;
 
-      return peer;
+      return result;
     }
+
+    result.existing = true;
 
     if (peer.getStatus() !== Peer.Status.Active) {
       peer.reachOut();
+      result.reachOut = true;
     }
 
-    return peer;
+    return result;
   }
 
   static async load(key) {

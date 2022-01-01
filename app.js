@@ -54,7 +54,7 @@ function build(opts = {}) {
         return;
       }
 
-      const peer = await Peer.discoverNewOrExisting(host || request.ip, port);
+      const { peer } = await Peer.discoverNewOrExisting(host || request.ip, port);
       peer.setTotalWork(chainWork);
       peer.setChainLength(chainLength);
 
