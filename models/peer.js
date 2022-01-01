@@ -248,9 +248,17 @@ class Peer {
       return false;
     }
 
-    this.setPeerInfo(data.version, data.chainLength, data.chainWork);
+    const {
+      version, chainLength, chainWork, networkId, nonce,
+    } = data;
 
-    const isSelf = Peer.localNonce === data.nonce;
+    if (networkId !== config.networkId) {
+      return false;
+    }
+
+    this.setPeerInfo(version, chainLength, chainWork);
+
+    const isSelf = Peer.localNonce === nonce;
     if (isSelf) {
       await Peer.clear(this.getId());
       return false;
@@ -618,7 +626,7 @@ class Peer {
     let data;
 
     try {
-      const key = Peer.generateKey(host, port);;
+      const key = Peer.generateKey(host, port);
       data = await PeerDB.get(key, { valueEncoding: 'json' });
     } catch (e) {
       return null;

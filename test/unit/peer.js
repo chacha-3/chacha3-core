@@ -463,6 +463,17 @@ test('delete peer after reach out if peer is self', async (t) => {
   t.end();
 });
 
+test('does not add peer from different network', async (t) => {
+  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+  t.equal((await Peer.all()).length, 0);
+
+  const result = await peer.reachOut();
+  t.equal(result, false);
+  t.equal((await Peer.all()).length, 0);
+
+  t.end();
+});
+
 test('fetch peer chain success', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 

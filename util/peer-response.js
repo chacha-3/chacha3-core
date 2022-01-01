@@ -75,6 +75,24 @@ const responseList = [
         chainLength: 1,
         chainWork: 1,
         nonce: 3000000,
+        networkId: 'chacha3-localnet',
+      },
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_127_0_0_200,
+    port: PORT_7000,
+    action: 'nodeInfo',
+    response: {
+      data: {
+        version: '0.0.1',
+        time: 1636425419080,
+        port: '5438',
+        chainLength: 1,
+        chainWork: 1,
+        nonce: 3000000,
+        networkId: 'gallium-localnet', // Different network
       },
       code: SuccessCode,
     },
