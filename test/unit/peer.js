@@ -490,7 +490,7 @@ test('delete peer after fail to connect four times', async (t) => {
   await peer.save();
 
   // Fail connection 3 times
-  Promise.all([
+  await Promise.all([
     peer.failConnect(),
     peer.failConnect(),
     peer.failConnect(),

@@ -415,10 +415,9 @@ test('to and from transaction object', async (t) => {
 test('to and from transaction array', async (t) => {
   const numOfTransactions = 4;
 
-  const transactions = Array(numOfTransactions).fill(null);
-  for (let i = 0; i < numOfTransactions; i += 1) {
-    transactions[i] = await mock.transaction();
-  }
+  const transactions = await Promise.all(
+    Array(numOfTransactions).fill(mock.transaction()),
+  );
 
   const data = Transaction.toArray(transactions);
   t.equal(data.length, numOfTransactions);
