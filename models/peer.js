@@ -289,6 +289,10 @@ class Peer {
     // Follow up and retrieve peer
     await this.syncPeerList();
 
+    // Update active peer status again
+    const fiveMinutes = 60000; // TODO: Temp change to 1 minute
+    this.retryReachOut(fiveMinutes);
+
     return true;
   }
 
@@ -309,19 +313,18 @@ class Peer {
     if (this.failedConnect >= 4) {
       await Peer.clear(this.getId());
     } else {
-      this.retryReachOut();
+      const oneMinute = 60000;
+      this.retryReachOut(oneMinute);
     }
   }
 
-  retryReachOut() {
+  retryReachOut(inMillis) {
     if (isTestEnvironment) {
       return;
     }
 
-    const oneMinute = 60000;
-
     // Retry in one minute
-    setTimeout(() => this.reachOut(), oneMinute);
+    setTimeout(() => this.reachOut(), inMillis);
   }
 
   static requestHeaders() {
