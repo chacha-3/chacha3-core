@@ -489,6 +489,7 @@ test('delete peer after fail to connect four times', async (t) => {
   const peer = new Peer(HOST_127_0_0_200, PORT_7000);
   await peer.save();
 
+  // Fail connection 3 times
   Promise.all([
     peer.failConnect(),
     peer.failConnect(),
