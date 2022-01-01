@@ -613,7 +613,7 @@ class Peer {
 
       created = true;
     } else {
-      this.reachOutIfInactive();
+      peer.reachOutIfInactive();
     }
 
     return [peer, created];
@@ -623,7 +623,7 @@ class Peer {
     let data;
 
     try {
-      const key = Peer.generateKey(host, port);
+      const key = Peer.generateKey(host, port);;
       data = await PeerDB.get(key, { valueEncoding: 'json' });
     } catch (e) {
       return null;

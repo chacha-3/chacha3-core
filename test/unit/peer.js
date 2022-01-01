@@ -535,6 +535,36 @@ test('reach out peer if inactive', async (t) => {
   t.end();
 });
 
+test('load existing peer', async (t) => {
+  const peer = mock.nodePeer();
+  await peer.save();
+
+  const [resultPeer, created] = await Peer.loadOrDiscover(
+    peer.getHost(),
+    peer.getPort(),
+  );
+
+  t.ok(Peer.areSame(peer, resultPeer));
+  t.equal(created, false);
+
+  await Peer.clearAll();
+  t.end();
+});
+
+test('discover non-existing peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_200, PORT_7000);
+
+  const [resultPeer, created] = await Peer.loadOrDiscover(
+    HOST_127_0_0_200,
+    PORT_7000,
+  );
+
+  t.ok(Peer.areSame(peer, resultPeer));
+  t.equal(created, true);
+
+  t.end();
+});
+
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
 //   // compatiblePeer.setVersion('0.0.2');
