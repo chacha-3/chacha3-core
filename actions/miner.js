@@ -13,6 +13,7 @@ actions.startMiner = {
   schema: {
     properties: {
       address: { type: 'string', buffer: 'hex' },
+      numOfWorkers: { type: 'integer' },
     },
     required: ['address'],
   },
@@ -30,7 +31,7 @@ actions.startMiner = {
     }
 
     miner.setReceiverAddress(options.address);
-    miner.start();
+    miner.start(options.numOfWorkers);
 
     const data = {
       address: options.address,

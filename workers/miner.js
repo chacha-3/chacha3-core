@@ -1,14 +1,16 @@
 const { parentPort, workerData } = require('worker_threads');
 const Header = require('../models/header');
+const { randomNumberBetween } = require('../util/math');
 
 function findNonce(data) {
   const { headerData, timeout } = data;
 
   const header = Header.fromObject(headerData);
+  header.setNonce(randomNumberBetween(1, Number.MAX_SAFE_INTEGER));
 
   const start = Date.now();
 
-  while ((Date.now() - start) < timeout) {
+  while (true) {
     // console.log((Date.now() - start))
     header.setHash(header.computeHash());
 
