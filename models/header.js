@@ -1,4 +1,3 @@
-const debug = require('debug')('header:model');
 const assert = require('assert');
 const crypto = require('crypto');
 const blake3 = require('blake3-wasm');
@@ -187,7 +186,6 @@ class Header {
     assert(this.getHash() !== null);
 
     if (recalculate && !this.getHash().equals(this.computeHash())) {
-      debug(`Incorrect hash: ${serializeBuffer(this.getHash())} ${serializeBuffer(this.computeHash())}`);
       return false;
     }
 

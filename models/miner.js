@@ -13,7 +13,7 @@ const { waitUntil } = require('../util/sync');
 
 class Miner {
   constructor() {
-    this.workers = [];
+    this.worker = null;
 
     this.receiverAddress = null;
     this.mining = false;
@@ -48,39 +48,23 @@ class Miner {
     return block;
   }
 
-  terminateAllWorkers(except = -1) {
-    for (let i = 0; i < this.workers.length; i += 1) {
-      if (i !== except || except === -1) {
-        this.workers[i].terminate();
-      }
-    }
+  // static miningWorker(header, timeout) {
+  //   return new Promise((resolve, reject) => {
+  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout, } });
+  //     this.worker.on('message', (nonce) => {
+  //       console.log(`Receive nonce: ${nonce}`);
+  //       resolve(nonce);
+  //     });
+  //     this.worker.on('error', (error) => {
+  //       // reject(error);
+  //     });
+  //     this.worker.on('exit', (code) => {
+  //       resolve(-1);
+  //     });
+  //   })
+  // }
 
-    this.workers = [];
-  }
-
-  async miningWorker(headerData, numOfWorkers, timeout) {
-    return new Promise((resolve, reject) => {
-      for (let x = 0; x < numOfWorkers; x += 1) {
-        this.workers.push(new Worker('./workers/miner.js', { workerData: { headerData, timeout } }));
-      }
-
-      for (let i = 0; i < this.workers.length; i += 1) {
-        this.workers[i].on('message', (nonce) => {
-          this.terminateAllWorkers(i);
-          resolve(nonce);
-        });
-        this.workers[i].on('error', (error) => {
-          // reject(error);
-        });
-        this.workers[i].on('exit', (code) => {
-          // this.terminateAllWorkers();
-          // resolve(-1);
-        });
-      }
-    });
-  }
-
-  async start(numOfWorkers = 1) {
+  async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
       return false;
@@ -112,11 +96,23 @@ class Miner {
       let foundNonce = -1;
 
       try {
-        foundNonce = await this.miningWorker(block.getHeader().toObject(), numOfWorkers, 10000);
+        foundNonce = await new Promise((resolve, reject) => {
+          this.worker = new Worker('./workers/miner.js', { workerData: { headerData: block.getHeader().toObject(), timeout: 10000 } });
+          this.worker.on('message', (nonce) => {
+            console.log(`Receive nonce: ${nonce}`);
+            resolve(nonce);
+          });
+          this.worker.on('error', (error) => {
+            // reject(error);
+          });
+          this.worker.on('exit', (code) => {
+            resolve(-1);
+          });
+        });
       } catch (err) {
         console.log(err);
       }
-
+     
       if (foundNonce > 0) {
         block.header.setNonce(foundNonce);
         block.header.hash = block.header.computeHash();
@@ -182,8 +178,7 @@ class Miner {
   }
 
   stop() {
-    // this.worker.terminate();
-    this.terminateAllWorkers();
+    this.worker.terminate();
     this.stopTransactionPoll();
     this.mining = false;
   }
