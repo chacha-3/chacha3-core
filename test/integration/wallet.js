@@ -365,6 +365,7 @@ test('should prompt current and new password to change password if not provided'
 
 test('should be unable to recover wallet with incorrect password', async (t) => {
   const password = mock.randomPassword();
+  const incorrectPassword = mock.randomPassword();
 
   const wallet = new Wallet();
   await wallet.generate(password);
@@ -373,7 +374,7 @@ test('should be unable to recover wallet with incorrect password', async (t) => 
     action: 'recoverWallet',
     privateKey: wallet.getPrivateKeyHex(),
     label: 'Recovered wallet',
-    password: 'HSaLJniX7FfZ',
+    password: incorrectPassword,
   });
 
   t.equal(code, ErrorCode.InvalidArgument);
