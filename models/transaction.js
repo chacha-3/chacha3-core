@@ -267,6 +267,11 @@ class Transaction {
     assert(this.getId() != null);
     const key = this.getId();
 
+    const edited = this.toObject();
+    delete edited.id;
+
+    assert(edited.id === undefined);
+
     await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
   }
 

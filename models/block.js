@@ -160,12 +160,6 @@ class Block {
     assert(this.getTransactionCount() > 0);
 
     return this.header.verifyHash(recalculate);
-    // if (recalculate && !this.header.getHash().equals(this.header.computeHash())) {
-    //   return false;
-    // }
-
-    // const hashNum = BigInt(serializeBuffer(this.header.getHash()));
-    // return hashNum < this.header.getTarget();
   }
 
   async verifyTransactions() {
