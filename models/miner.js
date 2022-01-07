@@ -67,15 +67,21 @@ class Miner {
   miningWorker(header, timeout) {
     return new Promise((resolve, reject) => {
       this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
+
       this.worker.on('message', (nonce) => {
         console.log(`Receive nonce: ${nonce}`);
-        resolve(nonce);
+
+        if (nonce > 0) {
+          resolve(nonce);
+        } else {
+          reject();
+        }
       });
       this.worker.on('error', (error) => {
         // reject(error);
       });
       this.worker.on('exit', (code) => {
-        resolve(-1);
+        reject();
       });
     });
   }
@@ -116,7 +122,7 @@ class Miner {
       } catch (err) {
         console.log(err);
       }
-     
+
       if (foundNonce > 0) {
         block.header.setNonce(foundNonce);
         block.header.hash = block.header.computeHash();
