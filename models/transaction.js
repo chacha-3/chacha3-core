@@ -158,6 +158,10 @@ class Transaction {
       errors.push('Fee has to be a positive number');
     }
 
+    if (!Object.values(Transaction.Type).includes(this.getType())) {
+      errors.push('Invalid transaction type');
+    }
+
     return errors;
   }
 

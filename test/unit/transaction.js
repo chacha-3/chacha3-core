@@ -40,7 +40,29 @@ test('transaction with same sender and receiver is invalid', async (t) => {
   await transaction.sign(sender.getPrivateKey());
 
   const errors = transaction.validate();
-  t.ok(errors.length > 0);
+  t.equal(errors.length, 1);
+  t.not(transaction.verify());
+
+  t.end();
+});
+
+test('transaction with unknown type is invalid', async (t) => {
+  const sender = new Wallet();
+  await sender.generate();
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), receiver.getAddress(), 10,
+  );
+
+  transaction.setType('unknown_type');
+
+  await transaction.sign(sender.getPrivateKey());
+
+  const errors = transaction.validate();
+  t.equal(errors.length, 1);
   t.not(transaction.verify());
 
   t.end();

@@ -184,6 +184,7 @@ class Header {
 
   verifyHash(recalculate = true) {
     assert(this.getHash() !== null);
+    assert(this.getNonce() > 0);
 
     if (recalculate && !this.getHash().equals(this.computeHash())) {
       return false;
