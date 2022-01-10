@@ -64,6 +64,22 @@ class Miner {
   //   })
   // }
 
+  miningWorker(header, timeout) {
+    return new Promise((resolve, reject) => {
+      this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
+      this.worker.on('message', (nonce) => {
+        console.log(`Receive nonce: ${nonce}`);
+        resolve(nonce);
+      });
+      this.worker.on('error', (error) => {
+        // reject(error);
+      });
+      this.worker.on('exit', (code) => {
+        resolve(-1);
+      });
+    });
+  }
+
   async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
@@ -96,19 +112,7 @@ class Miner {
       let foundNonce = -1;
 
       try {
-        foundNonce = await new Promise((resolve, reject) => {
-          this.worker = new Worker('./workers/miner.js', { workerData: { headerData: block.getHeader().toObject(), timeout: 10000 } });
-          this.worker.on('message', (nonce) => {
-            console.log(`Receive nonce: ${nonce}`);
-            resolve(nonce);
-          });
-          this.worker.on('error', (error) => {
-            // reject(error);
-          });
-          this.worker.on('exit', (code) => {
-            resolve(-1);
-          });
-        });
+        foundNonce = await this.miningWorker(block.getHeader(), 10000);
       } catch (err) {
         console.log(err);
       }
