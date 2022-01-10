@@ -109,14 +109,14 @@ class Miner {
 
       block.header.hash = block.header.computeHash();
 
-      let foundNonce = -1;
+      let foundNonce;
 
       try {
         foundNonce = await this.miningWorker(block.getHeader(), 10000);
       } catch (err) {
-        console.log(err);
+        foundNonce = -1;
       }
-     
+
       if (foundNonce > 0) {
         block.header.setNonce(foundNonce);
         block.header.hash = block.header.computeHash();

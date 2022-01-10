@@ -37,6 +37,38 @@ test('create a transaction with sufficient balance', async (t) => {
   t.ok(Object.prototype.hasOwnProperty.call(data, 'signature'));
   // TODO: More check
 
+  t.equal(data.fee, '0n');
+
+  await Chain.clearMain();
+  await Transaction.clearAllPending();
+
+  t.end();
+});
+
+test('create a transaction with fee', async (t) => {
+  const password = mock.randomPassword();
+
+  const sender = new Wallet();
+  await sender.generate(password);
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(3, 1, sender);
+
+  const { code, data } = await runAction({
+    action: 'createTransaction',
+    key: sender.getPrivateKeyHex(),
+    receiverAddress: receiver.getAddressEncoded(),
+    amount: 20,
+    password,
+    fee: 1000,
+  });
+
+  t.equal(code, SuccessCode);
+
+  t.equal(data.fee, '1000n');
+
   await Chain.clearMain();
   await Transaction.clearAllPending();
 

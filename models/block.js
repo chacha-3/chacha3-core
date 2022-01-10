@@ -45,7 +45,7 @@ class Block {
           type: 'mine',
           fee: '0n',
         },
-      ]
+      ],
     };
 
     return Block.fromObject(data);
@@ -160,19 +160,19 @@ class Block {
     assert(this.getTransactionCount() > 0);
 
     return this.header.verifyHash(recalculate);
-    // if (recalculate && !this.header.getHash().equals(this.header.computeHash())) {
-    //   return false;
-    // }
-
-    // const hashNum = BigInt(serializeBuffer(this.header.getHash()));
-    // return hashNum < this.header.getTarget();
   }
 
   async verifyTransactions() {
-    const verify = (transaction) => new Promise((resolve, reject) => {
+    const verify = (transaction, index) => new Promise((resolve, reject) => {
       transaction.isSaved().then((saved) => {
         if (saved) {
           debug(`Transaction ${serializeBuffer(transaction.getId())} is already saved`);
+          return reject();
+        }
+
+        // Ensure non-coinbase does not have type Mine
+        if (index !== 0 && transaction.getType() === Transaction.Type.Mine) {
+          debug(`Transaction ${serializeBuffer(transaction.getId())} has multiple mining transactions`);
           return reject();
         }
 
@@ -189,7 +189,7 @@ class Block {
 
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
       const transaction = this.getTransaction(i);
-      promises.push(verify(transaction));
+      promises.push(verify(transaction, i));
     }
 
     try {

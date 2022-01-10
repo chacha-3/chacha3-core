@@ -10,7 +10,7 @@ function findNonce(data) {
 
   const start = Date.now();
 
-  while ((Date.now() - start) < timeout)) {
+  while ((Date.now() - start) < timeout) {
     // console.log((Date.now() - start))
     header.setHash(header.computeHash());
 

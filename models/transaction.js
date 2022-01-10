@@ -158,6 +158,10 @@ class Transaction {
       errors.push('Fee has to be a positive number');
     }
 
+    if (!Object.values(Transaction.Type).includes(this.getType())) {
+      errors.push('Invalid transaction type');
+    }
+
     return errors;
   }
 
@@ -262,6 +266,11 @@ class Transaction {
   async save() {
     assert(this.getId() != null);
     const key = this.getId();
+
+    const edited = this.toObject();
+    delete edited.id;
+
+    assert(edited.id === undefined);
 
     await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
   }
