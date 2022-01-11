@@ -59,7 +59,7 @@ class Chain {
     const { environment } = config;
 
     const expectedTime = {
-      [Production]: 200000,
+      [Production]: 60000, // TODO: Set
       [Development]: 30000,
       [Testing]: 1000,
     };
