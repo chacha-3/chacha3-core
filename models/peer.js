@@ -37,7 +37,7 @@ class Peer {
 
   static get SeedList() {
     const seedPeers = [
-      { host: '127.0.0.1', port: 5438 },
+      { host: 'devnode1.chacha3.net', port: 5438 },
     ];
 
     return seedPeers;
