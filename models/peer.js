@@ -326,6 +326,12 @@ class Peer {
     setTimeout(() => this.reachOut(), inMillis);
   }
 
+  startSyncPoll() {
+    setTimeout(() => {
+
+    }, 60000);
+  }
+
   static requestHeaders() {
     const { host, port } = config;
 
@@ -388,6 +394,7 @@ class Peer {
 
     for (let i = 0; i < data.length; i += 1) {
       const receivedPeer = Peer.fromObject(data[i]);
+      receivedPeer.setStatus(Peer.Status.Idle);
 
       debug(`Received peer: ${JSON.stringify(data[i])}`);
 
@@ -395,9 +402,10 @@ class Peer {
       const notExisting = currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1;
 
       if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
-        debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
-        receivedPeer.setStatus(Peer.Status.Idle);
-        await receivedPeer.save();
+        await receivedPeer.reachOut();
+        // debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
+        // receivedPeer.setStatus(Peer.Status.Idle);
+        // await receivedPeer.save();
       }
     }
 
@@ -697,6 +705,7 @@ Peer.Status = {
 };
 
 Peer.socketListeners = [];
+Peer.syncTimeouts = {};
 
 Peer.RequestHeader = {
   Host: 'chacha3-host',

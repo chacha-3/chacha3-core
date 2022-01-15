@@ -28,7 +28,9 @@ class Miner {
     assert(block.header.getPrevious() !== null);
 
     const result = await Chain.mainChain.confirmNewBlock(block);
-    assert(result === true);
+
+    // TODO: Add check. Should confirm successfully unless prev hash is different
+    // assert(result === true);
 
     if (result) {
       await Chain.mainChain.save();
