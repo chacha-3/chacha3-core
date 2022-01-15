@@ -11,7 +11,7 @@ const { Production, Development, Testing } = Env;
 // TODO: Cleaner way for this. Add generic environment check
 
 const minTarget = {
-  [Production]: '0x0000ff0000000000000000000000000000000000000000000000000000000000',
+  [Production]: '0x000007f800000000000000000000000000000000000000000000000000000000', // TODO: Set
   [Development]: '0x000007f800000000000000000000000000000000000000000000000000000000',
   [Testing]: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
 };
