@@ -842,3 +842,12 @@ test('revert account correctly with non-coinbase transaction', async (t) => {
   await Chain.clearMain();
   t.end();
 });
+
+test('header verification fail when timestamp is not sequential (overlap)', async (t) => {
+  const chain = await mock.chainWithHeaders(5, 3);
+  t.equal(chain.verifyHeaders(), true);
+
+  chain.blockHeaders[4].time = chain.blockHeaders[3].time - 100;
+  t.equal(chain.verifyHeaders(), false);
+  t.end();
+});

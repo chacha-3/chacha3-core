@@ -535,6 +535,7 @@ class Peer {
 
       // FIXME: If invalid need to revert
       if (!valid) {
+        await tempChain.clearBlocks(startIndex);
         return false;
       }
     }
