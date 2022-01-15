@@ -55,10 +55,10 @@ class Block {
     this.header.setPrevious(hash);
   }
 
-  addCoinbase(receiverAddress, currentReward = Block.InitialReward) {
+  addCoinbase(rewardAddress, currentReward = Block.InitialReward) {
     const transaction = new Transaction(
       null,
-      receiverAddress,
+      rewardAddress,
       currentReward,
       Transaction.Type.Mine,
     );

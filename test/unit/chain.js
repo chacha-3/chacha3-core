@@ -9,7 +9,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const { generateAddress } = require('../../models/wallet');
-const { serializeObject, deserializeBuffer } = require('../../util/serialize');
+const { serializeObject, serializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
 const { assert } = require('console');
 
@@ -653,6 +653,105 @@ test('fail to confirm new block if previous hash does not match', async (t) => {
 
   // No changes to main chain if unable to confirm new block
   t.equal(Chain.mainChain.getLength(), numOfBlocks);
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('update account correctly with coinbase transaction', async (t) => {
+  Chain.mainChain = new Chain();
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 0);
+
+  const blockReward = Chain.blockRewardAtIndex(1);
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress(), blockReward);
+
+  const coinbaseTransaction = block.getCoinbaseTransaction();
+
+  const result = Chain.mainChain.transactionUpdate(coinbaseTransaction, null);
+  t.equal(result, true);
+
+  const balance = Chain.mainChain.getAccountBalance(wallet.getAddress());
+  t.ok(balance === blockReward);
+
+  const transactions = Chain.mainChain.getAccountTransactions(wallet.getAddress());
+
+  t.equal(transactions.length, 1);
+  t.equal(transactions[0].action, 'mine');
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('update account correctly with non-coinbase transaction', async (t) => {
+  const sender = new Wallet();
+  await sender.generate();
+
+  // Set sender as miner so that sender has balance to send
+  Chain.mainChain = await mock.chainWithBlocks(2, 1, sender);
+
+  // Third block
+  const blockReward = Chain.blockRewardAtIndex(2);
+
+  // Miner for new block, not the initial sender
+  const miner = new Wallet();
+  await miner.generate();
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(miner.getAddress(), blockReward);
+
+  const fee = 1000000n;
+  const sendAmount = 1000000000n;
+
+  const transactionWithFee = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddress(),
+    1000000000n,
+    Transaction.Type.Send,
+  );
+
+  transactionWithFee.setFee(fee);
+  await transactionWithFee.sign(sender.getPrivateKey());
+
+  block.addTransaction(transactionWithFee);
+
+  const result = Chain.mainChain.transactionUpdate(transactionWithFee, miner.getAddress());
+  t.equal(result, true);
+
+  // Miner account
+  const minerBalance = Chain.mainChain.getAccountBalance(miner.getAddress());
+  const minerTransactions = Chain.mainChain.getAccountTransactions(miner.getAddress());
+  t.ok(minerBalance === fee);
+  t.equal(minerTransactions.length, 1);
+  t.equal(minerTransactions[0].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(minerTransactions[0].action, 'fee');
+
+  // Sender account
+  const senderBalance = Chain.mainChain.getAccountBalance(sender.getAddress());
+  const senderTransactions = Chain.mainChain.getAccountTransactions(sender.getAddress());
+
+  t.ok(senderBalance === Chain.blockRewardAtIndex(2) - sendAmount - fee);
+
+  t.equal(senderTransactions.length, 2);
+  t.equal(senderTransactions[1].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(senderTransactions[1].action, 'send');
+
+  // Receiver account
+  const receiverBalance = Chain.mainChain.getAccountBalance(receiver.getAddress());
+  const receiverTransactions = Chain.mainChain.getAccountTransactions(receiver.getAddress());
+
+  t.ok(receiverBalance === sendAmount);
+
+  t.equal(receiverTransactions.length, 1);
+  t.equal(receiverTransactions[0].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(receiverTransactions[0].action, 'receive');
 
   await Chain.clearMain();
   t.end();
