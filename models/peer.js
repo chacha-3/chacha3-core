@@ -385,7 +385,13 @@ class Peer {
 
   async syncPeerList() {
     debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
-    const { data } = await this.callAction('listPeers', { status: 'active|inactive' });
+    const response = await this.callAction('listPeers', { status: 'active|inactive' });
+
+    if (!response) {
+      return;
+    }
+
+    const { data } = response;
 
     // TODO:
     // if (!data) {

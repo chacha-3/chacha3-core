@@ -25,7 +25,7 @@ function build(opts = {}) {
     url: '/',
     handler: (req, reply) => {
       // this will handle http requests
-      reply.send({ hello: 'world' });
+      reply.send({ message: 'Welcome to ChaCha3!' });
     },
     wsHandler: async (connection) => {
       const id = crypto.randomBytes(4).toString('hex');
