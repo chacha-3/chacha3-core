@@ -181,7 +181,12 @@ class Chain {
       const key = serializeBuffer(feeRewardAddress);
 
       this.accounts[key].transactions.pop();
-      this.accounts[key].balance -= transaction.getAmount();
+
+      if (this.accounts[key].transactions.length === 0) {
+        delete this.accounts[key];
+      } else {
+        this.accounts[key].balance -= transaction.getFee();
+      }
     }
 
     if (this.accounts[receiverAddress].transactions.length === 0) {
