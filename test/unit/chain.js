@@ -687,6 +687,37 @@ test('update account correctly with coinbase transaction', async (t) => {
   t.end();
 });
 
+test('revert account correctly with coinbase transaction', async (t) => {
+  Chain.mainChain = new Chain();
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 0);
+
+  const blockReward = Chain.blockRewardAtIndex(1);
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress(), blockReward);
+
+  const coinbaseTransaction = block.getCoinbaseTransaction();
+
+  // Before revert
+  t.equal(Chain.mainChain.getAccountData(wallet.getAddress()), null);
+  t.equal(Chain.mainChain.getAccountBalance(wallet.getAddress()), 0n);
+  t.equal(Chain.mainChain.getAccountTransactions(wallet.getAddress()).length, 0);
+
+  Chain.mainChain.transactionUpdate(coinbaseTransaction, null);
+  Chain.mainChain.transactionRevert(coinbaseTransaction, null);
+
+  // After revert
+  t.equal(Chain.mainChain.getAccountData(wallet.getAddress()), null);
+  t.equal(Chain.mainChain.getAccountBalance(wallet.getAddress()), 0n);
+  t.equal(Chain.mainChain.getAccountTransactions(wallet.getAddress()).length, 0);
+
+  await Chain.clearMain();
+  t.end();
+});
+
 test('update account correctly with non-coinbase transaction', async (t) => {
   const sender = new Wallet();
   await sender.generate();

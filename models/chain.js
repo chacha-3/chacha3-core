@@ -79,7 +79,7 @@ class Chain {
   }
 
   getAccountData(address) {
-    return this.accounts[serializeBuffer(address)];
+    return this.accounts[serializeBuffer(address)] || null;
   }
 
   getAccountBalance(address) {
@@ -181,11 +181,11 @@ class Chain {
       const key = serializeBuffer(feeRewardAddress);
 
       this.accounts[key].transactions.pop();
+      this.accounts[key].balance -= transaction.getFee();
 
       if (this.accounts[key].transactions.length === 0) {
+        assert(this.accounts[key].balance === 0n);
         delete this.accounts[key];
-      } else {
-        this.accounts[key].balance -= transaction.getFee();
       }
     }
 
