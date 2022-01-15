@@ -11,14 +11,13 @@ const mock = require('../../util/mock');
 const { generateAddress } = require('../../models/wallet');
 const { serializeObject, serializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
-const { assert } = require('console');
 
-// test('create an empty chain', (t) => {
-//   const chain = new Chain();
-//   t.equal(chain.getLength(), 0, 'empty chain has height of 0');
+test('new chain only has genesis', (t) => {
+  const chain = new Chain();
+  t.equal(chain.getLength(), 1);
 
-//   t.end();
-// });
+  t.end();
+});
 
 test('add block headers to the chain', async (t) => {
   const numOfBlocks = 4;
@@ -115,7 +114,6 @@ test('synchronize main chain with longer chain', async (t) => {
 
   t.end();
 });
-
 
 // TODO: Add after chain from array
 // test('synchronize main chain with longer chain', (t) => {
@@ -349,8 +347,6 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
 
 test('unable to update block balance when account has no balance', async (t) => {
   const chain = new Chain();
-
-  const numOfBlocks = 2;
 
   // Coinbase wallet to send to
   const wallet = new Wallet();
@@ -832,7 +828,7 @@ test('revert account correctly with non-coinbase transaction', async (t) => {
   Chain.mainChain.transactionUpdate(transactionWithFee, miner.getAddress());
   Chain.mainChain.transactionRevert(transactionWithFee, miner.getAddress());
 
-  // Adter transaction revert
+  // After transaction revert
   t.ok(Chain.mainChain.getAccountBalance(sender.getAddress()) === blockReward);
   t.equal(Object.keys(Chain.mainChain.accounts).length, 2);
   t.equal(Chain.mainChain.getAccountTransactions(sender.getAddress()).length, 1);

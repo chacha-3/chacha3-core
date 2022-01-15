@@ -427,7 +427,7 @@ test('correct push data', async (t) => {
 
   const pushData = transaction.toPushData();
 
-  const fields = ['key', 'address', 'amount', 'signature', 'time'];
+  const fields = ['senderKey', 'address', 'amount', 'signature', 'time'];
   fields.forEach((field) => {
     t.ok(Object.prototype.hasOwnProperty.call(pushData, field));
   });

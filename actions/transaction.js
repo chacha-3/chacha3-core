@@ -75,18 +75,18 @@ actions.pushTransaction = {
   permission: 'public',
   schema: {
     properties: {
-      key: { type: 'string', buffer: 'hex' },
+      senderKey: { type: 'string', buffer: 'hex' },
       receiverAddress: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       signature: { type: 'string', buffer: 'hex' },
       time: { type: 'integer' },
       version: { type: 'integer' },
     },
-    required: ['key', 'receiverAddress', 'amount', 'signature', 'time', 'version'],
+    required: ['senderKey', 'receiverAddress', 'amount', 'signature', 'time', 'version'],
   },
   handler: async (options) => {
     const transaction = new Transaction(
-      options.key,
+      options.senderKey,
       options.receiverAddress,
       Number.parseInt(options.amount, 10),
     );

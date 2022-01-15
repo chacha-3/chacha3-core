@@ -16,6 +16,7 @@ const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
 const { sendTestRequest } = require('../util/peer-response');
+const { clearInterval } = require('timers');
 
 class Peer {
   constructor(host, port = 0) {
@@ -288,6 +289,7 @@ class Peer {
 
     // Follow up and retrieve peer
     await this.syncPeerList();
+    Peer.syncTimeouts[serializeBuffer(this.getId)] = setTimeout(() => this.syncPeerList(), 60000);
 
     // Update active peer status again
     const fiveMinutes = 60000; // TODO: Temp change to 1 minute
@@ -594,10 +596,16 @@ class Peer {
   }
 
   static async clear(key) {
+    clearInterval(Peer.syncTimeouts[serializeBuffer(key)]);
     await PeerDB.del(key);
   }
 
   static async clearAll() {
+    const keys = Object.keys(Peer.syncTimeouts);
+
+    for (let i = 0; i < keys.length; i += 1) {
+      clearInterval(Peer.syncTimeouts[keys[i]]);
+    }
     await PeerDB.clear();
   }
 
