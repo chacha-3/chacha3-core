@@ -252,22 +252,21 @@ test('send request to another peer', async (t) => {
   t.end();
 });
 
-// FIXME:
-// test('sync with peer list from another peer', async (t) => {
-//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+test('sync with peer list from another peer', async (t) => {
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
-//   const currentPeers = await Peer.all();
-//   t.equal(currentPeers.length, 0);
+  const currentPeers = await Peer.all();
+  t.equal(currentPeers.length, 0);
 
-//   const result = await peer.syncPeerList();
-//   t.equal(result, true);
+  const result = await peer.syncPeerList();
+  t.equal(result, true);
 
-//   const updatedPeers = await Peer.all();
-//   t.equal(updatedPeers.length, 3); // Only peers with status of 'active' and 'inactive'
+  const updatedPeers = await Peer.all();
+  t.equal(updatedPeers.length, 3); // Only peers with status of 'active' and 'inactive'
 
-//   await Peer.clearAll();
-//   t.end();
-// });
+  await Peer.clearAll();
+  t.end();
+});
 
 // FIXME: Transaction verification failed because
 // Transaction 0x133aa8f8877934bbd5d8d2f68bc41ebcc5d249f49c05383aebcff067b17d46d5
