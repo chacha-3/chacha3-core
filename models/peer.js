@@ -377,12 +377,18 @@ class Peer {
 
   async syncPeerList() {
     debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
-    const { data } = await this.callAction('listPeers', { status: 'active|inactive' });
 
+    const response = await this.callAction('listPeers', { status: 'active|inactive' });
+
+    if (!response) {
+      return false;
+    }
     // TODO:
     // if (!data) {
     //   return false;
     // }
+
+    const { data } = response;
 
     const currentPeers = await Peer.all();
 
@@ -395,9 +401,11 @@ class Peer {
       const notExisting = currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1;
 
       if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
-        debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
+        // debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
         receivedPeer.setStatus(Peer.Status.Idle);
-        await receivedPeer.save();
+        await receivedPeer.reachOut();
+        // receivedPeer.setStatus(Peer.Status.Idle);
+        // await receivedPeer.save();
       }
     }
 
