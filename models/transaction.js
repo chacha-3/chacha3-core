@@ -82,7 +82,7 @@ class Transaction {
   }
 
   async sign(privateKey, password = '') {
-    assert(this.senderKey != null);
+    // assert(this.senderKey != null);
 
     const decrypted = await Wallet.decryptPrivateKey(privateKey, password);
 
