@@ -177,6 +177,16 @@ class Peer {
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
+  static addSyncInterval(peer) {
+    const key = serializeBuffer(peer.getId());
+    Peer.syncIntervals[key] = setInterval(() => peer.syncPeerList(), 60000); // TODO: Tune timeout
+  }
+
+  static clearSyncInterval(peerId) {
+    const key = serializeBuffer(peerId);
+    clearInterval(Peer.syncIntervals[key]);
+  }
+
   getId() {
     return Peer.generateKey(this.getHost(), this.getPort());
   }
@@ -288,6 +298,7 @@ class Peer {
 
     // Follow up and retrieve peer
     await this.syncPeerList();
+    Peer.addSyncInterval(this);
 
     // Update active peer status again
     const fiveMinutes = 60000; // TODO: Temp change to 1 minute
@@ -383,13 +394,8 @@ class Peer {
     if (!response) {
       return false;
     }
-    // TODO:
-    // if (!data) {
-    //   return false;
-    // }
 
     const { data } = response;
-
     const currentPeers = await Peer.all();
 
     for (let i = 0; i < data.length; i += 1) {
@@ -401,11 +407,8 @@ class Peer {
       const notExisting = currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1;
 
       if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
-        // debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
         receivedPeer.setStatus(Peer.Status.Idle);
         await receivedPeer.reachOut();
-        // receivedPeer.setStatus(Peer.Status.Idle);
-        // await receivedPeer.save();
       }
     }
 
@@ -593,11 +596,19 @@ class Peer {
   }
 
   static async clear(key) {
+    Peer.clearSyncInterval(key);
     await PeerDB.del(key);
   }
 
   static async clearAll() {
-    await PeerDB.clear();
+    const peers = await Peer.all();
+
+    const promises = [];
+    for (let i = 0; i < peers.length; i += 1) {
+      promises.push(Peer.clear(peers[i].getId()));
+    }
+
+    await Promise.all(promises);
   }
 
   static toSaveData(peer) {
@@ -705,6 +716,7 @@ Peer.Status = {
 };
 
 Peer.socketListeners = [];
+Peer.syncIntervals = {};
 
 Peer.RequestHeader = {
   Host: 'chacha3-host',
