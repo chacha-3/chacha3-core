@@ -34,13 +34,14 @@ async function main() {
 
   const obj = block.toObject();
 
-  // for (let y = 0; y < obj.transactions.length; y += 1) {
-  //   obj.transactions[y].receiverAddress = deserializeBuffer(obj.transactions[y].receiverAddress).toString('utf-8');
+  for (let y = 0; y < obj.transactions.length; y += 1) {
+    // obj.transactions[y] = jsonpack.pack(obj.transactions[y]);
+    // obj.transactions[y].receiverAddress = deserializeBuffer(obj.transactions[y].receiverAddress).toString('utf-8');
 
-  //   if (obj.transactions[y].signature) {
-  //     obj.transactions[y].signature = deserializeBuffer(obj.transactions[y].signature).toString('utf-8');
-  //   }
-  // }
+    // if (obj.transactions[y].signature) {
+    //   obj.transactions[y].signature = deserializeBuffer(obj.transactions[y].signature).toString('utf-8');
+    // }
+  }
 
   await fs.writeFile('./scripts/output/block-size.json', jsonpack.pack(obj), function (err) {
     if (err) return console.log(err);

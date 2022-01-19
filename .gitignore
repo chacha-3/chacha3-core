@@ -118,7 +118,9 @@ dist
 
 # LevelDB storage
 /data
+/testdata
+/devdata
 .shelldb
-.testdb
+.localdata
 
 scripts/output

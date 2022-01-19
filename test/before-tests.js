@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const dir = './.testdb';
+const dir = './.localdata';
 
 try {
   fs.rmSync(dir, { recursive: true });
