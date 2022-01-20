@@ -1,5 +1,6 @@
 const fs = require('fs');
 const jsonpack = require('jsonpack');
+const BSON = require('bson');
 
 const Block = require('../models/block');
 const Transaction = require('../models/transaction');
@@ -43,7 +44,7 @@ async function main() {
     // }
   }
 
-  await fs.writeFile('./scripts/output/block-size.json', jsonpack.pack(obj), function (err) {
+  await fs.writeFile('./scripts/output/block-size.json', BSON.serialize(obj), function (err) {
     if (err) return console.log(err);
   });
 }
