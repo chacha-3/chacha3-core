@@ -149,9 +149,10 @@ test('pack and unpack object', (t) => {
   const unpacked = unpackObject(data, ['e', 'f']);
 
   const {
-    a, b, c, d, e,
+    a, b, c, d, e, _v,
   } = unpacked;
 
+  t.equal(_v, 1);
   t.equal(a, 1);
   t.equal(b, 'value');
   t.ok(c, c.equals(Buffer.from([0x00, 0x02])));

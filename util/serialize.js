@@ -86,7 +86,7 @@ const packObject = (obj) => {
   const doc = { ...obj };
 
   // Add pack version, as pack method may be updated with improved compression
-  doc._v = Int32.valueOf(1);
+  doc._v = Int32(1);
 
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
@@ -94,7 +94,6 @@ const packObject = (obj) => {
     if (value === undefined || value === null) {
       return;
     }
-
     if (typeof (value) === 'number') {
       doc[key] = Long.fromNumber(value);
     } else if (typeof (value) === 'bigint') {

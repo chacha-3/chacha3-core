@@ -68,7 +68,6 @@ class Miner {
     return new Promise((resolve, reject) => {
       this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
       this.worker.on('message', (nonce) => {
-        console.log(`Receive nonce: ${nonce}`);
         resolve(nonce);
       });
       this.worker.on('error', (error) => {

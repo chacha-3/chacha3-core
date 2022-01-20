@@ -24,5 +24,3 @@ for (let i = 0; true; i = crypto.randomBytes(4).readUIntBE(0, 4)) {
     // break;
   }
 }
-
-// console.log(Buffer.concat([version, fingerprint, checksum].toString('hex')));

@@ -350,7 +350,6 @@ test('encrypt and decrypt private key', async (t) => {
 
   const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), password);
   t.equal(encrypted[0], 0x00);
-  // console.log(encrypted)
 
   const decrypted = await Wallet.decryptPrivateKey(encrypted, password);
   t.ok(wallet.getPrivateKey().equals(decrypted));
@@ -367,7 +366,6 @@ test('unable to decrypt private key with incorrect password', async (t) => {
 
   const encrypted = await Wallet.encryptPrivateKey(wallet.getPrivateKey(), correctPassword);
   t.equal(encrypted[0], 0x00);
-  // console.log(encrypted)
 
   const decrypted = await Wallet.decryptPrivateKey(encrypted, incorrectPassword);
   t.equal(decrypted, null);
