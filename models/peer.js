@@ -15,8 +15,7 @@ const { config, isTestEnvironment } = require('../util/env');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
-const { sendTestRequest } = require('../util/peer-response');
-const { clearInterval } = require('timers');
+const { sendTestRequest, HOST_127_0_0_100, PORT_7000 } = require('../util/peer-response');
 
 class Peer {
   constructor(host, port = 0) {
@@ -38,8 +37,12 @@ class Peer {
 
   static get SeedList() {
     const seedPeers = [
-      { host: '127.0.0.1', port: 5438 },
+      { host: 'devnode1.chacha3.net', port: 5438 },
     ];
+
+    if (isTestEnvironment) {
+      seedPeers.push({ host: HOST_127_0_0_100, port: PORT_7000 });
+    }
 
     return seedPeers;
   }
@@ -163,18 +166,12 @@ class Peer {
       Peer.randomizeLocalNonce();
     }
 
-    const peers = Peer.seedOrList();
-
+    const peers = await Peer.seedOrList();
     debug(`Reaching out all: ${peers.length}`);
 
-    const reachOutPeer = (peer) => new Promise((resolve) => {
-      resolve(peer.reachOut());
-    });
-
     const promises = [];
-
     for (let i = 0; i < peers.length; i += 1) {
-      promises.push(reachOutPeer(peers[i]));
+      promises.push(peers[i].reachOut());
     }
 
     return Promise.all(promises);
@@ -288,6 +285,7 @@ class Peer {
     this.setPeerInfo(version, chainLength, chainWork);
 
     const isSelf = Peer.localNonce === nonce;
+
     if (isSelf) {
       await Peer.clear(this.getId());
       return false;
@@ -621,6 +619,7 @@ class Peer {
     for (let i = 0; i < keys.length; i += 1) {
       clearInterval(Peer.syncTimeouts[keys[i]]);
     }
+
     await PeerDB.clear();
   }
 
@@ -645,14 +644,14 @@ class Peer {
     return peer;
   }
 
-  reachOutIfInactive() {
+  async reachOutIfInactive() {
     const activeStatus = [Peer.Status.Active, Peer.Status.Incompatible];
 
     if (activeStatus.includes(this.getStatus())) {
       return false;
     }
 
-    this.reachOut();
+    await this.reachOut();
     return true;
   }
 

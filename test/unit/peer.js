@@ -441,7 +441,8 @@ test('does not reach out to self as peer connecting to self', async (t) => {
   t.equal(result, false);
   t.equal((await Peer.all()).length, 0);
 
-  // await Peer.clearAll();
+  // Deinit
+  Peer.localNonce = 0;
 
   t.end();
 });
@@ -461,6 +462,7 @@ test('delete peer after reach out if peer is self', async (t) => {
 
   // TODO: Clear single peer
   await Peer.clearAll();
+  Peer.localNonce = 0;
   t.end();
 });
 
@@ -557,17 +559,20 @@ test('reach out peer if inactive', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 
   peer.setStatus(Peer.Status.Active);
-  t.equal(peer.reachOutIfInactive(), false);
+  t.equal(await peer.reachOutIfInactive(), false);
 
   peer.setStatus(Peer.Status.Incompatible);
-  t.equal(peer.reachOutIfInactive(), false);
+  t.equal(await peer.reachOutIfInactive(), false);
 
   peer.setStatus(Peer.Status.Idle);
-  t.equal(peer.reachOutIfInactive(), true);
+  t.equal(await peer.reachOutIfInactive(), true);
+
+  await Peer.clearAll();
 
   peer.setStatus(Peer.Status.Inactive);
-  t.equal(peer.reachOutIfInactive(), true);
+  t.equal(await peer.reachOutIfInactive(), true);
 
+  await Peer.clearAll();
   t.end();
 });
 
@@ -619,6 +624,18 @@ test('seed peer list if required or insufficient peers', async (t) => {
 
   const list = await Peer.seedOrList();
   t.equal(list.length, 1 + Peer.SeedList.length);
+
+  await Peer.clearAll();
+  t.end();
+});
+
+test('init seed and reach out all peers', async (t) => {
+  t.equal((await Peer.all()).length, 0);
+
+  const results = await Peer.reachOutAll();
+  t.ok(results.filter((success) => success).length > 0);
+
+  t.ok((await Peer.all()).length > 0);
 
   await Peer.clearAll();
   t.end();
