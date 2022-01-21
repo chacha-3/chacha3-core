@@ -52,6 +52,8 @@ class Miner {
     block.setPreviousHash(latestBlock.getHash());
 
     const rejected = block.addPendingTransactions(this.pendingTransactions);
+    // TODO: Clear rejected blocks
+
     block.header.hash = block.header.computeHash();
 
     return block;
