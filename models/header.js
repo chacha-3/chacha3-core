@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const blake3 = require('blake3-wasm');
 
 const { HeaderDB } = require('../util/db');
-const { serializeObject, deserializeBuffer, serializeBuffer } = require('../util/serialize');
+const { serializeObject, deserializeBuffer, serializeBuffer, packObject, unpackObject } = require('../util/serialize');
 
 const { config, Env } = require('../util/env');
 const { Production, Development, Testing } = Env;
@@ -52,7 +52,7 @@ class Header {
       checksum: this.getChecksum(),
     };
 
-    await HeaderDB.put(this.getHash(), serializeObject(data), { valueEncoding: 'json' });
+    await HeaderDB.put(this.getHash(), packObject(data), { valueEncoding: 'binary' });
   }
 
   static fromSaveData(data, hash) {
@@ -73,12 +73,12 @@ class Header {
     let data;
 
     try {
-      data = await HeaderDB.get(hash, { valueEncoding: 'json' });
+      data = await HeaderDB.get(hash, { valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
 
-    return Header.fromSaveData(data, hash);
+    return Header.fromSaveData(unpackObject(data), hash);
   }
 
   static async clear(hash) {
