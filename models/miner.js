@@ -82,7 +82,15 @@ class Miner {
     });
   }
 
-  async start() {
+  static async pauseIfChainSynching() {
+    if (!Chain.mainChain.isSynching()) {
+      return;
+    }
+
+    await waitUntil(() => !Chain.mainChain.isSynching());
+  }
+
+  async start(cb = () => {}) {
     assert(this.receiverAddress !== null);
     if (this.mining) {
       return false;
@@ -93,12 +101,7 @@ class Miner {
     this.mining = true;
 
     while (this.mining) {
-      // const chain = Chain.mainChain; // TODO: Move this to after synching
-
-      if (Chain.mainChain.isSynching()) {
-        debug('Mining paused. Chain out of sync');
-        await waitUntil(() => !Chain.isSynching());
-      }
+      await Miner.pauseIfChainSynching();
 
       // const pendingList = await Transaction.loadPending();
       const block = this.initMiningBlock();
@@ -126,6 +129,8 @@ class Miner {
         await Miner.foundBlock(block);
       }
     }
+
+    // cb(false);
 
     return true;
   }
@@ -184,7 +189,10 @@ class Miner {
   }
 
   stop() {
-    this.worker.terminate();
+    if (this.worker) {
+      this.worker.terminate();
+    }
+
     this.stopTransactionPoll();
     this.mining = false;
   }
