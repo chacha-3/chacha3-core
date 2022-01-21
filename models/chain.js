@@ -78,9 +78,13 @@ class Chain {
     return clamp(factor, min, max);
   }
 
+  getAccountData(address) {
+    return this.accounts[serializeBuffer(address)] || null;
+  }
+
   getAccountBalance(address) {
     debug(`Get account balance for ${address.toString('hex')}`);
-    const account = this.accounts[serializeBuffer(address)];
+    const account = this.getAccountData(address);
 
     if (!account) {
       return 0n;
@@ -90,7 +94,8 @@ class Chain {
   }
 
   getAccountTransactions(address) {
-    const account = this.accounts[serializeBuffer(address)];
+    assert(address !== null);
+    const account = this.getAccountData(address);
 
     if (!account) {
       return [];
@@ -100,6 +105,7 @@ class Chain {
   }
 
   transactionUpdate(transaction, feeRewardAddress) {
+    assert(feeRewardAddress !== undefined);
     if (transaction.getSenderKey()) {
       const senderAddress = generateAddressEncoded(transaction.getSenderKey());
 
@@ -143,6 +149,14 @@ class Chain {
     if (feeRewardAddress !== null && transaction.getFee() > 0n) {
       const key = serializeBuffer(feeRewardAddress);
 
+      // TODO: Modularize account init
+      if (!this.accounts[key]) {
+        this.accounts[key] = {
+          balance: 0n,
+          transactions: [],
+        };
+      }
+
       this.accounts[key].transactions.push({ id: transaction.getIdHex(), action: 'fee' });
       this.accounts[key].balance += transaction.getFee();
     }
@@ -167,7 +181,12 @@ class Chain {
       const key = serializeBuffer(feeRewardAddress);
 
       this.accounts[key].transactions.pop();
-      this.accounts[key].balance -= transaction.getAmount();
+      this.accounts[key].balance -= transaction.getFee();
+
+      if (this.accounts[key].transactions.length === 0) {
+        assert(this.accounts[key].balance === 0n);
+        delete this.accounts[key];
+      }
     }
 
     if (this.accounts[receiverAddress].transactions.length === 0) {

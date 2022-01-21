@@ -1,4 +1,5 @@
 const { test } = require('tap');
+const { performance } = require('perf_hooks');
 
 const { runningManualTest } = require('../../util/env');
 
@@ -19,7 +20,7 @@ const { config, Env } = require('../../util/env');
 
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
-const { unpack } = require('jsonpack');
+const { waitUntil } = require('../../util/sync');
 
 // test('detect running unit test', (t) => {
 //   const argvTest = [
@@ -244,5 +245,25 @@ test('load environment config defaults', async (t) => {
 
   // TODO: Host and port
 
+  t.end();
+});
+
+test('wait until value changes', async (t) => {
+  let value = false;
+  const delay = 10;
+
+  // Set value to false
+  setTimeout(() => { value = true; }, delay);
+
+  const start = performance.now();
+
+  // Wait until value is true
+  await waitUntil(() => value === true);
+  t.equal(value, true);
+
+  const end = performance.now();
+  const time = end - start;
+
+  t.ok(time >= delay);
   t.end();
 });

@@ -15,7 +15,7 @@ const { config, isTestEnvironment } = require('../util/env');
 const { randomNumberBetween } = require('../util/math');
 const { serializeBuffer } = require('../util/serialize');
 
-const { sendTestRequest } = require('../util/peer-response');
+const { sendTestRequest, HOST_127_0_0_100, PORT_7000 } = require('../util/peer-response');
 
 class Peer {
   constructor(host, port = 0) {
@@ -39,6 +39,10 @@ class Peer {
     const seedPeers = [
       { host: 'devnode1.chacha3.net', port: 5438 },
     ];
+
+    if (isTestEnvironment) {
+      seedPeers.push({ host: HOST_127_0_0_100, port: PORT_7000 });
+    }
 
     return seedPeers;
   }
@@ -116,7 +120,7 @@ class Peer {
     for (let i = 0; i < activePeers.length; i += 1) {
       promises.push(request(activePeers[i]));
     }
-  
+
     Peer.sendToListeners(merged);
 
     // TODO: Map response to peer
@@ -143,28 +147,31 @@ class Peer {
     await Promise.all(promises);
   }
 
+  static async seedOrList() {
+    let peers = await Peer.all();
+
+    // Configurable. Possibly hard code the number instead.
+    const seedThreshold = Peer.SeedList.length;
+
+    if (peers.length <= seedThreshold) {
+      await Peer.addSeed();
+      peers = await Peer.all();
+    }
+
+    return peers;
+  }
+
   static async reachOutAll() {
     if (Peer.localNonce === 0) {
       Peer.randomizeLocalNonce();
     }
 
-    let peers = await Peer.all();
-
-    if (peers.length < 10) {
-      await Peer.addSeed();
-      peers = await Peer.all();
-    }
-
+    const peers = await Peer.seedOrList();
     debug(`Reaching out all: ${peers.length}`);
 
-    const reachOutPeer = (peer) => new Promise((resolve) => {
-      resolve(peer.reachOut());
-    });
-
     const promises = [];
-
     for (let i = 0; i < peers.length; i += 1) {
-      promises.push(reachOutPeer(peers[i]));
+      promises.push(peers[i].reachOut());
     }
 
     return Promise.all(promises);
@@ -288,6 +295,7 @@ class Peer {
     this.setPeerInfo(version, chainLength, chainWork);
 
     const isSelf = Peer.localNonce === nonce;
+
     if (isSelf) {
       await Peer.clear(this.getId());
       return false;
@@ -335,6 +343,12 @@ class Peer {
     }
 
     setTimeout(() => this.reachOut(), inMillis);
+  }
+
+  startSyncPoll() {
+    setTimeout(() => {
+
+    }, 60000);
   }
 
   static requestHeaders() {
@@ -388,18 +402,19 @@ class Peer {
 
   async syncPeerList() {
     debug(`Synching peer list: ${this.formattedAddress()}. Version ${this.getVersion()}`);
-
     const response = await this.callAction('listPeers', { status: 'active|inactive' });
 
     if (!response) {
-      return false;
+      return;
     }
 
     const { data } = response;
+
     const currentPeers = await Peer.all();
 
     for (let i = 0; i < data.length; i += 1) {
       const receivedPeer = Peer.fromObject(data[i]);
+      receivedPeer.setStatus(Peer.Status.Idle);
 
       debug(`Received peer: ${JSON.stringify(data[i])}`);
 
@@ -407,8 +422,10 @@ class Peer {
       const notExisting = currentPeers.findIndex((cur) => Peer.areSame(receivedPeer, cur)) === -1;
 
       if (notExisting && acceptStatus.includes(receivedPeer.getStatus())) {
-        receivedPeer.setStatus(Peer.Status.Idle);
         await receivedPeer.reachOut();
+        // debug(`New peer from sync. Saved ${receivedPeer.getHost()}, ${receivedPeer.getPort()}`);
+        // receivedPeer.setStatus(Peer.Status.Idle);
+        // await receivedPeer.save();
       }
     }
 
@@ -538,6 +555,7 @@ class Peer {
 
       // FIXME: If invalid need to revert
       if (!valid) {
+        await tempChain.clearBlocks(startIndex);
         return false;
       }
     }
@@ -632,14 +650,14 @@ class Peer {
     return peer;
   }
 
-  reachOutIfInactive() {
+  async reachOutIfInactive() {
     const activeStatus = [Peer.Status.Active, Peer.Status.Incompatible];
 
     if (activeStatus.includes(this.getStatus())) {
       return false;
     }
 
-    this.reachOut();
+    await this.reachOut();
     return true;
   }
 

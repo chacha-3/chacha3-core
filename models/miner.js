@@ -28,7 +28,9 @@ class Miner {
     assert(block.header.getPrevious() !== null);
 
     const result = await Chain.mainChain.confirmNewBlock(block);
-    assert(result === true);
+
+    // TODO: Add check. Should confirm successfully unless prev hash is different
+    // assert(result === true);
 
     if (result) {
       await Chain.mainChain.save();
@@ -44,25 +46,18 @@ class Miner {
   initMiningBlock() {
     const block = new Block();
     block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
+    block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
+
+    const latestBlock = Chain.mainChain.lastBlockHeader();
+    block.setPreviousHash(latestBlock.getHash());
+
+    const rejected = block.addPendingTransactions(this.pendingTransactions);
+    // TODO: Clear rejected blocks
+
+    block.header.hash = block.header.computeHash();
 
     return block;
   }
-
-  // static miningWorker(header, timeout) {
-  //   return new Promise((resolve, reject) => {
-  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout, } });
-  //     this.worker.on('message', (nonce) => {
-  //       console.log(`Receive nonce: ${nonce}`);
-  //       resolve(nonce);
-  //     });
-  //     this.worker.on('error', (error) => {
-  //       // reject(error);
-  //     });
-  //     this.worker.on('exit', (code) => {
-  //       resolve(-1);
-  //     });
-  //   })
-  // }
 
   miningWorker(header, timeout) {
     return new Promise((resolve, reject) => {
@@ -79,6 +74,14 @@ class Miner {
     });
   }
 
+  static async pauseIfChainSynching() {
+    if (!Chain.mainChain.isSynching()) {
+      return;
+    }
+
+    await waitUntil(() => !Chain.mainChain.isSynching());
+  }
+
   async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
@@ -90,24 +93,9 @@ class Miner {
     this.mining = true;
 
     while (this.mining) {
-      // const chain = Chain.mainChain; // TODO: Move this to after synching
+      await Miner.pauseIfChainSynching();
 
-      if (Chain.mainChain.isSynching()) {
-        debug('Mining paused. Chain out of sync');
-        await waitUntil(() => !Chain.isSynching());
-      }
-
-      // const pendingList = await Transaction.loadPending();
       const block = this.initMiningBlock();
-      const rejected = block.addPendingTransactions(this.pendingTransactions);
-
-      block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
-
-      const latestBlock = Chain.mainChain.lastBlockHeader();
-      block.setPreviousHash(latestBlock.getHash());
-
-      block.header.hash = block.header.computeHash();
-
       let foundNonce;
 
       try {
@@ -181,7 +169,10 @@ class Miner {
   }
 
   stop() {
-    this.worker.terminate();
+    if (this.worker) {
+      this.worker.terminate();
+    }
+
     this.stopTransactionPoll();
     this.mining = false;
   }

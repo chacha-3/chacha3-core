@@ -226,7 +226,7 @@ class Transaction {
     assert(this.getSignature() !== null);
 
     return serializeObject({
-      key: this.getSenderKey(),
+      senderKey: this.getSenderKey(),
       address: this.getReceiverAddress(),
       amount: this.getAmount(),
       version: this.getVersion(),

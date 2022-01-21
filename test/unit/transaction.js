@@ -46,6 +46,28 @@ test('transaction with same sender and receiver is invalid', async (t) => {
   t.end();
 });
 
+test('transaction with negative value fee is invalid', async (t) => {
+  const sender = new Wallet();
+  await sender.generate();
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const transaction = new Transaction(
+    sender.getPublicKey(), receiver.getAddress(), 10,
+  );
+
+  transaction.setFee(-1);
+
+  await transaction.sign(sender.getPrivateKey());
+
+  const errors = transaction.validate();
+  t.equal(errors.length, 1);
+  t.not(transaction.verify());
+
+  t.end();
+});
+
 test('transaction with unknown type is invalid', async (t) => {
   const sender = new Wallet();
   await sender.generate();
@@ -405,7 +427,7 @@ test('correct push data', async (t) => {
 
   const pushData = transaction.toPushData();
 
-  const fields = ['key', 'address', 'amount', 'signature', 'time'];
+  const fields = ['senderKey', 'address', 'amount', 'signature', 'time'];
   fields.forEach((field) => {
     t.ok(Object.prototype.hasOwnProperty.call(pushData, field));
   });

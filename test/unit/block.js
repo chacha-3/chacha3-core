@@ -596,6 +596,18 @@ test('block is invalid when has invalid transaction', async (t) => {
   t.end();
 });
 
+test('block is invalid when non-coinbase has type mine', async (t) => {
+  const block = await mock.blockWithTransactions(4);
+
+  block.transactions[3].type = Transaction.Type.Mine;
+
+  const result = await block.verifyTransactions();
+  t.equal(result, false);
+
+  await Chain.clearMain();
+  t.end();
+});
+
 test('add pending transaction to block', async (t) => {
   const transactions = await mock.pendingTransactions(4);
 

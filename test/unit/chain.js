@@ -9,16 +9,15 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const { generateAddress } = require('../../models/wallet');
-const { serializeObject, deserializeBuffer } = require('../../util/serialize');
+const { serializeObject, serializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
-const { assert } = require('console');
 
-// test('create an empty chain', (t) => {
-//   const chain = new Chain();
-//   t.equal(chain.getLength(), 0, 'empty chain has height of 0');
+test('new chain only has genesis', (t) => {
+  const chain = new Chain();
+  t.equal(chain.getLength(), 1);
 
-//   t.end();
-// });
+  t.end();
+});
 
 test('add block headers to the chain', async (t) => {
   const numOfBlocks = 4;
@@ -115,7 +114,6 @@ test('synchronize main chain with longer chain', async (t) => {
 
   t.end();
 });
-
 
 // TODO: Add after chain from array
 // test('synchronize main chain with longer chain', (t) => {
@@ -349,8 +347,6 @@ test('reverts transaction for invalid blocks block balances', async (t) => {
 
 test('unable to update block balance when account has no balance', async (t) => {
   const chain = new Chain();
-
-  const numOfBlocks = 2;
 
   // Coinbase wallet to send to
   const wallet = new Wallet();
@@ -655,5 +651,199 @@ test('fail to confirm new block if previous hash does not match', async (t) => {
   t.equal(Chain.mainChain.getLength(), numOfBlocks);
 
   await Chain.clearMain();
+  t.end();
+});
+
+test('update account correctly with coinbase transaction', async (t) => {
+  Chain.mainChain = new Chain();
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 0);
+
+  const blockReward = Chain.blockRewardAtIndex(1);
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress(), blockReward);
+
+  const coinbaseTransaction = block.getCoinbaseTransaction();
+
+  const result = Chain.mainChain.transactionUpdate(coinbaseTransaction, null);
+  t.equal(result, true);
+
+  const balance = Chain.mainChain.getAccountBalance(wallet.getAddress());
+  t.ok(balance === blockReward);
+
+  const transactions = Chain.mainChain.getAccountTransactions(wallet.getAddress());
+
+  t.equal(transactions.length, 1);
+  t.equal(transactions[0].action, 'mine');
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('revert account correctly with coinbase transaction', async (t) => {
+  Chain.mainChain = new Chain();
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 0);
+
+  const blockReward = Chain.blockRewardAtIndex(1);
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress(), blockReward);
+
+  const coinbaseTransaction = block.getCoinbaseTransaction();
+
+  // Before revert
+  t.equal(Chain.mainChain.getAccountData(wallet.getAddress()), null);
+  t.equal(Chain.mainChain.getAccountBalance(wallet.getAddress()), 0n);
+  t.equal(Chain.mainChain.getAccountTransactions(wallet.getAddress()).length, 0);
+
+  Chain.mainChain.transactionUpdate(coinbaseTransaction, null);
+  Chain.mainChain.transactionRevert(coinbaseTransaction, null);
+
+  // After revert
+  t.equal(Chain.mainChain.getAccountData(wallet.getAddress()), null);
+  t.equal(Chain.mainChain.getAccountBalance(wallet.getAddress()), 0n);
+  t.equal(Chain.mainChain.getAccountTransactions(wallet.getAddress()).length, 0);
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('update account correctly with non-coinbase transaction', async (t) => {
+  const sender = new Wallet();
+  await sender.generate();
+
+  // Set sender as miner so that sender has balance to send
+  Chain.mainChain = await mock.chainWithBlocks(2, 1, sender);
+
+  // Third block
+  const blockReward = Chain.blockRewardAtIndex(2);
+
+  // Miner for new block, not the initial sender
+  const miner = new Wallet();
+  await miner.generate();
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(miner.getAddress(), blockReward);
+
+  const fee = 1000000n;
+  const sendAmount = 1000000000n;
+
+  const transactionWithFee = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddress(),
+    sendAmount,
+    Transaction.Type.Send,
+  );
+
+  transactionWithFee.setFee(fee);
+  await transactionWithFee.sign(sender.getPrivateKey());
+
+  block.addTransaction(transactionWithFee);
+
+  const result = Chain.mainChain.transactionUpdate(transactionWithFee, miner.getAddress());
+  t.equal(result, true);
+
+  // Miner account
+  const minerBalance = Chain.mainChain.getAccountBalance(miner.getAddress());
+  const minerTransactions = Chain.mainChain.getAccountTransactions(miner.getAddress());
+  t.ok(minerBalance === fee);
+  t.equal(minerTransactions.length, 1);
+  t.equal(minerTransactions[0].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(minerTransactions[0].action, 'fee');
+
+  // Sender account
+  const senderBalance = Chain.mainChain.getAccountBalance(sender.getAddress());
+  const senderTransactions = Chain.mainChain.getAccountTransactions(sender.getAddress());
+
+  t.ok(senderBalance === Chain.blockRewardAtIndex(2) - sendAmount - fee);
+
+  t.equal(senderTransactions.length, 2);
+  t.equal(senderTransactions[1].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(senderTransactions[1].action, 'send');
+
+  // Receiver account
+  const receiverBalance = Chain.mainChain.getAccountBalance(receiver.getAddress());
+  const receiverTransactions = Chain.mainChain.getAccountTransactions(receiver.getAddress());
+
+  t.ok(receiverBalance === sendAmount);
+
+  t.equal(receiverTransactions.length, 1);
+  t.equal(receiverTransactions[0].id, serializeBuffer(transactionWithFee.getId()));
+  t.equal(receiverTransactions[0].action, 'receive');
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('revert account correctly with non-coinbase transaction', async (t) => {
+  const sender = new Wallet();
+  await sender.generate();
+
+  // Set sender as miner so that sender has balance to send
+  Chain.mainChain = await mock.chainWithBlocks(2, 1, sender);
+
+  // Third block
+  const blockReward = Chain.blockRewardAtIndex(2);
+
+  // Miner for new block, not the initial sender
+  const miner = new Wallet();
+  await miner.generate();
+
+  const receiver = new Wallet();
+  await receiver.generate();
+
+  const block = new Block();
+  block.addCoinbase(miner.getAddress(), blockReward);
+
+  const fee = 1000000n;
+
+  const transactionWithFee = new Transaction(
+    sender.getPublicKey(),
+    receiver.getAddress(),
+    1000000000n,
+    Transaction.Type.Send,
+  );
+
+  transactionWithFee.setFee(fee);
+  await transactionWithFee.sign(sender.getPrivateKey());
+
+  block.addTransaction(transactionWithFee);
+
+  // Before transaction update
+  t.ok(Chain.mainChain.getAccountBalance(sender.getAddress()) === blockReward);
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 2);
+  t.equal(Chain.mainChain.getAccountTransactions(sender.getAddress()).length, 1);
+  t.equal(Chain.mainChain.getAccountTransactions(receiver.getAddress).length, 0);
+  t.equal(Chain.mainChain.getAccountTransactions(miner.getAddress()).length, 0);
+
+  Chain.mainChain.transactionUpdate(transactionWithFee, miner.getAddress());
+  Chain.mainChain.transactionRevert(transactionWithFee, miner.getAddress());
+
+  // After transaction revert
+  t.ok(Chain.mainChain.getAccountBalance(sender.getAddress()) === blockReward);
+  t.equal(Object.keys(Chain.mainChain.accounts).length, 2);
+  t.equal(Chain.mainChain.getAccountTransactions(sender.getAddress()).length, 1);
+  t.equal(Chain.mainChain.getAccountTransactions(receiver.getAddress()).length, 0);
+  t.equal(Chain.mainChain.getAccountTransactions(miner.getAddress()).length, 0);
+
+  await Chain.clearMain();
+  t.end();
+});
+
+test('header verification fail when timestamp is not sequential (overlap)', async (t) => {
+  const chain = await mock.chainWithHeaders(5, 3);
+  t.equal(chain.verifyHeaders(), true);
+
+  chain.blockHeaders[4].time = chain.blockHeaders[3].time - 100;
+  t.equal(chain.verifyHeaders(), false);
   t.end();
 });

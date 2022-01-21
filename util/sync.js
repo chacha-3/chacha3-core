@@ -1,10 +1,9 @@
 const { isTestEnvironment } = require('./env');
 
-const waitUntil = (condition) => new Promise((resolve) => {
-  // Lower for testing to speed up
-  // TODO: Testing
-  const pollInterval = isTestEnvironment ? 5 : 100;
+// Lower for testing to speed up
+const pollInterval = isTestEnvironment ? 5 : 100;
 
+const waitUntil = (condition) => new Promise((resolve) => {
   const interval = setInterval(() => {
     if (!condition()) {
       return;
@@ -17,4 +16,5 @@ const waitUntil = (condition) => new Promise((resolve) => {
 
 module.exports = {
   waitUntil,
+  pollInterval,
 };

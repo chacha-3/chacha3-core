@@ -1,8 +1,10 @@
 const { test } = require('tap');
 const Chain = require('../../models/chain');
+const { load } = require('../../models/header');
 // const chai = require('chai');
 
 const Header = require('../../models/header');
+const { pauseIfChainSynching } = require('../../models/miner');
 const Miner = require('../../models/miner');
 const Wallet = require('../../models/wallet');
 const mock = require('../../util/mock');
@@ -92,5 +94,25 @@ test('mining worker finds nonce', async (t) => {
     t.equal(nonce, -1);
   }
 
+  t.end();
+});
+
+test('check pause if chain is synching', async (t) => {
+  Chain.mainChain = await Chain.load();
+  Chain.mainChain.setSynching(true);
+
+  const delay = 10;
+
+  setTimeout(() => { Chain.mainChain.setSynching(false); }, delay);
+
+  const start = performance.now();
+
+  await Miner.pauseIfChainSynching();
+  t.equal(Chain.mainChain.isSynching(), false);
+
+  const end = performance.now();
+  const time = end - start;
+
+  t.ok(time >= delay);
   t.end();
 });
