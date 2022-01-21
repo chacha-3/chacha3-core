@@ -77,6 +77,10 @@ class Block {
       throw new Error('Unable to add unsigned transaction to block');
     }
 
+    if (this.getTransactionCount() > 0 && transaction.getType() !== Transaction.Type.Send) {
+      return false;
+    }
+
     if (!transaction.verify()) {
       return false;
     }

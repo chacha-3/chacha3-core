@@ -625,6 +625,27 @@ test('add pending transaction to block', async (t) => {
   t.end();
 });
 
+test('does not add non-send transactions to pending', async (t) => {
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress());
+  t.equal(block.getTransactionCount(), 1);
+
+  const transaction = new Transaction(null, wallet.getAddress(), 100, Transaction.Type.Mine);
+  await transaction.sign(wallet.getPrivateKey());
+
+  const rejected = block.addPendingTransactions([transaction]);
+
+  t.equal(block.getTransactionCount(), 1);
+  t.equal(rejected.length, 1);
+
+  t.equal(rejected[0].getType(), Transaction.Type.Mine);
+
+  t.end();
+});
+
 test('reject pending transaction if already saved', async (t) => {
   const transactions = await mock.pendingTransactions(4);
 

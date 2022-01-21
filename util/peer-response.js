@@ -71,7 +71,24 @@ const responseList = [
       data: {
         version: '0.0.1',
         time: 1636425419080,
-        port: '5438',
+        port: 7000,
+        chainLength: 1,
+        chainWork: 1,
+        nonce: 3000000,
+        networkId: 'chacha3-localnet',
+      },
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_127_0_0_101,
+    port: PORT_7000,
+    action: 'nodeInfo',
+    response: {
+      data: {
+        version: '0.0.1',
+        time: 1636425419080,
+        port: 7000,
         chainLength: 1,
         chainWork: 1,
         nonce: 3000000,
@@ -88,7 +105,7 @@ const responseList = [
       data: {
         version: '0.0.1',
         time: 1636425419080,
-        port: '5438',
+        port: 5438,
         chainLength: 1,
         chainWork: 1,
         nonce: 3000000,
@@ -104,8 +121,8 @@ const responseList = [
     response: {
       data: [
         {
-          host: '127.0.0.100',
-          port: '6000',
+          host: HOST_127_0_0_101,
+          port: 7000,
           version: '0.0.1',
           chainLength: 2,
           chainWork: 2,
@@ -113,7 +130,7 @@ const responseList = [
         },
         {
           host: '127.0.0.101',
-          port: '6000',
+          port: 6000,
           version: '0.0.1',
           chainLength: 2,
           chainWork: 2,
@@ -121,7 +138,7 @@ const responseList = [
         },
         {
           host: '127.0.0.100',
-          port: '6001',
+          port: 6001,
           version: null,
           chainLength: null,
           chainWork: 0,
@@ -129,7 +146,7 @@ const responseList = [
         },
         {
           host: '127.0.0.99',
-          port: '6002',
+          port: 6002,
           version: '0.0.1',
           chainLength: null,
           chainWork: null,
@@ -137,7 +154,7 @@ const responseList = [
         },
         {
           host: '127.0.0.200',
-          port: '6000',
+          port: 6000,
           version: '0.0.1',
           chainLength: 1,
           chainWork: 1,

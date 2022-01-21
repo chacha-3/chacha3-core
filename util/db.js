@@ -1,6 +1,6 @@
 const level = require('level');
 const sub = require('subleveldown');
-const { isTestEnvironment, runningManualTest } = require('./env');
+const { isTestEnvironment, runningManualTest, Env } = require('./env');
 
 // Probably and underfit solution. But no issues
 // TODO: Migrate to env util
@@ -17,8 +17,14 @@ const { isTestEnvironment, runningManualTest } = require('./env');
 //   fs.mkdirSync(dataDir);
 // }
 
-const dbName = (isTestEnvironment) ? '.testdb' : 'data';
+const dbNameMap = {
+  [Env.Production]: 'data',
+  [Env.Staging]: 'testdata',
+  [Env.Development]: 'devdata',
+  [Env.Testing]: '.localdata',
+};
 
+const dbName = dbNameMap[process.env.NODE_ENV];
 const DB = level(dbName);
 
 const WalletDB = sub(DB, 'wallet');

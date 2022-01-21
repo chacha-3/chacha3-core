@@ -9,6 +9,10 @@ const {
   serializeBuffer,
   serializeBigInt,
   deserializeBigInt,
+  packBigInt,
+  unpackBigInt,
+  packObject,
+  unpackObject,
 } = require('../../util/serialize');
 
 const mock = require('../../util/mock');
@@ -107,6 +111,53 @@ test('serialize object', (t) => {
   t.equal(serialized.nested.d, null);
   t.equal(serialized.nested.e, '100000000000000000n');
   t.equal(serialized.array.length, 1);
+
+  t.end();
+});
+
+test('pack and unpack BigInt', (t) => {
+  const numbers = [1n, 10000000000000000000n, 0n];
+  const packed = new Array(4);
+
+  for (let i = 0; i < numbers.length; i += 1) {
+    packed[i] = packBigInt(numbers[i]);
+  }
+
+  for (let j = 0; j < numbers.length; j += 1) {
+    t.equal(unpackBigInt(packed[j]), numbers[j]);
+  }
+
+  t.end();
+});
+
+test('pack and unpack object', (t) => {
+  const source = {
+    a: 1,
+    b: 'value',
+    c: Buffer.from([0x00, 0x02]),
+    d: null,
+    e: 20000000000000000000000n,
+    // nested: {
+    //   a: 1,
+    //   b: 'value',
+    //   c: Buffer.from([0x00, 0x02]),
+    //   d: null,
+    // },
+  };
+
+  const data = packObject(source);
+
+  const unpacked = unpackObject(data, ['e', 'f']);
+
+  const {
+    a, b, c, d, e,
+  } = unpacked;
+
+  t.equal(a, 1);
+  t.equal(b, 'value');
+  t.ok(c, c.equals(Buffer.from([0x00, 0x02])));
+  t.equal(d, null);
+  t.equal(e, 20000000000000000000000n);
 
   t.end();
 });

@@ -32,7 +32,7 @@ const { port } = require('./util/env').config;
 
 // const port = normalizePort(process.env.PORT || '3000');
 
-server.listen(port, async (err) => {
+server.listen(port, '0.0.0.0', async (err) => {
   console.log(`Server listening on port ${port}`);
   if (err) {
     console.log(err);

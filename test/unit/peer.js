@@ -422,8 +422,27 @@ test('reach out to active peer', async (t) => {
   const result = await peer.reachOut();
   t.equal(result, true);
 
-  // 1 connected peer plus 3 other active/inactive peer of connected peer
-  // t.equal((await Peer.all()).length, 4);
+  const peers = await Peer.all();
+
+  // Total 4 peers, only 2 reachable
+  t.equal(peers.filter((p) => p.getStatus() === Peer.Status.Active).length, 2);
+  t.equal(peers.length, 4);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  t.end();
+});
+
+test('peer status is unreachable if unable to reach out', async (t) => {
+  const peer = new Peer('127.0.0.222', PORT_7000);
+  t.equal((await Peer.all()).length, 0);
+
+  const result = await peer.reachOut();
+  t.equal(result, false);
+
+  const peers = await Peer.all();
+  t.equal(peers.length, 1);
+  t.equal(peers[0].getStatus(), Peer.Status.Unreachable);
 
   // TODO: Clear single peer
   await Peer.clearAll();

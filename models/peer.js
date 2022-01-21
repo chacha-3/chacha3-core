@@ -184,6 +184,16 @@ class Peer {
     return activePeers.sort((a, b) => b.getTotalWork() - a.getTotalWork());
   }
 
+  static addSyncInterval(peer) {
+    const key = serializeBuffer(peer.getId());
+    Peer.syncIntervals[key] = setInterval(() => peer.syncPeerList(), 60000); // TODO: Tune timeout
+  }
+
+  static clearSyncInterval(peerId) {
+    const key = serializeBuffer(peerId);
+    clearInterval(Peer.syncIntervals[key]);
+  }
+
   getId() {
     return Peer.generateKey(this.getHost(), this.getPort());
   }
@@ -296,7 +306,7 @@ class Peer {
 
     // Follow up and retrieve peer
     await this.syncPeerList();
-    Peer.syncTimeouts[serializeBuffer(this.getId)] = setTimeout(() => this.syncPeerList(), 60000);
+    Peer.addSyncInterval(this);
 
     // Update active peer status again
     const fiveMinutes = 60000; // TODO: Temp change to 1 minute
@@ -399,11 +409,6 @@ class Peer {
     }
 
     const { data } = response;
-
-    // TODO:
-    // if (!data) {
-    //   return false;
-    // }
 
     const currentPeers = await Peer.all();
 
@@ -609,18 +614,19 @@ class Peer {
   }
 
   static async clear(key) {
-    clearInterval(Peer.syncTimeouts[serializeBuffer(key)]);
+    Peer.clearSyncInterval(key);
     await PeerDB.del(key);
   }
 
   static async clearAll() {
-    const keys = Object.keys(Peer.syncTimeouts);
+    const peers = await Peer.all();
 
-    for (let i = 0; i < keys.length; i += 1) {
-      clearInterval(Peer.syncTimeouts[keys[i]]);
+    const promises = [];
+    for (let i = 0; i < peers.length; i += 1) {
+      promises.push(Peer.clear(peers[i].getId()));
     }
 
-    await PeerDB.clear();
+    await Promise.all(promises);
   }
 
   static toSaveData(peer) {
@@ -728,7 +734,7 @@ Peer.Status = {
 };
 
 Peer.socketListeners = [];
-Peer.syncTimeouts = {};
+Peer.syncIntervals = {};
 
 Peer.RequestHeader = {
   Host: 'chacha3-host',
