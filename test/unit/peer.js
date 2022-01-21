@@ -634,7 +634,6 @@ test('init seed and reach out all peers', async (t) => {
 
   const results = await Peer.reachOutAll();
   t.ok(results.filter((success) => success).length > 0);
-
   t.ok((await Peer.all()).length > 0);
 
   await Peer.clearAll();
