@@ -611,6 +611,19 @@ test('request header keys have correct prefix', async (t) => {
   t.end();
 });
 
+test('seed peer list if required or insufficient peers', async (t) => {
+  const peer = mock.nodePeer();
+  await peer.save();
+
+  t.equal((await Peer.all()).length, 1);
+
+  const list = await Peer.seedOrList();
+  t.equal(list.length, 1 + Peer.SeedList.length);
+
+  await Peer.clearAll();
+  t.end();
+});
+
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
 //   // compatiblePeer.setVersion('0.0.2');

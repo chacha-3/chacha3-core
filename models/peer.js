@@ -117,7 +117,7 @@ class Peer {
     for (let i = 0; i < activePeers.length; i += 1) {
       promises.push(request(activePeers[i]));
     }
-  
+
     Peer.sendToListeners(merged);
 
     // TODO: Map response to peer
@@ -144,17 +144,26 @@ class Peer {
     await Promise.all(promises);
   }
 
+  static async seedOrList() {
+    let peers = await Peer.all();
+
+    // Configurable. Possibly hard code the number instead.
+    const seedThreshold = Peer.SeedList.length;
+
+    if (peers.length <= seedThreshold) {
+      await Peer.addSeed();
+      peers = await Peer.all();
+    }
+
+    return peers;
+  }
+
   static async reachOutAll() {
     if (Peer.localNonce === 0) {
       Peer.randomizeLocalNonce();
     }
 
-    let peers = await Peer.all();
-
-    if (peers.length < 10) {
-      await Peer.addSeed();
-      peers = await Peer.all();
-    }
+    const peers = Peer.seedOrList();
 
     debug(`Reaching out all: ${peers.length}`);
 
