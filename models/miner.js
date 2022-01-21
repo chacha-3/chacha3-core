@@ -46,31 +46,21 @@ class Miner {
   initMiningBlock() {
     const block = new Block();
     block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
+    block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
+
+    const latestBlock = Chain.mainChain.lastBlockHeader();
+    block.setPreviousHash(latestBlock.getHash());
+
+    const rejected = block.addPendingTransactions(this.pendingTransactions);
+    block.header.hash = block.header.computeHash();
 
     return block;
   }
-
-  // static miningWorker(header, timeout) {
-  //   return new Promise((resolve, reject) => {
-  //     this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout, } });
-  //     this.worker.on('message', (nonce) => {
-  //       console.log(`Receive nonce: ${nonce}`);
-  //       resolve(nonce);
-  //     });
-  //     this.worker.on('error', (error) => {
-  //       // reject(error);
-  //     });
-  //     this.worker.on('exit', (code) => {
-  //       resolve(-1);
-  //     });
-  //   })
-  // }
 
   miningWorker(header, timeout) {
     return new Promise((resolve, reject) => {
       this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
       this.worker.on('message', (nonce) => {
-        // console.log(`Receive nonce: ${nonce}`);
         resolve(nonce);
       });
       this.worker.on('error', (error) => {
@@ -90,7 +80,7 @@ class Miner {
     await waitUntil(() => !Chain.mainChain.isSynching());
   }
 
-  async start(cb = () => {}) {
+  async start() {
     assert(this.receiverAddress !== null);
     if (this.mining) {
       return false;
@@ -103,17 +93,7 @@ class Miner {
     while (this.mining) {
       await Miner.pauseIfChainSynching();
 
-      // const pendingList = await Transaction.loadPending();
       const block = this.initMiningBlock();
-      const rejected = block.addPendingTransactions(this.pendingTransactions);
-
-      block.header.setDifficulty(Chain.mainChain.getCurrentDifficulty());
-
-      const latestBlock = Chain.mainChain.lastBlockHeader();
-      block.setPreviousHash(latestBlock.getHash());
-
-      block.header.hash = block.header.computeHash();
-
       let foundNonce;
 
       try {
@@ -129,8 +109,6 @@ class Miner {
         await Miner.foundBlock(block);
       }
     }
-
-    // cb(false);
 
     return true;
   }
