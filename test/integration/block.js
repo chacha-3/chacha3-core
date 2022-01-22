@@ -86,6 +86,24 @@ test('list blocks in chain', async (t) => {
   t.end();
 });
 
+test('list blocks with filter', async (t) => {
+  const blockCount = 5;
+
+  const offset = 1;
+  const limit = 2;
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const options = { action: 'listBlocks', offset, limit };
+
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+  t.equal(data.length, 2);
+
+  await Chain.clearMain();
+
+  t.end();
+});
+
 test('unable to push invalid block', async (t) => {
   const blockCount = 3;
 

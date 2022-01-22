@@ -324,6 +324,30 @@ test('should change a wallet password', async (t) => {
   t.end();
 });
 
+test('should change password of the default selected', async (t) => {
+  const currentPassword = mock.randomPassword();
+  const newPassword = mock.randomPassword();
+
+  const [wallet] = await mock.createWallets(1, currentPassword);
+  await Wallet.setSelected(wallet.getAddress());
+
+  const { code, data } = await runAction({
+    action: 'changeWalletPassword',
+    currentPassword,
+    newPassword,
+  });
+
+  t.equal(code, SuccessCode);
+  t.equal(typeof data.privateKey, 'string');
+  t.equal(typeof data.publicKey, 'string');
+  t.equal(typeof data.address, 'string');
+
+  t.not(data.privateKey, wallet.getPrivateKeyHex());
+
+  await Wallet.clearAll();
+  t.end();
+});
+
 test('should not change a wallet password with incorrect password', async (t) => {
   const currentPassword = mock.randomPassword();
   const newPassword = mock.randomPassword();
@@ -339,6 +363,26 @@ test('should not change a wallet password with incorrect password', async (t) =>
   });
 
   t.equal(code, ErrorCode.InvalidArgument);
+
+  await Wallet.clearAll();
+  t.end();
+});
+
+test('should not change the password of a non-saved wallet', async (t) => {
+  const currentPassword = mock.randomPassword();
+  const newPassword = mock.randomPassword();
+
+  const unsavedWallet = new Wallet();
+  await unsavedWallet.generate();
+
+  const { code, data } = await runAction({
+    action: 'changeWalletPassword',
+    currentPassword,
+    newPassword,
+    address: unsavedWallet.getAddressEncoded(),
+  });
+
+  t.equal(code, ErrorCode.NotFound);
 
   await Wallet.clearAll();
   t.end();
