@@ -425,6 +425,7 @@ test('reach out to active peer', async (t) => {
   const peers = await Peer.all();
 
   // Total 4 peers, only 2 reachable
+  console.log(peers);
   t.equal(peers.filter((p) => p.getStatus() === Peer.Status.Active).length, 2);
   t.equal(peers.length, 4);
 
