@@ -414,7 +414,6 @@ test('add seed peers', async (t) => {
   t.end();
 });
 
-// FIXME: Test reach out
 test('reach out to active peer', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
   t.equal((await Peer.all()).length, 0);
@@ -425,7 +424,6 @@ test('reach out to active peer', async (t) => {
   const peers = await Peer.all();
 
   // Total 4 peers, only 2 reachable
-  console.log(peers);
   t.equal(peers.filter((p) => p.getStatus() === Peer.Status.Active).length, 2);
   t.equal(peers.length, 4);
 

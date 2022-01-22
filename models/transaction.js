@@ -6,7 +6,7 @@ const debug = require('debug')('transaction:model');
 const Wallet = require('./wallet');
 
 const {
-  serializeObject, serializeBuffer, deserializeBuffer, deserializeBigInt,
+  serializeObject, serializeBuffer, deserializeBuffer, deserializeBigInt, packObject, unpackObject,
 } = require('../util/serialize');
 
 const { TransactionDB, PendingTransactionDB } = require('../util/db');
@@ -267,12 +267,35 @@ class Transaction {
     assert(this.getId() != null);
     const key = this.getId();
 
-    const edited = this.toObject();
-    delete edited.id;
+    await TransactionDB.put(key, packObject(this.toSaveData()), { valueEncoding: 'binary' });
+  }
 
-    assert(edited.id === undefined);
+  toSaveData() {
+    const data = {
+      version: this.getVersion(),
+      senderKey: this.getSenderKey(),
+      receiverAddress: this.getReceiverAddress(),
+      amount: this.getAmount(),
+      signature: this.getSignature(),
+      time: this.getTime(),
+      type: this.getType(),
+      fee: this.getFee(),
+    };
 
-    await TransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
+    return data;
+  }
+
+  static fromSaveData(loaded) {
+    const {
+      senderKey, receiverAddress, amount, type,
+    } = loaded;
+
+    const transaction = new Transaction(senderKey, receiverAddress, amount, type);
+    transaction.setSignature(loaded.signature);
+    transaction.setTime(loaded.time);
+    transaction.setFee(loaded.fee);
+
+    return transaction;
   }
 
   static toArray(transactions) {
@@ -310,12 +333,14 @@ class Transaction {
     let loaded;
 
     try {
-      loaded = await TransactionDB.get(id, { valueEncoding: 'json' });
+      loaded = await TransactionDB.get(id, { valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
 
-    return Transaction.fromObject(loaded);
+    // console.log(unpackObject(loaded, ['amount']))
+    return Transaction.fromSaveData(unpackObject(loaded, ['amount', 'fee']));
+    // return Transaction.fromObject(unpackObject(loaded, ['amount', 'fee']));
   }
 
   static async loadPending() {
