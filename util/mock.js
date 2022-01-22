@@ -150,34 +150,34 @@ mock.chainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
 };
 
 // Alternative chain with different genesis block
-mock.altChainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
-  assert(numOfBlocks > 0);
-  assert(transactionsPerBlock > 0);
+// mock.altChainWithHeaders = async (numOfBlocks, transactionsPerBlock) => {
+//   assert(numOfBlocks > 0);
+//   assert(transactionsPerBlock > 0);
 
-  const minusGenesis = numOfBlocks - 1;
+//   const minusGenesis = numOfBlocks - 1;
 
-  const wallet = new Wallet();
-  await wallet.generate();
+//   const wallet = new Wallet();
+//   await wallet.generate();
 
-  const altGenesis = new Block();
-  altGenesis.addCoinbase(wallet.getAddress());
+//   const altGenesis = new Block();
+//   altGenesis.addCoinbase(wallet.getAddress());
 
-  await altGenesis.mine();
+//   await altGenesis.mine();
 
-  const chain = new Chain();
-  chain.addBlockHeader(altGenesis.getHeader());
+//   const chain = new Chain();
+//   chain.addBlockHeader(altGenesis.getHeader());
 
-  let previousBlock = Block.Genesis;
+//   let previousBlock = Block.Genesis;
 
-  for (let i = 0; i < minusGenesis; i += 1) {
-    const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock)
-    chain.addBlockHeader(block.getHeader());
+//   for (let i = 0; i < minusGenesis; i += 1) {
+//     const block = await mock.blockWithTransactions(transactionsPerBlock, previousBlock)
+//     chain.addBlockHeader(block.getHeader());
 
-    previousBlock = block;
-  }
+//     previousBlock = block;
+//   }
 
-  return chain;
-};
+//   return chain;
+// };
 
 mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
   assert(numOfBlocks > 0);
@@ -216,48 +216,48 @@ mock.chainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet)
 };
 
 // TODO:
-mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
-  assert(numOfBlocks > 0);
-  assert(transactionsPerBlock > 0);
+// mock.altChainWithBlocks = async (numOfBlocks, transactionsPerBlock, receiverWallet) => {
+//   assert(numOfBlocks > 0);
+//   assert(transactionsPerBlock > 0);
 
-  const minusGenesis = numOfBlocks - 1;
+//   const minusGenesis = numOfBlocks - 1;
 
-  const chain = new Chain();
-  await chain.loadBalances();
+//   const chain = new Chain();
+//   await chain.loadBalances();
 
-  const altGenesis = new Block();
+//   const altGenesis = new Block();
 
-  const wallet = new Wallet();
-  await wallet.generate();
+//   const wallet = new Wallet();
+//   await wallet.generate();
 
-  altGenesis.addCoinbase(wallet.getAddress());
+//   altGenesis.addCoinbase(wallet.getAddress());
 
-  await altGenesis.mine();
-  await altGenesis.save();
+//   await altGenesis.mine();
+//   await altGenesis.save();
 
-  let previousBlock = altGenesis;
+//   let previousBlock = altGenesis;
 
-  for (let i = 0; i < minusGenesis; i += 1) {
-    // No extra transactions for first block as sender has no balance to send yet
-    const numOfTransactions = (i > 0) ? transactionsPerBlock : 1;
+//   for (let i = 0; i < minusGenesis; i += 1) {
+//     // No extra transactions for first block as sender has no balance to send yet
+//     const numOfTransactions = (i > 0) ? transactionsPerBlock : 1;
 
-    // eslint-disable-next-line no-await-in-loop
-    const block = await mock.blockWithTransactions(
-      numOfTransactions,
-      previousBlock,
-      receiverWallet,
-      Chain.blockRewardAtIndex(i + 1),
-    );
+//     // eslint-disable-next-line no-await-in-loop
+//     const block = await mock.blockWithTransactions(
+//       numOfTransactions,
+//       previousBlock,
+//       receiverWallet,
+//       Chain.blockRewardAtIndex(i + 1),
+//     );
 
-    // eslint-disable-next-line no-await-in-loop
-    const result = await chain.confirmNewBlock(block);
-    assert(result);
+//     // eslint-disable-next-line no-await-in-loop
+//     const result = await chain.confirmNewBlock(block);
+//     assert(result);
 
-    previousBlock = block;
-  }
+//     previousBlock = block;
+//   }
 
-  return chain;
-};
+//   return chain;
+// };
 
 mock.transaction = async () => {
   const sender = new Wallet();

@@ -27,27 +27,27 @@ function build(opts = {}) {
       // this will handle http requests
       reply.send({ message: 'Welcome to ChaCha3!' });
     },
-    wsHandler: async (connection) => {
-      const id = crypto.randomBytes(4).toString('hex');
-      Peer.addSocketListener(id, connection);
+    // wsHandler: async (connection) => {
+    //   const id = crypto.randomBytes(4).toString('hex');
+    //   Peer.addSocketListener(id, connection);
 
-      const response = await runAction({ action: 'nodeInfo' }, 'none');
-      connection.socket.send(JSON.stringify(response));
+    //   const response = await runAction({ action: 'nodeInfo' }, 'none');
+    //   connection.socket.send(JSON.stringify(response));
 
-      connection.socket.on('message', (message) => {
-        let data;
+    //   connection.socket.on('message', (message) => {
+    //     let data;
 
-        try {
-          data = JSON.parse(message);
-        } catch (e) {
-          return;
-        }
+    //     try {
+    //       data = JSON.parse(message);
+    //     } catch (e) {
+    //       return;
+    //     }
 
-        const { listenActions } = data;
+    //     const { listenActions } = data;
 
-        Peer.setSocketListenActions(id, listenActions);
-      });
-    },
+    //     Peer.setSocketListenActions(id, listenActions);
+    //   });
+    // },
   });
 
   // RPC endpoint

@@ -88,22 +88,22 @@ class Peer {
     return peers.filter((peer) => peer.getStatus() === Peer.Status.Active);
   }
 
-  static sendToListeners(data) {
-    const socketIds = Object.keys(Peer.socketListeners);
+  // static sendToListeners(data) {
+  //   const socketIds = Object.keys(Peer.socketListeners);
 
-    for (let i = 0; i < socketIds.length; i += 1) {
-      const listenerInfo = Peer.socketListeners[socketIds];
+  //   for (let i = 0; i < socketIds.length; i += 1) {
+  //     const listenerInfo = Peer.socketListeners[socketIds];
 
-      const { connection, listenActions } = listenerInfo;
+  //     const { connection, listenActions } = listenerInfo;
 
-      const { action } = data;
-      assert(action !== null);
+  //     const { action } = data;
+  //     assert(action !== null);
 
-      if (listenActions.includes(action)) {
-        connection.socket.send(JSON.stringify(data));
-      }
-    }
-  }
+  //     if (listenActions.includes(action)) {
+  //       connection.socket.send(JSON.stringify(data));
+  //     }
+  //   }
+  // }
 
   static async broadcastAction(actionName, options) {
     const activePeers = await Peer.activeList();
@@ -121,7 +121,7 @@ class Peer {
       promises.push(request(activePeers[i]));
     }
 
-    Peer.sendToListeners(merged);
+    // Peer.sendToListeners(merged);
 
     // TODO: Map response to peer
     return Promise.all(promises);
@@ -708,19 +708,19 @@ class Peer {
     await PeerDB.put(key, data, { valueEncoding: 'json' });
   }
 
-  static addSocketListener(id, connection) {
-    Peer.socketListeners[id] = {
-      connection,
-      listenActions: [],
-    };
+  // static addSocketListener(id, connection) {
+  //   Peer.socketListeners[id] = {
+  //     connection,
+  //     listenActions: [],
+  //   };
 
-    console.log('add socket listener', Peer.socketListeners);
-  }
+  //   console.log('add socket listener', Peer.socketListeners);
+  // }
 
-  static setSocketListenActions(id, listenActions = []) {
-    console.log('set socket listener', id, Peer.socketListeners);
-    Peer.socketListeners[id].listenActions = listenActions;
-  }
+  // static setSocketListenActions(id, listenActions = []) {
+  //   console.log('set socket listener', id, Peer.socketListeners);
+  //   Peer.socketListeners[id].listenActions = listenActions;
+  // }
 }
 
 Peer.localNonce = 0;
@@ -734,7 +734,7 @@ Peer.Status = {
   Incompatible: 'incompatible',
 };
 
-Peer.socketListeners = [];
+// Peer.socketListeners = [];
 Peer.syncIntervals = {};
 
 Peer.RequestHeader = {

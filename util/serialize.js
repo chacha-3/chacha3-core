@@ -94,16 +94,14 @@ const packObject = (obj) => {
     if (value === undefined || value === null) {
       return;
     }
+
+    // No sub-object or sub-array
+    assert(!Array.isArray(value) && value.toString() !== '[object Object]');
+
     if (typeof (value) === 'number') {
       doc[key] = Long.fromNumber(value);
     } else if (typeof (value) === 'bigint') {
       doc[key] = packBigInt(value);
-    } else if (Array.isArray(value)) {
-      // value.forEach((v) => packObject(v));
-      assert(false); // No sub-array support
-    } else if (value.toString() === '[object Object]') { // Is a sub-object
-      // doc[key] = packObject(value);
-      assert(false); // No sub-array support
     }
   });
 
