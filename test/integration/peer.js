@@ -127,14 +127,9 @@ test('sync if request comes from a peer with longer chain', (t) => {
     };
 
     const post = bent(`http://127.0.0.1:${port}`, 'POST', 'json', 200, header);
+    await post('', { action: 'nodeInfo', nonce: randomNumberBetween(1, 1000000000) });
 
-    try {
-      await post('', { action: 'nodeInfo', nonce: randomNumberBetween(1, 1000000000) });
-    } catch (e) {
-      console.log(e);
-    }
-
-    // Not sure why has 1
+    // Has one peer before reaching out to sync with other peers
     t.equal((await Peer.all()).length, 1);
 
     // Wait for sync before clearing peers
