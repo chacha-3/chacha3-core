@@ -186,6 +186,12 @@ class Peer {
 
   static addSyncInterval(peer) {
     const key = serializeBuffer(peer.getId());
+
+    // May not need
+    if (Peer.syncIntervals[key]) {
+      return;
+    }
+
     Peer.syncIntervals[key] = setInterval(() => peer.syncPeerList(), 60000); // TODO: Tune timeout
   }
 
@@ -278,14 +284,13 @@ class Peer {
 
     try {
       const response = await this.callAction('nodeInfo', { nonce: Peer.localNonce });
-
       data = response.data;
     } catch (e) {
-      console.log('fail');
       this.reachOutFail();
       return false;
     }
 
+    console.log('reach out success', this);
     const {
       version, chainLength, chainWork, networkId, nonce,
     } = data;
@@ -340,13 +345,12 @@ class Peer {
   }
 
   retryReachOut(inMillis) {
-    // if (isTestEnvironment) {
-    //   return;
-    // }
+    if (isTestEnvironment) {
+      return;
+    }
 
     const timeout = setTimeout(() => this.reachOut(), inMillis);
     Peer.retryTimeouts.push(timeout);
-    console.log(Peer.retryTimeouts)
   }
 
   static requestHeaders() {
@@ -625,6 +629,7 @@ class Peer {
 
   static async clearAll() {
     const peers = await Peer.all();
+    console.log(`cleared: ${peers.length}`);
 
     const promises = [];
     for (let i = 0; i < peers.length; i += 1) {
