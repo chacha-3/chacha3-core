@@ -15,6 +15,7 @@ const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
+const { headers } = require('../util/peer-response');
 
 class Chain {
   constructor() {
@@ -603,6 +604,14 @@ class Chain {
     };
 
     return data;
+  }
+
+  clone(start = undefined, end = undefined) {
+    const obj = this.toObject();
+    obj.blockHeaders = obj.blockHeaders.slice(start, end);
+
+    const chain = Chain.fromObject(obj);
+    return chain;
   }
 
   static fromObject(obj) {

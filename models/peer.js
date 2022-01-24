@@ -512,7 +512,7 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const pulledChain = await this.fetchChain();
-    console.log(pulledChain.getLength())
+    console.log(pulledChain.getLength());
 
     if (!pulledChain.verifyHeaders()) {
       return false;
@@ -546,12 +546,17 @@ class Peer {
     // assert(startIndex < pulledChain.length - 1);
 
     // TODO: Modularize
-    const data = Chain.mainChain.toObject();
-    data.blockHeaders = data.blockHeaders.slice(0, startIndex);
+    // const data = Chain.mainChain.toObject();
+    // data.blockHeaders = data.blockHeaders.slice(0, startIndex);
 
-    // Create a temp chain that ends at diverge index
-    const tempChain = Chain.fromObject(data);
+    // // Create a temp chain that ends at diverge index
+    // const tempChain = Chain.fromObject(data);
+    // await tempChain.loadBalances();
+
+    const tempChain = Chain.mainChain.clone(0, startIndex);
     await tempChain.loadBalances();
+
+    // console.log(tempChain)
 
     // Copy and slice main chain
     for (let i = startIndex; i < pulledChain.getLength(); i += 1) {

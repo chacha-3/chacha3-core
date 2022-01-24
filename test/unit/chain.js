@@ -847,3 +847,42 @@ test('header verification fail when timestamp is not sequential (overlap)', asyn
   t.equal(chain.verifyHeaders(), false);
   t.end();
 });
+
+test('clone a loaded chain', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(5, 3);
+  t.equal(Chain.mainChain.isVerified(), true);
+
+  const clone = Chain.mainChain.clone();
+  t.equal(clone.isVerified(), false);
+
+  await clone.loadBalances();
+  t.equal(clone.isVerified(), true);
+
+  t.equal(clone.getLength(), Chain.mainChain.getLength());
+
+  t.equal(
+    Object.keys(Chain.mainChain.getBlockHeaders()).length,
+    Object.keys(clone.getBlockHeaders()).length,
+  );
+
+  await Chain.clearMain();
+
+  t.end();
+});
+
+test('clone part of chain', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(5, 3);
+  t.equal(Chain.mainChain.isVerified(), true);
+
+  const clone = Chain.mainChain.clone(0, 3);
+  t.equal(clone.isVerified(), false);
+
+  await clone.loadBalances();
+  t.equal(clone.isVerified(), true);
+
+  t.equal(clone.getLength(), 3);
+
+  await Chain.clearMain();
+
+  t.end();
+});
