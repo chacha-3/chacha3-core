@@ -103,37 +103,49 @@ test('remove a saved peer', async (t) => {
   t.end();
 });
 
-// test('sync if request comes from a peer with longer chain', (t) => {
-//   const app = build();
+test('sync if request comes from a peer with longer chain', (t) => {
+  const app = build();
 
-//   t.teardown(() => app.close());
+  t.teardown(() => app.close());
 
-//   app.listen(0, async (err) => {
-//     t.error(err);
+  app.listen(0, async (err) => {
+    t.error(err);
 
-//     await Peer.clearAll();
-//     t.equal((await Peer.all()).length, 0);
-//     t.equal(Chain.mainChain.getLength(), 1);
-//     t.equal(Chain.mainChain.getTotalWork(), 1);
+    t.equal((await Peer.all()).length, 0);
+    t.equal(Chain.mainChain.getLength(), 1);
+    t.equal(Chain.mainChain.getTotalWork(), 1);
 
-//     const { port } = app.server.address();
+    const { port } = app.server.address();
 
-//     const post = bent(`http://127.0.0.1:${port}`, 'POST', 'json', 200, {
-//       [Peer.RequestHeader.Host]: HOST_127_0_0_100,
-//       [Peer.RequestHeader.Port]: PORT_7000,
-//       [Peer.RequestHeader.ChainLength]: 9,
-//       [Peer.RequestHeader.ChainWork]: 9,
-//       // [Peer.RequestHeader.Version]: version, // TODO:
-//     });
+    // Header of the request from the longer peer
+    const header = {
+      [Peer.RequestHeader.Host]: HOST_127_0_0_100,
+      [Peer.RequestHeader.Port]: PORT_7000,
+      [Peer.RequestHeader.ChainLength]: 9,
+      [Peer.RequestHeader.ChainWork]: 9,
+      // [Peer.RequestHeader.Version]: version, // TODO:
+    };
 
-//     const response = await post('', { action: 'nodeInfo', nonce: randomNumberBetween(1, 1000000000) });
+    const post = bent(`http://127.0.0.1:${port}`, 'POST', 'json', 200, header);
 
-//     await waitUntil(() => Chain.mainChain.getLength() > 1);
+    try {
+      await post('', { action: 'nodeInfo', nonce: randomNumberBetween(1, 1000000000) });
+    } catch (e) {
+      console.log(e);
+    }
 
-//     console.log('waited');
+    // Not sure why has 1
+    t.equal((await Peer.all()).length, 1);
 
-//     await Peer.clearAll();
+    // Wait for sync before clearing peers
+    await waitUntil(async () => (await Peer.all()).length > 1);
+    await waitUntil(() => Chain.mainChain.getLength() > 1);
 
-//     t.end();
-//   });
-// });
+    t.equal(Chain.mainChain.getLength(), 8);
+
+    await Peer.clearAll();
+    await Chain.clearMain();
+
+    t.end();
+  });
+});

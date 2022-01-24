@@ -512,7 +512,6 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const pulledChain = await this.fetchChain();
-    console.log(pulledChain.getLength());
 
     if (!pulledChain.verifyHeaders()) {
       return false;

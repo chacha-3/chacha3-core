@@ -362,6 +362,10 @@ class Chain {
   // Verify and load balances
   // Note: Modifies balance. Destructive
   async loadBalances() {
+    // FIXME: Quickfix for genesis block not loaded.
+    // Possible deleted somewhere.
+    await Block.Genesis.save();
+
     // TODO: Assert not block balances set
     assert(!this.isVerified());
     assert(this.verifyGenesisBlock());
@@ -375,7 +379,6 @@ class Chain {
     }
 
     // TODO: Verify block rewards
-
     this.setVerified(true);
     // return true;
   }
