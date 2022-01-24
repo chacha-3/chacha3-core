@@ -282,7 +282,7 @@ test('sync with longer peer chain', async (t) => {
   // TODO: Make result be the new chain length
   const result = await peer.syncChain();
   t.equal(result, true);
-  t.equal(Chain.mainChain.getLength(), 3);
+  t.equal(Chain.mainChain.getLength(), 8);
 
   // TODO: Clear single peer
   await Peer.clearAll();

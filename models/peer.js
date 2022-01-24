@@ -185,6 +185,10 @@ class Peer {
   }
 
   static addSyncInterval(peer) {
+    if (isTestEnvironment) {
+      return;
+    }
+
     const key = serializeBuffer(peer.getId());
 
     // May not need
@@ -290,7 +294,6 @@ class Peer {
       return false;
     }
 
-    console.log('reach out success', this);
     const {
       version, chainLength, chainWork, networkId, nonce,
     } = data;
@@ -509,6 +512,7 @@ class Peer {
     Chain.mainChain.setSynching(true);
 
     const pulledChain = await this.fetchChain();
+    console.log(pulledChain.getLength())
 
     if (!pulledChain.verifyHeaders()) {
       return false;
@@ -629,7 +633,6 @@ class Peer {
 
   static async clearAll() {
     const peers = await Peer.all();
-    console.log(`cleared: ${peers.length}`);
 
     const promises = [];
     for (let i = 0; i < peers.length; i += 1) {
@@ -683,11 +686,11 @@ class Peer {
 
     if (!peer) {
       peer = new Peer(host, port);
-      peer.reachOut();
+      await peer.reachOut();
 
       created = true;
     } else {
-      peer.reachOutIfInactive();
+      await peer.reachOutIfInactive();
     }
 
     return [peer, created];

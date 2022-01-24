@@ -29,19 +29,19 @@ const discoverAndSync = async (request) => {
   }
 
   const [peer] = await Peer.loadOrDiscover(host, port);
-  // peer.setTotalWork(chainWork);
-  // peer.setChainLength(chainLength);
+  peer.setTotalWork(chainWork);
+  peer.setChainLength(chainLength);
 
-  // const syncActions = ['nodeInfo', 'pushBlock'];
+  const syncActions = ['nodeInfo', 'pushBlock'];
 
-  // const { action } = request.body;
+  const { action } = request.body;
 
-  // if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
-  //   debug('Sync with chain significantly ahead');
+  if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
+    debug('Sync with chain significantly ahead');
 
-  //   peer.syncChain();
-  //   // TODO: Add claimed work to verify is correct
-  // }
+    peer.syncChain();
+    // TODO: Add claimed work to verify is correct
+  }
 };
 
 function build(opts = {}) {

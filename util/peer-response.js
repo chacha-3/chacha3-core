@@ -183,7 +183,7 @@ const responseList = [
     action: 'pullChain',
     response: {
       data: {
-        blockHeaders: headers.slice(0, 3),
+        blockHeaders: headers.slice(0, 8),
       },
       message: SuccessCode,
     },
@@ -200,6 +200,7 @@ const responseList = [
       message: SuccessCode,
     },
   },
+  // TODO: Shorted this (blockInfo)
   {
     host: HOST_ANY,
     port: PORT_7000,
@@ -233,6 +234,66 @@ const responseList = [
     },
     response: {
       data: blockData[2],
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_ANY,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: headers[3].hash,
+    },
+    response: {
+      data: blockData[3],
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_ANY,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: headers[4].hash,
+    },
+    response: {
+      data: blockData[4],
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_ANY,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: headers[5].hash,
+    },
+    response: {
+      data: blockData[5],
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_ANY,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: headers[6].hash,
+    },
+    response: {
+      data: blockData[6],
+      code: SuccessCode,
+    },
+  },
+  {
+    host: HOST_ANY,
+    port: PORT_7000,
+    action: 'blockInfo',
+    options: {
+      hash: headers[7].hash,
+    },
+    response: {
+      data: blockData[7],
       code: SuccessCode,
     },
   },
