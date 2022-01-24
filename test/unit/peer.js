@@ -269,9 +269,6 @@ test('send request to another peer', async (t) => {
 //   t.end();
 // });
 
-// FIXME: Transaction verification failed because
-// Transaction 0x133aa8f8877934bbd5d8d2f68bc41ebcc5d249f49c05383aebcff067b17d46d5
-// Already saved
 test('sync with longer peer chain', async (t) => {
   // Add block length 1 as default
   Chain.mainChain = await mock.chainWithBlocks(1, 1);

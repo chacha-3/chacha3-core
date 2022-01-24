@@ -14,6 +14,37 @@ const errorHandler = (error, request, reply) => {
   reply.send(errorResponse(ErrorCode.Internal, error.message));
 };
 
+const isReachingOutSelf = (options) => {
+  const { action, nonce } = options;
+  return action === 'nodeInfo' && nonce === Peer.localNonce;
+};
+
+const discoverAndSync = async (request) => {
+  const {
+    host, port, chainWork, chainLength,
+  } = Peer.parseRequestHeaders(request);
+
+  // Non-public node. Skip the discovery
+  if (!host || host === '' || isReachingOutSelf(request.body)) {
+    return;
+  }
+
+  const [peer] = await Peer.loadOrDiscover(host, port);
+  peer.setTotalWork(chainWork);
+  peer.setChainLength(chainLength);
+
+  const syncActions = ['nodeInfo', 'pushBlock'];
+
+  const { action } = request.body;
+
+  if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
+    debug('Sync with chain significantly ahead');
+
+    peer.syncChain();
+    // TODO: Add claimed work to verify is correct
+  }
+};
+
 function build(opts = {}) {
   const app = fastify(opts);
 
@@ -53,39 +84,11 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request) => {
-      if (isTestEnvironment) {
-        return;
-      }
+      // if (isTestEnvironment) {
+      //   return;
+      // }
 
-      // TODO: Check if version header is required
-      const {
-        host, port, chainWork, chainLength,
-      } = Peer.parseRequestHeaders(request);
-
-      // TODO: More throughout check if request is from ChaCha client
-      if (!port) {
-        return;
-      }
-
-      const { action, nonce } = request.body;
-      const reachOutSelf = action === 'nodeInfo' && nonce === Peer.localNonce;
-
-      if (reachOutSelf) {
-        return;
-      }
-
-      const [peer] = await Peer.loadOrDiscover(host || request.ip, port);
-      peer.setTotalWork(chainWork);
-      peer.setChainLength(chainLength);
-
-      const syncActions = ['nodeInfo', 'pushBlock'];
-
-      if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
-        debug('Sync with chain significantly ahead');
-
-        peer.syncChain();
-        // TODO: Add claimed work to verify is correct
-      }
+      discoverAndSync(request);
     },
     handler: async (request, reply) => {
       reply.type('application/json');

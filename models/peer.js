@@ -538,8 +538,9 @@ class Peer {
     // TODO: Modularize
     const data = Chain.mainChain.toObject();
     data.blockHeaders = data.blockHeaders.slice(0, startIndex);
-    const tempChain = Chain.fromObject(data);
 
+    // Create a temp chain that ends at diverge index
+    const tempChain = Chain.fromObject(data);
     await tempChain.loadBalances();
 
     // Copy and slice main chain
@@ -564,7 +565,8 @@ class Peer {
     await Chain.mainChain.clearBlocks(startIndex);
 
     // Override main chain
-    await pulledChain.save();
+    Chain.mainChain = tempChain;
+    await tempChain.save();
 
     return true;
   }
@@ -732,6 +734,12 @@ Peer.Status = {
   Unreachable: 'unreachable',
   Active: 'active',
   Incompatible: 'incompatible',
+};
+
+Peer.NodeType = {
+  Full: 'full',
+  Light: 'light',
+  Unknown: 'unknown',
 };
 
 // Peer.socketListeners = [];
