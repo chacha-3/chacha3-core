@@ -8,15 +8,12 @@ const Peer = require('./models/peer');
 const { runAction } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
+const { isReachingOutSelf } = require('./util/sync');
+
 const { isTestEnvironment } = require('./util/env');
 
 const errorHandler = (error, request, reply) => {
   reply.send(errorResponse(ErrorCode.Internal, error.message));
-};
-
-const isReachingOutSelf = (options) => {
-  const { action, nonce } = options;
-  return action === 'nodeInfo' && nonce === Peer.localNonce;
 };
 
 const discoverAndSync = async (request) => {
@@ -25,24 +22,26 @@ const discoverAndSync = async (request) => {
   } = Peer.parseRequestHeaders(request);
 
   // Non-public node. Skip the discovery
-  if (!host || host === '' || isReachingOutSelf(request.body)) {
+  const publicNode = host && host !== '';
+
+  if (!publicNode || Peer.reachingOutSelf(request.body)) {
     return;
   }
 
   const [peer] = await Peer.loadOrDiscover(host, port);
-  peer.setTotalWork(chainWork);
-  peer.setChainLength(chainLength);
+  // peer.setTotalWork(chainWork);
+  // peer.setChainLength(chainLength);
 
-  const syncActions = ['nodeInfo', 'pushBlock'];
+  // const syncActions = ['nodeInfo', 'pushBlock'];
 
-  const { action } = request.body;
+  // const { action } = request.body;
 
-  if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
-    debug('Sync with chain significantly ahead');
+  // if (syncActions.includes(action) && peer.isSignificantlyAhead()) {
+  //   debug('Sync with chain significantly ahead');
 
-    peer.syncChain();
-    // TODO: Add claimed work to verify is correct
-  }
+  //   peer.syncChain();
+  //   // TODO: Add claimed work to verify is correct
+  // }
 };
 
 function build(opts = {}) {

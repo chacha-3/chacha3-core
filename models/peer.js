@@ -281,6 +281,7 @@ class Peer {
 
       data = response.data;
     } catch (e) {
+      console.log('fail');
       this.reachOutFail();
       return false;
     }
@@ -339,17 +340,13 @@ class Peer {
   }
 
   retryReachOut(inMillis) {
-    if (isTestEnvironment) {
-      return;
-    }
+    // if (isTestEnvironment) {
+    //   return;
+    // }
 
-    setTimeout(() => this.reachOut(), inMillis);
-  }
-
-  startSyncPoll() {
-    setTimeout(() => {
-
-    }, 60000);
+    const timeout = setTimeout(() => this.reachOut(), inMillis);
+    Peer.retryTimeouts.push(timeout);
+    console.log(Peer.retryTimeouts)
   }
 
   static requestHeaders() {
@@ -388,6 +385,11 @@ class Peer {
 
   //   return true;
   // }
+
+  static reachingOutSelf(options) {
+    const { action, nonce } = options;
+    return action === 'nodeInfo' && nonce === Peer.localNonce;
+  }
 
   static areSame(peer1, peer2) {
     if (peer1.getHost() !== peer2.getHost()) {
@@ -629,6 +631,12 @@ class Peer {
       promises.push(Peer.clear(peers[i].getId()));
     }
 
+    for (let j = 0; j < Peer.retryTimeouts.length; j += 1) {
+      clearTimeout(Peer.retryTimeouts[j]);
+    }
+
+    Peer.retryTimeouts = [];
+
     await Promise.all(promises);
   }
 
@@ -744,6 +752,9 @@ Peer.NodeType = {
 
 // Peer.socketListeners = [];
 Peer.syncIntervals = {};
+
+// TODO: Perhaps use key instead like syncIntervals
+Peer.retryTimeouts = [];
 
 Peer.RequestHeader = {
   Host: 'chacha3-host',

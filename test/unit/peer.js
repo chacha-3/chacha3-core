@@ -18,6 +18,7 @@ const {
 
 const blockData = require('../../util/mock/data/blocks.json');
 const Transaction = require('../../models/transaction');
+const { randomNumberBetween } = require('../../util/math');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -652,6 +653,22 @@ test('init seed and reach out all peers', async (t) => {
   t.ok((await Peer.all()).length > 0);
 
   await Peer.clearAll();
+  t.end();
+});
+
+test('determine that request is from peer reaching out to self', async (t) => {
+  const incorrectNonce = randomNumberBetween(1, 1000000000);
+
+  const options1 = { action: 'nodeInfo', nonce: Peer.localNonce };
+  const options2 = { action: 'nodeInfo', nonce: incorrectNonce };
+  const options3 = { action: 'listWallets', nonce: Peer.localNonce };
+  const options4 = { action: 'listWallets', nonce: incorrectNonce };
+
+  t.equal(Peer.reachingOutSelf(options1), true);
+  t.equal(Peer.reachingOutSelf(options2), false);
+  t.equal(Peer.reachingOutSelf(options3), false);
+  t.equal(Peer.reachingOutSelf(options4), false);
+
   t.end();
 });
 

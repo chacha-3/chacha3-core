@@ -24,7 +24,9 @@ const dbNameMap = {
   [Env.Testing]: '.localdata',
 };
 
+// TODO: Set default environment / check env is set
 const dbName = dbNameMap[process.env.NODE_ENV];
+
 const DB = level(dbName);
 
 const WalletDB = sub(DB, 'wallet');
