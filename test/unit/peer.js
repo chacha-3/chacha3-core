@@ -44,14 +44,10 @@ test('set peer valid port', async (t) => {
   t.end();
 });
 
-// // TODO:
-// // test('set peer invalid port', async (t) => {
-// //   const peer = new Peer('127.0.0.1', 0);
-// //   t.err(peer.setPort(1000));
-// //   // t.equal(peer.getPort(), 5000);
-
-// //   t.end();
-// // });
+test('set peer invalid port', async (t) => {
+  t.throws(() => new Peer('127.0.0.1', 10000000));
+  t.end();
+});
 
 test('peer have correct key', (t) => {
   const peer = new Peer('192.168.1.1', 8888);

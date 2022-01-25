@@ -6,7 +6,7 @@ const Chain = require('../../models/chain');
 const mock = require('../../util/mock');
 
 const { runAction } = require('../../actions');
-const { SuccessCode } = require('../../util/rpc');
+const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const build = require('../../app');
 const { HOST_127_0_0_100, PORT_7000 } = require('../../util/peer-response');
