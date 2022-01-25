@@ -13,7 +13,7 @@ const isBufferString = (value) => {
     return false;
   }
 
-  if (value.substr(0, 2) !== '0x') {
+  if (value.slice(0, 2) !== '0x') {
     return false;
   }
 
@@ -80,6 +80,36 @@ const packBigInt = (bigint) => {
 
 const unpackBigInt = (decimal128) => BigInt(`0x${decimal128.bytes.toString('hex')}`);
 
+// Pack array of buffers to a single buffer
+const packIndexArray = (buffers) => {
+  // const count = Buffer.allocUnsafe(2);
+  // count.writeUInt16BE(buffers.length);
+
+  const arr = [];
+
+  for (let i = 0; i < buffers.length; i += 1) {
+    const index = buffers[i];
+    assert(index.length === 32);
+
+    arr.push(buffers[i]);
+  }
+
+  return Buffer.concat(arr);
+};
+
+const unpackIndexArray = (bufferData, indexSize = 32) => {
+  // const count = Buffer.allocUnsafe(2);
+  // count.readUInt16BE(bufferData.slice(0, 2));
+
+  const arr = [];
+
+  for (let i = 0; i < bufferData.length; i += indexSize) {
+    arr.push(bufferData.slice(i, i + indexSize));
+  }
+
+  return arr;
+};
+
 const unpackBuffer = (bytes) => Buffer.from(bytes.toString());
 
 const packObject = (obj) => {
@@ -137,4 +167,6 @@ module.exports = {
   unpackBuffer,
   packObject,
   unpackObject,
+  packIndexArray,
+  unpackIndexArray,
 };

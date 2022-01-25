@@ -1,5 +1,7 @@
 const { test } = require('tap');
+const crypto = require('crypto');
 const { performance } = require('perf_hooks');
+const BSON = require('bson');
 
 const { runningManualTest } = require('../../util/env');
 
@@ -13,6 +15,8 @@ const {
   unpackBigInt,
   packObject,
   unpackObject,
+  packIndexArray,
+  unpackIndexArray,
 } = require('../../util/serialize');
 
 const mock = require('../../util/mock');
@@ -21,6 +25,7 @@ const { config, Env } = require('../../util/env');
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
 const { waitUntil } = require('../../util/sync');
+const { unpack } = require('jsonpack');
 
 // test('detect running unit test', (t) => {
 //   const argvTest = [
@@ -156,9 +161,29 @@ test('pack and unpack object', (t) => {
   t.equal(_v, 1);
   t.equal(a, 1);
   t.equal(b, 'value');
+  t.ok(Buffer.isBuffer(c));
   t.ok(c, c.equals(Buffer.from([0x00, 0x02])));
   t.equal(d, null);
   t.equal(e, 20000000000000000000000n);
+
+  t.end();
+});
+
+test('pack and unpack array of 32 byte buffers', (t) => {
+  const indexSize = 32;
+
+  const source = [
+    crypto.randomBytes(indexSize),
+    crypto.randomBytes(indexSize),
+  ];
+
+  const data = packIndexArray(source);
+  t.equal(data.length, 64);
+
+  const unpacked = unpackIndexArray(data, indexSize);
+
+  t.ok(unpacked[0].equals(source[0]));
+  t.ok(unpacked[1].equals(source[1]));
 
   t.end();
 });

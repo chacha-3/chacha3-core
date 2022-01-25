@@ -344,9 +344,7 @@ class Transaction {
       return null;
     }
 
-    // console.log(unpackObject(loaded, ['amount']))
     return Transaction.fromSaveData(unpackObject(loaded, ['amount', 'fee']));
-    // return Transaction.fromObject(unpackObject(loaded, ['amount', 'fee']));
   }
 
   static async loadPending() {
