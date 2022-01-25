@@ -329,7 +329,12 @@ class Chain {
   }
 
   setBlockHeaders(headers) {
-    this.blockHeaders = headers;
+    assert(headers.length > 0);
+    assert(headers[0].getHash().equals(Block.Genesis.getHeader().getHash()));
+
+    for (let i = 1; i < headers.length; i += 1) {
+      this.addBlockHeader(headers[i]);
+    }
   }
 
   verifyGenesisBlock() {
@@ -485,9 +490,6 @@ class Chain {
     data.blockHashes = unpackIndexArray(data.blockHashes, 32);
     const headers = await Chain.loadHeaders(data.blockHashes);
 
-    // TODO: Revise this
-    // Overrides genesis only chain
-    // Perhaps use addBlockHeader instead of set blocks, for verification
     if (headers.length > 0) {
       chain.setBlockHeaders(headers);
     }
@@ -513,7 +515,8 @@ class Chain {
 
     await Promise.all(promises);
 
-    this.setBlockHeaders([]);
+    // TODO: Revise. Should not have empty block header
+    this.blockHeaders = [];
     this.accounts = {};
 
     this.synching = false;
