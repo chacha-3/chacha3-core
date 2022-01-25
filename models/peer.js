@@ -13,7 +13,7 @@ const { PeerDB } = require('../util/db');
 const { config, isTestEnvironment } = require('../util/env');
 
 const { randomNumberBetween } = require('../util/math');
-const { serializeBuffer } = require('../util/serialize');
+const { serializeBuffer, packObject, unpackObject } = require('../util/serialize');
 
 const { sendTestRequest, HOST_127_0_0_100, PORT_7000 } = require('../util/peer-response');
 
@@ -63,7 +63,7 @@ class Peer {
       const values = [];
 
       PeerDB
-        .createValueStream({ valueEncoding: 'json' })
+        .createValueStream({ valueEncoding: 'binary' })
         .on('data', async (data) => {
           values.push(data);
         })
@@ -73,7 +73,7 @@ class Peer {
     const values = await readValues();
 
     const loadPeer = (data) => new Promise((resolve) => {
-      const peer = Peer.fromSaveData(data);
+      const peer = Peer.fromSaveData(unpackObject(data));
       resolve(peer);
     });
 
@@ -685,29 +685,19 @@ class Peer {
 
     try {
       const key = Peer.generateKey(host, port);
-      data = await PeerDB.get(key, { keyEncoding: 'binary', valueEncoding: 'json' });
+      data = await PeerDB.get(key, { keyEncoding: 'binary', valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
 
-    return Peer.fromSaveData(data);
+    return Peer.fromSaveData(unpackObject(data));
   }
-
-  // static async checkExist(key) {
-  //   try {
-  //     await PeerDB.get(key, { valueEncoding: 'json' });
-  //   } catch (e) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
 
   async save() {
     const key = this.getId();
     const data = Peer.toSaveData(this);
 
-    await PeerDB.put(key, data, { keyEncoding: 'binary', valueEncoding: 'json' });
+    await PeerDB.put(key, packObject(data), { keyEncoding: 'binary', valueEncoding: 'binary' });
   }
 
   // static addSocketListener(id, connection) {

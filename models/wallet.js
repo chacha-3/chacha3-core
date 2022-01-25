@@ -7,7 +7,7 @@ const XXHash = require('xxhash');
 
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer, unpackObject, packObject } = require('../util/serialize');
 const { isTestEnvironment } = require('../util/env');
 
 // const addressPrefix = '420_';
@@ -29,7 +29,7 @@ class Wallet {
       const values = [];
 
       WalletDB
-        .createValueStream({ valueEncoding: 'json' })
+        .createValueStream({ valueEncoding: 'binary' })
         .on('data', async (data) => {
           values.push(data);
         })
@@ -40,7 +40,7 @@ class Wallet {
 
     const loadWallet = (data) => new Promise((resolve) => {
       const wallet = new Wallet();
-      wallet.fromSaveData(data);
+      wallet.fromSaveData(unpackObject(data));
 
       resolve(wallet);
     });
@@ -282,9 +282,9 @@ class Wallet {
   }
 
   static async save(wallet) {
-    await WalletDB.put(wallet.getAddress(), wallet.toSaveData(), {
+    await WalletDB.put(wallet.getAddress(), packObject(wallet.toSaveData()), {
       keyEncoding: 'binary',
-      valueEncoding: 'json',
+      valueEncoding: 'binary',
     });
   }
 
@@ -292,13 +292,13 @@ class Wallet {
     let data;
 
     try {
-      data = await WalletDB.get(address, { keyEncoding: 'binary', valueEncoding: 'json' });
+      data = await WalletDB.get(address, { keyEncoding: 'binary', valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
 
     const wallet = new Wallet();
-    wallet.fromSaveData(data);
+    wallet.fromSaveData(unpackObject(data));
 
     return wallet;
   }

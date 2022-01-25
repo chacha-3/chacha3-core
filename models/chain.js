@@ -9,7 +9,7 @@ const { Testing, Development, Production } = Env;
 const {
   DB,
 } = require('../util/db');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer, packIndexArray, packObject, unpackObject, unpackIndexArray } = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
 
@@ -468,10 +468,10 @@ class Chain {
   async save() {
     const key = 'chain';
     const data = {
-      blockHashes: this.getBlockHeaders().map((header) => serializeBuffer(header.getHash())),
+      blockHashes: packIndexArray(this.getBlockHeaders().map((header) => header.getHash())),
     };
 
-    await DB.put(key, data, { valueEncoding: 'json' });
+    await DB.put(key, packObject(data), { valueEncoding: 'binary' });
 
     Chain.mainChain = this;
     return { key, data };
@@ -492,18 +492,17 @@ class Chain {
 
   static async load() {
     let data;
-
     const chain = new Chain();
-    let blockHashes = [];
 
     try {
-      data = await DB.get('chain', { valueEncoding: 'json' });
-      blockHashes = data.blockHashes.map((hexKey) => deserializeBuffer(hexKey));
+      const loaded = await DB.get('chain', { valueEncoding: 'binary' });
+      data = unpackObject(loaded);
     } catch (e) {
-      // Do nothing. Leave array empty
+      return chain;
     }
 
-    const headers = await Chain.loadHeaders(blockHashes);
+    data.blockHashes = unpackIndexArray(data.blockHashes, 32);
+    const headers = await Chain.loadHeaders(data.blockHashes);
 
     // TODO: Revise this
     // Overrides genesis only chain

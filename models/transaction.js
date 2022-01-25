@@ -257,9 +257,9 @@ class Transaction {
     }
 
     debug('Pending transaction is not prior transaction. Continue save');
-    await PendingTransactionDB.put(key, this.toObject(), {
+    await PendingTransactionDB.put(key, packObject(this.toSaveData()), {
       keyEncoding: 'binary',
-      valueEncoding: 'json',
+      valueEncoding: 'binary',
     });
 
     debug(`Saved pending transaction: ${serializeBuffer(key)}`);
@@ -353,7 +353,7 @@ class Transaction {
       const values = [];
 
       PendingTransactionDB
-        .createValueStream({ keyEncoding: 'binary', valueEncoding: 'json' })
+        .createValueStream({ valueEncoding: 'binary' })
         .on('data', async (data) => {
           values.push(data);
         })
@@ -363,7 +363,7 @@ class Transaction {
     const values = await readValues();
 
     const loadTransaction = (data) => new Promise((resolve) => {
-      const transaction = Transaction.fromObject(data);
+      const transaction = Transaction.fromSaveData(unpackObject(data, ['amount', 'fee']));
       resolve(transaction);
     });
 
