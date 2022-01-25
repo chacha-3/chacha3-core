@@ -8,7 +8,7 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB, TransactionDB } = require('../util/db');
-const { serializeBuffer, deserializeBuffer } = require('../util/serialize');
+const { serializeBuffer, deserializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject } = require('../util/serialize');
 const Wallet = require('./wallet');
 
 class Block {
@@ -410,18 +410,20 @@ class Block {
     await header.save();
 
     const transactionIds = await this.saveTransactions();
+
     const data = {
-      transactionIndexes: transactionIds.map((id) => serializeBuffer(id)),
+      transactionIndexes: packIndexArray(transactionIds),
     };
 
-    await BlockDB.put(key, data, { keyEncoding: 'binary', valueEncoding: 'json' });
+    await BlockDB.put(key, packObject(data), { keyEncoding: 'binary', valueEncoding: 'binary' });
   }
 
   static async load(hash) {
     let data;
 
     try {
-      data = await BlockDB.get(hash, { keyEncoding: 'binary', valueEncoding: 'json' });
+      const loaded = await BlockDB.get(hash, { keyEncoding: 'binary', valueEncoding: 'binary' });
+      data = unpackObject(loaded);
     } catch (e) {
       return null;
     }
@@ -431,7 +433,7 @@ class Block {
     const header = await Header.load(hash);
     block.setHeader(header);
 
-    const indexes = data.transactionIndexes.map((hexKey) => deserializeBuffer(hexKey));
+    const indexes = unpackIndexArray(data.transactionIndexes, 32);
     const transactions = await Block.loadTransactions(indexes);
 
     if (transactions.length > 0) {
