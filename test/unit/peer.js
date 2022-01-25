@@ -7,6 +7,9 @@ const Peer = require('../../models/peer');
 
 const mock = require('../../util/mock');
 const { SuccessCode } = require('../../util/rpc');
+
+const build = require('../../app');
+
 const {
   HOST_127_0_0_99,
   HOST_127_0_0_100,
@@ -252,6 +255,25 @@ test('send request to another peer', async (t) => {
   t.equal(response.code, SuccessCode);
   t.end();
 });
+
+test('send compressed format request', (t) => {
+  const app = build();
+
+  t.teardown(() => app.close());
+
+  app.listen(0, async (err) => {
+    t.error(err);
+    const { port } = app.server.address();
+
+    // Self
+    const peer = new Peer('127.0.0.1', port);
+
+    const response = await peer.sendRequest({ action: 'ping' }, true);
+    t.equal(response.code, SuccessCode);
+    t.end();
+  });
+});
+
 
 // test('sync with peer list from another peer', async (t) => {
 //   const peer = new Peer(HOST_127_0_0_100, PORT_7000);

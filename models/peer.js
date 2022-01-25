@@ -455,6 +455,7 @@ class Peer {
       }
     }
 
+    // Only ping action goes through for testing
     if (isTestEnvironment && !testWhitelist.includes(options.action)) {
       return null;
     }
@@ -492,8 +493,9 @@ class Peer {
     const params = Object.assign(options, { action: actionName });
     debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
 
-    const compress = actionName === 'blockInfo';
-    return this.sendRequest(params, compress);
+    // Compress for calls that can be very large.
+    const compressActions = ['blockInfo', 'pullChain'];
+    return this.sendRequest(params, compressActions.includes(actionName));
   }
 
   // TODO: Use set peer info

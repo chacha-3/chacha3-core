@@ -67,7 +67,7 @@ test('cannot inject hex value to string params', async (t) => {
   t.end();
 });
 
-test('send response in jsonpack compressed format', (t) => {
+test('send response in compressed jsonpack request', (t) => {
   const app = build();
 
   t.teardown(() => app.close());
