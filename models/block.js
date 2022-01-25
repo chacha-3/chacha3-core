@@ -252,6 +252,7 @@ class Block {
     return true;
   }
 
+  // TODO: Move this to chain addBlockHeader
   verifyTimestamp(previousHeader) {
     const lastBlockTime = previousHeader.getTime();
     const currentBlockTime = this.getHeader().getTime();
