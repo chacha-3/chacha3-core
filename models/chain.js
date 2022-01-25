@@ -333,6 +333,7 @@ class Chain {
     assert(headers[0].getHash().equals(Block.Genesis.getHeader().getHash()));
 
     for (let i = 1; i < headers.length; i += 1) {
+      // Use addBlockHeader to perform verification
       this.addBlockHeader(headers[i]);
     }
   }
