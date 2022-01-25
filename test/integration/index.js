@@ -66,3 +66,20 @@ test('cannot inject hex value to string params', async (t) => {
 
   t.end();
 });
+
+test('send response in jsonpack compressed format', (t) => {
+  const app = build();
+
+  t.teardown(() => app.close());
+
+  app.listen(0, async (err) => {
+    t.error(err);
+    const { port } = app.server.address();
+
+    const post = bent(`http://127.0.0.1:${port}?format=jsonpack`, 'POST', 'string', 200);
+    const response = await post('', { action: 'nodeInfo' });
+
+    t.ok(response.startsWith('data|'));
+    t.end();
+  });
+});
