@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const debug = require('debug')('app');
 const fastify = require('fastify');
+const jsonpack = require('jsonpack');
+
 const fastifyWebsocket = require('fastify-websocket');
 
 const Peer = require('./models/peer');
@@ -83,19 +85,23 @@ function build(opts = {}) {
   // RPC endpoint
   app.post('/', {
     preHandler: async (request) => {
-      // if (isTestEnvironment) {
-      //   return;
-      // }
-
       discoverAndSync(request);
     },
     handler: async (request, reply) => {
-      reply.type('application/json');
+      const { format } = request.query || 'json';
 
       debug(`Request receive: ${JSON.stringify(request.body)}}`);
       const response = await runAction(request.body, 'none');
 
-      reply.send(response);
+      switch (format) {
+        case 'jsonpack':
+          reply.send(jsonpack.pack(response));
+          break;
+        default:
+          reply.type('application/json');
+          reply.send(response);
+          break;
+      }
     },
   });
 
