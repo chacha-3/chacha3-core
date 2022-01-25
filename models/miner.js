@@ -143,7 +143,7 @@ class Miner {
 
       this.pendingTransactions = await Transaction.loadPending();
       debug(`Update pending transactions: ${this.pendingTransactions.length}`);
-    }, 5000);
+    }, 10000);
   }
 
   static async savePendingTransactions(dataArray) {

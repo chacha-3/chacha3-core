@@ -17,7 +17,7 @@ actions.createTransaction = {
       receiverAddress: { type: 'string', buffer: 'hex' },
       amount: { type: 'string' },
       password: { type: 'string' },
-      type: { type: 'string' },
+      // type: { type: 'string' }, Only support type 'send' now
       fee: { type: 'string' },
     },
     required: ['key', 'receiverAddress', 'amount', 'password'],
@@ -51,16 +51,15 @@ actions.createTransaction = {
       senderWallet.getPublicKey(),
       options.receiverAddress,
       amount,
-      options.type,
+      Transaction.Type.Send,
     );
 
     transaction.setFee(options.fee || 0n);
     await transaction.sign(senderWallet.getPrivateKey(), options.password);
 
-    // TODO: Validate before verify
     const errors = transaction.validate();
 
-    if (errors.length > 0) {
+    if (errors.length > 0 || !transaction.verify()) {
       return errorResponse(ErrorCode.InvalidArgument, 'Invalid transaction', errors);
     }
 
