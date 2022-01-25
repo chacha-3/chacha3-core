@@ -2,20 +2,21 @@ const debug = require('debug')('chain:model');
 const assert = require('assert');
 
 const Header = require('./header');
-
 const { config, Env } = require('../util/env');
+
 const { Testing, Development, Production } = Env;
 
 const {
   DB,
 } = require('../util/db');
-const { serializeBuffer, deserializeBuffer, packIndexArray, packObject, unpackObject, unpackIndexArray } = require('../util/serialize');
+const {
+  serializeBuffer, packIndexArray, packObject, unpackObject, unpackIndexArray,
+} = require('../util/serialize');
 
 const { median, clamp } = require('../util/math');
 
 const Block = require('./block');
 const { generateAddressEncoded } = require('./wallet');
-const { headers } = require('../util/peer-response');
 
 class Chain {
   constructor() {
@@ -407,26 +408,6 @@ class Chain {
     }
 
     return totalWork;
-  }
-
-  // TODO: Remove
-  getAverageBlockTime() {
-    const headers = this.getBlockHeaders();
-
-    if (headers.length < 2) {
-      return 0;
-    }
-
-    let totalDiff = 0;
-
-    for (let i = 1; i < headers.length; i += 1) {
-      const diff = headers[i].getTime() - headers[i - 1].getTime();
-      assert(diff >= 0);
-
-      totalDiff += diff;
-    }
-
-    return totalDiff / (headers.length - 1);
   }
 
   getCurrentDifficulty() {
