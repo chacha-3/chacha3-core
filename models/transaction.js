@@ -257,7 +257,10 @@ class Transaction {
     }
 
     debug('Pending transaction is not prior transaction. Continue save');
-    await PendingTransactionDB.put(key, this.toObject(), { valueEncoding: 'json' });
+    await PendingTransactionDB.put(key, this.toObject(), {
+      keyEncoding: 'binary',
+      valueEncoding: 'json',
+    });
 
     debug(`Saved pending transaction: ${serializeBuffer(key)}`);
     return true;
@@ -267,7 +270,10 @@ class Transaction {
     assert(this.getId() != null);
     const key = this.getId();
 
-    await TransactionDB.put(key, packObject(this.toSaveData()), { valueEncoding: 'binary' });
+    await TransactionDB.put(key, packObject(this.toSaveData()), {
+      keyEncoding: 'binary',
+      valueEncoding: 'binary',
+    });
   }
 
   toSaveData() {
@@ -321,7 +327,7 @@ class Transaction {
 
   async isSaved() {
     try {
-      await TransactionDB.get(this.getId());
+      await TransactionDB.get(this.getId(), { keyEncoding: 'binary' });
     } catch (e) {
       return false;
     }
@@ -333,7 +339,7 @@ class Transaction {
     let loaded;
 
     try {
-      loaded = await TransactionDB.get(id, { valueEncoding: 'binary' });
+      loaded = await TransactionDB.get(id, { keyEncoding: 'binary', valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
@@ -348,7 +354,7 @@ class Transaction {
       const values = [];
 
       PendingTransactionDB
-        .createValueStream({ valueEncoding: 'json' })
+        .createValueStream({ keyEncoding: 'binary', valueEncoding: 'json' })
         .on('data', async (data) => {
           values.push(data);
         })

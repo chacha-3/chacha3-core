@@ -52,7 +52,10 @@ class Header {
       checksum: this.getChecksum(),
     };
 
-    await HeaderDB.put(this.getHash(), packObject(data), { valueEncoding: 'binary' });
+    await HeaderDB.put(this.getHash(), packObject(data), {
+      keyEncoding: 'binary',
+      valueEncoding: 'binary',
+    });
   }
 
   static fromSaveData(data, hash) {
@@ -73,7 +76,7 @@ class Header {
     let data;
 
     try {
-      data = await HeaderDB.get(hash, { valueEncoding: 'binary' });
+      data = await HeaderDB.get(hash, { keyEncoding: 'binary', valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }

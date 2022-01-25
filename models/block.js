@@ -414,14 +414,14 @@ class Block {
       transactionIndexes: transactionIds.map((id) => serializeBuffer(id)),
     };
 
-    await BlockDB.put(key, data, { valueEncoding: 'json' });
+    await BlockDB.put(key, data, { keyEncoding: 'binary', valueEncoding: 'json' });
   }
 
   static async load(hash) {
     let data;
 
     try {
-      data = await BlockDB.get(hash, { valueEncoding: 'json' });
+      data = await BlockDB.get(hash, { keyEncoding: 'binary', valueEncoding: 'json' });
     } catch (e) {
       return null;
     }

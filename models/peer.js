@@ -685,7 +685,7 @@ class Peer {
 
     try {
       const key = Peer.generateKey(host, port);
-      data = await PeerDB.get(key, { valueEncoding: 'json' });
+      data = await PeerDB.get(key, { keyEncoding: 'binary', valueEncoding: 'json' });
     } catch (e) {
       return null;
     }
@@ -707,7 +707,7 @@ class Peer {
     const key = this.getId();
     const data = Peer.toSaveData(this);
 
-    await PeerDB.put(key, data, { valueEncoding: 'json' });
+    await PeerDB.put(key, data, { keyEncoding: 'binary', valueEncoding: 'json' });
   }
 
   // static addSocketListener(id, connection) {

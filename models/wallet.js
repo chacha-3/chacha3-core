@@ -95,7 +95,9 @@ class Wallet {
     const wallet = await Wallet.load(address);
 
     if (wallet) {
-      await DB.put('selectedWallet', wallet.getAddressEncoded());
+      await DB.put('selectedWallet', wallet.getAddress(), {
+        valueEncoding: 'binary',
+      });
       return true;
     }
 
@@ -106,12 +108,12 @@ class Wallet {
     let selected;
 
     try {
-      selected = await DB.get('selectedWallet');
+      selected = await DB.get('selectedWallet', { valueEncoding: 'binary' });
     } catch (e) {
       return null;
     }
 
-    return deserializeBuffer(selected);
+    return selected;
   }
 
   static async deriveEncryptionKey(password, salt) {
@@ -280,14 +282,17 @@ class Wallet {
   }
 
   static async save(wallet) {
-    await WalletDB.put(wallet.getAddress(), wallet.toSaveData(), { valueEncoding: 'json' });
+    await WalletDB.put(wallet.getAddress(), wallet.toSaveData(), {
+      keyEncoding: 'binary',
+      valueEncoding: 'json',
+    });
   }
 
   static async load(address) {
     let data;
 
     try {
-      data = await WalletDB.get(address, { valueEncoding: 'json' });
+      data = await WalletDB.get(address, { keyEncoding: 'binary', valueEncoding: 'json' });
     } catch (e) {
       return null;
     }
