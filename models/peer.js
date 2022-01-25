@@ -1,5 +1,7 @@
 const assert = require('assert');
 const bent = require('bent');
+const jsonpack = require('jsonpack');
+
 const { XXHash64 } = require('xxhash');
 
 const debug = require('debug')('peer:model');
@@ -441,10 +443,10 @@ class Peer {
     return true;
   }
 
-  async sendRequest(options) {
+  async sendRequest(options, compress = false) {
     const testWhitelist = ['ping'];
 
-    // FIXME: Double check for isTestEnvironment
+    // FIXME: Double is test environment check
     if (isTestEnvironment) {
       const response = sendTestRequest(this.getHost(), this.getPort(), options);
 
@@ -453,17 +455,22 @@ class Peer {
       }
     }
 
-    // FIXME:
-    // Ping node test causing block integration test for fail because of a background peer call
-    // Probably is caused by peer chain synching when adding a peer from ping
     if (isTestEnvironment && !testWhitelist.includes(options.action)) {
       return null;
     }
 
-    const post = bent(`http://${this.formattedAddress()}`, 'POST', 'json', 200, Peer.requestHeaders());
+    const url = `http://${this.formattedAddress()}${compress ? '?format=jsonpack' : ''}`;
+    const responseFormat = compress ? 'string' : 'json';
+
+    const post = bent(url, 'POST', responseFormat, 200, Peer.requestHeaders());
 
     try {
-      const response = await post('', options);
+      let response = await post('', options);
+
+      if (compress) {
+        response = jsonpack.unpack(response);
+      }
+
       return response;
     } catch (e) {
       await this.handleRequestError(e);
@@ -485,7 +492,8 @@ class Peer {
     const params = Object.assign(options, { action: actionName });
     debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
 
-    return this.sendRequest(params);
+    const compress = actionName === 'blockInfo';
+    return this.sendRequest(params, compress);
   }
 
   // TODO: Use set peer info
