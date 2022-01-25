@@ -140,14 +140,8 @@ test('should not recover a wallet with invalid key', async (t) => {
   const oldWallet = new Wallet();
   await oldWallet.generate();
 
-  try {
-    const recoverWallet = await Wallet.recover('not_a_key', '');
-    t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
-    t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
-  } catch (e) {
-
-  }
-  // TODO: Check error
+  const recovered = await Wallet.recover('not_a_key', '');
+  t.equal(recovered, null);
 
   t.end();
 });

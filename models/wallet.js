@@ -162,7 +162,7 @@ class Wallet {
     const version = encryptedBuffer[0];
 
     if (version !== 0x00) {
-      throw Error('Wallet version not supported');
+      throw Error('Invalid wallet or wallet version not supported');
     }
 
     const salt = encryptedBuffer.slice(1, 17);
@@ -343,7 +343,13 @@ class Wallet {
     const wallet = new Wallet();
     wallet.setPrivateKey(encryptedPrivateKey);
 
-    const decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password);
+    let decrypted = null;
+
+    try {
+      decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password)
+    } catch (e) {
+      return null;
+    }
 
     if (decrypted == null) {
       return null;

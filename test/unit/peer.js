@@ -1,8 +1,6 @@
 const { test } = require('tap');
-const Chain = require('../../models/chain');
-// const chai = require('chai');
-// const dirtyChai = require('dirty-chai');
 
+const Chain = require('../../models/chain');
 const Peer = require('../../models/peer');
 
 const mock = require('../../util/mock');
@@ -19,8 +17,6 @@ const {
   headers,
 } = require('../../util/peer-response');
 
-const blockData = require('../../util/mock/data/blocks.json');
-const Transaction = require('../../models/transaction');
 const { randomNumberBetween } = require('../../util/math');
 
 // const { expect } = chai;
@@ -158,13 +154,17 @@ test('load active peers', async (t) => {
 
 test('get peer with most total work', async (t) => {
   const work = [2, 8, 3, 10, 4];
+  const savePromises = [];
 
   for (let i = 0; i < work.length; i += 1) {
     const peer = mock.nodePeer();
     peer.setTotalWork(work[i]);
     peer.setStatus(Peer.Status.Active);
-    await peer.save();
+
+    savePromises.push(peer.save());
   }
+
+  await Promise.all(savePromises);
 
   const peerPriority = await Peer.withLongestActiveChains();
 
@@ -269,24 +269,6 @@ test('send compressed format request', (t) => {
     t.end();
   });
 });
-
-
-// test('sync with peer list from another peer', async (t) => {
-//   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-
-//   const currentPeers = await Peer.all();
-//   t.equal(currentPeers.length, 0);
-
-//   const result = await peer.syncPeerList();
-//   t.equal(result, true);
-
-//   const updatedPeers = await Peer.all();
-//   t.equal(updatedPeers.length, 3); // Only peers with status of 'active' and 'inactive'
-//   t.equal(updatedPeers[0].status, Peer.Status.Idle, 'Newly added peer have idle status');
-
-//   await Peer.clearAll();
-//   t.end();
-// });
 
 test('sync with longer peer chain', async (t) => {
   // Add block length 1 as default

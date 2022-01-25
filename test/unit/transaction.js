@@ -352,6 +352,7 @@ test('save pending transactions', async (t) => {
   await receiver.generate();
 
   const numOfTransactions = 3;
+
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
     await transaction.sign(sender.getPrivateKey());
@@ -403,10 +404,10 @@ test('does not accept confirmed transaction as pending transaction', async (t) =
 
   const chosenTransaction = block.getTransaction(2);
 
-  let isSaved = await chosenTransaction.isSaved();
+  const isSaved = await chosenTransaction.isSaved();
+  t.equal(isSaved, true);
 
   const result = await chosenTransaction.saveAsPending();
-  // isSaved = await chosenTransaction.isSaved();
 
   t.equal(result, false);
 
