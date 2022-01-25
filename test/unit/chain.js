@@ -129,51 +129,6 @@ test('synchronize main chain with longer chain', async (t) => {
 //   t.end();
 // });
 
-test('calculate average block time difference in chain', async (t) => {
-  const numOfBlocks = 3;
-  const chain = await mock.chainWithHeaders(numOfBlocks, 5);
-
-  chain.blockHeaders[0].setTime(1628163920000);
-  chain.blockHeaders[1].setTime(1628163940000);
-  chain.blockHeaders[2].setTime(1628163980000);
-
-  // Average difference in time between blocks
-  // (20000 + 40000) / 2 = 30000
-  t.equal(chain.getAverageBlockTime(), 30000);
-
-  t.end();
-});
-
-test('no average block time when chain has only one block', async (t) => {
-  const chain = await mock.chainWithHeaders(1, 3);
-
-  t.equal(chain.getAverageBlockTime(), 0);
-  t.end();
-});
-
-test('get correct difficulty', async (t) => {
-  t.equal(Chain.getAdjustInterval(), 8);
-  t.equal(Chain.getExpectedTimePerBlock(), 1000);
-
-  const numOfBlocks = 20;
-  const chain = await mock.chainWithHeaders(numOfBlocks, 3);
-
-  const actualTimePerBlock = 600;
-
-  for (let i = 0; i < numOfBlocks; i += 1) {
-    chain.blockHeaders[i].setTime(1628163920000 + (actualTimePerBlock * i));
-  }
-
-  const numOfAdjustments = Math.floor(numOfBlocks / Chain.getAdjustInterval());
-  const adjustFactor = Chain.calculateAdjustFactor(
-    Chain.getExpectedTimePerBlock(),
-    actualTimePerBlock,
-  );
-
-  t.equal(chain.getCurrentDifficulty(), adjustFactor ** numOfAdjustments);
-  t.end();
-});
-
 test('get default difficulty when one or less blocks', async (t) => {
   const chain = await mock.chainWithHeaders(1, 2);
 
