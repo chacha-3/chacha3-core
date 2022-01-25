@@ -31,7 +31,7 @@ class Peer {
     this.chainWork = 0;
 
     this.host = host;
-    this.port = port;
+    this.setPort(port);
 
     this.status = Peer.Status.Idle;
     this.failedConnect = 0;
@@ -239,9 +239,9 @@ class Peer {
   }
 
   setPort(port) {
-    // if (port < 1024 || port > 49151) {
-    //   throw Error('Invalid port. Range 1024 - 49151');
-    // }
+    if (port < 1 || port > 65536) {
+      throw Error('Invalid port. Range 1024 - 49151');
+    }
 
     this.port = port;
   }
@@ -493,7 +493,7 @@ class Peer {
     const params = Object.assign(options, { action: actionName });
     debug(`Call peer action: ${actionName}, ${JSON.stringify(params)}`);
 
-    // Compress for calls that can be very large.
+    // Request compress for calls that can be very large.
     const compressActions = ['blockInfo', 'pullChain'];
     return this.sendRequest(params, compressActions.includes(actionName));
   }
