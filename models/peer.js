@@ -352,8 +352,7 @@ class Peer {
       return;
     }
 
-    const timeout = setTimeout(() => this.reachOut(), inMillis);
-    Peer.retryTimeouts.push(timeout);
+    setTimeout(() => this.reachOut(), inMillis);
   }
 
   static requestHeaders() {
@@ -630,12 +629,6 @@ class Peer {
       promises.push(Peer.clear(peers[i].getId()));
     }
 
-    for (let j = 0; j < Peer.retryTimeouts.length; j += 1) {
-      clearTimeout(Peer.retryTimeouts[j]);
-    }
-
-    Peer.retryTimeouts = [];
-
     await Promise.all(promises);
   }
 
@@ -751,9 +744,6 @@ Peer.NodeType = {
 
 // Peer.socketListeners = [];
 Peer.syncIntervals = {};
-
-// TODO: Perhaps use key instead like syncIntervals
-Peer.retryTimeouts = [];
 
 Peer.RequestHeader = {
   Host: 'chacha3-host',
