@@ -346,7 +346,7 @@ class Wallet {
     let decrypted = null;
 
     try {
-      decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password)
+      decrypted = await Wallet.decryptPrivateKey(encryptedPrivateKey, password);
     } catch (e) {
       return null;
     }
