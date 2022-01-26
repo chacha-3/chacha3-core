@@ -1,11 +1,14 @@
 const assert = require('assert');
-const crypto = require('crypto');
 const blake3 = require('blake3-wasm');
 
 const { HeaderDB } = require('../util/db');
-const { serializeObject, deserializeBuffer, serializeBuffer, packObject, unpackObject } = require('../util/serialize');
+
+const {
+  serializeObject, deserializeBuffer, serializeBuffer, packObject, unpackObject,
+} = require('../util/serialize');
 
 const { config, Env } = require('../util/env');
+
 const { Production, Development, Testing } = Env;
 
 // TODO: Cleaner way for this. Add generic environment check

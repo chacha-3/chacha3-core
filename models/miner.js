@@ -1,6 +1,6 @@
 const assert = require('assert');
 const debug = require('debug')('miner:model');
-const { Worker, isMainThread, parentPort } = require('worker_threads');
+const { Worker } = require('worker_threads');
 
 const Block = require('./block');
 const Chain = require('./chain');
@@ -9,7 +9,6 @@ const Peer = require('./peer');
 
 const { serializeBuffer } = require('../util/serialize');
 const { waitUntil } = require('../util/sync');
-// const addressPrefix = '420_';
 
 class Miner {
   constructor() {

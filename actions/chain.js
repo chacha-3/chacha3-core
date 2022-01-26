@@ -1,7 +1,7 @@
 // const bs58 = require('bs58');
 const Chain = require('../models/chain');
 
-const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
+const { okResponse } = require('../util/rpc');
 const { chainId } = require('../util/env').config;
 
 const actions = {};

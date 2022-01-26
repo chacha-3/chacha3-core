@@ -3,9 +3,7 @@ const assert = require('assert');
 
 const Block = require('../models/block');
 const Chain = require('../models/chain');
-const Peer = require('../models/peer');
 const Transaction = require('../models/transaction');
-const Wallet = require('../models/wallet');
 
 const { errorResponse, ErrorCode, okResponse } = require('../util/rpc');
 const { serializeBuffer } = require('../util/serialize');

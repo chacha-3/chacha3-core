@@ -8,7 +8,7 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB, TransactionDB } = require('../util/db');
-const { serializeBuffer, deserializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject } = require('../util/serialize');
+const { serializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject } = require('../util/serialize');
 const Wallet = require('./wallet');
 
 class Block {
