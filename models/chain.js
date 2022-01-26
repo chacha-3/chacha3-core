@@ -69,11 +69,10 @@ class Chain {
     return expectedTime[environment];
   }
 
-  // TODO: expectedTimePerBlock is fixed and should not need to be required as a parameter
-  static calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock) {
+  static calculateAdjustFactor(medianTimePerBlock) {
     const adjustFactorLimit = 4;
 
-    const factor = expectedTimePerBlock / medianTimePerBlock;
+    const factor = Chain.getExpectedTimePerBlock() / medianTimePerBlock;
     const max = adjustFactorLimit;
     const min = 1 / adjustFactorLimit;
 
@@ -424,7 +423,7 @@ class Chain {
     }
 
     const adjustInterval = Chain.getAdjustInterval();
-    const expectedTimePerBlock = Chain.getExpectedTimePerBlock(); // Milliseconds
+    // const expectedTimePerBlock = Chain.getExpectedTimePerBlock(); // Milliseconds
 
     // let totalDiff = 0;
     const timeDifferences = [];
@@ -439,7 +438,7 @@ class Chain {
         assert(timeDifferences.length === Chain.getAdjustInterval());
 
         const medianTimePerBlock = median(timeDifferences);
-        const adjustFactor = Chain.calculateAdjustFactor(expectedTimePerBlock, medianTimePerBlock);
+        const adjustFactor = Chain.calculateAdjustFactor(medianTimePerBlock);
 
         difficulty *= adjustFactor;
 

@@ -10,9 +10,6 @@ const Peer = require('./models/peer');
 const { runAction } = require('./actions');
 
 const { errorResponse, ErrorCode } = require('./util/rpc');
-const { isReachingOutSelf } = require('./util/sync');
-
-const { isTestEnvironment } = require('./util/env');
 
 const errorHandler = (error, request, reply) => {
   reply.send(errorResponse(ErrorCode.Internal, error.message));
@@ -23,10 +20,10 @@ const discoverAndSync = async (request) => {
     host, port, chainWork, chainLength,
   } = Peer.parseRequestHeaders(request);
 
-  // Non-public node. Skip the discovery
-  const publicNode = host && host !== '';
+  const isPublicNode = host && host !== '';
 
-  if (!publicNode || Peer.reachingOutSelf(request.body)) {
+  // For non-public node. Skip the discovery
+  if (!isPublicNode || Peer.reachingOutSelf(request.body)) {
     return;
   }
 
