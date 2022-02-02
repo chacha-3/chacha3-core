@@ -20,7 +20,7 @@ const { isTestEnvironment, runningManualTest, Env } = require('./env');
 const dbNameMap = {
   [Env.Production]: 'data',
   [Env.Staging]: 'testdata',
-  [Env.Development]: 'devdata',
+  [Env.Development]: '.devdata',
   [Env.Testing]: '.localdata',
 };
 
