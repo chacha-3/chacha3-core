@@ -20,7 +20,9 @@ const envShortCode = (env) => {
   return map[env];
 };
 
-const runningManualTest = process.argv.length > 0 && process.argv[0].includes('node') && process.argv[1].includes('test');
+const isManualTestArgv = (argv) => argv.length > 0 && argv[0].includes('node') && argv[1].includes('test');
+const runningManualTest = isManualTestArgv(process.argv);
+
 const environment = (runningManualTest) ? Env.Testing : (process.env.NODE_ENV || Env.Development);
 
 // const setTestEnv = () => {
@@ -46,5 +48,6 @@ module.exports = {
   isTestEnvironment,
   config,
   runningManualTest,
+  isManualTestArgv,
   // setTestEnv,
 };

@@ -1,6 +1,6 @@
 const level = require('level');
 const sub = require('subleveldown');
-const { isTestEnvironment, runningManualTest, Env } = require('./env');
+const { Env, config } = require('./env');
 
 // Probably and underfit solution. But no issues
 // TODO: Migrate to env util
@@ -24,8 +24,8 @@ const dbNameMap = {
   [Env.Testing]: '.localdata',
 };
 
-// TODO: Set default environment / check env is set
-const dbName = dbNameMap[process.env.NODE_ENV];
+const { environment } = config;
+const dbName = dbNameMap[environment];
 
 const DB = level(dbName);
 

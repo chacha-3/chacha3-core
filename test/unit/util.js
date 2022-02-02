@@ -3,8 +3,6 @@ const crypto = require('crypto');
 const { performance } = require('perf_hooks');
 const BSON = require('bson');
 
-const { runningManualTest } = require('../../util/env');
-
 const {
   serializeObject,
   deserializeBuffer,
@@ -20,30 +18,32 @@ const {
 } = require('../../util/serialize');
 
 const mock = require('../../util/mock');
-const { config, Env } = require('../../util/env');
+const { config, Env, runningManualTest, isManualTestArgv, isTestEnvironment } = require('../../util/env');
 
 const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
 const { median } = require('../../util/math');
 const { waitUntil } = require('../../util/sync');
-const { unpack } = require('jsonpack');
 
-// test('detect running unit test', (t) => {
-//   const argvTest = [
-//     'C:\\Program Files\\nodejs\\node.exe',
-//     'C:\\Users\\user21\\Projects\\chacha3\\test\\unit\\util.js',
-//   ];
+test('detect running unit test', (t) => {
+  const argvTest = [
+    'C:\\Program Files\\nodejs\\node.exe',
+    'C:\\Users\\user21\\Projects\\chacha3\\test\\unit\\util.js',
+  ];
 
-//   const argvNonTest = [
-//     'C:\\Program Files\\nodejs\\node.exe',
-//     'C:\\Users\\user21\\Projects\\chacha3\\shell.js',
-//   ];
+  const argvNonTest = [
+    'C:\\Program Files\\nodejs\\node.exe',
+    'C:\\Users\\user21\\Projects\\chacha3\\shell.js',
+  ];
 
-//   t.equal(runningManualTest(argvTest), true);
-//   t.equal(runningManualTest(argvNonTest), false);
-//   t.equal(runningManualTest([]), false);
+  t.equal(isManualTestArgv(argvTest), true);
+  t.equal(isManualTestArgv(argvNonTest), false);
+  t.equal(isManualTestArgv([]), false);
 
-//   t.end();
-// });
+  t.equal(isTestEnvironment, true);
+  t.equal(runningManualTest, true);
+
+  t.end();
+});
 
 test('serialize and deserialize BigInt', (t) => {
   const numbers = [1n, 100000000n, 0n, -220n];
