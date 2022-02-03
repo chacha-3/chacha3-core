@@ -79,19 +79,19 @@ test('does not start miner when already running', async (t) => {
   });
 });
 
-test('mining worker finds nonce', async (t) => {
+test('mining worker finds meta', async (t) => {
   const block = await mock.blockWithTransactions(3);
   const header = block.getHeader();
 
   const miner = new Miner();
 
-  let nonce = -2;
+  let meta = null;
 
   try {
-    nonce = await miner.miningWorker(header, 10000);
-    t.ok(nonce > 0);
+    meta = await miner.miningWorker(header, 10000);
+    t.ok(meta !== null);
   } catch {
-    t.equal(nonce, -1);
+    t.equal(meta, null);
   }
 
   t.end();

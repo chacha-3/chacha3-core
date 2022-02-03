@@ -46,18 +46,21 @@ test('hash data is correct', (t) => {
   header.setPrevious(deserializeBuffer('0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'));
   header.setTime(1000000233);
   header.setDifficulty(1);
-  header.setNonce(1001);
   header.setChecksum(deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'));
+  header.setMeta(199, 10, 20, 30);
 
   const data = JSON.parse(header.hashData());
 
   const results = [
     { key: 'version', value: 1 },
-    { key: 'previous', value: '0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'},
+    { key: 'previous', value: '0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc' },
     { key: 'time', value: 1000000233 },
     { key: 'difficulty', value: 1 },
-    { key: 'nonce', value: 1001 },
-    { key: 'checksum', value: '0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'},
+    { key: 'checksum', value: '0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c' },
+    { key: 'a', value: 199 },
+    { key: 'x', value: 10 },
+    { key: 'y', value: 20 },
+    { key: 'z', value: 30 },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -75,15 +78,40 @@ test('should get the difficulty', (t) => {
   t.end();
 });
 
-test('increment the nonce', (t) => {
+test('set meta data', (t) => {
+  const header = new Header();
+  header.setMeta(10, 20, 30, 100);
+
+  t.equal(header.getA(), 10);
+  t.equal(header.getX(), 20);
+  t.equal(header.getY(), 30);
+  t.equal(header.getZ(), 100);
+
+  const {
+    a, x, y, z,
+  } = header.getMeta();
+
+  t.equal(a, 10);
+  t.equal(x, 20);
+  t.equal(y, 30);
+  t.equal(z, 100);
+
+  t.end();
+});
+
+test('randomize meta', (t) => {
   const header = new Header();
 
-  const initialNonce = header.getNonce();
+  const {
+    x, y, z, a,
+  } = header.getMeta();
 
-  for (let i = 1; i <= 2; i += 1) {
-    header.incrementNonce();
-    t.equal(header.getNonce(), initialNonce + i);
-  }
+  header.randomizeMeta();
+
+  t.not(a, header.getA());
+  t.not(x, header.getX());
+  t.not(y, header.getY());
+  t.not(z, header.getZ());
 
   t.end();
 });
@@ -116,7 +144,11 @@ test('save and load header', async (t) => {
   t.equal(loaded.getVersion(), header.getVersion(), 'loaded version matches');
   t.equal(loaded.getTime(), header.getTime(), 'loaded time matches');
   t.equal(loaded.getDifficulty(), header.getDifficulty(), 'loaded difficulty matches');
-  t.equal(loaded.getNonce(), header.getNonce(), 'loaded nonce matches');
+
+  t.equal(loaded.getA(), header.getA());
+  t.equal(loaded.getX(), header.getX());
+  t.equal(loaded.getY(), header.getY());
+  t.equal(loaded.getZ(), header.getZ());
 
   t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
   t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
@@ -166,8 +198,12 @@ test('to and from header object', async (t) => {
 
   t.equal(loaded.getTime(), header.getTime());
   t.equal(loaded.getDifficulty(), header.getDifficulty());
-  t.equal(loaded.getNonce(), header.getNonce());
   t.equal(loaded.getVersion(), header.getVersion());
+
+  t.equal(loaded.getA(), header.getA());
+  t.equal(loaded.getX(), header.getX());
+  t.equal(loaded.getY(), header.getY());
+  t.equal(loaded.getZ(), header.getZ());
 
   t.end();
 });

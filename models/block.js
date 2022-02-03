@@ -25,23 +25,26 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x000004bcdf196045c68810b14189c5adb092dcb61186d5054f6aa110e524d009',
+        hash: '0x00000126e4ed637e4c40dae2f2006298a4f9798997b2a8f21d7eefea979e24cc',
         previous: null,
-        time: 1640786128357,
+        time: 1643891251235,
         difficulty: 1,
-        nonce: 5313587008844815,
-        checksum: '0x892851747fca845581ad08b5ced673916fb4f32fc12425e95c750b8d54dd7cbe',
+        checksum: '0xc755c21bbf450bf9125d0a8a147f6bfb5d95ee8486d8b418efb364dce9c12539',
         version: 1,
+        a: 172,
+        x: 692240192,
+        y: 2226437,
+        z: 40409175,
       },
       transactions: [
         {
-          id: '0x6df4aba09defe90421f0e8064ab22b57c45e2b44187f1b35584a213c8d4696b2',
+          id: '0x3d2137f51e62af88669dd2001c1b272725e1f3c7a9b80cd63c600e2a3bfc0cde',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x00b406f8c3746762361103d8b0f992bcc6480ce5d33956ec18',
+          receiverAddress: '0x00fa21fdc5a2207888f3edd98f0cd507d26e60ee22e39862d5',
           amount: '1000000000000000000n',
           signature: null,
-          time: 1640786128358,
+          time: 1643891251236,
           type: 'mine',
           fee: '0n',
         },
@@ -146,7 +149,7 @@ class Block {
     this.header.setDifficulty(difficulty);
 
     while (!found) {
-      this.header.incrementNonce();
+      this.header.randomizeMeta();
 
       // eslint-disable-next-line no-await-in-loop
       this.header.hash = this.header.computeHash();

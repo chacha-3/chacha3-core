@@ -1,26 +1,25 @@
 const { parentPort, workerData } = require('worker_threads');
 const Header = require('../models/header');
-const { randomNumberBetween } = require('../util/math');
 
-function findNonce(data) {
+function findMeta(data) {
   const { headerData, timeout } = data;
 
   const header = Header.fromObject(headerData);
-  header.setNonce(randomNumberBetween(1, Number.MAX_SAFE_INTEGER));
-
   const start = Date.now();
+
+  header.randomizeMeta();
 
   while ((Date.now() - start) < timeout) {
     header.setHash(header.computeHash());
 
     if (header.verifyHash(false)) {
-      return header.getNonce();
+      return header.getMeta();
     }
 
-    header.incrementNonce();
+    header.randomizeMeta();
   }
 
-  return -1;
+  return null;
 }
 
-parentPort.postMessage(findNonce(workerData));
+parentPort.postMessage(findMeta(workerData));

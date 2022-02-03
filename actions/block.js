@@ -21,9 +21,12 @@ actions.pushBlock = {
           previous: { type: 'string', buffer: 'hex' },
           time: { type: 'integer' },
           difficulty: { type: 'integer' },
-          nonce: { type: 'integer' },
           checksum: { type: 'string', buffer: 'hex' },
           version: { type: 'integer' },
+          a: { type: 'integer' },
+          x: { type: 'integer' },
+          y: { type: 'integer' },
+          z: { type: 'integer' },
         },
       },
       transactions: {

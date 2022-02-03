@@ -8,6 +8,7 @@ const {
 } = require('../util/serialize');
 
 const { config, Env } = require('../util/env');
+const { randomNumberBetween } = require('../util/math');
 
 const { Production, Development, Testing } = Env;
 
@@ -32,7 +33,12 @@ class Header {
     this.time = Date.now();
 
     this.difficulty = 1.0;
-    this.nonce = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER + 1);
+    this.randomizeMeta();
+    // this.a = 0;
+
+    // this.x = 0;
+    // this.y = 0;
+    // this.z = 0;
 
     this.hash = null;
   }
@@ -51,8 +57,11 @@ class Header {
       previous: this.getPrevious(),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
-      nonce: this.getNonce(),
       checksum: this.getChecksum(),
+      a: this.getA(),
+      x: this.getX(),
+      y: this.getY(),
+      z: this.getZ(),
     };
 
     await HeaderDB.put(this.getHash(), packObject(data), {
@@ -68,9 +77,15 @@ class Header {
     header.setPrevious(deserializeBuffer(data.previous));
     header.setTime(data.time);
     header.setDifficulty(data.difficulty);
-    header.setNonce(data.nonce);
     header.setChecksum(deserializeBuffer(data.checksum));
     header.setHash(hash);
+
+    header.setMeta(
+      data.a,
+      data.x,
+      data.y,
+      data.z,
+    );
 
     return header;
   }
@@ -99,8 +114,11 @@ class Header {
       previous: this.getPrevious(),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
-      nonce: this.getNonce(),
       checksum: this.getChecksum(),
+      a: this.getA(),
+      x: this.getX(),
+      y: this.getY(),
+      z: this.getZ(),
     };
 
     return JSON.stringify(serializeObject(data));
@@ -174,23 +192,69 @@ class Header {
     return target / difficulty;
   }
 
-  getNonce() {
-    return this.nonce;
+  randomizeMeta() {
+    this.a = randomNumberBetween(1, 2 ** 8);
+
+    this.x = randomNumberBetween(1, 2 ** 32);
+    this.y = randomNumberBetween(1, 2 ** 32);
+    this.z = randomNumberBetween(1, 2 ** 32);
   }
 
-  setNonce(nonce) {
-    assert(nonce > 0);
-
-    this.nonce = nonce;
+  getMeta() {
+    return {
+      a: this.getA(),
+      x: this.getX(),
+      y: this.getY(),
+      z: this.getZ(),
+    };
   }
 
-  incrementNonce() {
-    this.nonce += 1;
+  setMeta(a, x, y, z) {
+    this.setA(a);
+    this.setX(x);
+    this.setY(y);
+    this.setZ(z);
+  }
+
+  getA() {
+    return this.a;
+  }
+
+  setA(a) {
+    assert(a > 0 && a <= 256);
+    this.a = a;
+  }
+
+  getX() {
+    return this.x;
+  }
+
+  setX(x) {
+    assert(x > 0 && x <= 2 ** 32);
+    this.x = x;
+  }
+
+  getY() {
+    return this.y;
+  }
+
+  setY(y) {
+    assert(y > 0 && y <= 2 ** 32);
+    this.y = y;
+  }
+
+  getZ() {
+    return this.z;
+  }
+
+  setZ(z) {
+    assert(z > 0 && z <= 2 ** 32);
+    this.z = z;
   }
 
   verifyHash(recalculate = true) {
     assert(this.getHash() !== null);
-    assert(this.getNonce() > 0);
+    assert(this.getA() > 0);
 
     if (recalculate && !this.getHash().equals(this.computeHash())) {
       return false;
@@ -207,9 +271,9 @@ class Header {
     header.setPrevious(deserializeBuffer(obj.previous));
     header.setTime(obj.time);
     header.setDifficulty(obj.difficulty);
-    header.setNonce(obj.nonce);
     header.setChecksum(deserializeBuffer(obj.checksum));
     header.setVersion(obj.version);
+    header.setMeta(obj.a, obj.x, obj.y, obj.z);
 
     return header;
   }
@@ -220,9 +284,12 @@ class Header {
       previous: this.getPrevious(),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
-      nonce: this.getNonce(),
       checksum: this.getChecksum(),
       version: this.getVersion(),
+      a: this.getA(),
+      x: this.getX(),
+      y: this.getY(),
+      z: this.getZ(),
     };
 
     return serializeObject(data);

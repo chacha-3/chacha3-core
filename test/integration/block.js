@@ -75,7 +75,7 @@ test('list blocks in chain', async (t) => {
   t.equal(code, SuccessCode);
   t.equal(data.length, blockCount);
 
-  const fields = ['hash', 'previous', 'time', 'difficulty', 'nonce', 'checksum', 'version'];
+  const fields = ['hash', 'previous', 'time', 'difficulty', 'checksum', 'version', 'a', 'x', 'y', 'z'];
 
   fields.forEach((field) => {
     t.ok(Object.prototype.hasOwnProperty.call(data[0], field));

@@ -61,14 +61,14 @@ class Miner {
   miningWorker(header, timeout) {
     return new Promise((resolve, reject) => {
       this.worker = new Worker('./workers/miner.js', { workerData: { headerData: header.toObject(), timeout } });
-      this.worker.on('message', (nonce) => {
-        resolve(nonce);
+      this.worker.on('message', (metaResult) => {
+        resolve(metaResult);
       });
       this.worker.on('error', (error) => {
         // reject(error);
       });
       this.worker.on('exit', (code) => {
-        resolve(-1);
+        resolve(null);
       });
     });
   }
@@ -95,16 +95,22 @@ class Miner {
       await Miner.pauseIfChainSynching();
 
       const block = this.initMiningBlock();
-      let foundNonce;
+      let foundMeta;
 
       try {
-        foundNonce = await this.miningWorker(block.getHeader(), 10000);
+        foundMeta = await this.miningWorker(block.getHeader(), 10000);
       } catch (err) {
-        foundNonce = -1;
+        foundMeta = null;
       }
 
-      if (foundNonce > 0) {
-        block.header.setNonce(foundNonce);
+      if (foundMeta !== null) {
+        const {
+          a, x, y, z,
+        } = foundMeta;
+
+        console.log(foundMeta)
+
+        block.header.setMeta(a, x, y, z);
         block.header.hash = block.header.computeHash();
 
         await Miner.foundBlock(block);
