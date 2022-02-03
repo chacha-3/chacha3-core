@@ -105,12 +105,10 @@ class Miner {
 
       if (foundMeta !== null) {
         const {
-          a, x, y, z,
+          a, x, y, z, w,
         } = foundMeta;
 
-        console.log(foundMeta)
-
-        block.header.setMeta(a, x, y, z);
+        block.header.setMeta(a, x, y, z, w);
         block.header.hash = block.header.computeHash();
 
         await Miner.foundBlock(block);

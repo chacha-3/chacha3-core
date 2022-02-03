@@ -62,6 +62,7 @@ class Header {
       x: this.getX(),
       y: this.getY(),
       z: this.getZ(),
+      w: this.getW(),
     };
 
     await HeaderDB.put(this.getHash(), packObject(data), {
@@ -85,6 +86,7 @@ class Header {
       data.x,
       data.y,
       data.z,
+      data.w,
     );
 
     return header;
@@ -119,6 +121,7 @@ class Header {
       x: this.getX(),
       y: this.getY(),
       z: this.getZ(),
+      w: this.getW(),
     };
 
     return JSON.stringify(serializeObject(data));
@@ -198,6 +201,7 @@ class Header {
     this.x = randomNumberBetween(1, 2 ** 32);
     this.y = randomNumberBetween(1, 2 ** 32);
     this.z = randomNumberBetween(1, 2 ** 32);
+    this.w = randomNumberBetween(1, 2 ** 32);
   }
 
   getMeta() {
@@ -206,14 +210,16 @@ class Header {
       x: this.getX(),
       y: this.getY(),
       z: this.getZ(),
+      w: this.getW(),
     };
   }
 
-  setMeta(a, x, y, z) {
+  setMeta(a, x, y, z, w) {
     this.setA(a);
     this.setX(x);
     this.setY(y);
     this.setZ(z);
+    this.setW(w);
   }
 
   getA() {
@@ -252,6 +258,15 @@ class Header {
     this.z = z;
   }
 
+  getW() {
+    return this.w;
+  }
+
+  setW(w) {
+    assert(w > 0 && w <= 2 ** 32);
+    this.w = w;
+  }
+
   verifyHash(recalculate = true) {
     assert(this.getHash() !== null);
     assert(this.getA() > 0);
@@ -273,7 +288,7 @@ class Header {
     header.setDifficulty(obj.difficulty);
     header.setChecksum(deserializeBuffer(obj.checksum));
     header.setVersion(obj.version);
-    header.setMeta(obj.a, obj.x, obj.y, obj.z);
+    header.setMeta(obj.a, obj.x, obj.y, obj.z, obj.w);
 
     return header;
   }
@@ -290,6 +305,7 @@ class Header {
       x: this.getX(),
       y: this.getY(),
       z: this.getZ(),
+      w: this.getW(),
     };
 
     return serializeObject(data);

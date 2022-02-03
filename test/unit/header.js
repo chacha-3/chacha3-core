@@ -47,7 +47,7 @@ test('hash data is correct', (t) => {
   header.setTime(1000000233);
   header.setDifficulty(1);
   header.setChecksum(deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'));
-  header.setMeta(199, 10, 20, 30);
+  header.setMeta(199, 10, 20, 30, 50);
 
   const data = JSON.parse(header.hashData());
 
@@ -61,6 +61,7 @@ test('hash data is correct', (t) => {
     { key: 'x', value: 10 },
     { key: 'y', value: 20 },
     { key: 'z', value: 30 },
+    { key: 'w', value: 50 },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -80,21 +81,23 @@ test('should get the difficulty', (t) => {
 
 test('set meta data', (t) => {
   const header = new Header();
-  header.setMeta(10, 20, 30, 100);
+  header.setMeta(10, 20, 30, 100, 50);
 
   t.equal(header.getA(), 10);
   t.equal(header.getX(), 20);
   t.equal(header.getY(), 30);
   t.equal(header.getZ(), 100);
+  t.equal(header.getW(), 50);
 
   const {
-    a, x, y, z,
+    a, x, y, z, w,
   } = header.getMeta();
 
   t.equal(a, 10);
   t.equal(x, 20);
   t.equal(y, 30);
   t.equal(z, 100);
+  t.equal(w, 50);
 
   t.end();
 });
@@ -103,7 +106,7 @@ test('randomize meta', (t) => {
   const header = new Header();
 
   const {
-    x, y, z, a,
+    x, y, z, a, w,
   } = header.getMeta();
 
   header.randomizeMeta();
@@ -112,6 +115,7 @@ test('randomize meta', (t) => {
   t.not(x, header.getX());
   t.not(y, header.getY());
   t.not(z, header.getZ());
+  t.not(w, header.getW());
 
   t.end();
 });
@@ -149,6 +153,7 @@ test('save and load header', async (t) => {
   t.equal(loaded.getX(), header.getX());
   t.equal(loaded.getY(), header.getY());
   t.equal(loaded.getZ(), header.getZ());
+  t.equal(loaded.getW(), header.getW());
 
   t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
   t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
@@ -204,6 +209,7 @@ test('to and from header object', async (t) => {
   t.equal(loaded.getX(), header.getX());
   t.equal(loaded.getY(), header.getY());
   t.equal(loaded.getZ(), header.getZ());
+  t.equal(loaded.getW(), header.getW());
 
   t.end();
 });
