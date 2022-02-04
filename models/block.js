@@ -8,7 +8,11 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB, TransactionDB } = require('../util/db');
-const { serializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject } = require('../util/serialize');
+
+const {
+  serializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject,
+} = require('../util/serialize');
+
 const Wallet = require('./wallet');
 
 class Block {
@@ -25,27 +29,32 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x000004cfb2970a75df3f47cc70981c1a057f714a077b53eb472faa8bb13deb11',
+        hash: '0x000003553a6b1cad607212ff8e97bad11efca4d03bdad4abed620222bbc378a3',
         previous: null,
-        time: 1643896085552,
+        time: 1643939109187,
         difficulty: 1,
-        checksum: '0x6e044c193f9f0149d47ec3dcecdcfb19c328738b643a021a8bb95054901c9c53',
+        checksum: '0x32814b77cac1a38e3429607184c8c6993de4241c5934159d90301487c0185d7a',
         version: 1,
-        a: 105,
-        x: 3891688713,
-        y: 3814085243,
-        z: 424340028,
-        w: 2993293457,
+        x: 1762928142,
+        y: 3001673358,
+        z: 4130011740,
+        w: 3141428736,
+        a: 181,
+        b: 189,
+        c: 2,
+        d: 128,
+        e: 244,
+        f: 59,
       },
       transactions: [
         {
-          id: '0x5854a632eef7df86fa1642644b391f1fab9ceb55eebc56fd44c7c80f8161b027',
+          id: '0x8630955c23c76938f8c3ac72bd5d5dd9ff4799320b6c350d0c774d152ee6534f',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x001e013825810a939a760d61e4fffe17a75973eec864007b12',
+          receiverAddress: '0x005c9c729a23beeedb3c49f43600afe4dace5d001e5557b674',
           amount: '1000000000000000000n',
           signature: null,
-          time: 1643896085553,
+          time: 1643939109188,
           type: 'mine',
           fee: '0n',
         },

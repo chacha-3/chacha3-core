@@ -47,7 +47,8 @@ test('hash data is correct', (t) => {
   header.setTime(1000000233);
   header.setDifficulty(1);
   header.setChecksum(deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'));
-  header.setMeta(199, 10, 20, 30, 50);
+  header.setLocation(10, 20, 30, 50);
+  header.setProperties(10, 20, 30, 40, 50, 60);
 
   const data = JSON.parse(header.hashData());
 
@@ -57,11 +58,16 @@ test('hash data is correct', (t) => {
     { key: 'time', value: 1000000233 },
     { key: 'difficulty', value: 1 },
     { key: 'checksum', value: '0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c' },
-    { key: 'a', value: 199 },
     { key: 'x', value: 10 },
     { key: 'y', value: 20 },
     { key: 'z', value: 30 },
     { key: 'w', value: 50 },
+    { key: 'a', value: 10 },
+    { key: 'b', value: 20 },
+    { key: 'c', value: 30 },
+    { key: 'd', value: 40 },
+    { key: 'e', value: 50 },
+    { key: 'f', value: 60 },
   ];
 
   // Order of keys is important to ensure hash has same output
@@ -81,23 +87,28 @@ test('should get the difficulty', (t) => {
 
 test('set meta data', (t) => {
   const header = new Header();
-  header.setMeta(10, 20, 30, 100, 50);
-
-  t.equal(header.getA(), 10);
-  t.equal(header.getX(), 20);
-  t.equal(header.getY(), 30);
-  t.equal(header.getZ(), 100);
-  t.equal(header.getW(), 50);
+  header.setLocation(10000, 20000, 30000, 40000);
+  header.setProperties(10, 20, 30, 40, 50, 60);
 
   const {
-    a, x, y, z, w,
-  } = header.getMeta();
+    x, y, z, w,
+  } = header.getLocation();
+
+  const {
+    a, b, c, d, e, f,
+  } = header.getProperties();
+
+  t.equal(x, 10000);
+  t.equal(y, 20000);
+  t.equal(z, 30000);
+  t.equal(w, 40000);
 
   t.equal(a, 10);
-  t.equal(x, 20);
-  t.equal(y, 30);
-  t.equal(z, 100);
-  t.equal(w, 50);
+  t.equal(b, 20);
+  t.equal(c, 30);
+  t.equal(d, 40);
+  t.equal(e, 50);
+  t.equal(f, 60);
 
   t.end();
 });
@@ -105,17 +116,21 @@ test('set meta data', (t) => {
 test('randomize meta', (t) => {
   const header = new Header();
 
-  const {
-    x, y, z, a, w,
-  } = header.getMeta();
+  const oldLocation = header.getLocation();
+  const oldProperties = header.getProperties();
 
   header.randomizeMeta();
 
-  t.not(a, header.getA());
-  t.not(x, header.getX());
-  t.not(y, header.getY());
-  t.not(z, header.getZ());
-  t.not(w, header.getW());
+  const newLocation = header.getLocation();
+  const newProperties = header.getProperties();
+
+  Object.keys(oldLocation).forEach((key) => {
+    t.not(oldLocation[key], newLocation[key]);
+  });
+
+  Object.keys(oldProperties).forEach((key) => {
+    t.not(oldProperties[key], newProperties[key]);
+  });
 
   t.end();
 });
@@ -136,8 +151,10 @@ test('randomize meta', (t) => {
 test('save and load header', async (t) => {
   const block = await mock.blockWithTransactions(1);
   const header = block.getHeader();
-
   await header.save();
+
+  const savedLocation = header.getLocation();
+  const savedProperties = header.getProperties();
 
   const key = header.getHash();
   t.ok(key.equals(header.getHash()), 'key is correct');
@@ -145,15 +162,20 @@ test('save and load header', async (t) => {
 
   const loaded = await Header.load(key);
 
+  const loadedLocation = header.getLocation();
+  const loadedProperties = header.getProperties();
+
   t.equal(loaded.getVersion(), header.getVersion(), 'loaded version matches');
   t.equal(loaded.getTime(), header.getTime(), 'loaded time matches');
   t.equal(loaded.getDifficulty(), header.getDifficulty(), 'loaded difficulty matches');
 
-  t.equal(loaded.getA(), header.getA());
-  t.equal(loaded.getX(), header.getX());
-  t.equal(loaded.getY(), header.getY());
-  t.equal(loaded.getZ(), header.getZ());
-  t.equal(loaded.getW(), header.getW());
+  Object.keys(savedLocation).forEach((locationKey) => {
+    t.equal(savedLocation[locationKey], loadedLocation[locationKey]);
+  });
+
+  Object.keys(savedProperties).forEach((propertyKey) => {
+    t.equal(savedProperties[propertyKey], loadedProperties[propertyKey]);
+  });
 
   t.ok(loaded.getChecksum().equals(header.getChecksum()), 'loaded checksum matches');
   t.ok(loaded.getHash().equals(header.getHash()), 'loaded hash matches');
@@ -194,6 +216,9 @@ test('to and from header object', async (t) => {
   const header = block.getHeader();
   header.setPrevious(previous);
 
+  const beforeLocation = header.getLocation();
+  const beforeProperties = header.getProperties();
+
   const data = header.toObject();
   const loaded = Header.fromObject(data);
 
@@ -205,11 +230,16 @@ test('to and from header object', async (t) => {
   t.equal(loaded.getDifficulty(), header.getDifficulty());
   t.equal(loaded.getVersion(), header.getVersion());
 
-  t.equal(loaded.getA(), header.getA());
-  t.equal(loaded.getX(), header.getX());
-  t.equal(loaded.getY(), header.getY());
-  t.equal(loaded.getZ(), header.getZ());
-  t.equal(loaded.getW(), header.getW());
+  const afterLocation = header.getLocation();
+  const afterProperties = header.getProperties();
+
+  Object.keys(beforeLocation).forEach((key) => {
+    t.equal(beforeLocation[key], afterLocation[key]);
+  });
+
+  Object.keys(beforeProperties).forEach((key) => {
+    t.equal(beforeProperties[key], afterProperties[key]);
+  });
 
   t.end();
 });

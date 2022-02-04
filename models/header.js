@@ -1,3 +1,4 @@
+/* eslint-disable object-property-newline */
 const assert = require('assert');
 const blake3 = require('blake3-wasm');
 
@@ -33,12 +34,20 @@ class Header {
     this.time = Date.now();
 
     this.difficulty = 1.0;
-    this.randomizeMeta();
-    // this.a = 0;
 
-    // this.x = 0;
-    // this.y = 0;
-    // this.z = 0;
+    this.a = 0;
+    this.b = 0;
+    this.c = 0;
+    this.d = 0;
+    this.e = 0;
+    this.f = 0;
+
+    this.x = 0;
+    this.y = 0;
+    this.z = 0;
+    this.w = 0;
+
+    this.randomizeMeta();
 
     this.hash = null;
   }
@@ -52,17 +61,22 @@ class Header {
     assert(this.checksum != null);
     assert(this.hash != null);
 
+    const {
+      x, y, z, w,
+    } = this.getLocation();
+
+    const {
+      a, b, c, d, e, f,
+    } = this.getProperties();
+
     const data = {
       version: this.getVersion(),
       previous: this.getPrevious(),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
       checksum: this.getChecksum(),
-      a: this.getA(),
-      x: this.getX(),
-      y: this.getY(),
-      z: this.getZ(),
-      w: this.getW(),
+      x, y, z, w,
+      a, b, c, d, e, f,
     };
 
     await HeaderDB.put(this.getHash(), packObject(data), {
@@ -81,12 +95,20 @@ class Header {
     header.setChecksum(deserializeBuffer(data.checksum));
     header.setHash(hash);
 
-    header.setMeta(
-      data.a,
+    header.setLocation(
       data.x,
       data.y,
       data.z,
       data.w,
+    );
+
+    header.setProperties(
+      data.a,
+      data.b,
+      data.c,
+      data.d,
+      data.e,
+      data.f,
     );
 
     return header;
@@ -111,17 +133,22 @@ class Header {
   hashData() {
     assert(this.checksum !== null && this.time != null);
 
+    const {
+      x, y, z, w,
+    } = this.getLocation();
+
+    const {
+      a, b, c, d, e, f,
+    } = this.getProperties();
+
     const data = {
       version: this.getVersion(),
       previous: this.getPrevious(),
       time: this.getTime(),
       difficulty: this.getDifficulty(),
       checksum: this.getChecksum(),
-      a: this.getA(),
-      x: this.getX(),
-      y: this.getY(),
-      z: this.getZ(),
-      w: this.getW(),
+      x, y, z, w,
+      a, b, c, d, e, f,
     };
 
     return JSON.stringify(serializeObject(data));
@@ -196,80 +223,70 @@ class Header {
   }
 
   randomizeMeta() {
-    this.a = randomNumberBetween(1, 2 ** 8);
+    this.setLocation(
+      randomNumberBetween(1, 2 ** 32),
+      randomNumberBetween(1, 2 ** 32),
+      randomNumberBetween(1, 2 ** 32),
+      randomNumberBetween(1, 2 ** 32),
+    );
 
-    this.x = randomNumberBetween(1, 2 ** 32);
-    this.y = randomNumberBetween(1, 2 ** 32);
-    this.z = randomNumberBetween(1, 2 ** 32);
-    this.w = randomNumberBetween(1, 2 ** 32);
+    this.setProperties(
+      randomNumberBetween(1, 2 ** 8),
+      randomNumberBetween(1, 2 ** 8),
+      randomNumberBetween(1, 2 ** 8),
+      randomNumberBetween(1, 2 ** 8),
+      randomNumberBetween(1, 2 ** 8),
+      randomNumberBetween(1, 2 ** 8),
+    );
   }
 
-  getMeta() {
+  getProperties() {
     return {
-      a: this.getA(),
-      x: this.getX(),
-      y: this.getY(),
-      z: this.getZ(),
-      w: this.getW(),
+      [Header.MetaProperty.A]: this.a,
+      [Header.MetaProperty.B]: this.b,
+      [Header.MetaProperty.C]: this.c,
+      [Header.MetaProperty.D]: this.d,
+      [Header.MetaProperty.E]: this.e,
+      [Header.MetaProperty.F]: this.f,
     };
   }
 
-  setMeta(a, x, y, z, w) {
-    this.setA(a);
-    this.setX(x);
-    this.setY(y);
-    this.setZ(z);
-    this.setW(w);
-  }
+  setProperties(a, b, c, d, e, f) {
+    assert([a, b, c, d, e, f].find((val) => val < 1 && val > 2 ** 8) === undefined);
 
-  getA() {
-    return this.a;
-  }
-
-  setA(a) {
-    assert(a > 0 && a <= 256);
     this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
   }
 
-  getX() {
-    return this.x;
+  getLocation() {
+    return {
+      [Header.MetaLocation.X]: this.x,
+      [Header.MetaLocation.Y]: this.y,
+      [Header.MetaLocation.Z]: this.z,
+      [Header.MetaLocation.W]: this.w,
+    };
   }
 
-  setX(x) {
-    assert(x > 0 && x <= 2 ** 32);
+  setLocation(x, y, z, w) {
+    assert([x, y, z, w].find((val) => val < 1 && val > 2 ** 32) === undefined);
+
     this.x = x;
-  }
-
-  getY() {
-    return this.y;
-  }
-
-  setY(y) {
-    assert(y > 0 && y <= 2 ** 32);
     this.y = y;
-  }
-
-  getZ() {
-    return this.z;
-  }
-
-  setZ(z) {
-    assert(z > 0 && z <= 2 ** 32);
     this.z = z;
-  }
-
-  getW() {
-    return this.w;
-  }
-
-  setW(w) {
-    assert(w > 0 && w <= 2 ** 32);
     this.w = w;
+  }
+
+  getMeta() {
+    return Object.assign(this.getLocation(), this.getProperties());
   }
 
   verifyHash(recalculate = true) {
     assert(this.getHash() !== null);
-    assert(this.getA() > 0);
+    // const { a } = this.getProperties();
 
     if (recalculate && !this.getHash().equals(this.computeHash())) {
       return false;
@@ -288,12 +305,21 @@ class Header {
     header.setDifficulty(obj.difficulty);
     header.setChecksum(deserializeBuffer(obj.checksum));
     header.setVersion(obj.version);
-    header.setMeta(obj.a, obj.x, obj.y, obj.z, obj.w);
+    header.setLocation(obj.x, obj.y, obj.z, obj.w);
+    header.setProperties(obj.a, obj.b, obj.c, obj.d, obj.e, obj.f);
 
     return header;
   }
 
   toObject() {
+    const {
+      x, y, z, w,
+    } = this.getLocation();
+
+    const {
+      a, b, c, d, e, f,
+    } = this.getProperties();
+
     const data = {
       hash: this.getHash(),
       previous: this.getPrevious(),
@@ -301,11 +327,8 @@ class Header {
       difficulty: this.getDifficulty(),
       checksum: this.getChecksum(),
       version: this.getVersion(),
-      a: this.getA(),
-      x: this.getX(),
-      y: this.getY(),
-      z: this.getZ(),
-      w: this.getW(),
+      x, y, z, w,
+      a, b, c, d, e, f,
     };
 
     return serializeObject(data);
@@ -316,5 +339,21 @@ class Header {
     return JSON.stringify(this.toObject()) === JSON.stringify(header.toObject());
   }
 }
+
+Header.MetaProperty = {
+  A: 'a',
+  B: 'b',
+  C: 'c',
+  D: 'd',
+  E: 'e',
+  F: 'f',
+};
+
+Header.MetaLocation = {
+  X: 'x',
+  Y: 'y',
+  Z: 'z',
+  W: 'w',
+};
 
 module.exports = Header;
