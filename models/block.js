@@ -1,5 +1,7 @@
 const assert = require('assert');
 const crypto = require('crypto');
+const blake3 = require('blake3-wasm');
+
 const debug = require('debug')('block:model');
 
 const { performance } = require('perf_hooks');
@@ -29,32 +31,32 @@ class Block {
   static get Genesis() {
     const data = {
       header: {
-        hash: '0x000003553a6b1cad607212ff8e97bad11efca4d03bdad4abed620222bbc378a3',
+        hash: '0x000003ad0eff92dc9aa85951940e0cdf9d897a8dd6c174c3bfbdca04a0d49bc2',
         previous: null,
-        time: 1643939109187,
+        time: 1644025809248,
         difficulty: 1,
-        checksum: '0x32814b77cac1a38e3429607184c8c6993de4241c5934159d90301487c0185d7a',
+        checksum: '0xae4351e3a92712f7b144371ae283a89049f90d074bb2ebaaf5a7bab1298c6ad1',
         version: 1,
-        x: 1762928142,
-        y: 3001673358,
-        z: 4130011740,
-        w: 3141428736,
-        a: 181,
-        b: 189,
-        c: 2,
-        d: 128,
-        e: 244,
-        f: 59,
+        x: 929359476,
+        y: 2814769198,
+        z: 1573973403,
+        w: 2055602946,
+        a: 73,
+        b: 244,
+        c: 226,
+        d: 105,
+        e: 47,
+        f: 138,
       },
       transactions: [
         {
-          id: '0x8630955c23c76938f8c3ac72bd5d5dd9ff4799320b6c350d0c774d152ee6534f',
+          id: '0x3df9c9fbcdd165118b97105461a4c1b9d2dbb67d0f52dcc01ea4b3bc55fc2291',
           version: 1,
           senderKey: null,
-          receiverAddress: '0x005c9c729a23beeedb3c49f43600afe4dace5d001e5557b674',
+          receiverAddress: '0x00b123be9fbd3e9bc059df2b3ac4de590e21ff205a926fc611',
           amount: '1000000000000000000n',
           signature: null,
-          time: 1643939109188,
+          time: 1644025809249,
           type: 'mine',
           fee: '0n',
         },
@@ -326,7 +328,8 @@ class Block {
     );
 
     const fingerprint = Buffer.concat([lastChecksum, newTransactionId]);
-    const newChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
+    const newChecksum = blake3.hash(fingerprint);
+
     this.header.setChecksum(newChecksum);
   }
 
@@ -342,7 +345,7 @@ class Block {
       const transaction = this.transactions[i];
       const fingerprint = Buffer.concat([lastChecksum, transaction.getId()]);
 
-      lastChecksum = crypto.createHash('SHA256').update(fingerprint).digest();
+      lastChecksum = blake3.hash(fingerprint);
     }
 
     return this.getHeader().getChecksum().equals(lastChecksum);

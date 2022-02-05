@@ -1,5 +1,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
+const blake3 = require('blake3-wasm');
 
 const debug = require('debug')('transaction:model');
 
@@ -46,7 +47,7 @@ class Transaction {
   }
 
   getId() {
-    return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
+    return blake3.hash(Buffer.from(this.hashData()));
   }
 
   getIdHex() {
