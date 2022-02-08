@@ -1,6 +1,5 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const blake3 = require('blake3-wasm');
 
 const debug = require('debug')('transaction:model');
 
@@ -47,7 +46,8 @@ class Transaction {
   }
 
   getId() {
-    return blake3.hash(Buffer.from(this.hashData()));
+    // SHA-256 for browser compatability
+    return crypto.createHash('SHA256').update(Buffer.from(this.hashData())).digest();
   }
 
   getIdHex() {
@@ -95,7 +95,7 @@ class Transaction {
       key: decrypted, format: 'der', type: 'pkcs8',
     });
 
-    this.signature = crypto.sign('SHA256', this.getId(), keyObject);
+    this.signature = crypto.sign('SHA384', this.getId(), keyObject);
 
     return true;
   }
@@ -184,7 +184,7 @@ class Transaction {
     });
 
     try {
-      return crypto.verify('SHA256', this.getId(), senderKeyObject, this.getSignature());
+      return crypto.verify('SHA384', this.getId(), senderKeyObject, this.getSignature());
     } catch {
       debug('Failed transaction signature verification');
       return false;
