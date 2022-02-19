@@ -10,7 +10,7 @@ const { SuccessCode, ErrorCode } = require('../../util/rpc');
 
 const Chain = require('../../models/chain');
 const Block = require('../../models/block');
-const { serializeBuffer } = require('../../util/serialize');
+const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
 const Transaction = require('../../models/transaction');
 const { randomNumberBetween } = require('../../util/math');
 
@@ -121,6 +121,31 @@ test('unable to push invalid block', async (t) => {
   block.header.checksum[3] += 100;
 
   await block.mine(Chain.mainChain.getCurrentDifficulty());
+
+  const options = { action: 'pushBlock', ...block.toObject() };
+
+  const { code } = await runAction(options);
+  t.equal(code, ErrorCode.InvalidArgument);
+
+  await Chain.clearMain();
+
+  t.end();
+});
+
+test('unable to push unverified block', async (t) => {
+  const blockCount = 3;
+
+  const wallet = new Wallet();
+  await wallet.generate();
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const block = new Block();
+  block.addCoinbase(wallet.getAddress());
+
+  block.header.setHash(deserializeBuffer(
+    '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  ));
 
   const options = { action: 'pushBlock', ...block.toObject() };
 
