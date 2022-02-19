@@ -26,7 +26,6 @@
     "node-ipc": "<10.0.0",
     "password-validator": "^5.2.1",
     "secure-random-password": "^0.2.3",
-    "selfsigned": "^1.10.11",
     "shell-quote": "^1.7.2",
     "subleveldown": "^5.0.1",
     "xxhash": "^0.3.0",
