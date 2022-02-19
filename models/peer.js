@@ -191,7 +191,6 @@ class Peer {
     //   return;
     // }
 
-    // TODO: Use non-serialized buffer?
     const key = serializeBuffer(peer.getId());
 
     // May not need
