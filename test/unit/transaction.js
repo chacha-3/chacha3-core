@@ -355,8 +355,8 @@ test('save pending transactions', async (t) => {
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 33);
-    await transaction.sign(sender.getPrivateKey());
 
+    await transaction.sign(sender.getPrivateKey());
     await transaction.saveAsPending();
   }
 

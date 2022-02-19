@@ -236,16 +236,6 @@ class Transaction {
     });
   }
 
-  // Use is saved
-  // static async exist(key) {
-  //   try {
-  //     await TransactionDB.get(key);
-  //     return true;
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
-
   async saveAsPending() {
     assert(this.getId() != null);
     const key = this.getId();

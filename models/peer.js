@@ -50,7 +50,7 @@ class Peer {
   }
 
   static randomizeLocalNonce() {
-    Peer.localNonce = randomNumberBetween(1, Number.MAX_SAFE_INTEGER);
+    Peer.localNonce = randomNumberBetween(1, 2 ** 32);
   }
 
   static generateKey(host, port) {
