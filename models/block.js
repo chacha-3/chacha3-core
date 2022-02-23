@@ -10,6 +10,9 @@ const Header = require('./header');
 const Transaction = require('./transaction');
 
 const { BlockDB, TransactionDB } = require('../util/db');
+const { config, Env } = require('../util/env');
+
+const { Testing, Development, Production } = Env;
 
 const {
   serializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject,
@@ -21,6 +24,18 @@ class Block {
   constructor() {
     this.header = new Header();
     this.transactions = [];
+  }
+
+  static get MaxTransactionCount() {
+    const { environment } = config;
+
+    const adjustInterval = {
+      [Production]: 1000,
+      [Development]: 1000,
+      [Testing]: 20,
+    };
+
+    return adjustInterval[environment];
   }
 
   static get InitialReward() {
@@ -182,6 +197,10 @@ class Block {
   }
 
   async verifyTransactions() {
+    if (this.getTransactionCount() > Block.MaxTransactionCount) {
+      return false;
+    }
+
     const verify = (transaction, index) => new Promise((resolve, reject) => {
       transaction.isSaved().then((saved) => {
         if (saved) {
@@ -351,9 +370,9 @@ class Block {
     return this.getHeader().getChecksum().equals(lastChecksum);
   }
 
-  // verifySize() {
-  //   // TODO:
-  // }
+  verifySize() {
+    return this.getTransactionCount() <= Block.MaxTransactionCount;
+  }
 
   toObject() {
     const data = {

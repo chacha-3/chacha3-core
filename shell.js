@@ -124,7 +124,7 @@ function printResult(result) {
 }
 
 function setDefaultPrompt() {
-  rl.setPrompt(chalk.bold.redBright('$ '));
+  rl.setPrompt(chalk.bold.magentaBright('$ '));
 }
 
 function promptPendingField() {

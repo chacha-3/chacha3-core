@@ -787,3 +787,48 @@ test('get and verify genesis block', async (t) => {
 
   t.end();
 });
+
+test('get max transactions per block', async (t) => {
+  t.equal(Block.MaxTransactionCount, 20);
+  t.end();
+});
+
+test('verify size pass for block under or equal max transaction count', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const oversizedBlock = await mock.blockWithTransactions(Block.MaxTransactionCount);
+  oversizedBlock.setPreviousHash(previousHeader.getHash());
+  await oversizedBlock.mine();
+
+  t.equal(oversizedBlock.verifySize(), true);
+
+  t.equal(await oversizedBlock.verify(
+    previousHeader,
+    Chain.blockRewardAtIndex(numOfBlocks),
+  ), true);
+
+  t.end();
+});
+
+test('verify size pass for block under or equal max transaction count', async (t) => {
+  const numOfBlocks = 3;
+
+  const chain = await mock.chainWithHeaders(numOfBlocks, 2);
+  const previousHeader = chain.lastBlockHeader();
+
+  const oversizedBlock = await mock.blockWithTransactions(Block.MaxTransactionCount + 1);
+  oversizedBlock.setPreviousHash(previousHeader.getHash());
+  await oversizedBlock.mine();
+
+  t.equal(oversizedBlock.verifySize(), false);
+
+  t.equal(await oversizedBlock.verify(
+    previousHeader,
+    Chain.blockRewardAtIndex(numOfBlocks),
+  ), false);
+
+  t.end();
+});
