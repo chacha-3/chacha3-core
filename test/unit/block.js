@@ -805,6 +805,7 @@ test('verify size pass for block under or equal max transaction count', async (t
 
   t.equal(oversizedBlock.verifySize(), true);
 
+  t.equal(await oversizedBlock.verifyTransactions(), true);
   t.equal(await oversizedBlock.verify(
     previousHeader,
     Chain.blockRewardAtIndex(numOfBlocks),
@@ -825,6 +826,7 @@ test('verify size pass for block under or equal max transaction count', async (t
 
   t.equal(oversizedBlock.verifySize(), false);
 
+  t.equal(await oversizedBlock.verifyTransactions(), false);
   t.equal(await oversizedBlock.verify(
     previousHeader,
     Chain.blockRewardAtIndex(numOfBlocks),
