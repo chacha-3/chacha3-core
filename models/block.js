@@ -196,47 +196,41 @@ class Block {
     return this.header.verifyHash(recalculate);
   }
 
+  async verifyTransactionAtIndex(index) {
+    const transaction = this.getTransaction(index);
+
+    if (await transaction.isSaved()) {
+      return false;
+    }
+
+    if (index !== 0 && transaction.getType() === Transaction.Type.Mine) {
+      debug(`Transaction ${serializeBuffer(transaction.getId())} has multiple mining transactions`);
+      return false;
+    }
+
+    if (!transaction.verify()) {
+      debug(`Transaction ${serializeBuffer(transaction.getId())} is not verified`);
+      return false;
+    }
+
+    return true;
+  }
+
   async verifyTransactions() {
     if (this.getTransactionCount() > Block.MaxTransactionCount) {
       return false;
     }
 
-    const verify = (transaction, index) => new Promise((resolve, reject) => {
-      transaction.isSaved().then((saved) => {
-        if (saved) {
-          debug(`Transaction ${serializeBuffer(transaction.getId())} is already saved`);
-          return reject();
-        }
-
-        // Ensure non-coinbase does not have type Mine
-        if (index !== 0 && transaction.getType() === Transaction.Type.Mine) {
-          debug(`Transaction ${serializeBuffer(transaction.getId())} has multiple mining transactions`);
-          return reject();
-        }
-
-        if (!transaction.verify()) {
-          debug(`Transaction ${serializeBuffer(transaction.getId())} is not verified`);
-          return reject();
-        }
-
-        return resolve();
-      });
-    });
-
     const promises = [];
 
     for (let i = 0; i < this.getTransactionCount(); i += 1) {
-      const transaction = this.getTransaction(i);
-      promises.push(verify(transaction, i));
+      promises.push(this.verifyTransactionAtIndex(i));
     }
 
-    try {
-      await Promise.all(promises);
-    } catch (e) {
-      return false;
-    }
+    const results = await Promise.all(promises);
 
-    return true;
+    // No failed verification found
+    return results.findIndex((result) => result === false) === -1;
   }
 
   validateCoinbase() {
