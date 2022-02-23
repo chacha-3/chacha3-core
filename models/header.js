@@ -3,13 +3,12 @@ const assert = require('assert');
 const blake3 = require('blake3-wasm');
 
 const { HeaderDB } = require('../util/db');
+const { config, Env } = require('../util/env');
+const { randomNumberBetween } = require('../util/math');
 
 const {
   serializeObject, deserializeBuffer, serializeBuffer, packObject, unpackObject,
 } = require('../util/serialize');
-
-const { config, Env } = require('../util/env');
-const { randomNumberBetween } = require('../util/math');
 
 const { Production, Development, Testing } = Env;
 

@@ -10,18 +10,12 @@ const { WalletDB, DB } = require('../util/db');
 const { serializeBuffer, deserializeBuffer, unpackObject, packObject } = require('../util/serialize');
 const { isTestEnvironment } = require('../util/env');
 
-// const addressPrefix = '420_';
-
 class Wallet {
   constructor() {
     this.label = '';
 
     this.privateKey = null; // Encrypted
     this.publicKey = null;
-  }
-
-  static get AddressPrefix() {
-    return '';
   }
 
   static async all() {
@@ -71,7 +65,6 @@ class Wallet {
 
   // TODO: Remove. Use generateAddress
   static generateAddressEncoded(publicKey) {
-    // return `${Wallet.AddressPrefix}${bs58.encode(Wallet.generateAddress(publicKey))}`;
     return serializeBuffer(Wallet.generateAddress(publicKey));
   }
 

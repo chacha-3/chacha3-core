@@ -1,5 +1,4 @@
 const assert = require('assert');
-const crypto = require('crypto');
 const blake3 = require('blake3-wasm');
 
 const debug = require('debug')('block:model');

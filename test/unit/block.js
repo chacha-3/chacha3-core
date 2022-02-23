@@ -6,13 +6,12 @@ const crypto = require('crypto');
 const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 const Transaction = require('../../models/transaction');
+const Chain = require('../../models/chain');
+const Header = require('../../models/header');
 
 const mock = require('../../util/mock');
-
-const Chain = require('../../models/chain');
 const { deserializeBuffer } = require('../../util/serialize');
 const { randomNumberBetween } = require('../../util/math');
-const Header = require('../../models/header');
 
 test('should validate coinbase', async (t) => {
   const numOfBlocks = 3;

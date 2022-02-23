@@ -3,9 +3,9 @@ const { test } = require('tap');
 const Wallet = require('../../models/wallet');
 const Transaction = require('../../models/transaction');
 const Chain = require('../../models/chain');
+const Block = require('../../models/block');
 
 const mock = require('../../util/mock');
-const Block = require('../../models/block');
 const { deserializeBuffer, serializeBuffer } = require('../../util/serialize');
 const { randomPassword } = require('../../util/mock');
 

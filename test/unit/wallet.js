@@ -1,65 +1,26 @@
 const crypto = require('crypto');
 const { test } = require('tap');
 
-
-// const chai = require('chai');
-
 const Wallet = require('../../models/wallet');
 
 const mock = require('../../util/mock');
 const { serializeBuffer, deserializeBuffer } = require('../../util/serialize');
 
-// const { expect } = chai;
-
 test('should create a wallet key', async (t) => {
   const wallet = new Wallet();
   await wallet.generate();
 
-  // TODO:
-
-  // t.equal(wallet.getPrivateKey().length, 185, 'private key has length 185');
-  // t.equal(wallet.getPublicKey().length, 120, 'public key has length 120');
+  t.equal(wallet.getPrivateKey().length, 230, 'private key has length 230');
+  t.equal(wallet.getPublicKey().length, 120, 'public key has length 120');
 
   t.end();
 });
 
-// test('walley key objects', (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
+test('should get wallet address', async (t) => {
+  const wallet = new Wallet();
+  await wallet.generate();
 
-//   // const { privateKey, publicKey } = wallet.getKeyObjects();
-
-//   t.type(typeof (wallet.getPrivateKeyObject()), 'object', 'private key is an object');
-//   t.type(typeof (wallet.getPublicKeyObject()), 'object', 'public key is an object');
-
-//   t.end();
-// });
-
-// test('wallet key in pem format', (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
-
-//   const { privateKey, publicKey } = wallet.getKeysPem();
-
-//   t.equal(privateKey.startsWith('-----BEGIN PRIVATE KEY-----'), true, 'private key in pem format');
-//   t.equal(publicKey.startsWith('-----BEGIN PUBLIC KEY-----'), true, 'public key in pem format');
-
-//   t.end();
-// });
-
-// test('should get wallet address', (t) => {
-//   const wallet = new Wallet();
-//   wallet.generate();
-
-//   const address = wallet.getAddress();
-//   t.equal(address.length, 25, 'address length is 25', 'address has length 25');
-//   t.equal(address[0], 0, 'address starts with 0');
-//   t.end();
-// });
-
-test('correct wallet prefix', (t) => {
-  // TODO: Set
-  t.equal(Wallet.AddressPrefix, '');
+  t.equal(wallet.getAddress().length, 25, 'address length of 25');
   t.end();
 });
 
@@ -75,7 +36,7 @@ test('set and get wallet label', (t) => {
   t.end();
 });
 
-test('should get encoded wallet address',async (t) => {
+test('should get encoded wallet address', async (t) => {
   const wallet = new Wallet();
   await wallet.generate();
 

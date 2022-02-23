@@ -1,7 +1,12 @@
 const { test } = require('tap');
 const crypto = require('crypto');
 const { performance } = require('perf_hooks');
-const BSON = require('bson');
+
+const mock = require('../../util/mock');
+
+const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
+const { median } = require('../../util/math');
+const { waitUntil } = require('../../util/sync');
 
 const {
   serializeObject,
@@ -17,12 +22,13 @@ const {
   unpackIndexArray,
 } = require('../../util/serialize');
 
-const mock = require('../../util/mock');
-const { config, Env, runningManualTest, isManualTestArgv, isTestEnvironment } = require('../../util/env');
-
-const { okResponse, errorResponse, ErrorCode } = require('../../util/rpc');
-const { median } = require('../../util/math');
-const { waitUntil } = require('../../util/sync');
+const {
+  config,
+  Env,
+  runningManualTest,
+  isManualTestArgv,
+  isTestEnvironment,
+} = require('../../util/env');
 
 test('detect running unit test', (t) => {
   const argvTest = [

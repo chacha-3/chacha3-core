@@ -1,6 +1,6 @@
 const { test } = require('tap');
-const mock = require('../../util/mock');
 
+const mock = require('../../util/mock');
 const blockData = require('../../util/mock/data/blocks.json');
 const { sendTestRequest, HOST_127_0_0_100, PORT_7000 } = require('../../util/peer-response');
 
