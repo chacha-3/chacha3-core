@@ -439,17 +439,7 @@ test('list correct account transactions from chain (no fee)', async (t) => {
 
     // Post coinbase transaction
     const transaction = blocks[i].getTransaction(1);
-
-    // const senderAddress = generateAddressEncoded(transaction.getSenderKey());
     receiverAddresses[i] = transaction.getReceiverAddress();
-
-    // const senderBalance = chain.getAccountBalance(senderAddress);
-    // const receiverBalance = chain.getAccountBalance(receiverAddresses[i]);
-
-    // const updatedBlocks = i + 1;
-
-    // t.ok(senderBalance < 10000 * updatedBlocks);
-    // t.ok(receiverBalance > 0);
   }
 
   for (let j = 0; j < numOfBlocks; j += 1) {

@@ -42,6 +42,7 @@ test('should get encoded wallet address', async (t) => {
 
   const encoded = wallet.getAddressEncoded();
   t.equal(encoded.slice(0, 4), '0x00');
+  t.equal(encoded.length, 52);
 
   t.end();
 });

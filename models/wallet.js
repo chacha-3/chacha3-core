@@ -63,7 +63,6 @@ class Wallet {
     return Buffer.concat([version, fingerprint, checksum]);
   }
 
-  // TODO: Remove. Use generateAddress
   static generateAddressEncoded(publicKey) {
     return serializeBuffer(Wallet.generateAddress(publicKey));
   }
