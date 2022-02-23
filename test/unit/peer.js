@@ -672,6 +672,20 @@ test('determine that request is from peer reaching out to self', async (t) => {
   t.end();
 });
 
+test('add and clear peer sync interval', async (t) => {
+  t.equal(Object.keys(Peer.syncIntervals).length, 0);
+
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+  Peer.addSyncInterval(peer);
+
+  t.equal(Object.keys(Peer.syncIntervals).length, 1);
+  await Peer.clearSyncInterval(peer.getId());
+
+  t.equal(Object.keys(Peer.syncIntervals).length, 0, 'Cleared from sync interval');
+
+  t.end();
+});
+
 // test('set active peer status from compatibility', async (t) => {
 //   // const compatiblePeer = new Peer(HOST_127_0_0_100, PORT_7000);
 //   // compatiblePeer.setVersion('0.0.2');

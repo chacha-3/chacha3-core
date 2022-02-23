@@ -187,9 +187,9 @@ class Peer {
   }
 
   static addSyncInterval(peer) {
-    if (isTestEnvironment) {
-      return;
-    }
+    // if (isTestEnvironment) {
+    //   return;
+    // }
 
     const key = serializeBuffer(peer.getId());
 
@@ -203,7 +203,9 @@ class Peer {
 
   static clearSyncInterval(peerId) {
     const key = serializeBuffer(peerId);
+
     clearInterval(Peer.syncIntervals[key]);
+    delete Peer.syncIntervals[key];
   }
 
   getId() {
