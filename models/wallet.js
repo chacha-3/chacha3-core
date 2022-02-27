@@ -7,8 +7,14 @@ const XXHash = require('xxhash');
 
 // const DB = require('../util/database');
 const { WalletDB, DB } = require('../util/db');
-const { serializeBuffer, deserializeBuffer, unpackObject, packObject } = require('../util/serialize');
 const { isTestEnvironment } = require('../util/env');
+
+const {
+  serializeBuffer,
+  deserializeBuffer,
+  unpackObject,
+  packObject,
+} = require('../util/serialize');
 
 class Wallet {
   constructor() {
@@ -220,33 +226,17 @@ class Wallet {
     this.publicKey = publicKey;
   }
 
-  // TODO: Remove use
   getPublicKeyHex() {
     assert(this.privateKey !== null);
 
     return serializeBuffer(this.publicKey);
   }
 
-  // TODO: Remove use
   getPrivateKeyHex() {
     assert(this.privateKey !== null);
 
     return serializeBuffer(this.privateKey);
   }
-
-  // getPublicKeyObject() {
-  //   return crypto.createPublicKey({
-  //     key: this.publicKey, format: 'der', type: 'spki',
-  //   });
-  // }
-
-  // getPrivateKeyObject(password) {
-  //   const passphrase = password || '';
-
-  //   return crypto.createPrivateKey({
-  //     key: this.privateKey, format: 'der', type: 'pkcs8', passphrase,
-  //   });
-  // }
 
   getAddress() {
     assert(this.publicKey != null);

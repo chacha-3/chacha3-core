@@ -219,7 +219,7 @@ test('unable to create a transaction with insufficient balance', async (t) => {
 
   Chain.mainChain = await mock.chainWithBlocks(3, 1);
 
-  const { code, data, message } = await runAction({
+  const { code } = await runAction({
     action: 'createTransaction',
     key: sender.getPrivateKeyHex(),
     receiverAddress: receiver.getAddressEncoded(),
@@ -325,7 +325,7 @@ test('should fail to push unverified transaction', async (t) => {
   const receiver = new Wallet();
   await receiver.generate();
 
-  // Not signed
+  // Unsigned transaction
   const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 10000);
 
   const { code } = await runAction({
@@ -388,12 +388,12 @@ test('clear pending transactions', async (t) => {
 
   for (let i = 0; i < numOfTransactions; i += 1) {
     const transaction = new Transaction(sender.getPublicKey(), receiver.getAddress(), 97);
-    await transaction.sign(sender.getPrivateKey());
 
+    await transaction.sign(sender.getPrivateKey());
     await transaction.saveAsPending();
   }
 
-  const { data, code } = await runAction({
+  const { code } = await runAction({
     action: 'clearPendingTransactions',
   });
 
