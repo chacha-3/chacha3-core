@@ -86,6 +86,24 @@ test('list blocks in chain', async (t) => {
   t.end();
 });
 
+test('list blocks in chain in descending order', async (t) => {
+  const blockCount = 3;
+
+  Chain.mainChain = await mock.chainWithBlocks(blockCount, 1);
+
+  const options = { action: 'listBlocks', order: 'desc' };
+
+  const { code, data } = await runAction(options);
+  t.equal(code, SuccessCode);
+  t.equal(data.length, blockCount);
+
+  t.equal(data[blockCount - 1].hash, serializeBuffer(Block.Genesis.getHeader().getHash()));
+
+  await Chain.clearMain();
+
+  t.end();
+});
+
 test('list blocks with filter', async (t) => {
   const blockCount = 5;
 

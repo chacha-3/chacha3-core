@@ -81,15 +81,24 @@ actions.listBlocks = {
     properties: {
       offset: { type: 'integer' },
       limit: { type: 'integer' },
+      order: { type: 'string' },
     },
   },
   handler: async (options) => {
     const chain = Chain.mainChain;
 
-    const start = options.offset;
-    const end = (options.limit === undefined) ? options.limit : options.limit + (start || 0);
+    const { offset, limit, order } = options;
 
-    const data = chain.blockHeaders.slice(start, end).map((header) => header.toObject());
+    const start = offset;
+    const end = (limit === undefined) ? limit : limit + (start || 0);
+
+    let headers = chain.blockHeaders;
+
+    if (order === 'desc') {
+      headers = headers.reverse();
+    }
+
+    const data = headers.slice(start, end).map((header) => header.toObject());
     return okResponse(data, 'Block list');
   },
 };
