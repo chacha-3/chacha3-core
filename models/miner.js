@@ -50,7 +50,11 @@ class Miner {
     const latestBlock = Chain.mainChain.lastBlockHeader();
     block.setPreviousHash(latestBlock.getHash());
 
-    const rejected = block.addPendingTransactions(this.pendingTransactions);
+    const priorityTransactions = this.pendingTransactions
+      .sort((a, b) => b.getFee() - a.getFee())
+      .slice(0, Block.MaxTransactionCount);
+
+    const rejected = block.addPendingTransactions(priorityTransactions);
     // TODO: Clear rejected blocks
 
     block.header.hash = block.header.computeHash();
