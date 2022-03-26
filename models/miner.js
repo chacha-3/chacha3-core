@@ -42,6 +42,12 @@ class Miner {
     // FIXME: Check added to block before removing
   }
 
+  priorityTransactions() {
+    return this.pendingTransactions
+      .sort((a, b) => b.getFee() - a.getFee())
+      .slice(0, Block.MaxTransactionCount);
+  }
+
   initMiningBlock() {
     const block = new Block();
     block.addCoinbase(this.receiverAddress, Chain.blockRewardAtIndex(Chain.mainChain.getLength()));
@@ -50,11 +56,7 @@ class Miner {
     const latestBlock = Chain.mainChain.lastBlockHeader();
     block.setPreviousHash(latestBlock.getHash());
 
-    const priorityTransactions = this.pendingTransactions
-      .sort((a, b) => b.getFee() - a.getFee())
-      .slice(0, Block.MaxTransactionCount);
-
-    const rejected = block.addPendingTransactions(priorityTransactions);
+    const rejected = block.addPendingTransactions(this.priorityTransactions());
     // TODO: Clear rejected blocks
 
     block.header.hash = block.header.computeHash();
