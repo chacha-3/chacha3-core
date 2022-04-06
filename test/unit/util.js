@@ -28,6 +28,7 @@ const {
   runningManualTest,
   isManualTestArgv,
   isTestEnvironment,
+  envShortCode,
 } = require('../../util/env');
 
 test('detect running unit test', (t) => {
@@ -275,6 +276,15 @@ test('load environment config defaults', async (t) => {
   t.equal(config.environment, Env.Testing);
 
   // TODO: Host and port
+
+  t.end();
+});
+
+test('has correct environment short code', async (t) => {
+  t.equal(envShortCode(Env.Production), 'main');
+  t.equal(envShortCode(Env.Staging), 'test');
+  t.equal(envShortCode(Env.Development), 'dev');
+  t.equal(envShortCode(Env.Testing), 'local');
 
   t.end();
 });
