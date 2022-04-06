@@ -4,7 +4,9 @@ const assert = require('assert');
 const Header = require('./header');
 const { config, Env } = require('../util/env');
 
-const { Testing, Development, Production } = Env;
+const {
+  Testing, Development, Staging, Production,
+} = Env;
 
 const {
   DB,
@@ -32,41 +34,47 @@ class Chain {
   }
 
   // Interval in which difficulty is adjusted
-  static getAdjustInterval() {
+  static getAdjustInterval(env) {
     const { environment } = config;
+    const selectedEnv = env || environment;
 
     const adjustInterval = {
-      [Production]: 2000,
+      [Production]: 1440,
+      [Staging]: 1440,
       [Development]: 20,
       [Testing]: 8,
     };
 
-    return adjustInterval[environment];
+    return adjustInterval[selectedEnv];
   }
 
   // TODO: Change to static get
-  static getHalvingInterval() {
+  static getHalvingInterval(env) {
     const { environment } = config;
+    const selectedEnv = env || environment;
 
     const halvingInterval = {
       [Production]: 1000000,
+      [Staging]: 1000000,
       [Development]: 500000,
       [Testing]: 10,
     };
 
-    return halvingInterval[environment];
+    return halvingInterval[selectedEnv];
   }
 
-  static getExpectedTimePerBlock() {
+  static getExpectedTimePerBlock(env) {
     const { environment } = config;
+    const selectedEnv = env || environment;
 
     const expectedTime = {
-      [Production]: 60000, // TODO: Set
+      [Production]: 60000,
+      [Staging]: 60000,
       [Development]: 30000,
       [Testing]: 1000,
     };
 
-    return expectedTime[environment];
+    return expectedTime[selectedEnv];
   }
 
   static calculateAdjustFactor(medianTimePerBlock) {

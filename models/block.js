@@ -11,7 +11,9 @@ const Transaction = require('./transaction');
 const { BlockDB, TransactionDB } = require('../util/db');
 const { config, Env } = require('../util/env');
 
-const { Testing, Development, Production } = Env;
+const {
+  Testing, Development, Staging, Production,
+} = Env;
 
 const {
   serializeBuffer, packIndexArray, unpackIndexArray, packObject, unpackObject,
@@ -30,6 +32,7 @@ class Block {
 
     const adjustInterval = {
       [Production]: 1000,
+      [Staging]: 1000,
       [Development]: 1000,
       [Testing]: 20,
     };

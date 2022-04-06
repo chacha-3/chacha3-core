@@ -10,25 +10,25 @@ const {
   serializeObject, deserializeBuffer, serializeBuffer, packObject, unpackObject,
 } = require('../util/serialize');
 
-const { Production, Development, Testing } = Env;
+const {
+  Production, Staging, Development, Testing,
+} = Env;
 
 // TODO: Cleaner way for this. Add generic environment check
 
 const minTarget = {
   [Production]: '0x000007f800000000000000000000000000000000000000000000000000000000', // TODO: Set
+  [Staging]: '0x000007f800000000000000000000000000000000000000000000000000000000',
   [Development]: '0x000007f800000000000000000000000000000000000000000000000000000000',
   [Testing]: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000',
 };
-
-// 0000ff0000000000000000000000000000000000000000000000000000000000
-// 000007f800000000000000000000000000000000000000000000000000000000
 
 class Header {
   constructor() {
     this.version = 1;
 
     this.previous = null;
-    this.checksum = null; // TODO:
+    this.checksum = null;
 
     this.time = Date.now();
 
