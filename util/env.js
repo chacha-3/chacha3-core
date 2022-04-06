@@ -29,7 +29,7 @@ const environment = (runningManualTest) ? Env.Testing : (process.env.NODE_ENV ||
 assert(Object.values(Env).includes(environment));
 
 const config = {
-  port: process.env.PORT || 5438,
+  port: Number.parseInt(process.env.PORT, 10) || 5438,
   host: process.env.HOST || '',
   environment,
   chainId: `chacha3-${envShortCode(environment)}chain`,

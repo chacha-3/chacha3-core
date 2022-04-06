@@ -275,7 +275,8 @@ test('load environment config defaults', async (t) => {
   t.equal(config.networkId, 'chacha3-localnet');
   t.equal(config.environment, Env.Testing);
 
-  // TODO: Host and port
+  t.equal(config.host, '');
+  t.equal(config.port, 5438);
 
   t.end();
 });
