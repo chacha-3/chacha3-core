@@ -571,6 +571,26 @@ test('check if peer block work is significantly ahead', async (t) => {
   t.end();
 });
 
+test('check if peer block work is significantly behind', async (t) => {
+  const numOfBlock = 3;
+  Chain.mainChain = await mock.chainWithBlocks(numOfBlock, 5);
+
+  const currentDifficulty = Chain.mainChain.getCurrentDifficulty();
+
+  const aboveThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 6);
+  const belowThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 2);
+
+  const peer = new Peer(HOST_127_0_0_100, PORT_7000);
+  peer.setTotalWork((numOfBlock * currentDifficulty) - belowThreshold);
+  t.equal(peer.isSignificantlyBehind(), false);
+
+  peer.setTotalWork((numOfBlock * currentDifficulty) - aboveThreshold);
+  t.equal(peer.isSignificantlyBehind(), true);
+
+  await Chain.clearMain();
+  t.end();
+});
+
 test('reach out peer if inactive', async (t) => {
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
 

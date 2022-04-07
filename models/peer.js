@@ -510,7 +510,15 @@ class Peer {
     const threshold = Chain.mainChain.getCurrentDifficulty() * 5;
     const upperThreshold = Chain.mainChain.getTotalWork() + threshold;
 
+    // Peer's chain's work is ahead
     return this.getTotalWork() > upperThreshold;
+  }
+
+  isSignificantlyBehind() {
+    const threshold = Chain.mainChain.getCurrentDifficulty() * 5;
+    const lowerThreshold = Chain.mainChain.getTotalWork() - threshold;
+
+    return this.getTotalWork() < lowerThreshold;
   }
 
   async syncChain() {
@@ -549,6 +557,10 @@ class Peer {
     this.save();
 
     return valid;
+  }
+
+  async pushDiscoveredBlocks(pulledChain) {
+
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
