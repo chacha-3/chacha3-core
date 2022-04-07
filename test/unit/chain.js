@@ -7,6 +7,7 @@ const Header = require('../../models/block');
 const Chain = require('../../models/chain');
 
 const mock = require('../../util/mock');
+const { Production, Staging, Testing } = require('../../util/env').Env;
 
 const { generateAddress } = require('../../models/wallet');
 const { serializeObject, serializeBuffer } = require('../../util/serialize');
@@ -828,6 +829,30 @@ test('clone part of chain', async (t) => {
   t.equal(clone.getLength(), 3);
 
   await Chain.clearMain();
+
+  t.end();
+});
+
+test('has halving interval of 1000000', async (t) => {
+  t.equal(Chain.getHalvingInterval(Production), 1000000);
+  t.equal(Chain.getHalvingInterval(Staging), 1000000);
+  t.equal(Chain.getHalvingInterval(Testing), 10);
+
+  t.end();
+});
+
+test('has adjust interval of 1440', async (t) => {
+  t.equal(Chain.getAdjustInterval(Production), 1440);
+  t.equal(Chain.getAdjustInterval(Staging), 1440);
+  t.equal(Chain.getAdjustInterval(Testing), 8);
+
+  t.end();
+});
+
+test('has expected time per block of 1 minute', async (t) => {
+  t.equal(Chain.getExpectedTimePerBlock(Production), 60000);
+  t.equal(Chain.getExpectedTimePerBlock(Staging), 60000);
+  t.equal(Chain.getExpectedTimePerBlock(Testing), 1000);
 
   t.end();
 });
