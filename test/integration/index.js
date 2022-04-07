@@ -50,7 +50,7 @@ test('cannot call with empty options', async (t) => {
   t.end();
 });
 
-test('cannot inject hex value to string params', async (t) => {
+test('does not inject hex value to string params', async (t) => {
   const label = '0x902bca36';
 
   const { code, data } = await runAction({
