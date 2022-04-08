@@ -555,8 +555,6 @@ class Peer {
       return false;
     }
 
-    // TODO: Update mainchain to pulled chain
-
     Chain.mainChain.setSynching(false);
 
     await this.updateChainInfo(pulledChain);
@@ -572,8 +570,12 @@ class Peer {
       const header = Chain.mainChain.getBlockHeader(i);
       const block = await Block.load(header.getHash());
 
-      // TODO: Stop on failure
-      await this.callAction('pushBlock', block.toObject());
+      const response = await this.callAction('pushBlock', block.toObject());
+      console.log(response);
+
+      if (!response) {
+        return false;
+      }
     }
 
     return true;

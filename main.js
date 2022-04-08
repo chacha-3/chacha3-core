@@ -53,7 +53,8 @@ server.listen(port, '0.0.0.0', async (err) => {
 
   if (!loaded) {
     debug('Could not load blocks. Invalid');
-    return;
+    throw Error('Could not load blocks. Invalid');
+    // return;
   }
 
   debug('Done loading blocks');
@@ -64,13 +65,13 @@ server.listen(port, '0.0.0.0', async (err) => {
   // Check active
   for (let i = 0; i < peerPriority.length; i += 1) {
     const connectPeer = peerPriority[i];
-    debug(`Connecting to peer: ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
+    debug(`Connecting to peer: ${peerPriority[i].getHost()}:${peerPriority[i].getPort()}`);
 
     // const success = await Chain.syncWithPeer(connectPeer);
     const success = await connectPeer.syncChain();
 
     if (success) {
-      debug(`Chain is valid: ${success}. Synced with peer ${peerPriority[i].getAddress()}:${peerPriority[i].getPort()}`);
+      debug(`Chain is valid: ${success}. Synced with peer ${peerPriority[i].getHost()}:${peerPriority[i].getPort()}`);
       break;
     }
   }

@@ -375,6 +375,7 @@ class Chain {
 
   // Verify and load balances
   // Note: Modifies balance. Destructive
+  // TODO: Check has return value (important), and throw error when block is invalid
   async loadBalances() {
     // FIXME: Quickfix for genesis block not loaded.
     // Possible deleted somewhere.
@@ -394,7 +395,7 @@ class Chain {
 
     // TODO: Verify block rewards
     this.setVerified(true);
-    // return true;
+    return true;
   }
 
   getLength() {
