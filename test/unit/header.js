@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const { test } = require('tap');
-// const chai = require('chai');
 
 const Header = require('../../models/header');
 
@@ -40,13 +39,19 @@ test('get difficulty target', (t) => {
 
 test('hash data is correct', (t) => {
   const header = new Header();
+
   header.setVersion(1);
-  header.setPrevious(deserializeBuffer('0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'));
   header.setTime(1000000233);
   header.setDifficulty(1);
-  header.setChecksum(deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'));
   header.setLocation(10, 20, 30, 50);
   header.setProperties(10, 20, 30, 40, 50, 60);
+
+  header.setPrevious(
+    deserializeBuffer('0x00000fab1cf7748fddbae24a129cd0fd55d5fc41beaeaca0658af2d940c541bc'),
+  );
+  header.setChecksum(
+    deserializeBuffer('0x9458ce26540230e67cda20898bb6684b79701790408aa754be0529415c73c92c'),
+  );
 
   const data = JSON.parse(header.hashData());
 
@@ -258,12 +263,18 @@ test('verify hash is valid', async (t) => {
   t.equal(await block.header.verifyHash(false), true);
 
   // Tamper block invalid hash that meets difficulty
-  block.header.hash = deserializeBuffer('0x0000000000000000ffffffffffffffffffffffffffffffffffffffffffffff00');
+  block.header.hash = deserializeBuffer(
+    '0x0000000000000000ffffffffffffffffffffffffffffffffffffffffffffff00',
+  );
+
   t.equal(await block.header.verifyHash(true), false);
   t.equal(await block.header.verifyHash(false), true);
 
   // Tamper block invalid hash that does not meet difficulty
-  block.header.hash = deserializeBuffer('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00');
+  block.header.hash = deserializeBuffer(
+    '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00',
+  );
+
   t.equal(await block.header.verifyHash(true), false);
   t.equal(await block.header.verifyHash(false), false);
 

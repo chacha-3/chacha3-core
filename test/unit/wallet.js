@@ -55,8 +55,18 @@ test('should recover a wallet with correct password', async (t) => {
 
   const recoverWallet = await Wallet.recover(oldWallet.getPrivateKey(), password);
 
-  t.equal(recoverWallet.getPrivateKeyHex(), oldWallet.getPrivateKeyHex(), 'recovered private key is set');
-  t.equal(recoverWallet.getPublicKeyHex(), oldWallet.getPublicKeyHex(), 'public key is recovered');
+  t.equal(
+    recoverWallet.getPrivateKeyHex(),
+    oldWallet.getPrivateKeyHex(),
+    'recovered private key is set',
+  );
+
+  t.equal(
+    recoverWallet.getPublicKeyHex(),
+    oldWallet.getPublicKeyHex(),
+    'public key is recovered',
+  );
+
   t.end();
 });
 
@@ -274,15 +284,15 @@ test('verify generated  wallet address checksum', async (t) => {
 });
 
 test('verify wallet address checksum', async (t) => {
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b069')), true, 'Valid address');
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b079')), false, 'Invalid checksum');
+  t.ok(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b069')), 'Valid address');
+  t.notOk(Wallet.verifyAddress(deserializeBuffer('0x00d5e1f206ff157b3684869106e6dea18dc02031be5196b079')), 'Invalid checksum');
 
   t.end();
 });
 
 test('verify address by length', async (t) => {
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf')), false, 'Address too short');
-  t.equal(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcFee')), false, 'Address too long');
+  t.notOk(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7baf')), 'Address too short');
+  t.notOk(Wallet.verifyAddress(deserializeBuffer('0x003a5e292ca07ae3490e6d56fcb8516abca32d197392b7bafcFee')), 'Address too long');
 
   t.end();
 });
