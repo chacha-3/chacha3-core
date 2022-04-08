@@ -18,6 +18,7 @@ const {
 } = require('../../util/peer-response');
 
 const { randomNumberBetween } = require('../../util/math');
+const Block = require('../../models/block');
 
 // const { expect } = chai;
 // chai.use(dirtyChai);
@@ -290,7 +291,7 @@ test('sync with longer peer chain', async (t) => {
   t.end();
 });
 
-test('does not sync with shorter peer chain', async (t) => {
+test('does not sync with non-significantly shorter peer chain', async (t) => {
   // Add block length 1 as default
   Chain.mainChain = await mock.chainWithBlocks(1, 1);
   const peer = new Peer(HOST_127_0_0_99, PORT_7000);
@@ -302,12 +303,27 @@ test('does not sync with shorter peer chain', async (t) => {
   Chain.mainChain = Chain.fromObject(data);
 
   t.equal(Chain.mainChain.getLength(), 3);
-  // t.equal(Chain.mainChain.isSynching(), false);
+  t.equal(Chain.mainChain.isSynching(), false);
 
   // // TODO: Make result be the new chain length
   const result = await peer.syncChain();
   t.equal(result, false);
   t.equal(Chain.mainChain.getLength(), 3);
+
+  // TODO: Clear single peer
+  await Peer.clearAll();
+  await Chain.clearMain();
+  t.end();
+});
+
+test('sync with significantly shorter peer chain', async (t) => {
+  Chain.mainChain = await mock.chainWithBlocks(8, 2);
+
+  const peer = new Peer(HOST_127_0_0_99, PORT_7000);
+  peer.setTotalWork(2);
+
+  const result = await peer.syncChain();
+  t.equal(result, true);
 
   // TODO: Clear single peer
   await Peer.clearAll();
@@ -572,20 +588,15 @@ test('check if peer block work is significantly ahead', async (t) => {
 });
 
 test('check if peer block work is significantly behind', async (t) => {
-  const numOfBlock = 3;
+  const numOfBlock = 7;
   Chain.mainChain = await mock.chainWithBlocks(numOfBlock, 5);
 
-  const currentDifficulty = Chain.mainChain.getCurrentDifficulty();
-
-  const aboveThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 6);
-  const belowThreshold = Chain.mainChain.getTotalWork() + (currentDifficulty * 2);
-
   const peer = new Peer(HOST_127_0_0_100, PORT_7000);
-  peer.setTotalWork((numOfBlock * currentDifficulty) - belowThreshold);
-  t.equal(peer.isSignificantlyBehind(), false);
-
-  peer.setTotalWork((numOfBlock * currentDifficulty) - aboveThreshold);
+  peer.setTotalWork(1);
   t.equal(peer.isSignificantlyBehind(), true);
+
+  peer.setTotalWork(6);
+  t.equal(peer.isSignificantlyBehind(), false);
 
   await Chain.clearMain();
   t.end();

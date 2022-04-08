@@ -229,10 +229,12 @@ class Peer {
   }
 
   getTotalWork() {
+    assert(this.chainWork >= 0);
     return this.chainWork;
   }
 
   setTotalWork(work) {
+    assert(work >= 0);
     this.chainWork = work;
   }
 
@@ -532,14 +534,18 @@ class Peer {
 
     const pulledChain = await this.fetchChain();
 
-    if (!pulledChain.verifyHeaders()) {
+    if (!pulledChain || !pulledChain.verifyHeaders()) {
       return false;
     }
 
     const divergeIndex = Chain.mainChain.compareWork(pulledChain);
 
     if (divergeIndex < 1) {
-      debug(`Did not sync. Diverge index: ${divergeIndex}`);
+      if (this.isSignificantlyBehind()) {
+        await this.pushDiscoveredBlocks(pulledChain);
+        return true;
+      }
+
       return false;
     }
 
@@ -560,7 +566,17 @@ class Peer {
   }
 
   async pushDiscoveredBlocks(pulledChain) {
+    assert(pulledChain.getLength() < Chain.mainChain.getLength());
 
+    for (let i = pulledChain.getLength(); i < Chain.mainChain.getLength(); i += 1) {
+      const header = Chain.mainChain.getBlockHeader(i);
+      const block = await Block.load(header.getHash());
+
+      // TODO: Stop on failure
+      await this.callAction('pushBlock', block.toObject());
+    }
+
+    return true;
   }
 
   async syncForwardBlocks(pulledChain, startIndex) {
