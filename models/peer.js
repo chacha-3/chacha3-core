@@ -571,7 +571,6 @@ class Peer {
       const block = await Block.load(header.getHash());
 
       const response = await this.callAction('pushBlock', block.toObject());
-      console.log(response);
 
       if (!response) {
         return false;
