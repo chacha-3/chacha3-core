@@ -3,11 +3,9 @@ const { test } = require('tap');
 // const chai = require('chai');
 
 const Header = require('../../models/header');
-const mock = require('../../util/mock');
-const { headers } = require('../../util/peer-response');
-const { deserializeBuffer } = require('../../util/serialize');
 
-// const { expect } = chai;
+const mock = require('../../util/mock');
+const { deserializeBuffer } = require('../../util/serialize');
 
 test('create a block header', (t) => {
   const header = new Header();

@@ -5,13 +5,12 @@ const Wallet = require('../../models/wallet');
 const Block = require('../../models/block');
 const Header = require('../../models/block');
 const Chain = require('../../models/chain');
+const Transaction = require('../../models/transaction');
 
 const mock = require('../../util/mock');
-const { Production, Staging, Testing } = require('../../util/env').Env;
 
-const { generateAddress } = require('../../models/wallet');
+const { Production, Staging, Testing } = require('../../util/env').Env;
 const { serializeObject, serializeBuffer } = require('../../util/serialize');
-const Transaction = require('../../models/transaction');
 
 test('new chain only has genesis', (t) => {
   const chain = new Chain();
@@ -223,7 +222,7 @@ test('update and reverts block balances', async (t) => {
     // Post coinbase transaction
     const transaction = blocks[i].getTransaction(1);
 
-    const senderAddress = generateAddress(transaction.getSenderKey());
+    const senderAddress = Wallet.generateAddress(transaction.getSenderKey());
     receiverAddresses[i] = transaction.getReceiverAddress();
 
     const senderBalance = chain.getAccountBalance(senderAddress);

@@ -18,10 +18,6 @@ const {
 } = require('../../util/peer-response');
 
 const { randomNumberBetween } = require('../../util/math');
-const Block = require('../../models/block');
-
-// const { expect } = chai;
-// chai.use(dirtyChai);
 
 test('should create a peer', (t) => {
   const peer = new Peer('192.168.1.1', 8888);
