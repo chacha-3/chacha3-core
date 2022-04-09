@@ -9,7 +9,7 @@ const debug = require('debug')('peer:model');
 const Chain = require('./chain');
 const Block = require('./block');
 
-const { version } = require('../package.json');
+const packageVersion = require('../package.json').version;
 
 const { PeerDB } = require('../util/db');
 const { config, isTestEnvironment } = require('../util/env');
@@ -369,7 +369,7 @@ class Peer {
       [Peer.RequestHeader.Port]: port,
       [Peer.RequestHeader.ChainLength]: Chain.mainChain.getLength(),
       [Peer.RequestHeader.ChainWork]: Chain.mainChain.getTotalWork(),
-      [Peer.RequestHeader.Version]: version,
+      [Peer.RequestHeader.Version]: packageVersion,
     };
   }
 
@@ -523,6 +523,38 @@ class Peer {
     return this.getTotalWork() < lowerThreshold;
   }
 
+  static isValidTrailingChain(pulledChain) {
+    const startIndex = pulledChain.getLength();
+
+    // TODO: Loop all hash
+    const tailMatch = pulledChain.getBlockHeader(startIndex - 1).getHash()
+      !== Chain.mainChain.getBlockHeader(startIndex - 1);
+
+    return tailMatch;
+  }
+
+  async transmitNewBlocks(pulledChain) {
+    if (!this.isSignificantlyBehind()) {
+      return false;
+    }
+
+    await this.pushDiscoveredBlocks(pulledChain);
+    return true;
+  }
+
+  async retrieveNewBlocks(pulledChain, divergeIndex) {
+    const valid = await this.syncForwardBlocks(pulledChain, divergeIndex);
+
+    if (!valid) {
+      return false;
+    }
+
+    await this.updateChainInfo(pulledChain);
+    this.save();
+
+    return valid;
+  }
+
   async syncChain() {
     // Avoid synching with more than one at a time
     if (Chain.mainChain.isSynching()) {
@@ -535,38 +567,43 @@ class Peer {
     const pulledChain = await this.fetchChain();
 
     if (!pulledChain || !pulledChain.verifyHeaders()) {
+      Chain.mainChain.setSynching(false);
       return false;
     }
 
     const divergeIndex = Chain.mainChain.compareWork(pulledChain);
+    const isBehind = divergeIndex < 1;
 
-    if (divergeIndex < 1) {
-      if (this.isSignificantlyBehind()) {
-        await this.pushDiscoveredBlocks(pulledChain);
-        return true;
-      }
+    let result;
 
-      return false;
-    }
+    if (isBehind) {
+      // TODO: Revise
+      // Should not set sync true when transmitting blocks so that miner does not pause
+      Chain.mainChain.setSynching(false);
 
-    const valid = await this.syncForwardBlocks(pulledChain, divergeIndex);
-
-    if (!valid) {
-      return false;
+      result = await this.transmitNewBlocks(pulledChain);
+    } else {
+      result = await this.retrieveNewBlocks(pulledChain, divergeIndex);
     }
 
     Chain.mainChain.setSynching(false);
-
-    await this.updateChainInfo(pulledChain);
-    this.save();
-
-    return valid;
+    return result;
   }
 
   async pushDiscoveredBlocks(pulledChain) {
     assert(pulledChain.getLength() < Chain.mainChain.getLength());
 
-    for (let i = pulledChain.getLength(); i < Chain.mainChain.getLength(); i += 1) {
+    const startIndex = pulledChain.getLength();
+
+    const tailMatch = pulledChain.getBlockHeader(startIndex - 1).getHash()
+      !== Chain.mainChain.getBlockHeader(startIndex - 1);
+
+    // Skip push on diverged chain
+    if (!tailMatch) {
+      return false;
+    }
+
+    for (let i = startIndex; i < Chain.mainChain.getLength(); i += 1) {
       const header = Chain.mainChain.getBlockHeader(i);
       const block = await Block.load(header.getHash());
 
