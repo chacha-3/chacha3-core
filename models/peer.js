@@ -534,6 +534,13 @@ class Peer {
   }
 
   async transmitNewBlocks(pulledChain) {
+    const isPublicNode = config.host !== '';
+
+    // Only push when node is not publicly accessible.
+    if (isPublicNode) {
+      return false;
+    }
+
     if (!this.isSignificantlyBehind()) {
       return false;
     }
